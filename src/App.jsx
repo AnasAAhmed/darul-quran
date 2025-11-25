@@ -1,6 +1,6 @@
 import './App.css'
 import ProtectedRoute from './components/protected-route'
-import Login from './pages/auth/login'
+import Login from './pages/auth/Login'
 import AuthLayout from './components/layouts/AuthLayout'
 import { BrowserRouter, Route, Routes } from 'react-router-dom'
 import { HeroUIProvider } from '@heroui/react'

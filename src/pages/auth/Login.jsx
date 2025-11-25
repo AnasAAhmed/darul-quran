@@ -28,7 +28,7 @@ const Login = () => {
                         Ready to begin your <span className='text-[#95C4BE]'>classes</span> for today
                     </h1>
 
-                    <form className='w-full space-y-5 lg:space-y-6'>
+                    <form onSubmit={handleSubmit} className='w-full space-y-5 lg:space-y-6'>
                         <div className='w-full space-y-2'>
                             <p className='text-sm lg:text-base text-[#3F3F44]'>
                                 Your email or phone number
@@ -53,7 +53,7 @@ const Login = () => {
                         </div>
 
                         <Button
-                            onPress={handleSubmit}
+                        type="submit"
                             className='w-full text-center text-white rounded-md py-3 bg-[#06574C]'
                         >
                             Login
