@@ -11,6 +11,6 @@ export default {
   theme: {},
   darkMode: "class",
   plugins: [
-    heroui( ),
+    heroui(),
   ],
 };

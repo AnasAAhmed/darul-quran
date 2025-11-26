@@ -1,13 +1,13 @@
 import { useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { BookIcon, CalendarIcon, ChartBarIcon, ChevronDown, DollarSignIcon, FileQuestionIcon, HomeIcon, MegaphoneIcon, TicketIcon, UsersIcon } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 
 
 const Sidebar = ({ isSidebarOpen, setIsSidebarOpen }) => {
   const [activeIndex, setActiveIndex] = useState(0);
   const [expandedItems, setExpandedItems] = useState([0, 6]);
-
+  const location = useLocation()
   const menuItems = [
     {
       name: 'Dashboard',
@@ -20,9 +20,9 @@ const Sidebar = ({ isSidebarOpen, setIsSidebarOpen }) => {
       icon: <BookIcon />,
       link: '/admin/courses-management',
       children: [
-        { name: 'Course Builder', link: '/admin/courses/builder' },
-        { name: 'Live Sessions Schedule', link: '/admin/courses/sessions' },
-        { name: 'Attendance & Progress', link: '/admin/courses/attendance' }
+        { name: 'Course Builder', link: '/admin/courses-management/builder' },
+        { name: 'Live Sessions Schedule', link: '/admin/courses-management/live-sessions' },
+        { name: 'Attendance & Progress', link: '/admin/courses-management/attendance' }
       ]
     },
     {
@@ -87,6 +87,7 @@ const Sidebar = ({ isSidebarOpen, setIsSidebarOpen }) => {
           )}
       </div>
 
+      <div className='fixed'></div>
       <div className="flex-1 overflow-y-auto no-scrollbar py-4">
         <ul className="space-y-1">
           {menuItems.map((item, idx) => (
@@ -101,10 +102,10 @@ const Sidebar = ({ isSidebarOpen, setIsSidebarOpen }) => {
                 }}
                 className={`
                   relative flex items-center justify-between px-6 py-3 cursor-pointer transition-all
-                  ${activeIndex === idx && !item.children ? 'bg-[#d4e5e3]/20 text-white' : 'text-[#b8d4d0] hover:bg-white/5'}
+                  ${activeIndex === idx ? 'bg-[#d4e5e3]/20 text-white' : 'text-[#b8d4d0] hover:bg-white/5'}
                 `}
               >
-                {activeIndex === idx && !item.children && (
+                {activeIndex === idx  && (
                   <motion.div
                     layoutId="active-indicator"
                     className="absolute left-0 top-0 h-full w-1 bg-[#d4e5e3]"
@@ -137,11 +138,11 @@ const Sidebar = ({ isSidebarOpen, setIsSidebarOpen }) => {
                     {item.children.map((child, childIdx) => (
                       <li
                         key={childIdx}
-                        className="pl-14 pr-6 relative text-sm text-[#b8d4d0] hover:text-white cursor-pointer transition-colors"
+                        className={`pl-14 pr-6 relative text-sm ${location.pathname===child.link?'text-white':'text-[#b8d4d0] '} hover:text-white cursor-pointer transition-colors`}
                       >
                         <Link to={child.link}>
                           <div className="flex items-center  py-2 gap-2">
-                            <span className="absolute rounded-xs -top-4 left-9 w-3 h-9 border-l-2 border-b-2 border-white/30"></span>
+                            <span className={`absolute rounded-xs ${location.pathname===child.link?'border-white':'border-white/30 '} -top-4 left-9 w-3 h-9 border-l-2 border-b-2 `}></span>
                             {child.name}
                           </div>
                         </Link>

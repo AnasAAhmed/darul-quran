@@ -164,9 +164,9 @@ const AdminDashboard = () => {
               </Button>
             </div>
 
-            <Table >
+            <Table classNames={{base:'border-none rounded-none'}}>
               <TableHeader columns={columns}>
-                <TableColumn className='bg-[#EBD4C9]/30'>Class</TableColumn>
+                <TableColumn className='bg-[#EBD4C9]/30 rounded-none'>Class</TableColumn>
                 <TableColumn className='bg-[#EBD4C9]/30'>Teacher</TableColumn>
                 <TableColumn className='bg-[#EBD4C9]/30'>Time</TableColumn>
                 <TableColumn className='bg-[#EBD4C9]/30'>Enrolled</TableColumn>

@@ -7,7 +7,9 @@ import { HeroUIProvider } from '@heroui/react'
 import AdminLayout from './components/layouts/AdminLayout'
 import AdminDashboard from './pages/admin/AdminDashboard'
 import Home from './pages/Home'
-import CourseManagement from './pages/admin/CourseManagement'
+import CourseManagement from './pages/admin/course-management/index'
+import LiveSession from './pages/admin/course-management/LiveSession'
+import Attendance from './pages/admin/course-management/Attendance'
 
 function App() {
 
@@ -26,7 +28,7 @@ function App() {
                 </ProtectedRoute>
               }
             />
-             <Route
+            <Route
               path="/"
               element={
                 <ProtectedRoute publicOnly isAuthenticated={false} redirect="/dashboard">
@@ -47,7 +49,7 @@ function App() {
                 </ProtectedRoute>
               }
             />
-             <Route
+            <Route
               path="/admin/courses-management"
               element={
                 <ProtectedRoute isAuthenticated={true}>
@@ -55,6 +57,31 @@ function App() {
                 </ProtectedRoute>
               }
             />
+            <Route
+              path="/admin/courses-management/builder"
+              element={
+                <ProtectedRoute isAuthenticated={true}>
+
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/admin/courses-management/live-sessions"
+              element={
+                <ProtectedRoute isAuthenticated={true}>
+                  <LiveSession />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/admin/courses-management/attendance"
+              element={
+                <ProtectedRoute isAuthenticated={true}>
+                  <Attendance/>
+                </ProtectedRoute>
+              }
+            />
+
           </Route>
 
         </Routes>
