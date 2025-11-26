@@ -12,59 +12,59 @@ const Sidebar = ({ isSidebarOpen, setIsSidebarOpen }) => {
     {
       name: 'Dashboard',
       icon: <HomeIcon />,
-      link: '/dashboard',
+      link: '/admin/dashboard',
       badge: null
     },
     {
       name: 'Courses Management',
       icon: <BookIcon />,
-      link: '/courses-management',
+      link: '/admin/courses-management',
       children: [
-        { name: 'Course Builder', link: '/courses/builder' },
-        { name: 'Live Sessions Schedule', link: '/courses/sessions' },
-        { name: 'Attendance & Progress', link: '/courses/attendance' }
+        { name: 'Course Builder', link: '/admin/courses/builder' },
+        { name: 'Live Sessions Schedule', link: '/admin/courses/sessions' },
+        { name: 'Attendance & Progress', link: '/admin/courses/attendance' }
       ]
     },
     {
       name: 'User Management',
       icon: <UsersIcon />,
-      link: '/users'
+      link: '/admin/users'
     },
     {
       name: 'Class Scheduling',
       icon: <CalendarIcon />,
-      link: '/scheduling',
+      link: '/admin/scheduling',
       badge: 3
     },
     {
       name: 'Announcements',
       icon: <MegaphoneIcon />,
-      link: '/announcements'
+      link: '/admin/announcements'
     },
     {
       name: 'Payments & Refunds',
       icon: <DollarSignIcon />,
-      link: '/payments'
+      link: '/admin/payments'
     },
     {
       name: 'Support Tickets',
       icon: <TicketIcon />,
-      link: '/tickets'
+      link: '/admin/tickets'
     },
     {
       name: 'Analytics',
       icon: <ChartBarIcon />,
-      link: '/analytics'
+      link: '/admin/analytics'
     },
     {
       name: 'Help and Support',
       icon: <FileQuestionIcon />,
-      link: '/help',
+      link: '/admin/help',
       children: [
-        { name: 'Message Center', link: '/help/messages' },
-        { name: 'Teacher & Student Chat', link: '/help/chat' },
-        { name: 'Reviews', link: '/help/reviews' },
-        { name: 'FAQs', link: '/help/faqs' }
+        { name: 'Message Center', link: '/admin/help/messages' },
+        { name: 'Teacher & Student Chat', link: '/admin/help/chat' },
+        { name: 'Reviews', link: '/admin/help/reviews' },
+        { name: 'FAQs', link: '/admin/help/faqs' }
       ]
     }
   ];
@@ -116,7 +116,6 @@ const Sidebar = ({ isSidebarOpen, setIsSidebarOpen }) => {
                 <div className="flex items-center  gap-3 flex-1">
                   <span className="w-5 h-5">{item.icon}</span>
                   {isSidebarOpen && <span className="text-sm font-medium">{item.name}</span>}
-                  {item.children && <span className="w-5 h-5"><ChevronDown size={15}/></span>}
                 </div>
 
                 {item.badge && isSidebarOpen && (
@@ -136,16 +135,17 @@ const Sidebar = ({ isSidebarOpen, setIsSidebarOpen }) => {
                     className="overflow-hidden"
                   >
                     {item.children.map((child, childIdx) => (
-                      <Link
-                        to={child.link}
+                      <li
                         key={childIdx}
-                        className="pl-14 pr-6 py-2 relative text-sm text-[#b8d4d0] hover:text-white cursor-pointer transition-colors"
+                        className="pl-14 pr-6 relative text-sm text-[#b8d4d0] hover:text-white cursor-pointer transition-colors"
                       >
-                        <div className="flex items-center gap-2">
-                          <span className="absolute rounded-xs -top-4 left-9 w-3 h-9 border-l-2 border-b-2 border-white/30"></span>
-                          {child.name}
-                        </div>
-                      </Link>
+                        <Link to={child.link}>
+                          <div className="flex items-center  py-2 gap-2">
+                            <span className="absolute rounded-xs -top-4 left-9 w-3 h-9 border-l-2 border-b-2 border-white/30"></span>
+                            {child.name}
+                          </div>
+                        </Link>
+                      </li>
                     ))}
                   </motion.ul>
                 )}

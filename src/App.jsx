@@ -7,6 +7,7 @@ import { HeroUIProvider } from '@heroui/react'
 import AdminLayout from './components/layouts/AdminLayout'
 import AdminDashboard from './pages/admin/AdminDashboard'
 import Home from './pages/Home'
+import CourseManagement from './pages/admin/CourseManagement'
 
 function App() {
 
@@ -35,7 +36,7 @@ function App() {
             />
           </Route>
 
-          {/* ---------- Main Layout (WITH HEADER/FOOTER) ---------- */}
+          {/* --- ----- Admin Layout (WITH HEADER/SIDEBAR) -------- */}
           <Route element={<AdminLayout />}>
 
             <Route
@@ -43,6 +44,14 @@ function App() {
               element={
                 <ProtectedRoute isAuthenticated={true}>
                   <AdminDashboard />
+                </ProtectedRoute>
+              }
+            />
+             <Route
+              path="/admin/courses-management"
+              element={
+                <ProtectedRoute isAuthenticated={true}>
+                  <CourseManagement />
                 </ProtectedRoute>
               }
             />

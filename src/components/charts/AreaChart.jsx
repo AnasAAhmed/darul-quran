@@ -25,8 +25,8 @@ const LineCharts = () => {
                         options={data.options}
                         series={data.series}
                         type="area"
-
-                        width="400"
+                        width="500"
+                        height="350"
                     />
                 </div>
                 <div className="sm:hidden mixed-chart">

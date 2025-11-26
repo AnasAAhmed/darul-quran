@@ -2,6 +2,7 @@ import { Button, Select, SelectItem, Table, TableBody, TableCell, TableColumn, T
 import BarCharts from '../../components/charts/BarCharts'
 import AreaCharts from '../../components/charts/AreaChart'
 import { BookIcon, MegaphoneIcon, PlusIcon, UsersIcon } from 'lucide-react'
+import OverviewCards from '../../components/dashboard-components/OverviewCards'
 
 const AdminDashboard = () => {
   const classes = [
@@ -50,6 +51,36 @@ const AdminDashboard = () => {
       statusColor: 'default'
     }
   ];
+  const cardsData = [
+    {
+      title: "Total Enrollments",
+      value: "12,847",
+      icon: "/icons/user-medal.png",
+      changeText: "+12.5% from last month",
+      changeColor: "text-[#38A100]"
+    },
+    {
+      title: "Revenue",
+      value: "$89,432",
+      icon: "/icons/pie-chart.png",
+      changeText: "+8.2% from last month",
+      changeColor: "text-[#38A100]"
+    },
+    {
+      title: "Active Users",
+      value: "3,847",
+      icon: "/icons/users.png",
+      changeText: "-2.1% from last week",
+      changeColor: "text-[#E8505B]"
+    },
+    {
+      title: "Live Classes Today",
+      value: "24",
+      icon: "/icons/camera.png",
+      changeText: "6 upcoming sessions",
+      changeColor: "text-[#06574C]"
+    }
+  ];
 
   const columns = '2fr 1.5fr 1fr 0.8fr 0.8fr';
 
@@ -67,51 +98,11 @@ const AdminDashboard = () => {
         </Button>
       </div>
 
-      <div className='py-4 gap-5 flex overflow-x-auto'>
-        <div className='bg-[#F1E0D9] sm:bg-white min-w-[15em] space-y-4 rounded-lg p-4'>
-          <h1 className='font-semibold text-[#333333]'>Total Enrollments</h1>
-          <div className='flex items-center gap-2 justify-start'>
-            <img src="/icons/user-medal.png" alt="" className='w-14 h-14 p-4 rounded-full bg-[#95C4BE]/20' />
-            <div>
-              <p className='text-2xl font-semibold'>12,847</p>
-            </div>
-          </div>
-          <p className='text-[#38A100]'>+12.5% from last month</p>
-        </div>
-        <div className='bg-[#F1E0D9] sm:bg-white min-w-[15em]  space-y-4 rounded-lg p-4'>
-          <h1 className='font-semibold text-[#333333]'>Revenue</h1>
-          <div className='flex items-center justify-start gap-2'>
-            <img src="/icons/user-medal.png" alt="" className='w-14 h-14 p-4 rounded-full bg-[#95C4BE]/20' />
-            <div>
-              <p className='text-2xl font-semibold'>$89,432</p>
-            </div>
-          </div>
-          <p className='text-[#38A100]'> +8.2% from last month</p>
-        </div>
-        <div className='bg-[#F1E0D9] sm:bg-white min-w-[15em]  space-y-4 rounded-lg p-4'>
-          <h1 className='font-semibold text-[#333333]'>Active Users</h1>
-          <div className='flex items-center justify-start gap-2'>
-            <img src="/icons/user-medal.png" alt="" className='w-14 h-14 p-4 rounded-full bg-[#95C4BE]/20' />
-            <div>
-              <p className='text-2xl font-semibold'>3,847</p>
-            </div>
-          </div>
-          <p className='text-[#E8505B]'>-2.1% from last week</p>
-        </div>
-        <div className='bg-[#F1E0D9] sm:bg-white min-w-[15em]  space-y-4 rounded-lg p-4'>
-          <h1 className='font-semibold text-[#333333]'>Live Classes Today</h1>
-          <div className='flex items-center justify-start gap-2'>
-            <img src="/icons/user-medal.png" alt="" className='w-14 h-14 p-4 rounded-full bg-[#95C4BE]/20' />
-            <div>
-              <p className='text-2xl font-semibold'>24</p>
-            </div>
-          </div>
-          <p className='text-[#06574C]'>6 upcoming sessions</p>
-        </div>
-      </div>
+      <OverviewCards data={cardsData} />
+
       <div className='py-4 flex max-md:flex-wrap justify-between gap-4 items-center'>
-        <div className="app w-full bg-white  rounded-lg">
-          <div className='p-4 flex items-center justify-between'>
+        <div className="app flex flex-col items-center w-full bg-white  rounded-lg">
+          <div className='p-4 w-full flex items-center justify-between'>
             <h1>Revenue Trend</h1>
             <Select
               size="md"
@@ -128,8 +119,8 @@ const AdminDashboard = () => {
           </div>
           <AreaCharts />
         </div>
-        <div className="p-4 app w-full bg-white  rounded-lg">
-          <div className='flex items-center justify-between'>
+        <div className="p-4 flex flex-col items-center app w-full bg-white  rounded-lg">
+          <div className='flex items-center w-full  justify-between'>
             <h1>User Activity</h1>
             <Select
               size="md"

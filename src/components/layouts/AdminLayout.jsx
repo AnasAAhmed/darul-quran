@@ -59,9 +59,10 @@ export default function AdminLayout() {
                             onClick={() => setIsSidebarOpen(!isSidebarOpen)}
                             type="button"
                             className="relative cursor-pointer max-sm:hidden inline-flex items-center justify-center p-3 bg-white rounded-full shadow-sm hover:shadow-md"
-                            aria-label="Mobile Menu Button"
+                            aria-label="Sidebar Button"
+                            title={isSidebarOpen ?'Close Sidebar' : 'Open Sidebar'}
                         >
-                            {isSidebarOpen ? <SidebarClose /> : <SidebarOpen />}
+                            {isSidebarOpen ? <SidebarClose size={18}/> : <SidebarOpen size={18}/>}
                         </button>
                         <button
                             onClick={() => setIsSidebarOpen(!isSidebarOpen)}
