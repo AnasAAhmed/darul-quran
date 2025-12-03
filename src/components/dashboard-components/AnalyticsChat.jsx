@@ -47,7 +47,7 @@ const ApexChart = () => {
         options={chartState.options} 
         series={chartState.series} 
         type="area" 
-        height={350} 
+        height={380} 
       />
     </div>
   );

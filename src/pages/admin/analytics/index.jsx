@@ -2,6 +2,7 @@ import { DashHeading } from "../../../components/dashboard-components/DashHeadin
 import {
   Button,
   Pagination,
+  Progress,
   Select,
   SelectItem,
   Table,
@@ -12,7 +13,7 @@ import {
   TableRow,
 } from "@heroui/react";
 import {
-    Album,
+  Album,
   BellRing,
   Book,
   ChartLine,
@@ -32,6 +33,7 @@ import AnalyticsCards from "../../../components/dashboard-components/AnalyticsCa
 import ApexChart from "../../../components/dashboard-components/AnalyticsChat";
 import BarChart from "../../../components/dashboard-components/BarChart";
 import PieChart from "../../../components/dashboard-components/PieChart";
+import { title } from "framer-motion/client";
 
 const Analytics = () => {
   const statuses = [
@@ -45,29 +47,42 @@ const Analytics = () => {
     { key: "Yesterday,  3 Dec2025", label: "Yesterday, 3 Dec 2025" },
     { key: "Tommorrow, 5 Dec 2025", label: "Tommorrow, 5 Dec 2025" },
   ];
-   const cardsData = [
+  const cardsData = [
     {
       title: "Total Enrollments",
       value: "12,847",
-      icon: <Album size={26} color="#06574C"/>,
+      icon: <Album size={26} color="#06574C" />,
       changeText: "+12.5% from last month",
-      changeColor: "text-[#38A100]"
+      changeColor: "text-[#38A100]",
     },
     {
       title: "Revenue",
       value: "$89,432",
-      icon: <ChartLine size={26} color="#06574C"/>,
+      icon: <ChartLine size={26} color="#06574C" />,
       changeText: "Avg. duration: 28m",
-      changeColor: "text-[#38A100]"
+      changeColor: "text-[#38A100]",
     },
     {
       title: "Active Users",
       value: "3,847",
-      icon: <UsersRound size={26} color="#06574C"/>,
+      icon: <UsersRound size={26} color="#06574C" />,
       changeText: "-2.1% from last week",
-      changeColor: "text-[#E8505B]"
+      changeColor: "text-[#E8505B]",
     },
   ];
+
+  const progressbar = [
+    // Left Side
+    { title: "Python", value: 36 , color: "#EBD4C9"},
+    { title: "HTML", value: 24 ,color: "#EBD4C9"},
+    { title: "React", value: 310 ,color: "#EBD4C9"},
+
+    // Right Side
+    { title: "JavaScript", value: 19 , color: "#95C4BE"},
+    { title: "Urdu", value: 32 , color: "#95C4BE"},
+    { title: "CSS", value: 270 , color: "#95C4BE"},
+  ];
+
   return (
     <div className="bg-white sm:bg-linear-to-t from-[#F1C2AC]/50 to-[#95C4BE]/50 px-2 sm:px-3">
       <DashHeading
@@ -110,30 +125,113 @@ const Analytics = () => {
       </div>
       <AnalyticsCards data={cardsData} />
       <div className="grid grid-cols-12 gap-3 my-3">
-          <div className="col-span-6 bg-white p-3 rounded-lg">
-            <ApexChart />
+        <div className="col-span-6 bg-white p-3 rounded-lg">
+          <div className="flex justify-between items-center mb-4">
+            <h1 className="text-xl font-bold">Revenue Analytics</h1>
+            <Select
+              radius="sm"
+              className="w-50"
+              variant="bordered"
+              defaultSelectedKeys={["all"]}
+              placeholder="Select Filtered Date"
+            >
+              {Datefilters.map((filter) => (
+                <SelectItem key={filter.key}>{filter.label}</SelectItem>
+              ))}
+            </Select>
           </div>
-          <div className="col-span-6 bg-white p-3 rounded-lg">
-            <BarChart />
+          <ApexChart />
+        </div>
+        <div className="col-span-6 bg-white p-3 rounded-lg">
+          <div className="flex justify-between items-center mb-4">
+            <h1 className="text-xl font-bold">Enrollment Trends</h1>
+            <Select
+              radius="sm"
+              className="w-50"
+              variant="bordered"
+              defaultSelectedKeys={["all"]}
+              placeholder="Select Filtered Date"
+            >
+              {Datefilters.map((filter) => (
+                <SelectItem key={filter.key}>{filter.label}</SelectItem>
+              ))}
+            </Select>
           </div>
-          <div className="col-span-6 bg-white px-3 py-5 rounded-lg">
-            <div className="flex justify-between items-center">
-              <h1 className="text-xl font-bold">Course Performance Analytics</h1>
-              <Select
-                radius="sm"
-                className="w-50"
-                defaultSelectedKeys={["all"]}
-                placeholder="Select an animal"
-              >
-                {Datefilters.map((filter) => (
-                  <SelectItem key={filter.key}>{filter.label}</SelectItem>
+          <BarChart />
+        </div>
+        <div className="col-span-6 bg-white px-3 py-5 rounded-lg">
+          <div className="flex justify-between items-center">
+            <h1 className="text-xl font-bold">Course Performance Analytics</h1>
+            <Select
+              radius="sm"
+              className="w-50"
+              variant="bordered"
+              defaultSelectedKeys={["all"]}
+              placeholder="Select Filtered Date"
+            >
+              {Datefilters.map((filter) => (
+                <SelectItem key={filter.key}>{filter.label}</SelectItem>
+              ))}
+            </Select>
+          </div>
+
+          {/* Course Performance Analytics Content */}
+          <div className="flex justify-between mt-6">
+            {/* Left Side Courses */}
+            <div className="w-[48%]">
+              {progressbar
+                .slice(0, Math.ceil(progressbar.length / 2))
+                .map((item, index) => (
+                  <div key={index} className="mb-4">
+                    <div className="flex justify-between items-center py-1">
+                      <span className="font-medium">{item.title}</span>
+                      <span className="text-gray-600">{item.value}</span>
+                    </div>
+                    <Progress
+                      aria-label="Loading..."
+                      className="w-full"
+                      classNames={{
+                        track: "bg-gray-200", // Background color
+                        indicator: `bg-[${item.color}]`, // Fill color
+                      }}
+                      size="md"
+                      value={item.value}
+                    />
+                  </div>
                 ))}
-              </Select> 
+            </div>
+
+            {/* Right Side Courses */}
+            <div className="w-[48%]">
+              {progressbar
+                .slice(Math.ceil(progressbar.length / 2))
+                .map((item, index) => (
+                  <div key={index} className="mb-4">
+                    <div className="flex justify-between items-center py-1">
+                      <span className="text-gray-600">{item.value}</span>
+                      <span className="font-medium">{item.title}</span>
+                    </div>
+                    <Progress
+                      aria-label="Loading..."
+                      className="w-full "
+                      classNames={{
+                        track: "bg-gray-200", // Background color
+                        indicator: `bg-[${item.color}]`, // Fill color
+                      }}
+                      size="md"
+                      value={item.value}
+                    />
+                  </div>
+                ))}
             </div>
           </div>
-          <div className="col-span-6 bg-white p-3 rounded-lg">
-            <PieChart />
+        </div>
+        <div className="col-span-6 bg-white p-3 rounded-lg">
+          <div className=" my-4">
+            <h1 className="text-xl font-bold">Revenue Analytics</h1>
           </div>
+          <PieChart />
+        </div>
       </div>
     </div>
   );
