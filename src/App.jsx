@@ -17,6 +17,7 @@ import Scheduling from "./pages/admin/scheduling";
 import Announcements from "./pages/admin/announcements";
 import PaymentsRefunds from "./pages/admin/payment-refund";
 import SupportTickets from "./pages/admin/support-ticket";
+import Analytics from "./pages/admin/analytics";
 
 function App() {
   return (
@@ -142,6 +143,14 @@ function App() {
               element={
                 <ProtectedRoute isAuthenticated={true}>
                   <SupportTickets />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/admin/analytics"
+              element={
+                <ProtectedRoute isAuthenticated={true}>
+                  <Analytics />
                 </ProtectedRoute>
               }
             />
