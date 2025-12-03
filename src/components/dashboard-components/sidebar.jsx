@@ -28,7 +28,7 @@ const Sidebar = ({ isSidebarOpen, setIsSidebarOpen }) => {
     {
       name: 'User Management',
       icon: <UsersIcon />,
-      link: '/admin/users'
+      link: '/admin/user-management'
     },
     {
       name: 'Class Scheduling',
