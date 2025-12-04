@@ -169,6 +169,15 @@ const UserManagement = () => {
     { key: "Active", label: "Last Active" },
     { key: "Action", label: "Action" },
   ];
+
+  const limits = [
+    { key: "10", label: "10" },
+    { key: "20", label: "20" },
+    { key: "30", label: "30" },
+    { key: "40", label: "40" },
+    { key: "50", label: "50" },
+  ];
+
   const router = useNavigate();
   return (
     <div className="bg-white sm:bg-linear-to-t from-[#F1C2AC]/50 to-[#95C4BE]/50 px-2 sm:px-5 ">
@@ -227,7 +236,7 @@ const UserManagement = () => {
       <div>
         <div className=" ">
           <Tabs aria-label="Tabs colors" radius="full">
-            <Tab key="photos" title="Photos" >
+            <Tab key="Students" title="Students" >
               <Table
                 //    isHeaderSticky
                 selectionMode="multiple"
@@ -293,7 +302,7 @@ const UserManagement = () => {
                 </TableBody>
               </Table>
             </Tab>
-            <Tab key="music" title="Music">
+            <Tab key="Teachers" title="Teachers">
               <Table
                 //    isHeaderSticky
                 selectionMode="multiple"
@@ -359,7 +368,7 @@ const UserManagement = () => {
                 </TableBody>
               </Table>
             </Tab>
-            <Tab key="videos" title="Videos">
+            <Tab key="Supports_Staff" title="Supports Staff">
               <Table
                 //    isHeaderSticky
                 selectionMode="multiple"
@@ -429,18 +438,20 @@ const UserManagement = () => {
         </div>
       </div>
       <div className="flex flex-row w-full justify-between items-center mb-3">
-        <div className="flex flex-row gap-2 items-center font-bold w-fit">
-          <span className="text-[#333333] ">Showing</span>
-          <Select 
-          className="w-15"
-          defaultValue="1">
-            <SelectItem value="1">1</SelectItem>
-            <SelectItem value="2">2</SelectItem>
-            <SelectItem value="3">3</SelectItem>
-            <SelectItem value="4">4</SelectItem>
-            <SelectItem value="5">5</SelectItem>
+        <div className="flex text-sm items-center gap-1">
+          <span>Showing</span>
+          <Select
+            isRequired
+            radius="sm"
+            className="w-[70px]"
+            defaultSelectedKeys={["10"]}
+            placeholder="Select an animal"
+          >
+            {limits.map((limit) => (
+              <SelectItem key={limit.key}>{limit.label}</SelectItem>
+            ))}
           </Select>
-          <span className="text-nowrap"> out of 50</span>
+          <span className="min-w-56">Out of 58</span>
         </div>
 
         <div className="">

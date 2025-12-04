@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
-import { BookIcon, CalendarIcon, ChartBarIcon, ChevronDown, DollarSignIcon, FileQuestionIcon, HomeIcon, MegaphoneIcon, TicketIcon, UsersIcon } from 'lucide-react';
+import { ArrowBigDown, BookIcon, CalendarIcon, ChartBarIcon, ChevronDown, DollarSignIcon, FileQuestionIcon, HomeIcon, MegaphoneIcon, TicketIcon, UsersIcon } from 'lucide-react';
 import { Link, useLocation } from 'react-router-dom';
 
 
@@ -166,6 +166,7 @@ const Sidebar = ({ isSidebarOpen, setIsSidebarOpen }) => {
               <div className="text-sm font-medium truncate">Jenny Patron</div>
               <div className="text-xs text-[#b8d4d0] truncate">jenny@gmail.com</div>
             </div>
+            <ChevronDown className="w-5 h-5 text-[#b8d4d0]" />
           </div>
         </div>
       )}

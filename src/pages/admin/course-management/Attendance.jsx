@@ -13,6 +13,7 @@ import {
 } from "@heroui/react";
 import { DashHeading } from "../../../components/dashboard-components/DashHeading";
 import {
+  Download,
   Edit,
   ExternalLink,
   Eye,
@@ -212,10 +213,10 @@ const Attendance = () => {
         </div>
         <Button
           radius="sm"
-          startContent={<Plus color="white" size={15} />}
+          startContent={<Download color="white" size={15} />}
           className="bg-[#06574C] text-white py-4 px-3 sm:px-8"
         >
-          Create Course
+          Export
         </Button>
       </div>
       {/* <div className="max-sm:hidden overflow-hidden"> */}
@@ -258,12 +259,15 @@ const Attendance = () => {
               <TableCell>{classItem.price}</TableCell>
 
               <TableCell>
+                <div className="flex justify-between items-center gap-2">
                 <Progress
                   classNames={{ indicator: "bg-[#95C4BE]" }}
-                  showValueLabel
+                  // showValueLabel
                   size="sm"
                   value={classItem.attendance_rate}
                 />
+                  <p className="text-end">{classItem.attendance_rate}%</p>
+                </div>
               </TableCell>
 
               <TableCell>

@@ -37,12 +37,8 @@ const OverviewCards = ({ data = [] }) => {
                     <h1 className="font-semibold text-[#333333]">{item.title}</h1>
 
                     <div className="flex items-center gap-2 justify-start">
-                        <div className="rounded-full p-4 bg-[#95C4BE]/20">
-                            <img
-                                src={item.icon}
-                                alt={item.title}
-                                className="w-9 h-9 "
-                            />
+                        <div className="rounded-full p-3 bg-[#95C4BE]/20">
+                            {item.icon}
                         </div>
                         <div>
                             <p className="text-2xl font-semibold">{item.value}</p>

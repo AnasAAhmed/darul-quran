@@ -8,7 +8,7 @@ const Login = () => {
 
     return (
         <main className='flex flex-col lg:flex-row w-full min-h-screen'>
-            <div className='lg:h-screen w-full lg:max-w-[400px] xl:max-w-[500px] p-6 lg:p-8 flex flex-col items-center justify-between bg-linear-to-bl from-[#06574C] via-[#06574C] to-[#D4C4B0] relative overflow-hidden max-lg:hidden'>
+            <div className='lg:h-screen w-full lg:max-w-[400px] xl:max-w-[500px] p-6 lg:p-8 flex flex-col items-center justify-between bg-linear-to-bl from-[#06574C] via-[#06574C] to-[#D4C4B0] relative overflow-hidden max-lg:hidden lg:rounded-r-lg'>
 
 
                 <img src="/icons/logo.png" alt="Darul Quran" className=' w-56 h-56' />
@@ -21,9 +21,9 @@ const Login = () => {
                 </div>
             </div>
 
-            <div className='flex-1 flex flex-col items-start justify-center bg-[#E9E0D6] px-6 sm:px-12 md:px-16 lg:px-24 py-8 lg:py-0 m-0 lg:m-4'>
+            <div className='flex-1 flex flex-col items-start justify-center bg-[#E9E0D6] !ml-0 px-6 sm:px-12 md:px-16 lg:px-24 py-8 lg:py-0 m-0 lg:m-6 lg:rounded-r-lg '>
                 <div className='w-full max-w-2xl mx-auto lg:mx-0'>
-                    <h1 className='text-2xl sm:text-3xl lg:text-4xl xl:text-5xl text-[#3F3F44] leading-tight mb-6 lg:mb-8'>
+                    <h1 className='text-2xl sm:text-3xl lg:text-4xl xl:text-[40px] text-[#3F3F44] leading-tight mb-6 lg:mb-8'>
                         Hi, <strong>Welcome</strong> <br />
                         Ready to begin your <span className='text-[#95C4BE]'>classes</span> for today
                     </h1>

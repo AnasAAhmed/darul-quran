@@ -1,7 +1,7 @@
 import { Button, Select, SelectItem, Table, TableBody, TableCell, TableColumn, TableHeader, TableRow } from '@heroui/react'
 import BarCharts from '../../components/charts/BarCharts'
 import AreaCharts from '../../components/charts/AreaChart'
-import { BookIcon, MegaphoneIcon, PlusIcon, UsersIcon } from 'lucide-react'
+import { BookIcon, ChartPie, MegaphoneIcon, PlusIcon, UsersIcon, UsersRound, UserStar, Video } from 'lucide-react'
 import OverviewCards from '../../components/dashboard-components/OverviewCards'
 
 const AdminDashboard = () => {
@@ -55,35 +55,39 @@ const AdminDashboard = () => {
     {
       title: "Total Enrollments",
       value: "12,847",
-      icon: "/icons/user-medal.png",
+      icon: <UserStar color='#06574C' size={22} />,
       changeText: "+12.5% from last month",
       changeColor: "text-[#38A100]"
     },
     {
       title: "Revenue",
       value: "$89,432",
-      icon: "/icons/pie-chart.png",
+      icon: <ChartPie color='#06574C' size={22}/>,
       changeText: "+8.2% from last month",
       changeColor: "text-[#38A100]"
     },
     {
       title: "Active Users",
       value: "3,847",
-      icon: "/icons/users.png",
+      icon: <UsersRound color='#06574C' size={22}/>,
       changeText: "-2.1% from last week",
       changeColor: "text-[#E8505B]"
     },
     {
       title: "Live Classes Today",
       value: "24",
-      icon: "/icons/camera.png",
+      icon: <Video  color='#06574C' size={22}/>,
       changeText: "6 upcoming sessions",
       changeColor: "text-[#06574C]"
     }
   ];
 
   const columns = '2fr 1.5fr 1fr 0.8fr 0.8fr';
-
+  const Datefilters = [
+    { key: "Today, 4 Dec 2025", label: "Today, 4 Dec 2025" },
+    { key: "Yesterday,  3 Dec2025", label: "Yesterday, 3 Dec 2025" },
+    { key: "Tommorrow, 5 Dec 2025", label: "Tommorrow, 5 Dec 2025" },
+  ];
   return (
     <div className='bg-white sm:bg-linear-to-t from-[#F1C2AC]/50 to-[#95C4BE]/50 h-scrseen px-2 sm:px-3'>
 
@@ -100,39 +104,37 @@ const AdminDashboard = () => {
 
       <OverviewCards data={cardsData} />
 
-      <div className='py-4 flex max-md:flex-wrap justify-between gap-4 items-center'>
+      <div className='py-4 flex max-md:flex-wrap justify-between gap-4 items-center '>
         <div className="app flex flex-col items-center w-full bg-white  rounded-lg">
           <div className='p-4 w-full flex items-center justify-between'>
-            <h1>Revenue Trend</h1>
+            <h1 className='text-xl font-bold'>Revenue Trend</h1>
             <Select
-              size="md"
+              radius="sm"
+              className="w-50"
               variant="bordered"
-              aria-label="language"
-              className="min-w-[100px] max-w-[100px]"
+              defaultSelectedKeys={["all"]}
+              placeholder="Select Filtered Date"
             >
-              <SelectItem textValue={'Today, 13 Sep 2025'}>
-                <span className="flex items-center gap-2">
-                  Today, 13 Sep 2025
-                </span>
-              </SelectItem>
+              {Datefilters.map((filter) => (
+                <SelectItem key={filter.key}>{filter.label}</SelectItem>
+              ))}
             </Select>
           </div>
           <AreaCharts />
         </div>
         <div className="p-4 flex flex-col items-center app w-full bg-white  rounded-lg">
           <div className='flex items-center w-full  justify-between'>
-            <h1>User Activity</h1>
+            <h1 className='text-xl font-bold'>User Activity</h1>
             <Select
-              size="md"
+              radius="sm"
+              className="w-50"
               variant="bordered"
-              aria-label="language"
-              className="min-w-[100px] max-w-[100px]"
+              defaultSelectedKeys={["all"]}
+              placeholder="Select Filtered Date"
             >
-              <SelectItem textValue={'Today, 13 Sep 2025'}>
-                <span className="flex items-center gap-2">
-                  Today, 13 Sep 2025
-                </span>
-              </SelectItem>
+              {Datefilters.map((filter) => (
+                <SelectItem key={filter.key}>{filter.label}</SelectItem>
+              ))}
             </Select>
           </div>
           <BarCharts />
@@ -202,8 +204,10 @@ const AdminDashboard = () => {
               </TableBody>
             </Table>
           </div>
+        </div>
+      </div>
 
-          <div>
+      <div className="px-2 sm:px-6 py-4 sm:rounded-lg sm:bg-white my-4">
             <h2 className="text-lg font-semibold text-gray-900 mb-4">Quick Actions</h2>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <Button
@@ -231,8 +235,6 @@ const AdminDashboard = () => {
               </Button>
             </div>
           </div>
-        </div>
-      </div>
     </div>
   )
 }

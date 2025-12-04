@@ -43,7 +43,9 @@ const LiveSession = () => {
     return (
         <div className='bg-white sm:bg-linear-to-t from-[#F1C2AC]/50 to-[#95C4BE]/50 px-2 sm:px-5'>
 
-            <DashHeading desc={'Manage upcoming live classes and sessions'} />
+            <DashHeading
+            title={"Live Sessions Schedule"}
+            desc={'Manage upcoming live classes and sessions'} />
             <div className="bg-[#EBD4C9] flex-wrap gap-2 p-2 sm:p-4 rounded-lg my-3 flex justify-between items-center">
                 <div className="flex  items-center gap-2">
                     <Select
@@ -71,7 +73,7 @@ const LiveSession = () => {
                     </Select>
                 </div>
                 <Button radius="sm" startContent={<Plus color="white" size={15} />} className="bg-[#06574C] text-white py-4 px-3 sm:px-8">
-                    Create Course
+                    Schedule Session
                 </Button>
             </div>
 
