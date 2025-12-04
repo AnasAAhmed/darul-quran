@@ -127,8 +127,8 @@ export default function AdminLayout() {
                                     <div className=" py-3 border-t border-gray-100  w-full px-4">
                                         <Button
                                             variant="bordered"
-                                            color="success"
-                                            className="w-full"
+                                            // color="success"
+                                            className="w-full border-[#06574C]"
                                             onPress={() => {
                                                 // router.push("/admin/notifications-center");
                                             }}

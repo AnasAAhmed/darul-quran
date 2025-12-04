@@ -27,7 +27,7 @@ function App() {
           {/* ---------- Auth Layout (NO HEADER/FOOTER) ---------- */}
           <Route element={<AuthLayout />}>
             <Route
-              path="/login"
+              path="/"
               element={
                 <ProtectedRoute
                   publicOnly

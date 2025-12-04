@@ -16,7 +16,7 @@ const BarCharts = () => {
       plotOptions: {
         bar: {
           borderRadius: 4, // Slightly rounded corners
-          columnWidth: '80%', // Bars ki width
+          columnWidth: '60%', // Bars ki width
           dataLabels: {
             position: 'top', // Values bars ke top par
           },
@@ -141,7 +141,7 @@ const BarCharts = () => {
   };
 
   return (
-    <div className="max-w-5xl w-full">
+    <div className="max-w-xl w-full">
       <div className="relative">
         <div className="max-sm:hidden">
           <Chart

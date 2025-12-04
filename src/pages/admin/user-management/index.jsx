@@ -14,6 +14,7 @@ import {
   TableRow,
   Tabs,
 } from "@heroui/react";
+import { Chip } from "@heroui/react";
 import { DashHeading } from "../../../components/dashboard-components/DashHeading";
 import {
   Edit,
@@ -47,6 +48,190 @@ const UserManagement = () => {
     { title: "Python Basics", date: "2025-11-28", color: "#dcd0ff" },
   ]);
   const classes = [
+    {
+      id: 1,
+      name: "John Davis",
+      desc: "Advanced JavaScript Course",
+      last_active: "2 hourse ago",
+      email: "john.davis@email.com",
+      roles: "Students",
+      status: "Active",
+      date: "2025-11-27",
+    },
+    {
+      id: 2,
+      name: "John Davis",
+      desc: "Advanced JavaScript Course",
+      last_active: "2 hourse ago",
+      email: "john.davis@email.com",
+      roles: "Students",
+      status: "Active",
+      date: "2025-11-26",
+    },
+    {
+      id: 3,
+      name: "John Davis",
+      desc: "Advanced JavaScript Course",
+      last_active: "2 hourse ago",
+      email: "john.davis@email.com",
+      roles: "Students",
+      status: "Active",
+      date: "2025-11-17",
+    },
+    {
+      id: 4,
+      name: "John Davis",
+      desc: "Advanced JavaScript Course",
+      last_active: "2 hourse ago",
+      email: "john.davis@email.com",
+      roles: "Students",
+      status: "Active",
+      date: "2025-11-16",
+    },
+    {
+      id: 5,
+      name: "John Davis",
+      desc: "Advanced JavaScript Course",
+      last_active: "2 hourse ago",
+      email: "john.davis@email.com",
+      roles: "Students",
+      status: "Active",
+      date: "2025-11-15",
+    },
+    {
+      id: 6,
+      name: "John Davis",
+      desc: "Advanced JavaScript Course",
+      last_active: "2 hourse ago",
+      email: "john.davis@email.com",
+      roles: "Students",
+      status: "Active",
+      date: "2025-11-12",
+    },
+    {
+      id: 7,
+      name: "John Davis",
+      desc: "Advanced JavaScript Course",
+      last_active: "2 hourse ago",
+      email: "john.davis@email.com",
+      roles: "Students",
+      status: "Active",
+      date: "2025-11-03",
+    },
+    {
+      id: 8,
+      name: "John Davis",
+      desc: "Advanced JavaScript Course",
+      last_active: "2 hourse ago",
+      email: "john.davis@email.com",
+      roles: "Students",
+      status: "Active",
+      date: "2025-11-29",
+    },
+    {
+      id: 9,
+      name: "John Davis",
+      desc: "Advanced JavaScript Course",
+      last_active: "2 hourse ago",
+      email: "john.davis@email.com",
+      roles: "Students",
+      status: "Active",
+      date: "2025-11-22",
+    },
+  ];
+  const Teachers = [
+    {
+      id: 1,
+      name: "John Davis",
+      desc: "Advanced JavaScript Course",
+      last_active: "2 hourse ago",
+      email: "john.davis@email.com",
+      roles: "Teacher",
+      status: "Active",
+      date: "2025-11-27",
+    },
+    {
+      id: 2,
+      name: "John Davis",
+      desc: "Advanced JavaScript Course",
+      last_active: "2 hourse ago",
+      email: "john.davis@email.com",
+      roles: "Teacher",
+      status: "Active",
+      date: "2025-11-26",
+    },
+    {
+      id: 3,
+      name: "John Davis",
+      desc: "Advanced JavaScript Course",
+      last_active: "2 hourse ago",
+      email: "john.davis@email.com",
+      roles: "Teacher",
+      status: "Active",
+      date: "2025-11-17",
+    },
+    {
+      id: 4,
+      name: "John Davis",
+      desc: "Advanced JavaScript Course",
+      last_active: "2 hourse ago",
+      email: "john.davis@email.com",
+      roles: "Teacher",
+      status: "Active",
+      date: "2025-11-16",
+    },
+    {
+      id: 5,
+      name: "John Davis",
+      desc: "Advanced JavaScript Course",
+      last_active: "2 hourse ago",
+      email: "john.davis@email.com",
+      roles: "Teacher",
+      status: "Active",
+      date: "2025-11-15",
+    },
+    {
+      id: 6,
+      name: "John Davis",
+      desc: "Advanced JavaScript Course",
+      last_active: "2 hourse ago",
+      email: "john.davis@email.com",
+      roles: "Teacher",
+      status: "Active",
+      date: "2025-11-12",
+    },
+    {
+      id: 7,
+      name: "John Davis",
+      desc: "Advanced JavaScript Course",
+      last_active: "2 hourse ago",
+      email: "john.davis@email.com",
+      roles: "Teacher",
+      status: "Active",
+      date: "2025-11-03",
+    },
+    {
+      id: 8,
+      name: "John Davis",
+      desc: "Advanced JavaScript Course",
+      last_active: "2 hourse ago",
+      email: "john.davis@email.com",
+      roles: "Teacher",
+      status: "Active",
+      date: "2025-11-29",
+    },
+    {
+      id: 9,
+      name: "John Davis",
+      desc: "Advanced JavaScript Course",
+      last_active: "2 hourse ago",
+      email: "john.davis@email.com",
+      roles: "Teacher",
+      status: "Active",
+      date: "2025-11-22",
+    },
+  ];
+  const Supports_Staff = [
     {
       id: 1,
       name: "John Davis",
@@ -183,39 +368,38 @@ const UserManagement = () => {
     <div className="bg-white sm:bg-linear-to-t from-[#F1C2AC]/50 to-[#95C4BE]/50 px-2 sm:px-5 ">
       <DashHeading
         title={"Users Management"}
-        desc={"Manage all users including students, teachers, and support staff"}
+        desc={
+          "Manage all users including students, teachers, and support staff"
+        }
       />
       <div className="bg-[#EBD4C9] flex-wrap gap-2 p-2 sm:p-4 rounded-lg my-3 flex justify-between items-center">
         <div className="flex  items-center gap-2">
           <Select
-            isRequired
             className="md:min-w-[120px]"
             radius="sm"
             defaultSelectedKeys={["all"]}
-            placeholder="Select an status"
+            placeholder="Select Status"
           >
             {statuses.map((status) => (
               <SelectItem key={status.key}>{status.label}</SelectItem>
             ))}
           </Select>
           <Select
-            isRequired
             className="md:min-w-[120px]"
             radius="sm"
             defaultSelectedKeys={["all"]}
-            placeholder="Select an role"
+            placeholder="Select Role"
           >
             {roles.map((status) => (
               <SelectItem key={status.key}>{status.label}</SelectItem>
             ))}
           </Select>
           <Select
-            isRequired
             radius="sm"
             className="md:min-w-[120px]"
             defaultSelectedKeys={["all"]}
             selectorIcon={<ListFilterIcon />}
-            placeholder="Select an animal"
+            placeholder="Select Filter"
           >
             {filters.map((filter) => (
               <SelectItem key={filter.key}>{filter.label}</SelectItem>
@@ -223,20 +407,34 @@ const UserManagement = () => {
           </Select>
         </div>
         <Link href="/admin/user-management/add-user">
-        <Button
-          radius="sm"
-          startContent={<Plus color="white" size={15} />}
-          className="bg-[#06574C] text-white py-4 px-3 sm:px-8"
-        //   onPress={()=>{router.push("/admin/user-management/add-user")}}
-        >
-          Add User
-        </Button>
+          <Button
+            radius="sm"
+            startContent={<Plus color="white" size={15} />}
+            className="bg-[#06574C] text-white py-4 px-3 sm:px-8"
+            //   onPress={()=>{router.push("/admin/user-management/add-user")}}
+          >
+            Add User
+          </Button>
         </Link>
       </div>
       <div>
         <div className=" ">
           <Tabs aria-label="Tabs colors" radius="full">
-            <Tab key="Students" title="Students" >
+            <Tab
+              key="Students"
+              title={
+                <div className="text-[#06574C] flex gap-2 items-center">
+                  <span>Students</span>
+                  <Chip
+                    size="sm"
+                    className="text-xs text-[#06574C] bg-white shadow-md"
+                  >
+                    {classes.length}
+                  </Chip>
+                </div>
+              }
+            >
+              {/* <h1>Students</h1> */}
               <Table
                 //    isHeaderSticky
                 selectionMode="multiple"
@@ -302,7 +500,20 @@ const UserManagement = () => {
                 </TableBody>
               </Table>
             </Tab>
-            <Tab key="Teachers" title="Teachers">
+            <Tab
+              key="Teachers"
+              title={
+                <div className="text-[#06574C] flex gap-2 items-center">
+                  <span>Teachers</span>
+                  <Chip
+                    size="sm"
+                    className="text-xs text-[#06574C] bg-white shadow-md"
+                  >
+                    {classes.length}
+                  </Chip>
+                </div>
+              }
+            >
               <Table
                 //    isHeaderSticky
                 selectionMode="multiple"
@@ -322,7 +533,7 @@ const UserManagement = () => {
                 </TableHeader>
 
                 <TableBody>
-                  {classes.map((classItem) => (
+                  {Teachers.map((classItem) => (
                     <TableRow key={classItem.id}>
                       <TableCell className="px-4">
                         <div>
@@ -368,7 +579,20 @@ const UserManagement = () => {
                 </TableBody>
               </Table>
             </Tab>
-            <Tab key="Supports_Staff" title="Supports Staff">
+            <Tab
+              key="Supports_Staff"
+              title={
+                <div className="text-[#06574C] flex gap-2 items-center">
+                  <span>Supports Staff</span>
+                  <Chip
+                    size="sm"
+                    className="text-xs text-[#06574C] bg-white shadow-md"
+                  >
+                    {classes.length}
+                  </Chip>
+                </div>
+              }
+            >
               <Table
                 //    isHeaderSticky
                 selectionMode="multiple"

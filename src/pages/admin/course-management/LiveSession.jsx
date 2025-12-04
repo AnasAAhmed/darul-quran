@@ -9,8 +9,8 @@ import interactionPlugin from "@fullcalendar/interaction";
 const LiveSession = () => {
 
     const [events, setEvents] = useState([
-        { title: "iOS Workshop", date: "2025-11-02" },
-        { title: "React Basics", date: "2025-11-06", color: "#f0e68c" },
+        { title: "iOS Workshop", date: "2025-11-02" ,color: "#FEEDED" ,textColor:"#DC2626" },
+        { title: "React Basics", date: "2025-11-06", color: "#FEEDED" ,textColor:"#DC2626"},
         { title: "Python Basics", date: "2025-11-09", color: "#dcd0ff" },
         { title: "Marketing Research", date: "2025-11-14", color: "#90ee90" },
         { title: "iOS Workshop", date: "2025-11-18", color: "#ffcccc" },
@@ -24,7 +24,7 @@ const LiveSession = () => {
     ]);
 
     const handleDateClick = (info) => {
-        alert("Clicked on date: " + info.dateStr);
+        // alert("Clicked on date: " + info.dateStr);
     };
 
     const statuses = [

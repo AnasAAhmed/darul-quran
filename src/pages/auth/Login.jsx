@@ -1,4 +1,5 @@
 import { Button, Input } from "@heroui/react";
+import { Link } from "react-router-dom";
 
 
 const Login = () => {
@@ -8,7 +9,7 @@ const Login = () => {
 
     return (
         <main className='flex flex-col lg:flex-row w-full min-h-screen'>
-            <div className='lg:h-screen w-full lg:max-w-[400px] xl:max-w-[500px] p-6 lg:p-8 flex flex-col items-center justify-between bg-linear-to-bl from-[#06574C] via-[#06574C] to-[#D4C4B0] relative overflow-hidden max-lg:hidden lg:rounded-r-lg'>
+            <div className='lg:h-screen w-full lg:max-w-[400px] xl:max-w-[400px] p-6 lg:p-8 flex flex-col items-center justify-between bg-linear-to-bl from-[#06574C] via-[#06574C] to-[#D4C4B0] relative overflow-hidden max-lg:hidden lg:rounded-r-lg'>
 
 
                 <img src="/icons/logo.png" alt="Darul Quran" className=' w-56 h-56' />
@@ -51,14 +52,16 @@ const Login = () => {
                                 type="password"
                             />
                         </div>
-
+                        {/* <Link to=""> */}
                         <Button
                         type="submit"
+                        as={Link}
+                        to="/admin/dashboard"
                             className='w-full text-center text-white rounded-md py-3 bg-[#06574C]'
                         >
                             Login
                         </Button>
-
+                        {/* </Link> */}
                         <div className='text-center text-sm lg:text-base mb-4 text-[#3F3F44]'>Or</div>
 
                     </form>

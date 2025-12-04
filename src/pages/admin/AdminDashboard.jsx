@@ -104,7 +104,7 @@ const AdminDashboard = () => {
 
       <OverviewCards data={cardsData} />
 
-      <div className='py-4 flex max-md:flex-wrap justify-between gap-4 items-center '>
+      <div className='py-4 flex max-md:flex-wrap justify-between gap-4 items-center overflow-x-hidden'>
         <div className="app flex flex-col items-center w-full bg-white  rounded-lg">
           <div className='p-4 w-full flex items-center justify-between'>
             <h1 className='text-xl font-bold'>Revenue Trend</h1>
@@ -166,7 +166,15 @@ const AdminDashboard = () => {
               </Button>
             </div>
 
-            <Table classNames={{base:'border-none rounded-none'}}>
+            <Table 
+            aria-label="Pending approvals table"
+                removeWrapper
+                classNames={{
+                  base: "bg-white  ",
+                  th: "font-bold p-4  text-[#333333] capitalize tracking-widest bg-[#EBD4C936] border-t border-default-200 ",
+                  td: "py-3",
+                  tr: "border-b border-default-200",
+                }}>
               <TableHeader columns={columns}>
                 <TableColumn className='bg-[#EBD4C9]/30 rounded-none'>Class</TableColumn>
                 <TableColumn className='bg-[#EBD4C9]/30'>Teacher</TableColumn>
