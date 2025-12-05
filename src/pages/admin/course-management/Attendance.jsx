@@ -189,7 +189,7 @@ const Attendance = () => {
       <div className="bg-[#EBD4C9] flex-wrap gap-2 p-2 sm:p-4 rounded-lg my-3 flex justify-between items-center">
         <div className="flex  items-center gap-2">
           <Select
-            className="md:min-w-[120px]"
+            className="md:min-w-[160px]"
             radius="sm"
             defaultSelectedKeys={["all"]}
             placeholder="Select status"
@@ -203,7 +203,7 @@ const Attendance = () => {
             className="md:min-w-[120px]"
             defaultSelectedKeys={["all"]}
             selectorIcon={<ListFilterIcon />}
-            placeholder="Select Filter"
+            placeholder="Filter"
           >
             {filters.map((filter) => (
               <SelectItem key={filter.key}>{filter.label}</SelectItem>
