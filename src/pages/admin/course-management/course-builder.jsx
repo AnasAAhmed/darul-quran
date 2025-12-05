@@ -88,7 +88,7 @@ const CourseBuilder = () => {
               <div className="grid grid-cols-12 gap-2 w-full">
                 <div className="bg-white rounded-lg p-4 col-span-8 shadow-xl">
                   <div>
-                    <h1 className="text-xl font-medium">Course Details</h1>
+                    <h1 className="text-xl font-medium text-[#333333]">Course Details</h1>
                   </div>
                   <div className="py-4">
                     <Input
@@ -167,13 +167,13 @@ const CourseBuilder = () => {
                 </div>
                 <div className="col-span-4">
                   <div className="bg-white rounded-lg p-3 shadow-xl">
-                    <h1 className="text-xl font-medium">Course Details</h1>
+                    <h1 className="text-xl font-medium text-[#333333]">Course Details</h1>
                     <div className="py-6">
                       <FileDropzone />
                     </div>
                   </div>
                   <div className="bg-white rounded-lg p-3 shadow-xl mt-3">
-                    
+                    <h1 className="text-xl font-medium text-[#333333]">Course Preview</h1>
                   </div>
                 </div>
               </div>

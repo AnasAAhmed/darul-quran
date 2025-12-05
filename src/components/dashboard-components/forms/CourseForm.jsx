@@ -92,7 +92,8 @@ const CreateCourse = ({ initialData = {} }) => {
                                             radius="sm"
                                             label="Category"
                                             name="category"
-                                            selectedKeys={[initialData.category]}
+                                            defaultSelectedKeys={[initialData.category]}
+                                            defaultValue="all"
                                             labelPlacement="outside"
                                             placeholder="Select category"
                                         >
@@ -142,7 +143,7 @@ const CreateCourse = ({ initialData = {} }) => {
                                             label="Teacher"
                                             name="teacher"
                                             labelPlacement="outside"
-                                            selectedKeys={[initialData.teacher]}
+                                            defaultSelectedKeys={[initialData.teacher]}
                                             placeholder="Select teacher"
                                         >
                                             {teachers.map((teacher) => (
