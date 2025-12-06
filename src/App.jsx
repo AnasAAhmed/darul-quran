@@ -19,6 +19,8 @@ import PaymentsRefunds from "./pages/admin/payment-refund";
 import SupportTickets from "./pages/admin/support-ticket";
 import Analytics from "./pages/admin/analytics";
 import CourseBuilder from "./pages/admin/course-management/course-builder";
+import HelpSupport from "./pages/admin/help";
+import Review from "./pages/admin/help/review";
 
 function App() {
   return (
@@ -154,6 +156,22 @@ function App() {
               element={
                 <ProtectedRoute isAuthenticated={true}>
                   <Analytics />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/admin/help"
+              element={
+                <ProtectedRoute isAuthenticated={true}>
+                  <HelpSupport />
+                </ProtectedRoute>
+              }
+            /> 
+            <Route
+              path="/admin/help/reviews"
+              element={
+                <ProtectedRoute isAuthenticated={true}>
+                  <Review />
                 </ProtectedRoute>
               }
             />
