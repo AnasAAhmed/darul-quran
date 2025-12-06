@@ -10,8 +10,11 @@ import {
   Select,
   SelectItem,
   Textarea,
+  Button,
 } from "@heroui/react";
 import FileDropzone from "../../../components/dashboard-components/dropzone";
+import { title } from "framer-motion/client";
+import { File, FolderDot, Lightbulb, Rocket, ScrollText, Video } from "lucide-react";
 const CourseBuilder = () => {
   const count = [
     {
@@ -38,6 +41,19 @@ const CourseBuilder = () => {
     { key: "Advanced", label: "Advanced" },
     { key: "Expert", label: "Expert" },
   ];
+  const coursepreview = [
+    {title:"Title:", desc :"Untitled Course" },
+    {title:"Category:", desc :"No Selected" },
+    {title:"Difficulty Level:", desc :"Beginner" },
+    {title:"Price:", desc :"Free" },
+  ]
+
+  const card =[
+    {title:"Videos", count :"10" , icone:<Video size={20} color="#06574C" />},
+    {title:"PDFs:", count :"10" , icone:<File size={20} color="#06574C" />},
+    {title:"Quizzes", count :"20" , icone:<Lightbulb size={20} color="#06574C" /> },
+    {title:"Assignments", count :"15" , icone:<ScrollText size={20} color="#06574C" /> },
+  ]
 
   return (
     <div className="bg-white sm:bg-linear-to-t from-[#F1C2AC]/50 to-[#95C4BE]/50 px-2 sm:px-3 ">
@@ -174,8 +190,27 @@ const CourseBuilder = () => {
                   </div>
                   <div className="bg-white rounded-lg p-3 shadow-xl mt-3">
                     <h1 className="text-xl font-medium text-[#333333]">Course Preview</h1>
+                    <div className="py-2">
+                      {coursepreview.map((item) => (
+                        <div className="py-1 flex justify-between items-center">
+                          <h1 className="text-md font-medium text-[#666666]">
+                            {item.title}
+                          </h1>
+                          <p className="text-md font-semibold text-[#333333]">{item.desc}</p>
+                        </div>
+                      ))}
+                    </div>
                   </div>
                 </div>
+              </div>
+              <div className="flex justify-between items-center w-full ">
+                <div>
+                  <Button size="lg" startContent={<FolderDot color="#06574C" size={16}/>} variant="bordered" className="border-[#06574C] text-[#06574C]" type="submit">Save Draft</Button> 
+                </div>
+                <div className="flex gap-3">
+                  <Button size="lg" startContent={<Rocket color="white" size={16}/>} className="bg-[#B1A7A7] text-white w-60" type="submit">Publish Course</Button>
+                  <Button size="lg" className="bg-[#06574C] text-white w-35" type="submit">Next Step</Button>
+                </div> 
               </div>
             </Form>
           </Tab>
@@ -198,14 +233,21 @@ const CourseBuilder = () => {
               </div>
             }
           >
-            <Card>
-              <CardBody>
-                Ut enim ad minim veniam, quis nostrud exercitation ullamco
-                laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure
-                dolor in reprehenderit in voluptate velit esse cillum dolore eu
-                fugiat nulla pariatur.
-              </CardBody>
-            </Card>
+            <div className="grid grid-cols-12 gap-2">
+            {card.map((item) =>
+            <div className="col-span-3 p-3 bg-white rounded-lg">
+              <h1 className="text-[#333333] text-md font-semibold">{item.title}</h1>
+              <div className="mt-3 flex gap-2 items-center">
+                <div className="h-12 w-12 rounded-full bg-[#95C4BE33] p-1 items-center flex justify-center">
+                  {item.icone}
+                </div>
+                <h1 className="text-2xl text-[#333333] font-bold">
+                  {item.count}
+                </h1>
+              </div>
+            </div>
+          )}    
+          </div>  
           </Tab>
           <Tab
             className="h-20"
