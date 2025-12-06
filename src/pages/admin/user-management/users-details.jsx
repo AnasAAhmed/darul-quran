@@ -72,25 +72,24 @@ const UsersDetails = () => {
       title: "Total Courses",
       desc: "15",
       icon: <Album size={22} color="#06574C" />,
-      bg: "#EBD4C982",
+      bg: "#95C4BE",
     },
     {
       title: "Completed",
       desc: "15",
       icon: <Check size={22} color="#06574C" />,
-      bg: "#95C4BE",
     },
     {
       title: "In Progress",
       desc: "15",
       icon: <ChartPie size={22} color="#06574C" />,
-      bg: "#EBD4C982",
+      bg: "#95C4BE",
     },
     {
       title: "Attendance Rate",
       desc: "75%",
       icon: <ChartNoAxesColumn size={22} color="#06574C" />,
-      bg: "#95C4BE",
+      
     },
   ];
 
@@ -338,7 +337,7 @@ const UsersDetails = () => {
           </div>
           {quickStats.map((item) => (
             <div
-              className={`my-2 flex gap-2 bg-[${item.bg}] items-center p-2 rounded-lg`}
+              className={`my-2 flex gap-2 ${item?.bg  ? `bg-[${item.bg}]` : "bg-[#EBD4C982]"} items-center p-2 rounded-lg`}
             >
               <div className="h-12 w-12 rounded-full bg-white shadow-[5px_6px_16.2px_0px_#0000001C] items-center flex justify-center">
                 {item.icon}
@@ -357,7 +356,7 @@ const UsersDetails = () => {
           </div>
           {recentactivity.map((item) => (
             <div className="my-2 flex gap-2 items-start">
-              <div className={`h-2 w-2 rounded-full bg-[${item.bg}] mt-2`} />
+              <div className={`h-2 w-2 rounded-full ${item?.bg  ? `bg-[${item.bg}]` : "bg-[#EBD4C982]"} mt-2`} />
               <div>
                 <h1>{item.title}</h1>
                 <h1>{item.desc}</h1>

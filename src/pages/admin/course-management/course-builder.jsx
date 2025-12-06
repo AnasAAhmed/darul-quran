@@ -267,12 +267,95 @@ const CourseBuilder = () => {
               </div>
             }
           >
-            <Card>
-              <CardBody>
-                Excepteur sint occaecat cupidatat non proident, sunt in culpa
-                qui officia deserunt mollit anim id est laborum.
-              </CardBody>
-            </Card>
+            <Form className="w-full py-4">
+              <div className="grid grid-cols-12 gap-2 w-full">
+                <div className="bg-white rounded-lg p-4 col-span-12 shadow-xl">
+                  <div>
+                    <h1 className="text-xl font-medium text-[#333333]">Pricing & Access Settings</h1>
+                  </div>
+                  <div className="py-4">
+                    <div className="p-3 bg-[#95C4BE33] rounded-lg flex justify-between items-center">
+                      <div>
+                        <h1 className="text-[#06574C] font-medium text-lg">Course Type</h1>
+                        <h1 className="text-[#06574C] font-medium text-sm">Choose between paid or free course</h1>
+                      </div>
+                    </div>
+                    <div className="flex gap-3 items-center pt-4">
+                      <Select
+                        size="lg"
+                        variant="bordered"
+                        label="Category"
+                        labelPlacement="outside"
+                        placeholder="Select category"
+                        className="w-full"
+                      >
+                        {category.map((item) => (
+                          <SelectItem key={item.id} value={item.id}>
+                            {item.label}
+                          </SelectItem>
+                        ))}
+                      </Select>
+                      <Select
+                        size="lg"
+                        variant="bordered"
+                        label="Difficulty Level"
+                        labelPlacement="outside"
+                        placeholder="Select Difficulty Level"
+                        className="w-full"
+                      >
+                        {Difficulty.map((item) => (
+                          <SelectItem key={item.id} value={item.id}>
+                            {item.label}
+                          </SelectItem>
+                        ))}
+                      </Select>
+                    </div>
+                    <div className="py-4">
+                      <Textarea
+                        size="lg"
+                        variant="bordered"
+                        label="Description"
+                        labelPlacement="outside"
+                        placeholder="Enter course description"
+                      />
+                    </div>
+                    <Input
+                      size="lg"
+                      variant="bordered"
+                      label="Course Price ($)"
+                      labelPlacement="outside"
+                      placeholder="$  0.00"
+                      className="w-full"
+                    />
+                    <div className="py-4">
+                      <Select
+                        size="lg"
+                        variant="bordered"
+                        label="Category"
+                        labelPlacement="outside"
+                        placeholder="Select category"
+                        className="w-full"
+                      >
+                        {category.map((item) => (
+                          <SelectItem key={item.id} value={item.id}>
+                            {item.label}
+                          </SelectItem>
+                        ))}
+                      </Select>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div className="flex justify-between items-center w-full ">
+                <div>
+                  <Button size="lg" startContent={<FolderDot color="#06574C" size={16}/>} variant="bordered" className="border-[#06574C] text-[#06574C]" type="submit">Save Draft</Button> 
+                </div>
+                <div className="flex gap-3">
+                  <Button size="lg" startContent={<Rocket color="white" size={16}/>} className="bg-[#B1A7A7] text-white w-60" type="submit">Publish Course</Button>
+                  <Button size="lg" className="bg-[#06574C] text-white w-35" type="submit">Next Step</Button>
+                </div> 
+              </div>
+            </Form>
           </Tab>
         </Tabs>
       </div>

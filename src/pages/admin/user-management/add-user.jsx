@@ -90,8 +90,8 @@ const Adduser = () => {
                 labelPlacement="outside"
                 variant="bordered"
                 size="lg"
-                label="Email Address"
-                placeholder="Enter your email address"
+                label="Phone Number"
+                placeholder="Enter your phone number"
               />
               <Select
                 labelPlacement="outside"
