@@ -56,7 +56,14 @@ const Faqs = () => {
         desc={"Find quick answers to common questions."}
       />
       <div className="my-3">
-        <Accordion variant="splitted" itemClasses={{indicator:"rounded-full bg-[#F1F2F9] p-1 "}} className="">
+        <Accordion variant="splitted"
+        
+        selectionBehavior="toggle" 
+        itemClasses={{indicator:"rounded-full bg-[#F1F2F9] p-1.5 data-[open=true]:bg-[linear-gradient(360.06deg,_#95C4BE_5.92%,_#06574C_89.21%)] fill-white", 
+        // titleWrapper:"px-3",
+        // content:"px-3",
+        base: "mb-2 px-6",
+        }} className="">
           {defaultContent.map((item) => (
             <AccordionItem key={item.id} aria-label="Accordion 1" title={<h1 className="text-lg text-[#333333] font-bold">{item.title}</h1>}>
               <p className="text-sm text-[#666666]">{item.content}</p>
