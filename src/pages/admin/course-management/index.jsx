@@ -200,7 +200,7 @@ const CourseManagement = () => {
         </div>
         <CourseForm />
       </div>
-      <div className="max-sm:hidden overflow-hidden">
+      <div className="max-sm:hsidden overflow-hidden">
         <Table
           aria-label="Pending approvals table"
           removeWrapper

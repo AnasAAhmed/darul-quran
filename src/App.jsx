@@ -2,26 +2,32 @@ import "./App.css";
 import ProtectedRoute from "./components/protected-route";
 import Login from "./pages/auth/Login";
 import AuthLayout from "./components/layouts/AuthLayout";
+import AdminLayout from "./components/layouts/AdminLayout";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import { HeroUIProvider } from "@heroui/react";
-import AdminLayout from "./components/layouts/AdminLayout";
-import AdminDashboard from "./pages/admin/AdminDashboard";
-import Home from "./pages/Home";
-import CourseManagement from "./pages/admin/course-management/index";
-import LiveSession from "./pages/admin/course-management/LiveSession";
-import Attendance from "./pages/admin/course-management/Attendance";
-import UserManagement from "./pages/admin/user-management";
-import Adduser from "./pages/admin/user-management/add-user";
-import UserDetails from "./pages/admin/user-management/users-details";
-import Scheduling from "./pages/admin/scheduling";
-import Announcements from "./pages/admin/announcements";
-import PaymentsRefunds from "./pages/admin/payment-refund";
-import SupportTickets from "./pages/admin/support-ticket";
-import Analytics from "./pages/admin/analytics";
-import CourseBuilder from "./pages/admin/course-management/course-builder";
-import HelpSupport from "./pages/admin/help";
-import Review from "./pages/admin/help/review";
-import Faqs from "./pages/admin/help/faqs";
+import { lazy } from "react";
+import ChatLayout from "./components/layouts/ChatLayout";
+
+const AdminDashboard = lazy(() => import("./pages/admin/AdminDashboard"));
+const Home = lazy(() => import("./pages/Home"));
+const CourseManagement = lazy(() => import("./pages/admin/course-management/index"));
+const LiveSession = lazy(() => import("./pages/admin/course-management/LiveSession"));
+const Attendance = lazy(() => import("./pages/admin/course-management/Attendance"));
+const UserManagement = lazy(() => import("./pages/admin/user-management"));
+const Adduser = lazy(() => import("./pages/admin/user-management/add-user"));
+const UserDetails = lazy(() => import("./pages/admin/user-management/users-details"));
+const Scheduling = lazy(() => import("./pages/admin/scheduling"));
+const Announcements = lazy(() => import("./pages/admin/announcements"));
+const PaymentsRefunds = lazy(() => import("./pages/admin/payment-refund"));
+const SupportTickets = lazy(() => import("./pages/admin/support-ticket"));
+const Analytics = lazy(() => import("./pages/admin/analytics"));
+
+const CourseBuilder = lazy(() => import("./pages/admin/course-management/course-builder"));
+
+const HelpMessages = lazy(() => import("./pages/admin/help"));
+const Review = lazy(() => import("./pages/admin/help/review"));
+const Faqs = lazy(() => import("./pages/admin/help/faqs"));
+
 
 function App() {
   return (
@@ -77,7 +83,7 @@ function App() {
             <Route
               path="/admin/courses-management/builder"
               element={<ProtectedRoute isAuthenticated={true}>
-                <CourseBuilder/>
+                <CourseBuilder />
               </ProtectedRoute>}
             />
             <Route
@@ -160,14 +166,7 @@ function App() {
                 </ProtectedRoute>
               }
             />
-            <Route
-              path="/admin/help"
-              element={
-                <ProtectedRoute isAuthenticated={true}>
-                  <HelpSupport />
-                </ProtectedRoute>
-              }
-            /> 
+
             <Route
               path="/admin/help/reviews"
               element={
@@ -181,6 +180,24 @@ function App() {
               element={
                 <ProtectedRoute isAuthenticated={true}>
                   <Faqs />
+                </ProtectedRoute>
+              }
+            />
+          </Route>
+          <Route element={<ChatLayout />}>
+            <Route
+              path="/admin/help/messages"
+              element={
+                <ProtectedRoute isAuthenticated={true}>
+                  <HelpMessages />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/admin/help/chat"
+              element={
+                <ProtectedRoute isAuthenticated={true}>
+                  'jbjhgjh'
                 </ProtectedRoute>
               }
             />

@@ -1,8 +1,8 @@
 import { Link, Outlet } from "react-router-dom";
 import Sidebar from "../dashboard-components/sidebar";
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { AnimatePresence, motion } from 'framer-motion'
-import { Button, Chip, Input, Popover, PopoverContent, PopoverTrigger } from "@heroui/react";
+import { Button, Chip, Input, Popover, PopoverContent, PopoverTrigger, Spinner } from "@heroui/react";
 import { Bell, ChevronRight, MenuIcon, Plus, Search, SidebarClose, SidebarOpen } from "lucide-react";
 
 export default function AdminLayout() {
@@ -60,9 +60,9 @@ export default function AdminLayout() {
                             type="button"
                             className="relative cursor-pointer max-sm:hidden inline-flex items-center justify-center p-3 bg-white rounded-full shadow-sm hover:shadow-md"
                             aria-label="Sidebar Button"
-                            title={isSidebarOpen ?'Close Sidebar' : 'Open Sidebar'}
+                            title={isSidebarOpen ? 'Close Sidebar' : 'Open Sidebar'}
                         >
-                            {isSidebarOpen ? <SidebarClose size={18}/> : <SidebarOpen size={18}/>}
+                            {isSidebarOpen ? <SidebarClose size={18} /> : <SidebarOpen size={18} />}
                         </button>
                         <button
                             onClick={() => setIsSidebarOpen(!isSidebarOpen)}
@@ -149,7 +149,13 @@ export default function AdminLayout() {
                             <Input endContent={<Search color="#9A9A9A" />} type="search" className="max-w-lg max-sm:hidden min-w-sm" placeholder="Search here..." />
                         </div>
                     </header>
-                    <Outlet />
+                    <Suspense fallback={
+                        <div className="h-screen flex items-center justify-center">
+                            <Spinner size="lg" label="Loading..." labelColor="success" color="success" />
+                        </div>
+                    }>
+                        <Outlet />
+                    </Suspense>
                 </div>
             </main>
         </>

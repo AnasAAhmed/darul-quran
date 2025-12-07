@@ -1,11 +1,10 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { ArrowBigDown, BookIcon, CalendarIcon, ChartBarIcon, ChevronDown, DollarSignIcon, FileQuestionIcon, HomeIcon, MegaphoneIcon, TicketIcon, UsersIcon } from 'lucide-react';
 import { Link, useLocation } from 'react-router-dom';
 
 
 const Sidebar = ({ isSidebarOpen, setIsSidebarOpen }) => {
-  const [activeIndex, setActiveIndex] = useState(0);
   const [expandedItems, setExpandedItems] = useState([0, 6]);
   const location = useLocation()
   const menuItems = [
@@ -59,7 +58,7 @@ const Sidebar = ({ isSidebarOpen, setIsSidebarOpen }) => {
     {
       name: 'Help and Support',
       icon: <FileQuestionIcon />,
-      link: '/admin/help',
+      link: '/admin/help/messages',
       children: [
         { name: 'Message Center', link: '/admin/help/messages' },
         { name: 'Teacher & Student Chat', link: '/admin/help/chat' },
@@ -69,13 +68,43 @@ const Sidebar = ({ isSidebarOpen, setIsSidebarOpen }) => {
     }
   ];
 
+
+  useEffect(() => {
+    menuItems.forEach((item, idx) => {
+      if (item.children?.some((child) => child.link === location.pathname)) {
+        if (!expandedItems.includes(idx)) setExpandedItems((prev) => [...prev, idx]);
+      }
+    });
+  }, [location.pathname]);
+
   const toggleExpand = (index) => {
-    setExpandedItems(prev =>
-      prev.includes(index)
-        ? prev.filter(i => i !== index)
-        : [...prev, index]
+    setExpandedItems((prev) =>
+      prev.includes(index) ? prev.filter((i) => i !== index) : [...prev, index]
     );
+    setIsSidebarOpen(true);
   };
+
+  useEffect(() => {
+    const handleEsc = (e) => e.key === "Escape" && setIsSidebarOpen(false);
+    window.addEventListener("keydown", handleEsc);
+    return () => window.removeEventListener("keydown", handleEsc);
+  }, []);
+
+  useEffect(() => {
+    let startX = 0;
+    const start = (e) => (startX = e.touches[0].clientX);
+    const end = (e) => {
+      const endX = e.changedTouches[0].clientX;
+      if (startX > 80 && startX - endX > 70) setIsSidebarOpen(false);
+      if (startX < 40 && endX - startX > 70) setIsSidebarOpen(true);
+    };
+    window.addEventListener("touchstart", start);
+    window.addEventListener("touchend", end);
+    return () => {
+      window.removeEventListener("touchstart", start);
+      window.removeEventListener("touchend", end);
+    };
+  }, []);
 
   return (
     <div className="w-full h-full bg-[#1a5850] text-white flex flex-col">
@@ -87,72 +116,86 @@ const Sidebar = ({ isSidebarOpen, setIsSidebarOpen }) => {
           )}
       </div>
 
-      <div className='fixed'></div>
       <div className="flex-1 overflow-y-auto no-scrollbar py-4">
-        <ul className="space-y-1">
-          {menuItems.map((item, idx) => (
-            <li key={idx}>
-              <Link to={item.link}
-                onClick={() => {
-                  setActiveIndex(idx);
-                  if (item.children) {
-                    toggleExpand(idx);
-                    setIsSidebarOpen(true);
-                  }
-                }}
-                className={`
-                  relative flex items-center justify-between px-6 py-3 cursor-pointer transition-all
-                  ${activeIndex === idx ? 'bg-[#d4e5e3]/20 text-white' : 'text-[#b8d4d0] hover:bg-white/5'}
+        <ul className="space-y-1 mx-2">
+          {menuItems.map((item, idx) => {
+            const isActiveParent =
+              location.pathname === item.link ||
+              (item.children && item.children.some(child => child.link === location.pathname));
+
+            return (
+              <li key={idx}>
+                <Link
+                  to={item.link}
+                  onClick={() => {
+                    if (item.children&&!expandedItems.includes(idx)) {
+                      toggleExpand(idx);
+                    }
+                  }}
+                  className={`
+                  relative flex items-center rounded-md justify-between px-6 py-3 cursor-pointer transition-all
+                  ${isActiveParent ? "text-[#1a5850]" : "text-[#b8d4d0] hover:bg-white/5"}
                 `}
-              >
-                {activeIndex === idx  && (
-                  <motion.div
-                    layoutId="active-indicator"
-                    className="absolute left-0 top-0 h-full w-1 bg-[#d4e5e3]"
-                    initial={false}
-                    transition={{ type: 'spring', stiffness: 500, damping: 30 }}
-                  />
-                )}
+                >
+                  <div className="flex z-10 items-center gap-3 flex-1">
+                    <span className="w-5 h-5">{item.icon}</span>
+                    {isSidebarOpen && <span className="text-sm font-medium">{item.name}</span>}
+                  </div>
 
-                <div className="flex items-center  gap-3 flex-1">
-                  <span className="w-5 h-5">{item.icon}</span>
-                  {isSidebarOpen && <span className="text-sm font-medium">{item.name}</span>}
-                </div>
+                  {item.badge && isSidebarOpen && (
+                    <span className="px-2 z-10 py-0.5 text-xs bg-[#EBD4C9] text-[#06574C] rounded-full min-w-5 text-center">
+                      {item.badge}
+                    </span>
+                  )}
+                <AnimatePresence>
+                  
+                 {isActiveParent&&   <motion.span
+                      layoutId="active-rail"
+                      className="absolute left-0  top-0 h-full w-full bg-[#d9ebe8] rounded-md"
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      exit={{ opacity: 0 }}
+                      transition={{
+                        type: "spring",
+                        stiffness: 300,
+                        damping: 28,
+                      }}
+                    />}
+                  
+                </AnimatePresence>
+                </Link>
+                <AnimatePresence>
+                  {item.children && expandedItems.includes(idx) && (
+                    <motion.ul
+                      initial={{ height: 0, opacity: 0 }}
+                      animate={{ height: "auto", opacity: 1 }}
+                      exit={{ height: 0, opacity: 0 }}
+                      transition={{ duration: 0.25 }}
+                      className="overflow-hidden"
+                    >
+                      {item.children.map((child, childIdx) => (
+                        <li key={childIdx} className='relative'>
+                          <span className="absolute rounded-xs border-white/70 -top-4 left-9 w-3 h-9 border-l-2 border-b-2"></span>
 
-                {item.badge && isSidebarOpen && (
-                  <span className="px-2 py-0.5 text-xs bg-[#EBD4C9] text-[#06574C] rounded-full min-w-5 text-center">
-                    {item.badge}
-                  </span>
-                )}
-              </Link>
-
-              <AnimatePresence>
-                {item.children && expandedItems.includes(idx) && isSidebarOpen && (
-                  <motion.ul
-                    initial={{ height: 0, opacity: 0 }}
-                    animate={{ height: 'auto', opacity: 1 }}
-                    exit={{ height: 0, opacity: 0 }}
-                    transition={{ duration: 0.2 }}
-                    className="overflow-hidden"
-                  >
-                    {item.children.map((child, childIdx) => (
-                      <li
-                        key={childIdx}
-                        className={`pl-14 pr-6 relative text-sm ${location.pathname===child.link?'text-white':'text-[#b8d4d0] '} hover:text-white cursor-pointer transition-colors`}
-                      >
-                        <Link to={child.link}>
-                          <div className="flex items-center  py-2 gap-2">
-                            <span className={`absolute rounded-xs ${location.pathname===child.link?'border-white':'border-white/30 '} -top-4 left-9 w-3 h-9 border-l-2 border-b-2 `}></span>
+                          <Link
+                            to={child.link}
+                            className={`block pl-14 pr-6 py-2 text-sm transition-colors 
+                              ${location.pathname === child.link
+                                ? "text-white"
+                                : "text-[#b8d4d0] hover:text-white"
+                              }
+                            `}
+                          >
                             {child.name}
-                          </div>
-                        </Link>
-                      </li>
-                    ))}
-                  </motion.ul>
-                )}
-              </AnimatePresence>
-            </li>
-          ))}
+                          </Link>
+                        </li>
+                      ))}
+                    </motion.ul>
+                  )}
+                </AnimatePresence>
+              </li>
+            );
+          })}
         </ul>
       </div>
 
