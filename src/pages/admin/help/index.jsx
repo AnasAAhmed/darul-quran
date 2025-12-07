@@ -8,7 +8,7 @@ const mockChats = [
   {
     id: 1,
     name: "X-AE-A-13b",
-    role: "Student",
+    role: "student",
     message: "Enter your message description here...",
     time: "12:25",
     isActive: false,
@@ -18,7 +18,7 @@ const mockChats = [
   {
     id: 2,
     name: "Jerome White",
-    role: "Teacher",
+    role: "teacher",
     message: "Enter your message description here...",
     time: "12:25",
     isActive: false,
@@ -28,7 +28,7 @@ const mockChats = [
   {
     id: 3,
     name: "Madagascar Silver",
-    role: "Teacher",
+    role: "teacher",
     message: "Enter your message description here...",
     time: "12:25",
     isActive: false,
@@ -38,7 +38,7 @@ const mockChats = [
   {
     id: 4,
     name: "Pippins McGray",
-    role: "Teacher",
+    role: "teacher",
     message: "Enter your message description here...",
     time: "12:25",
     isActive: false,
@@ -48,7 +48,7 @@ const mockChats = [
   {
     id: 5,
     name: "McKinsey Vermillion",
-    role: "Teacher",
+    role: "teacher",
     message: "Enter your message description here...",
     time: "12:25",
     isActive: true,
@@ -58,7 +58,7 @@ const mockChats = [
   {
     id: 6,
     name: "Dorian F. Gray",
-    role: "Teacher",
+    role: "teacher",
     message: "Enter your message description here...",
     time: "12:25",
     isActive: false,
@@ -68,7 +68,7 @@ const mockChats = [
   {
     id: 7,
     name: "Benedict Comber",
-    role: "Teacher",
+    role: "teacher",
     message: "Enter your message description here...",
     time: "12:25",
     isActive: false,
@@ -78,7 +78,7 @@ const mockChats = [
   {
     id: 8,
     name: "Kaori D. Miyazono",
-    role: "Teacher",
+    role: "teacher",
     message: "Enter your message description here...",
     time: "12:25",
     isActive: false,
@@ -88,7 +88,7 @@ const mockChats = [
   {
     id: 9,
     name: "Saylor Twift",
-    role: "Teacher",
+    role: "teacher",
     message: "Enter your message description here...",
     time: "12:25",
     isActive: false,
@@ -98,7 +98,7 @@ const mockChats = [
   {
     id: 10,
     name: "Miranda Blue",
-    role: "Teacher",
+    role: "teacher",
     message: "Enter your message description here...",
     time: "12:25",
     isActive: false,
@@ -108,7 +108,7 @@ const mockChats = [
   {
     id: 11,
     name: "Esmeralda Gray",
-    role: "Teacher",
+    role: "teacher",
     message: "Enter your message description here...",
     time: "12:25",
     isActive: false,
@@ -118,7 +118,7 @@ const mockChats = [
   {
     id: 12,
     name: "Oarack Babama",
-    role: "Teacher",
+    role: "teacher",
     message: "Enter your message description here...",
     time: "12:25",
     isActive: false,
@@ -145,49 +145,49 @@ export function UserAvatar({
     </div>
   );
 }
- const messages = [
-    {
-      id: 1,
-      sender: 'user',
-      text: "Hello my dear Sir, I'm here to deliver the design requirement document for our next project.",
-      time: '11:29 AM',
-      hasAttachment: true,
-      attachment: {
-        name: 'Design__project__2025.docx',
-        size: '2 page • docx'
-      }
-    },
-    {
-      id: 2,
-      sender: 'assistant',
-      text: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris',
-      time: '11:29 AM'
-    },
-    {
-      id: 3,
-      sender: 'user',
-      text: 'Do eiusmod truly dream of electric cheeps?',
-      time: '12:41 AM'
-    },
-    {
-      id: 4,
-      sender: 'assistant',
-      text: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exer',
-      time: '11:29 AM'
-    },
-    {
-      id: 5,
-      sender: 'user',
-      text: "Hello my dear Sir, I'm here to deliver the design requirement document for our next project.",
-      time: '11:29 AM'
-    },
-    {
-      id: 6,
-      sender: 'assistant',
-      text: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris',
-      time: '11:29 AM'
+const messages = [
+  {
+    id: 1,
+    sender: 'user',
+    text: "Hello my dear Sir, I'm here to deliver the design requirement document for our next project.",
+    time: '11:29 AM',
+    hasAttachment: true,
+    attachment: {
+      name: 'Design__project__2025.docx',
+      size: '2 page • docx'
     }
-  ];
+  },
+  {
+    id: 2,
+    sender: 'assistant',
+    text: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris',
+    time: '11:29 AM'
+  },
+  {
+    id: 3,
+    sender: 'user',
+    text: 'Do eiusmod truly dream of electric cheeps?',
+    time: '12:41 AM'
+  },
+  {
+    id: 4,
+    sender: 'assistant',
+    text: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exer',
+    time: '11:29 AM'
+  },
+  {
+    id: 5,
+    sender: 'user',
+    text: "Hello my dear Sir, I'm here to deliver the design requirement document for our next project.",
+    time: '11:29 AM'
+  },
+  {
+    id: 6,
+    sender: 'assistant',
+    text: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris',
+    time: '11:29 AM'
+  }
+];
 export default function HelpMessages() {
   const [searchQuery, setSearchQuery] = useState("");
   const [message, setMessage] = useState('');
@@ -248,8 +248,8 @@ export default function HelpMessages() {
         </div>
       </div>
 
-      <div className="flex flex-col flex-1 h-screen bg-gray-50">
-        <div className="bg-white border-b border-gray-200 px-4 py-3 flex items-center justify-between shrink-0">
+      <div className="flex flex-col flex-1 h-screen bg-[#95c4be48]">
+        <div className=" border-b border-gray-200 px-4 py-3 flex items-center justify-between shrink-0">
           <div className="flex items-center gap-3">
             <div className="w-8 h-8 bg-orange-100 rounded-lg flex items-center justify-center">
               <span className="text-orange-600 text-sm font-medium">👤</span>
@@ -279,7 +279,13 @@ export default function HelpMessages() {
               {msg.sender === 'user' ? (
                 <div className="flex justify-start">
                   <div className="max-w-[85%]">
-                    <p className="text-xs text-gray-500 mb-1">{msg.text}</p>
+                    <div className="text-sm flex-col flex justify-end bg-white p-3 rounded-md mb-1">
+                      {msg.text}<br />
+                      <div className="flex items-center justify-end gap-2 mt-1">
+                        <span className="text-xs text-gray-400">{msg.time}</span>
+                        <span className="text-xs text-teal-600">✓✓</span>
+                      </div>
+                    </div>
                     {msg.hasAttachment && (
                       <div className="bg-white border border-gray-200 rounded-lg p-3 mt-2 flex items-start gap-3">
                         <HiDocument className="text-teal-700 flex-shrink-0" size={24} />
@@ -299,12 +305,12 @@ export default function HelpMessages() {
               ) : (
                 <div className="flex justify-end">
                   <div className="max-w-[85%]">
-                    <div className="bg-teal-700 text-white rounded-lg px-4 py-3">
-                      <p className="text-xs leading-relaxed">{msg.text}</p>
-                    </div>
-                    <div className="flex items-center justify-end gap-2 mt-1">
-                      <span className="text-xs text-gray-400">{msg.time}</span>
-                      <span className="text-xs text-teal-600">✓✓ Sent</span>
+                    <div className="text-sm text-white flex-col flex justify-end bg-teal-700 p-3 rounded-md mb-1">
+                      {msg.text}<br />
+                      <div className="flex items-center justify-end gap-2 mt-1">
+                        <span className="text-xs text-gray-400">{msg.time}</span>
+                        <span className="text-xs text-teal-600">✓✓</span>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -324,7 +330,7 @@ export default function HelpMessages() {
           </button>
         </div>
 
-        <div className="bg-white border-t border-gray-200 px-4 py-3 shrink-0">
+        <div className=" border-t border-gray-200 px-4 py-3 shrink-0">
           <div className="flex items-center gap-2">
             <button className="p-2 text-gray-500 hover:text-gray-700 shrink-0">
               <FiPaperclip size={20} />
