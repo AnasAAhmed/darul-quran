@@ -82,13 +82,15 @@ const CourseBuilder = () => {
     setSearchParams({ tab: value });
   }
 
-  const handleSubmit = async (value) => {
-
-    setSearchParams({ tab: value ? value : 'content' });
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setSearchParams({
+      tab: (currentTab === 'info' ? 'content' : currentTab === 'content' ? 'pricing' : 'info')
+    });
 
   }
   return (
-    <div className="bg-swhite min-h-[170vh] h-full sm: bg-linear-to-t from-[#F1C2AC]/50 to-[#95C4BE]/50 px-2 sm:px-3 ">
+    <div className="h-full bg-linear-to-t from-[#F1C2AC]/50 to-[#95C4BE]/50 px-2 sm:px-3 ">
       <DashHeading
         title={"Course Builder"}
         desc={"Create a new course step by step"}
@@ -100,7 +102,7 @@ const CourseBuilder = () => {
           selectedKey={selected}
           onSelectionChange={handleSelected}
           classNames={{
-            tabList: "bg-white flex flex-wrap rounded-lg px-2 py-1",
+            tabList: " flex flex-wrap rounded-lg px-2 py-1",
             tab: `
             w-full sm:flex-1
       data-[selected=true]:bg-[#EBD4C9E5] rounded-lg 
@@ -142,7 +144,7 @@ const CourseBuilder = () => {
               animate="show"
               transition={{ when: "beforeChildren" }}
             >
-              <Form action={() => handleSubmit()} className="w-full py-4">
+              <Form onSubmit={handleSubmit} className="w-full py-4">
                 <div className="grid grid-cols-12 gap-2 w-full">
                   <div className="bg-white rounded-lg p-4 col-span-12 sm:col-span-8 shadow-xl">
                     <div>
@@ -296,7 +298,7 @@ const CourseBuilder = () => {
               animate="show"
               transition={{ when: "beforeChildren" }}
             >
-              {/* <Form action={()=>handleSubmit()}> */}
+              {/* <Form onSubmit={handleSubmit} > */}
               <div className="w-full flex flex-wrap py-4 gap-2">
                 {card.map((item) =>
                   <div className="w-full sm:flex-1 max-sm:border border-gray-300 p-3 bg-white rounded-lg">
@@ -328,9 +330,9 @@ const CourseBuilder = () => {
                   startContent={<FolderDot color="#06574C" size={16} />}
                   variant="bordered"
                   className="border-[#06574C] w-78 sm:w-40 text-[#06574C]"
-                  onPress={() => handleSubmit('info')}
+                  onPress={() => handleSelected('info')}
                 >Previous Step</Button>
-                <div className="flex flex-wrap gap-3">
+                <div className="flex flex-wrap my-5 gap-3">
                   <Button
                     size="lg"
                     startContent={<Rocket color="white" size={16} />}
@@ -342,7 +344,7 @@ const CourseBuilder = () => {
                     size="lg"
                     className="bg-[#06574C] w-full text-white sm:w-35"
                     // type="submit"
-                    onPress={() => handleSubmit('pricing')}
+                    onPress={() => handleSelected('pricing')}
 
                   >
                     Next Step
@@ -390,7 +392,7 @@ const CourseBuilder = () => {
                           <h1 className="text-[#06574C] font-medium text-sm">Choose between paid or free course</h1>
                         </div>
                         <div>
-                          <Switch defaultSelected aria-label="Automatic updates" />
+                          <Switch color="success" defaultSelected aria-label="Automatic updates" />
                         </div>
                       </div>
                       <div className="flex gap-3 items-center pt-4">
@@ -472,7 +474,15 @@ const CourseBuilder = () => {
                   </div>
                 </div>
                 <div className="flex flex-wrap gap-3 justify-center sm:justify-between items-center w-full ">
-                  <div>
+                  <div className="flex flex-wrap items-center gap-2">
+                    <Button
+                      size="lg"
+                      startContent={<FolderDot color="#06574C" size={16} />}
+                      variant="bordered"
+                      className="border-[#06574C] w-78 sm:w-40 text-[#06574C]"
+                      onPress={() => handleSelected('content')}
+                    >Previous Step
+                    </Button>
                     <Button size="lg" startContent={<FolderDot color="#06574C" size={16} />} variant="bordered" className="border-[#06574C] text-[#06574C]" type="submit">Save Draft</Button>
                   </div>
                   <div className="flex gap-3">

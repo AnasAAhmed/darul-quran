@@ -61,7 +61,7 @@ const Review = () => {
       {reviews.map((item, index) => (
         <div className="p-4 bg-white rounded-lg my-2" key={index}>
           <div className="flex gap-3">
-            <Avatar src="/public/icons/review.png" alt="avatar" size="lg" />
+            <Avatar src="/icons/review.png" alt="avatar" size="lg" />
             <div className="flex flex-col">
               <h1 className="text-md font-bold">{item.name}</h1>
               {/* Vertical stars component استعمال کریں */}

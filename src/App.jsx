@@ -184,25 +184,25 @@ function App() {
                 </ProtectedRoute>
               }
             />
+          <Route
+            path="/admin/help/messages"
+            element={
+              <ProtectedRoute isAuthenticated={true}>
+                <HelpMessages />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/help/chat"
+            element={
+              <ProtectedRoute isAuthenticated={true}>
+                <TeacherAndStudentChat />
+              </ProtectedRoute>
+            }
+          />
           </Route>
-          <Route element={<ChatLayout />}>
-            <Route
-              path="/admin/help/messages"
-              element={
-                <ProtectedRoute isAuthenticated={true}>
-                  <HelpMessages />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/admin/help/chat"
-              element={
-                <ProtectedRoute isAuthenticated={true}>
-                  <TeacherAndStudentChat />
-                </ProtectedRoute>
-              }
-            />
-          </Route>
+          {/* <Route element={<ChatLayout />}>
+          </Route> */}
         </Routes>
       </BrowserRouter>
     </HeroUIProvider>

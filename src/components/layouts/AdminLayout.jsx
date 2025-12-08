@@ -1,11 +1,13 @@
-import { Link, Outlet } from "react-router-dom";
+import { Link, Outlet, useLocation } from "react-router-dom";
 import Sidebar from "../dashboard-components/sidebar";
 import { Suspense, useEffect, useState } from "react";
 import { AnimatePresence, motion } from 'framer-motion'
 import { Button, Chip, Input, Popover, PopoverContent, PopoverTrigger, Spinner } from "@heroui/react";
-import { Bell, ChevronRight, MenuIcon, Plus, Search, SidebarClose, SidebarOpen } from "lucide-react";
+import { Bell, MenuIcon, Plus, Search, SidebarClose, SidebarOpen } from "lucide-react";
 
 export default function AdminLayout() {
+    const { pathname } = useLocation()
+
     const [isSidebarOpen, setIsSidebarOpen] = useState(() => {
         const saved = localStorage.getItem("sidebarOpen");
         return saved ? saved === "true" : true;
@@ -27,8 +29,11 @@ export default function AdminLayout() {
         }
     }, [isMobile, window.innerWidth]);
 
-    const toggleSearchBar = () => setSearchOpen(prev => !prev);
-
+    const Routes = [
+        '/admin/help/messages',
+        '/admin/help/chat'
+    ]
+    const shouldHeaderOnRoutes = Routes.includes(pathname);
     return (
         <>
             <main className="flex h-screen w-screen overflow-hidden bg-gray-50">
@@ -65,7 +70,7 @@ export default function AdminLayout() {
                         }`}
                 >
 
-                    <header className="bg-linear-to-r from-[#f7f7f7] via-[#ffffff] to-[#ffffff]  gap-3 flex p-2 justify-between msd:justify-end shadow-sm ">
+                    {!shouldHeaderOnRoutes && <header className="bg-linear-to-r from-[#f7f7f7] via-[#ffffff] to-[#ffffff]  gap-3 flex p-2 justify-between msd:justify-end shadow-sm ">
                         <button
                             onClick={() => setIsSidebarOpen(!isSidebarOpen)}
                             type="button"
@@ -178,7 +183,7 @@ export default function AdminLayout() {
                             </div>
 
                         </div>
-                    </header>
+                    </header>}
                     <Suspense fallback={
                         <div className="h-screen flex items-center justify-center">
                             <Spinner size="lg" label="Loading..." labelColor="success" color="success" />
