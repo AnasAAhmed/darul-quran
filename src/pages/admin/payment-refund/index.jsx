@@ -191,7 +191,7 @@ const PaymentsRefunds = () => {
       />
 
       <div className="bg-white p-3 my-4 rounded-lg">
-        <div className="flex flex-row justify-between items-center ">
+        <div className="flex flex-col md:flex-row gap-3 md:justify-between  md:items-center ">
           <h1 className="text-xl font-bold ">Students Payment</h1>
           <div className="flex gap-3 items-center">
             <Select
@@ -224,9 +224,9 @@ const PaymentsRefunds = () => {
             aria-label="Pending approvals table"
             removeWrapper
             classNames={{
-              base: "bg-white rounded-lg ",
+              base: "bg-white rounded-lg overflow-x-auto no-scrollbar",
               th: "font-bold p-4 text-sm text-[#333333] capitalize tracking-widest bg-[#EBD4C936] border-t border-default-200",
-              td: "py-3",
+              td: "py-3 items-center whitespace-nowrap",
               tr: "border-b border-default-200 hover:bg-default-200 cursor-pointer",
             }}
           >
@@ -319,17 +319,9 @@ const PaymentsRefunds = () => {
         </div>
       </div>
       <div className="bg-white p-3 my-4 rounded-lg">
-        <div className="flex flex-row justify-between items-center ">
+        <div className="flex flex-col md:flex-row gap-3 md:justify-between  md:items-center ">
           <h1 className="text-xl font-bold ">Teacher Payouts</h1>
           <div className="flex gap-3 items-center">
-            {/* <Button
-              variant="bordered"
-              size="lg"
-              className="border-[#06574C] text-[#06574C]"
-              endContent={<ListFilter size={16} />}
-            >
-              Filter
-            </Button> */}
             <Select
               radius="sm"
               variant="bordered"
@@ -360,9 +352,9 @@ const PaymentsRefunds = () => {
             aria-label="Pending approvals table"
             removeWrapper
             classNames={{
-              base: "bg-white rounded-lg ",
+              base: "bg-white rounded-lg overflow-x-scroll no-scrollbar",
               th: "font-bold text-sm p-4 text-[#333333] capitalize tracking-widest bg-[#EBD4C936] border-t border-default-200",
-              td: "py-3",
+              td: "py-3 items-center whitespace-nowrap",
               tr: "border-b border-default-200 hover:bg-default-200 cursor-pointer",
             }}
           >
@@ -443,7 +435,7 @@ const PaymentsRefunds = () => {
         </div>
       </div>
       <div className="bg-white p-3 my-4 rounded-lg">
-        <div className="flex flex-row justify-between items-center ">
+        <div className="flex flex-col md:flex-row gap-3 md:justify-between  md:items-center ">
           <h1 className="text-xl font-bold ">Refund History</h1>
           <div className="flex gap-3 items-center">
             <Select
@@ -475,9 +467,9 @@ const PaymentsRefunds = () => {
             removeWrapper
             selectionMode="multiple"
             classNames={{
-              base: "bg-white rounded-lg ",
+              base: "bg-white rounded-lg overflow-x-scroll no-scrollbar",
               th: "font-bold p-4 text-sm text-[#333333] capitalize tracking-widest bg-[#EBD4C936] border-t border-default-200",
-              td: "py-3",
+              td: "py-3 items-center whitespace-nowrap",
               tr: "border-b border-default-200",
             }}
           >
