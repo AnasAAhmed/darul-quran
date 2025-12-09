@@ -83,6 +83,7 @@ const CourseBuilder = () => {
       icone: <ScrollText size={20} color="#06574C" />,
     },
   ];
+  const [isSelected, setIsSelected] = useState(true);
 
   const accessDuration = [
     { key: "108_days", label: "108 Days" },
@@ -123,17 +124,19 @@ const CourseBuilder = () => {
       />
       <div className="flex w-full flex-col my-3">
         <Tabs
-          className="w-full inline-block py-2"
+          className="w-full md:inline-block py-2"
           aria-label="Disabled Options"
           selectedKey={selected}
           onSelectionChange={handleSelected}
           classNames={{
-            tabList: " flex flex-wrap rounded-lg px-2 py-1",
+            base: "w-full",
+            tabList: " flex flex-wrap rounded-lg px-2 py-1 ",
             tab: `
             w-full sm:flex-1
       data-[selected=true]:bg-[#EBD4C9E5] rounded-lg 
       data-[selected=true]:rounded-lg 
       data-[selected=true]:border-b-3 
+      data-[selected=true]:max-md:border-3 
       data-[selected=true]:border-[#06574C] 
       rounded-none
       px-6 py-4
@@ -142,7 +145,7 @@ const CourseBuilder = () => {
       group-data-[selected=true]:text-[#06574C]
       text-[#3F3F44]
       font-semibold
-      flex items-center gap-3
+      flex  md:items-center gap-3
     `,
           }}
         >
@@ -458,11 +461,16 @@ const CourseBuilder = () => {
                             Choose between paid or free course
                           </h1>
                         </div>
-                        <div>
+                        <div className="flex items-center gap-3">
+                          <p className="text-md text-[#06574C]">
+                            {isSelected ? "Active" : "Inactive"}
+                          </p>
                           <Switch
                             color="success"
                             defaultSelected
                             aria-label="Automatic updates"
+                            isSelected={isSelected}
+                            onValueChange={setIsSelected}
                           />
                         </div>
                       </div>
