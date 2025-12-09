@@ -144,11 +144,10 @@ const Announcements = () => {
       <div className="bg-[#EBD4C9] flex-wrap gap-2 p-2 sm:p-4 rounded-lg my-3 flex justify-between items-center">
         <div className="flex  items-center gap-2">
           <Select
-            isRequired
             className="md:min-w-[120px]"
             radius="sm"
             defaultSelectedKeys={["all"]}
-            placeholder="Select an status"
+            placeholder="Select status"
           >
             {statuses.map((status) => (
               <SelectItem key={status.key}>{status.label}</SelectItem>
@@ -180,18 +179,19 @@ const Announcements = () => {
         <Button
           startContent={<PlusIcon />}
           radius="sm"
+          size="lg"
           className="bg-[#06574C] text-white"
         >
-          Schedule New
+          Create Announcement
         </Button>
       </div>
-      <div className="max-sm:hidden overflow-hidden">
+      <div className="">
         <Table
           removeWrapper
           classNames={{
-            base: "bg-white rounded-lg ",
-            th: "font-bold p-4  text-[#333333] capitalize tracking-widest bg-[#EBD4C936]",
-            td: "py-3 ",
+            base: "w-full bg-white rounded-lg overflow-x-scroll w-full no-scrollbar",
+            th: "font-bold p-4 text-md  text-[#333333] capitalize tracking-widest  bg-[#EBD4C936]",
+            td: "py-3 items-center whitespace-nowrap",
             tr: "border-b border-default-200 ",
           }}
         >

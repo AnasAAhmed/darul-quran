@@ -18,11 +18,12 @@ import {
   TableHeader,
   TableRow,
 } from "@heroui/react";
+import { filter } from "framer-motion/client";
 const PaymentsRefunds = () => {
   const PaymentTable = [
     {
       id: 1,
-      student_name:"Jhon Davis",
+      student_name: "Jhon Davis",
       course_name: "React Hooks Deep Dive",
       course_desc: "Advanced JavaScript Course",
       attendance_rate: 75,
@@ -33,10 +34,11 @@ const PaymentsRefunds = () => {
       time: "Today, 2:00 PM",
       action: "Download",
       date: "Nov 20, 2025",
+      reason: "Missed",
     },
     {
       id: 2,
-      student_name:"Jhon Davis",
+      student_name: "Jhon Davis",
       course_name: "React Hooks Deep Dive",
       course_desc: "Advanced JavaScript Course",
       attendance_rate: 75,
@@ -47,10 +49,11 @@ const PaymentsRefunds = () => {
       time: "Today, 2:00 PM",
       action: "Download",
       date: "Nov 20, 2025",
+      reason: "Missed",
     },
     {
       id: 3,
-      student_name:"Jhon Davis",
+      student_name: "Jhon Davis",
       course_name: "React Hooks Deep Dive",
       course_desc: "Advanced JavaScript Course",
       attendance_rate: 75,
@@ -61,10 +64,11 @@ const PaymentsRefunds = () => {
       time: "Today, 2:00 PM",
       action: "Download",
       date: "Nov 20, 2025",
+      reason: "Cancelled",
     },
     {
       id: 4,
-      student_name:"Jhon Davis",
+      student_name: "Jhon Davis",
       course_name: "React Hooks Deep Dive",
       course_desc: "Advanced JavaScript Course",
       attendance_rate: 75,
@@ -75,12 +79,13 @@ const PaymentsRefunds = () => {
       time: "Today, 2:00 PM",
       action: "Download",
       date: "Nov 20, 2025",
+      reason: "Missed",
     },
   ];
   const TeachersTable = [
     {
       id: 1,
-      student_name:"Jhon Davis",
+      student_name: "Jhon Davis",
       course_name: "React Hooks Deep Dive",
       course_desc: "Advanced JavaScript Course",
       attendance_rate: 75,
@@ -94,7 +99,7 @@ const PaymentsRefunds = () => {
     },
     {
       id: 2,
-      student_name:"Jhon Davis",
+      student_name: "Jhon Davis",
       course_name: "React Hooks Deep Dive",
       course_desc: "Advanced JavaScript Course",
       attendance_rate: 75,
@@ -108,7 +113,7 @@ const PaymentsRefunds = () => {
     },
     {
       id: 3,
-      student_name:"Jhon Davis",
+      student_name: "Jhon Davis",
       course_name: "React Hooks Deep Dive",
       course_desc: "Advanced JavaScript Course",
       attendance_rate: 75,
@@ -122,7 +127,7 @@ const PaymentsRefunds = () => {
     },
     {
       id: 4,
-      student_name:"Jhon Davis",
+      student_name: "Jhon Davis",
       course_name: "React Hooks Deep Dive",
       course_desc: "Advanced JavaScript Course",
       attendance_rate: 75,
@@ -148,20 +153,20 @@ const PaymentsRefunds = () => {
   const refundheader = [
     { key: "Students Name", label: "Students Name" },
     { key: "Course Name", label: "Course Name" },
-    { key: "Status", label: "Status" },
+    { key: "Reason", label: "Reason" },
     { key: "Amount", label: "Amount" },
     { key: "Refund by", label: "Refund by" },
     { key: "Refund Date", label: "Refund Date" },
     { key: "Action", label: "Action" },
   ];
   const Teacherheader = [
-  { key: "teacher_name", label: "Teacher Name" },
-  { key: "amount", label: "Amount" },
-  { key: "status", label: "Status" },
-  { key: "date", label: "Date" },
-  { key: "time", label: "Time" },
-  { key: "action", label: "Action" },
-];
+    { key: "teacher_name", label: "Teacher Name" },
+    { key: "amount", label: "Amount" },
+    { key: "status", label: "Status" },
+    { key: "date", label: "Date" },
+    { key: "time", label: "Time" },
+    { key: "action", label: "Action" },
+  ];
   const limits = [
     { key: "10", label: "10" },
     { key: "20", label: "20" },
@@ -169,6 +174,13 @@ const PaymentsRefunds = () => {
     { key: "40", label: "40" },
     { key: "50", label: "50" },
   ];
+
+  const filters = [
+    { key: "All", label: "All" },
+    { key: "Completed", label: "Completed" },
+    { key: "Pending", label: "Pending" },
+  ];
+
   return (
     <div className="bg-white sm:bg-linear-to-t from-[#F1C2AC]/50 to-[#95C4BE]/50 px-2 sm:px-5 ">
       <DashHeading
@@ -182,14 +194,19 @@ const PaymentsRefunds = () => {
         <div className="flex flex-row justify-between items-center ">
           <h1 className="text-xl font-bold ">Students Payment</h1>
           <div className="flex gap-3 items-center">
-            <Button
+            <Select
               variant="bordered"
+              color="success"
               size="lg"
-              className="border-[#06574C] text-[#06574C]"
-              endContent={<ListFilter size={16} />}
+              className=" text-[#06574C] w-30 !border-[#06574C]"
+              // classNames={{}}
+              // endContent={<ListFilter size={16} />}
+              placeholder="Filter"
             >
-              Filter
-            </Button>
+              {filters.map((item) => (
+                <SelectItem key={item.key}>{item.label}</SelectItem>
+              ))}
+            </Select>
             <Button
               size="lg"
               className="bg-[#06574C] text-white"
@@ -206,7 +223,7 @@ const PaymentsRefunds = () => {
             removeWrapper
             classNames={{
               base: "bg-white rounded-lg ",
-              th: "font-bold p-4  text-[#333333] capitalize tracking-widest bg-[#EBD4C936] border-t border-default-200",
+              th: "font-bold p-4 text-sm text-[#333333] capitalize tracking-widest bg-[#EBD4C936] border-t border-default-200",
               td: "py-3",
               tr: "border-b border-default-200 hover:bg-default-200 cursor-pointer",
             }}
@@ -253,9 +270,7 @@ const PaymentsRefunds = () => {
                   </TableCell>
                   <TableCell>{classItem.time}</TableCell>
                   <TableCell className="felx flex-col">
-                    <h1>
-                      {classItem.date}
-                    </h1>
+                    <h1>{classItem.date}</h1>
                   </TableCell>
                   <TableCell>
                     <Button
@@ -305,14 +320,27 @@ const PaymentsRefunds = () => {
         <div className="flex flex-row justify-between items-center ">
           <h1 className="text-xl font-bold ">Teacher Payouts</h1>
           <div className="flex gap-3 items-center">
-            <Button
+            {/* <Button
               variant="bordered"
               size="lg"
               className="border-[#06574C] text-[#06574C]"
               endContent={<ListFilter size={16} />}
             >
               Filter
-            </Button>
+            </Button> */}
+            <Select
+              variant="bordered"
+              color="success"
+              size="lg"
+              className=" text-[#06574C] w-30 !border-[#06574C]"
+              // classNames={{}}
+              // endContent={<ListFilter size={16} />}
+              placeholder="Filter"
+            >
+              {filters.map((item) => (
+                <SelectItem key={item.key}>{item.label}</SelectItem>
+              ))}
+            </Select>
             <Button
               size="lg"
               className="bg-[#06574C] text-white"
@@ -329,7 +357,7 @@ const PaymentsRefunds = () => {
             removeWrapper
             classNames={{
               base: "bg-white rounded-lg ",
-              th: "font-bold p-4  text-[#333333] capitalize tracking-widest bg-[#EBD4C936] border-t border-default-200",
+              th: "font-bold text-sm p-4 text-[#333333] capitalize tracking-widest bg-[#EBD4C936] border-t border-default-200",
               td: "py-3",
               tr: "border-b border-default-200 hover:bg-default-200 cursor-pointer",
             }}
@@ -346,9 +374,9 @@ const PaymentsRefunds = () => {
                   <TableCell className="px-4">
                     <div>
                       <h1 className="font-semibold text-sm">
-                      {classItem.student_name}
-                    </h1>
-                    <h1 className="text-xs">{classItem.email}</h1>
+                        {classItem.student_name}
+                      </h1>
+                      <h1 className="text-xs">{classItem.email}</h1>
                     </div>
                   </TableCell>
                   <TableCell className="felx flex-col">
@@ -364,9 +392,7 @@ const PaymentsRefunds = () => {
                       {classItem.status}
                     </Button>
                   </TableCell>
-                  <TableCell>
-                    {classItem.date}
-                  </TableCell>
+                  <TableCell>{classItem.date}</TableCell>
                   <TableCell>{classItem.time}</TableCell>
                   <TableCell>
                     <Button
@@ -416,14 +442,19 @@ const PaymentsRefunds = () => {
         <div className="flex flex-row justify-between items-center ">
           <h1 className="text-xl font-bold ">Refund History</h1>
           <div className="flex gap-3 items-center">
-            <Button
+            <Select
               variant="bordered"
+              color="success"
               size="lg"
-              className="border-[#06574C] text-[#06574C]"
-              endContent={<ListFilter size={16} />}
+              className=" text-[#06574C] w-30"
+              // classNames={{}}
+              // endContent={<ListFilter size={16} />}
+              placeholder="Filter"
             >
-              Filter
-            </Button>
+              {filters.map((item) => (
+                <SelectItem key={item.key}>{item.label}</SelectItem>
+              ))}
+            </Select>
             <Button
               size="lg"
               className="bg-[#06574C] text-white"
@@ -441,7 +472,7 @@ const PaymentsRefunds = () => {
             selectionMode="multiple"
             classNames={{
               base: "bg-white rounded-lg ",
-              th: "font-bold p-4  text-[#333333] capitalize tracking-widest bg-[#EBD4C936] border-t border-default-200",
+              th: "font-bold p-4 text-sm text-[#333333] capitalize tracking-widest bg-[#EBD4C936] border-t border-default-200",
               td: "py-3",
               tr: "border-b border-default-200",
             }}
@@ -472,7 +503,7 @@ const PaymentsRefunds = () => {
                       size="sm"
                       className="bg-[#95C4BE33] text-[#06574C] w-30"
                     >
-                      {classItem.status}
+                      {classItem.reason}
                     </Button>
                   </TableCell>
                   <TableCell className="felx flex-col">
