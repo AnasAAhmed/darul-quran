@@ -10,11 +10,22 @@ import {
   Button,
   Switch,
 } from "@heroui/react";
-import { motion } from 'framer-motion'
+import { motion } from "framer-motion";
 import FileDropzone from "../../../components/dashboard-components/dropzone";
-import { File, FolderDot, Lightbulb, Rocket, ScrollText, Video } from "lucide-react";
+import {
+  File,
+  FolderDot,
+  Lightbulb,
+  Rocket,
+  ScrollText,
+  Video,
+} from "lucide-react";
 import { useEffect, useState } from "react";
-import Videos, { Assignments, PdfAndNotes, Quizzes } from "../../../components/dashboard-components/forms/ContentUpload";
+import Videos, {
+  Assignments,
+  PdfAndNotes,
+  Quizzes,
+} from "../../../components/dashboard-components/forms/ContentUpload";
 import { useSearchParams } from "react-router-dom";
 const containerVariants = {
   hidden: { opacity: 0, y: 10, scale: 0.98 },
@@ -28,11 +39,10 @@ const containerVariants = {
       // delayChildren: 0.02,
       duration: 0.2,
     },
-
   },
 };
 const CourseBuilder = () => {
-  const [thumbnail, setThumbnail] = useState([]);//file
+  const [thumbnail, setThumbnail] = useState([]); //file
   const category = [
     { key: "Advance_JavaScript", label: "Advance JavaScript" },
     { key: "Advance_React", label: "Advance React" },
@@ -40,7 +50,7 @@ const CourseBuilder = () => {
   ];
   const Duration = [
     { key: "Lifetime_Access", label: "Lifetime Access" },
-    { key: "One_Month", label: "One Month", },
+    { key: "One_Month", label: "One Month" },
     { key: "Yearly", label: "Yearly" },
   ];
   const Difficulty = [
@@ -53,42 +63,58 @@ const CourseBuilder = () => {
     { title: "Category:", desc: "No Selected" },
     { title: "Difficulty Level:", desc: "Beginner" },
     { title: "Price:", desc: "Free" },
-  ]
+  ];
 
   const card = [
-    { title: "Videos", count: "10", icone: <Video size={20} color="#06574C" /> },
+    {
+      title: "Videos",
+      count: "10",
+      icone: <Video size={20} color="#06574C" />,
+    },
     { title: "PDFs:", count: "10", icone: <File size={20} color="#06574C" /> },
-    { title: "Quizzes", count: "20", icone: <Lightbulb size={20} color="#06574C" /> },
-    { title: "Assignments", count: "15", icone: <ScrollText size={20} color="#06574C" /> },
-  ]
+    {
+      title: "Quizzes",
+      count: "20",
+      icone: <Lightbulb size={20} color="#06574C" />,
+    },
+    {
+      title: "Assignments",
+      count: "15",
+      icone: <ScrollText size={20} color="#06574C" />,
+    },
+  ];
 
   const accessDuration = [
-    { key: "108_days", label: "108 Days", },
+    { key: "108_days", label: "108 Days" },
     { key: "Lifetime_Access", label: "Lifetime Access" },
     { key: "360_days", label: "360 Days" },
-  ]
-  const [searchParams, setSearchParams] = useSearchParams()
-  const currentTab = searchParams.get('tab');
+  ];
+  const [searchParams, setSearchParams] = useSearchParams();
+  const currentTab = searchParams.get("tab");
   const [selected, setSelected] = useState(currentTab || "info");
   useEffect(() => {
     if (currentTab) {
       setSelected(currentTab);
     }
     window.scrollTo({ top: 0, behavior: "smooth" });
-  }, [currentTab])
+  }, [currentTab]);
   const handleSelected = (value) => {
-    setSelected(value)
+    setSelected(value);
     // searchParams.set('tab', value);
     setSearchParams({ tab: value });
-  }
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setSearchParams({
-      tab: (currentTab === 'info' ? 'content' : currentTab === 'content' ? 'pricing' : 'info')
+      tab:
+        currentTab === "info"
+          ? "content"
+          : currentTab === "content"
+          ? "pricing"
+          : "info",
     });
-
-  }
+  };
   return (
     <div className="h-full bg-linear-to-t from-[#F1C2AC]/50 to-[#95C4BE]/50 px-2 sm:px-3 ">
       <DashHeading
@@ -132,7 +158,10 @@ const CourseBuilder = () => {
                   <h1 className="text-[#06574C] text-lg font-bold">
                     Basic Information
                   </h1>
-                  <h1 className="text-xs wrap-break-word"> Course details & settings</h1>
+                  <h1 className="text-xs wrap-break-word">
+                    {" "}
+                    Course details & settings
+                  </h1>
                 </div>
               </div>
             }
@@ -148,7 +177,9 @@ const CourseBuilder = () => {
                 <div className="grid grid-cols-12 gap-2 w-full">
                   <div className="bg-white rounded-lg p-4 col-span-12 sm:col-span-8 shadow-xl">
                     <div>
-                      <h1 className="text-xl font-medium text-[#333333]">Course Details</h1>
+                      <h1 className="text-xl font-medium text-[#333333]">
+                        Course Details
+                      </h1>
                     </div>
                     <div className="py-4">
                       <Input
@@ -227,20 +258,29 @@ const CourseBuilder = () => {
                   </div>
                   <div className="col-span-12 sm:col-span-4">
                     <div className="bg-white rounded-lg p-3 shadow-xl">
-                      <h1 className="text-xl font-medium text-[#333333]">Course Details</h1>
+                      <h1 className="text-xl font-medium text-[#333333]">
+                        Course Details
+                      </h1>
                       <div className="py-6">
-                        <FileDropzone files={thumbnail} setFiles={setThumbnail} />
+                        <FileDropzone
+                          files={thumbnail}
+                          setFiles={setThumbnail}
+                        />
                       </div>
                     </div>
                     <div className="bg-white rounded-lg p-3 shadow-xl mt-3">
-                      <h1 className="text-xl font-medium text-[#333333]">Course Preview</h1>
+                      <h1 className="text-xl font-medium text-[#333333]">
+                        Course Preview
+                      </h1>
                       <div className="py-2">
                         {coursepreview.map((item) => (
                           <div className="py-1 flex justify-between items-center">
                             <h1 className="text-md font-medium text-[#666666]">
                               {item.title}
                             </h1>
-                            <p className="text-md font-semibold text-[#333333]">{item.desc}</p>
+                            <p className="text-md font-semibold text-[#333333]">
+                              {item.desc}
+                            </p>
                           </div>
                         ))}
                       </div>
@@ -249,15 +289,21 @@ const CourseBuilder = () => {
                 </div>
                 <div className="flex gap-3 flex-wrap justify-center sm:justify-between items-center w-full ">
                   <Button
-                    size="lg" startContent={<FolderDot color="#06574C" size={16} />}
+                    size="lg"
+                    startContent={<FolderDot color="#06574C" size={16} />}
                     variant="bordered"
                     className="border-[#06574C] w-78  sm:w-40 text-[#06574C]"
-                    type="submit">Save Draft</Button>
+                    type="submit"
+                  >
+                    Save Draft
+                  </Button>
                   <div className="flex flex-wrap gap-3">
                     <Button
                       size="lg"
                       startContent={<Rocket color="white" size={16} />}
-                      className="bg-[#B1A7A7] w-full text-white sm:w-60" type="submit">
+                      className="bg-[#B1A7A7] w-full text-white sm:w-60"
+                      type="submit"
+                    >
                       Publish Course
                     </Button>
                     <Button
@@ -300,9 +346,11 @@ const CourseBuilder = () => {
             >
               {/* <Form onSubmit={handleSubmit} > */}
               <div className="w-full flex flex-wrap py-4 gap-2">
-                {card.map((item) =>
+                {card.map((item) => (
                   <div className="w-full sm:flex-1 max-sm:border border-gray-300 p-3 bg-white rounded-lg">
-                    <h1 className="text-[#333333] text-md font-semibold">{item.title}</h1>
+                    <h1 className="text-[#333333] text-md font-semibold">
+                      {item.title}
+                    </h1>
                     <div className="mt-3 flex gap-2 items-center">
                       <div className="h-12 w-12 rounded-full bg-[#95C4BE33] p-1 items-center flex justify-center">
                         {item.icone}
@@ -312,7 +360,7 @@ const CourseBuilder = () => {
                       </h1>
                     </div>
                   </div>
-                )}
+                ))}
               </div>
               <Videos />
               <PdfAndNotes />
@@ -320,8 +368,16 @@ const CourseBuilder = () => {
               <Quizzes />
               <div className="p-3 my-5 bg-[#95C4BE33] rounded-md flex justify-between items-center">
                 <div>
-                  <h1 className="text-[#06574C] font-medium text-lg">Content Drip Schedule</h1>
-                  <h1 className="text-[#06574C] font-medium text-sm">Control when students can access each lesson. Content will be released automatically based on their enrollment date. This helps create a structured learning experience and prevents overwhelming students with too much content at once.</h1>
+                  <h1 className="text-[#06574C] font-medium text-lg">
+                    Content Drip Schedule
+                  </h1>
+                  <h1 className="text-[#06574C] font-medium text-sm">
+                    Control when students can access each lesson. Content will
+                    be released automatically based on their enrollment date.
+                    This helps create a structured learning experience and
+                    prevents overwhelming students with too much content at
+                    once.
+                  </h1>
                 </div>
               </div>
               <div className="flex gap-3 flex-wrap justify-center sm:justify-between items-center w-full ">
@@ -330,22 +386,24 @@ const CourseBuilder = () => {
                   startContent={<FolderDot color="#06574C" size={16} />}
                   variant="bordered"
                   className="border-[#06574C] w-78 sm:w-40 text-[#06574C]"
-                  onPress={() => handleSelected('info')}
-                >Previous Step</Button>
+                  onPress={() => handleSelected("info")}
+                >
+                  Previous Step
+                </Button>
                 <div className="flex flex-wrap my-5 gap-3">
                   <Button
                     size="lg"
                     startContent={<Rocket color="white" size={16} />}
                     className="bg-[#B1A7A7] w-full text-white sm:w-60"
                     type="submit"
-                  >Publish Course
+                  >
+                    Publish Course
                   </Button>
                   <Button
                     size="lg"
                     className="bg-[#06574C] w-full text-white sm:w-35"
                     // type="submit"
-                    onPress={() => handleSelected('pricing')}
-
+                    onPress={() => handleSelected("pricing")}
                   >
                     Next Step
                   </Button>
@@ -367,7 +425,10 @@ const CourseBuilder = () => {
                     {" "}
                     Pricing & Access
                   </h1>
-                  <h1 className="text-xs wrap-break-word"> Configure pricing & access rules</h1>
+                  <h1 className="text-xs wrap-break-word">
+                    {" "}
+                    Configure pricing & access rules
+                  </h1>
                 </div>
               </div>
             }
@@ -383,16 +444,26 @@ const CourseBuilder = () => {
                 <div className="grid grid-cols-12 gap-2 w-full">
                   <div className="bg-white rounded-lg p-4 col-span-12 shadow-xl">
                     <div>
-                      <h1 className="text-xl font-medium text-[#333333]">Pricing & Access Settings</h1>
+                      <h1 className="text-xl font-medium text-[#333333]">
+                        Pricing & Access Settings
+                      </h1>
                     </div>
                     <div className="py-4">
                       <div className="p-3 bg-[#95C4BE33] rounded-lg flex justify-between items-center">
                         <div>
-                          <h1 className="text-[#06574C] font-medium text-lg">Course Type</h1>
-                          <h1 className="text-[#06574C] font-medium text-sm">Choose between paid or free course</h1>
+                          <h1 className="text-[#06574C] font-medium text-lg">
+                            Course Type
+                          </h1>
+                          <h1 className="text-[#06574C] font-medium text-sm">
+                            Choose between paid or free course
+                          </h1>
                         </div>
                         <div>
-                          <Switch color="success" defaultSelected aria-label="Automatic updates" />
+                          <Switch
+                            color="success"
+                            defaultSelected
+                            aria-label="Automatic updates"
+                          />
                         </div>
                       </div>
                       <div className="flex gap-3 items-center pt-4">
@@ -420,7 +491,9 @@ const CourseBuilder = () => {
                         </Select>
                       </div>
 
-                      <h1 className="pt-4 text-xl text-[#333333] font-bold">Access Settings</h1>
+                      <h1 className="pt-4 text-xl text-[#333333] font-bold">
+                        Access Settings
+                      </h1>
 
                       <div className="flex gap-3 items-center py-4">
                         <Select
@@ -456,37 +529,63 @@ const CourseBuilder = () => {
                         className="w-full"
                         type="number"
                       />
-                      <span className="text-xs text-[#06574C]">Leave empty for unlimited enrollments</span>
-                      <div className="my-3 text-xl font-bold">Publish Status</div>
+                      <span className="text-xs text-[#06574C]">
+                        Leave empty for unlimited enrollments
+                      </span>
+                      <div className="my-3 text-xl font-bold">
+                        Publish Status
+                      </div>
                       <div className="p-3 bg-[#EBD4C982] rounded-lg flex justify-between items-center">
                         <div>
-                          <h1 className="text-[#333333] font-bold text-lg">Current Status: Draft</h1>
-                          <h1 className="text-[#666666] font-medium text-sm">Your course is not visible to students yet</h1>
+                          <h1 className="text-[#333333] font-bold text-lg">
+                            Current Status: Draft
+                          </h1>
+                          <h1 className="text-[#666666] font-medium text-sm">
+                            Your course is not visible to students yet
+                          </h1>
                         </div>
                         <div>
                           <Button
                             variant="bordered"
                             className="border-[#06574C] text-[#06574C]"
-                          >Change To Public</Button>
+                          >
+                            Change To Public
+                          </Button>
                         </div>
                       </div>
                     </div>
                   </div>
                 </div>
                 <div className="flex flex-wrap gap-3 justify-center sm:justify-between items-center w-full ">
-                  <div className="flex flex-wrap items-center gap-2">
+                  <div className="flex flex-wrap items-center justify-center  gap-2">
                     <Button
                       size="lg"
                       startContent={<FolderDot color="#06574C" size={16} />}
                       variant="bordered"
-                      className="border-[#06574C] w-78 sm:w-40 text-[#06574C]"
-                      onPress={() => handleSelected('content')}
-                    >Previous Step
+                      className="border-[#06574C] w-80 sm:w-40 text-[#06574C]"
+                      onPress={() => handleSelected("content")}
+                    >
+                      Previous Step
                     </Button>
-                    <Button size="lg" startContent={<FolderDot color="#06574C" size={16} />} variant="bordered" className="border-[#06574C] text-[#06574C]" type="submit">Save Draft</Button>
+                    <Button
+                      size="lg"
+                      startContent={<FolderDot color="#06574C" size={16} />}
+                      variant="bordered"
+                      className="border-[#06574C] text-[#06574C] w-80 sm:w-40"
+                      type="submit"
+                    >
+                      Save Draft
+                    </Button>
                   </div>
                   <div className="flex gap-3">
-                    <Button size="lg" startContent={<Rocket color="white" size={16} />} className="bg-[#06574C] text-white w-60" type="submit">Publish Course</Button>
+                    <Button
+                      size="lg"
+                      startContent={<Rocket color="white" size={16} />}
+                      className="bg-[#06574C] text-white w-80 sm:w-60"
+                      type="submit"
+                    >
+                      Publish Course
+                    </Button>
                   </div>
                 </div>
               </Form>
@@ -494,7 +593,7 @@ const CourseBuilder = () => {
           </Tab>
         </Tabs>
       </div>
-    </div >
+    </div>
   );
 };
 

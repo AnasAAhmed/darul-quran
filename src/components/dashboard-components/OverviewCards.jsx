@@ -28,7 +28,7 @@
  */
 const OverviewCards = ({ data = [] }) => {
     return (
-        <div className="py-4 gap-5 flex overflow-x-auto sm:grid sm:grid-cols-4">
+        <div className="py-4 gap-5  overflow-x-auto grid grid-cols-1 sm:grid-cols-4">
             {data.map((item, index) => (
                 <div
                     key={index}

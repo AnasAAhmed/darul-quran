@@ -379,7 +379,7 @@ const UserManagement = () => {
       <div className="bg-[#EBD4C9] flex-wrap gap-2 p-2 sm:p-4 rounded-lg my-3 flex justify-between items-center">
         <div className="flex  items-center gap-2">
           <Select
-            className="md:min-w-[120px]"
+            className="min-w-[120px]"
             radius="sm"
             defaultSelectedKeys={["all"]}
             placeholder="Select Status"
@@ -389,7 +389,7 @@ const UserManagement = () => {
             ))}
           </Select>
           <Select
-            className="md:min-w-[120px]"
+            className="min-w-[120px]"
             radius="sm"
             defaultSelectedKeys={["all"]}
             placeholder="Select Role"
@@ -400,7 +400,7 @@ const UserManagement = () => {
           </Select>
           <Select
             radius="sm"
-            className="md:min-w-[120px]"
+            className="min-w-[120px]"
             defaultSelectedKeys={["all"]}
             selectorIcon={<ListFilterPlusIcon />}
             placeholder="Select Filter"
@@ -410,7 +410,7 @@ const UserManagement = () => {
             ))}
           </Select>
         </div>
-        <div className=" flex gap-3">
+        <div className=" flex gap-3 ">
           <Button
             variant="bordered"
             radius="sm"
@@ -420,16 +420,16 @@ const UserManagement = () => {
           >
             Export
           </Button>
-        <Link href="/admin/user-management/add-user">
-          <Button
-            radius="sm"
-            startContent={<Plus color="white" size={15} />}
-            className="bg-[#06574C] text-white py-4 px-3 sm:px-8"
-            //   onPress={()=>{router.push("/admin/user-management/add-user")}}
-          >
-            Add User
-          </Button>
-        </Link>
+          <Link href="/admin/user-management/add-user">
+            <Button
+              radius="sm"
+              startContent={<Plus color="white" size={15} />}
+              className="bg-[#06574C] text-white py-4 px-3 sm:px-8"
+              //   onPress={()=>{router.push("/admin/user-management/add-user")}}
+            >
+              Add User
+            </Button>
+          </Link>
         </div>
       </div>
       <div>
@@ -462,12 +462,12 @@ const UserManagement = () => {
                     selectionMode="multiple"
                     aria-label="Pending approvals table"
                     removeWrapper
-          classNames={{
-            base: "w-full bg-white rounded-lg overflow-x-scroll w-full no-scrollbar",
-            th: "font-bold p-4 text-md  text-[#333333] capitalize tracking-widest  bg-[#EBD4C936]",
-            td: "py-3 items-center whitespace-nowrap",
-            tr: "border-b border-default-200 ",
-          }}
+                    classNames={{
+                      base: "w-full bg-white rounded-lg overflow-x-scroll w-full no-scrollbar",
+                      th: "font-bold p-4 text-md  text-[#333333] capitalize tracking-widest  bg-[#EBD4C936]",
+                      td: "py-3 items-center whitespace-nowrap",
+                      tr: "border-b border-default-200 ",
+                    }}
                   >
                     <TableHeader>
                       {header.map((item) => (
@@ -546,19 +546,19 @@ const UserManagement = () => {
                   initial={{ y: 10, opacity: 0 }}
                   animate={{ y: 0, opacity: 1 }}
                   exit={{ y: -10, opacity: 0 }}
-                 transition={{ duration: 0.6, ease: "easeInOut" }}
+                  transition={{ duration: 0.6, ease: "easeInOut" }}
                 >
                   <Table
                     //    isHeaderSticky
                     selectionMode="multiple"
                     aria-label="Pending approvals table"
                     removeWrapper
-          classNames={{
-            base: "w-full bg-white rounded-lg overflow-x-scroll w-full no-scrollbar",
-            th: "font-bold p-4 text-md  text-[#333333] capitalize tracking-widest  bg-[#EBD4C936]",
-            td: "py-3 items-center whitespace-nowrap",
-            tr: "border-b border-default-200 ",
-          }}
+                    classNames={{
+                      base: "w-full bg-white rounded-lg overflow-x-scroll w-full no-scrollbar",
+                      th: "font-bold p-4 text-md  text-[#333333] capitalize tracking-widest  bg-[#EBD4C936]",
+                      td: "py-3 items-center whitespace-nowrap",
+                      tr: "border-b border-default-200 ",
+                    }}
                   >
                     <TableHeader>
                       {header.map((item) => (
@@ -644,12 +644,12 @@ const UserManagement = () => {
                     selectionMode="multiple"
                     aria-label="Pending approvals table"
                     removeWrapper
-          classNames={{
-            base: "w-full bg-white rounded-lg overflow-x-scroll w-full no-scrollbar",
-            th: "font-bold p-4 text-md  text-[#333333] capitalize tracking-widest  bg-[#EBD4C936]",
-            td: "py-3 items-center whitespace-nowrap",
-            tr: "border-b border-default-200 ",
-          }}
+                    classNames={{
+                      base: "w-full bg-white rounded-lg overflow-x-scroll w-full no-scrollbar",
+                      th: "font-bold p-4 text-md  text-[#333333] capitalize tracking-widest  bg-[#EBD4C936]",
+                      td: "py-3 items-center whitespace-nowrap",
+                      tr: "border-b border-default-200 ",
+                    }}
                   >
                     <TableHeader>
                       {header.map((item) => (

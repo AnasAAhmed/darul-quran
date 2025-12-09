@@ -104,9 +104,9 @@ const AdminDashboard = () => {
 
       <OverviewCards data={cardsData} />
 
-      <div className='py-4 flex max-md:flex-wrap justify-between gap-4 items-center overflow-x-hidden'>
-        <div className="app flex flex-col items-center w-full bg-white  rounded-lg">
-          <div className='p-4 w-full flex items-center justify-between'>
+      <div className='py-4 flex max-md:flex-wrap justify-between gap-4 items-center  px-2 md:px-0'>
+        <div className="app flex flex-col items-center bg-white w-full rounded-lg overflow-x-scroll no-scrollbar">
+          <div className='p-4 w-full flex items-center justify-between '>
             <h1 className='text-xl font-bold'>Revenue Trend</h1>
             <Select
               radius="sm"

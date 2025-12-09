@@ -139,8 +139,8 @@ const SupportTickets = () => {
   return (
     <div className="bg-white sm:bg-linear-to-t from-[#F1C2AC]/50 to-[#95C4BE]/50 px-2 sm:px-3">
       <DashHeading
-        title={"Announcements"}
-        desc={"Manage and send announcements to your organization"}
+        title={"Support Tickets"}
+        desc={"Manage and respond to student help requests"}
       />
       <div className="bg-[#EBD4C9] flex-wrap gap-2 p-2 sm:p-4 rounded-lg my-3 flex justify-between items-center">
         <div className="flex  items-center gap-2">

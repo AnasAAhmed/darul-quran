@@ -10,7 +10,7 @@ export const DashHeading = ({ title, desc }) => {
     return (
         <div className="px-2 sm:px-4 py-3 sm:py-6">
             <p className="text-2xl text-nowrap sm:text-3xl font-bold text-[#333333]">{title ? title : heading}</p>
-            <p className="text-[13px] w-40 sm:w-full sm:text-[16px] text-[#666666]">{desc}</p>
+            <p className="text-[13px]  sm:w-full sm:text-[16px] text-[#666666]">{desc}</p>
         </div>
     );
 };
