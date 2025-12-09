@@ -5,7 +5,8 @@ const ApexChart = () => {
   const [chartState, setChartState] = React.useState({
     series: [{
       name: 'Revenue',
-      data: [31, 40, 28, 51, 42, 109, 100]
+      data: [31, 40, 28, 51, 42, 109, 100],
+      weesks: ['Week 1', 'Week 2', 'Week 3', 'Week 4', 'Week 5', 'Week 6', 'Week 7']
     }],
     options: {
       chart: {

@@ -208,7 +208,7 @@ const Analytics = () => {
       <div className="grid grid-cols-12 gap-3 my-3 px-3 md:px-0">
         <div className="col-span-12 md:col-span-6 bg-white p-3 rounded-lg">
           <div className="flex flex-col md:flex-row gap-3 md:justify-between md:items-center mb-4">
-            <h1 className="text-xl font-bold">Revenue Analytics</h1>
+            <h1 className="text-2xl font-bold">Revenue Analytics</h1>
             <Select
               radius="sm"
               className="w-50"
@@ -225,7 +225,7 @@ const Analytics = () => {
         </div>
         <div className="col-span-12 md:col-span-6 bg-white p-3 rounded-lg">
           <div className="flex flex-col md:flex-row gap-3 md:justify-between md:items-center mb-4">
-            <h1 className="text-xl font-bold">Enrollment Trends</h1>
+            <h1 className="text-2xl font-bold">Enrollment Trends</h1>
             <Select
               radius="sm"
               className="w-50"
@@ -242,7 +242,7 @@ const Analytics = () => {
         </div>
         <div className="col-span-12 md:col-span-6 bg-white px-3 py-5 rounded-lg">
           <div className="flex flex-col md:flex-row gap-3 md:justify-between md:items-center">
-            <h1 className="text-xl font-bold">Course Performance Analytics</h1>
+            <h1 className="text-2xl font-bold">Course Performance Analytics</h1>
             <Select
               radius="sm"
               className="w-50"
