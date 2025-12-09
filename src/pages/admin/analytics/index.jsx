@@ -169,8 +169,8 @@ const Analytics = () => {
   return (
     <div className="bg-white sm:bg-linear-to-t from-[#F1C2AC]/50 to-[#95C4BE]/50 px-2 sm:px-3">
       <DashHeading
-        title={"Announcements"}
-        desc={"Manage and send announcements to your organization"}
+        title={"Logs & Analytics"}
+        desc={"Monitor platform activity and performance metrics"}
       />
       <div className="bg-[#EBD4C9] flex-wrap gap-2 p-2 sm:p-4 rounded-lg my-3 flex justify-between items-center">
         <div className="flex  items-center gap-2">
@@ -329,6 +329,7 @@ const Analytics = () => {
                 showMonthAndYearPickers
               />
               <Input
+              className="w-60"
                 radius="sm"
                 variant="bordered"
                 placeholder="Search user activities..."
