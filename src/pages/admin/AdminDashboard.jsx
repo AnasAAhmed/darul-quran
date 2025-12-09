@@ -104,8 +104,8 @@ const AdminDashboard = () => {
 
       <OverviewCards data={cardsData} />
 
-      <div className='py-4 flex max-md:flex-wrap justify-between gap-4 items-center  px-2 md:px-0'>
-        <div className="app flex flex-col items-center bg-white w-full rounded-lg ">
+      <div className='py-4 grid grid-cols-1 md:grid-cols-2 justify-between gap-4 items-center  px-2 md:px-0'>
+        <div className=" flex flex-col items-center bg-white w-full rounded-lg overflow-scroll no-scrollbar">
           <div className='p-4 w-full flex items-center justify-between '>
             <h1 className='text-xl font-bold'>Revenue Trend</h1>
             <Select
@@ -120,11 +120,11 @@ const AdminDashboard = () => {
               ))}
             </Select>
           </div>
-         <div className='overflow-scroll no-scrollbar w-full'>
+         <div className='overflow-scroll no-scrollbar w-full '>
           <AreaCharts />
           </div> 
         </div>
-        <div className="p-4 flex flex-col items-center app w-full bg-white  rounded-lg">
+        <div className="p-4 flex flex-col items-center  w-full bg-white  rounded-lg">
           <div className='flex items-center w-full  justify-between'>
             <h1 className='text-xl font-bold'>User Activity</h1>
             <Select
