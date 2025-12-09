@@ -5,8 +5,8 @@ const ApexChart = () => {
   const [chartState, setChartState] = React.useState({
     series: [{
       name: 'Revenue',
-      data: [31, 40, 28, 51, 42, 109, 100],
-      weesks: ['Week 1', 'Week 2', 'Week 3', 'Week 4', 'Week 5', 'Week 6', 'Week 7']
+      data: [50, 40, 30, 20, ],
+      weesks: ['Week 1', 'Week 2', 'Week 3', 'Week 4', ]
     }],
     options: {
       chart: {
@@ -47,16 +47,8 @@ const ApexChart = () => {
       },
       colors: ['#06574C'],
       xaxis: {
-        type: 'datetime',
-        categories: [
-          "2018-09-19T00:00:00.000Z", 
-          "2018-09-19T01:30:00.000Z", 
-          "2018-09-19T02:30:00.000Z", 
-          "2018-09-19T03:30:00.000Z", 
-          "2018-09-19T04:30:00.000Z", 
-          "2018-09-19T05:30:00.000Z", 
-          "2018-09-19T06:30:00.000Z"
-        ],
+        type: 'categories',
+        categories: ['Week 1', 'Week 2', 'Week 3', 'Week 4',],
         labels: {
           style: {
             colors: '#6B7280',

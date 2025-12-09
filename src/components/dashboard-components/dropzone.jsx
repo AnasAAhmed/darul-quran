@@ -46,7 +46,7 @@ const FileDropzone = ({
 
       {showFilesThere && files.length > 0 ? (
         <div
-          className="border-2 relative border-dashed rounded-lg text-center cursor-pointer overflow-hidden"
+          className="border-2 relative border-[#06574C] border-dashed rounded-lg text-center cursor-pointer overflow-hidden"
           style={{ height, width }}
         >
           <PlusCircle
@@ -87,7 +87,7 @@ const FileDropzone = ({
       ) :
         <div
           {...getRootProps()}
-          className="border-2 border-dashed rounded-lg flex flex-col items-center justify-center text-center p-5 cursor-pointer"
+          className="border-2 border-dashed border-[#06574C] rounded-lg flex flex-col items-center justify-center text-center p-5 cursor-pointer"
           style={{ height, width, backgroundColor: uploadBgColor }}
         >
           <input name="files" {...getInputProps()} multiple={isMultiple} />
@@ -107,7 +107,7 @@ const FileDropzone = ({
             size="md"
             className="bg-[#06574C] mt-3 text-white hover:bg-teal-700"
           >
-            Browse Files
+            Select Files
           </Button>
 
         </div>

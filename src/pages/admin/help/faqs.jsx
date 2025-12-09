@@ -6,43 +6,43 @@ import { title } from "framer-motion/client";
 const Faqs = () => {
   const defaultContent = [
     {
-        id: 1,
+      id: 1,
       title: "How do I enroll in a course?",
       content:
         "You can browse all available courses and explore their details, including schedules, content, and instructors. Once you find the right course, you can easily enroll directly from the course page with just one click.",
     },
     {
-        id: 2,
+      id: 2,
       title: "Can I reschedule my class?",
       content:
         "You can browse all available courses and explore their details, including schedules, content, and instructors. Once you find the right course, you can easily enroll directly from the course page with just one click.",
     },
     {
-        id: 3,
+      id: 3,
       title: "How do I access my class recordings and materials?",
       content:
         "You can browse all available courses and explore their details, including schedules, content, and instructors. Once you find the right course, you can easily enroll directly from the course page with just one click.",
     },
     {
-        id: 4,
+      id: 4,
       title: "Where can I see my upcoming classes?",
       content:
         "You can browse all available courses and explore their details, including schedules, content, and instructors. Once you find the right course, you can easily enroll directly from the course page with just one click.",
     },
     {
-        id: 5,
+      id: 5,
       title: "How do I contact my teacher?",
       content:
         "You can browse all available courses and explore their details, including schedules, content, and instructors. Once you find the right course, you can easily enroll directly from the course page with just one click.",
     },
     {
-        id: 6,
+      id: 6,
       title: " How do I submit a refund request?",
       content:
         "You can browse all available courses and explore their details, including schedules, content, and instructors. Once you find the right course, you can easily enroll directly from the course page with just one click.",
     },
     {
-        id: 7,
+      id: 7,
       title: "Can I download my payment history??",
       content:
         "You can browse all available courses and explore their details, including schedules, content, and instructors. Once you find the right course, you can easily enroll directly from the course page with just one click.",
@@ -56,17 +56,28 @@ const Faqs = () => {
         desc={"Find quick answers to common questions."}
       />
       <div className="my-3">
-        <Accordion variant="splitted"
-        
-        selectionBehavior="toggle" 
-        itemClasses={{indicator:"rounded-full bg-[#F1F2F9] p-1.5 data-[open=true]:bg-[linear-gradient(360.06deg,_#95C4BE_5.92%,_#06574C_89.21%)] fill-white", 
-        // titleWrapper:"px-3",
-        // content:"px-3",
-        base: "mb-2 px-6",
-        }} className="">
+        <Accordion
+          variant="splitted"
+          selectionBehavior="toggle"
+          itemClasses={{
+            indicator:
+              "rounded-full bg-[#F1F2F9] data-[open=true]:bg-[linear-gradient(360.06deg,_#95C4BE_5.92%,_#06574C_89.21%)] p-1 data-[open=true]:text-white ",
+            base: "mb-2 pb-3",
+            trigger: "pb-0",
+          }}
+          className=""
+        >
           {defaultContent.map((item) => (
-            <AccordionItem key={item.id} aria-label="Accordion 1" title={<h1 className="text-lg text-[#333333] font-bold">{item.title}</h1>}>
-              <p className="text-sm text-[#666666]">{item.content}</p>
+            <AccordionItem
+              key={item.id}
+              aria-label="Accordion 1"
+              title={
+                <h1 className="text-lg text-[#333333] font-bold">
+                  {item.title}
+                </h1>
+              }
+            >
+              <p className="text-sm text-[#666666] ">{item.content}</p>
             </AccordionItem>
           ))}
         </Accordion>

@@ -27,6 +27,7 @@ import Videos, {
   Quizzes,
 } from "../../../components/dashboard-components/forms/ContentUpload";
 import { useSearchParams } from "react-router-dom";
+import { label } from "framer-motion/client";
 const containerVariants = {
   hidden: { opacity: 0, y: 10, scale: 0.98 },
 
@@ -63,6 +64,11 @@ const CourseBuilder = () => {
     { title: "Category:", desc: "No Selected" },
     { title: "Difficulty Level:", desc: "Beginner" },
     { title: "Price:", desc: "Free" },
+  ];
+
+  const teacher = [
+    { id: "All:", label: "All Teachers" },
+    { id: "jhon_davis:", label: "John Davis" },
   ];
 
   const card = [
@@ -245,12 +251,12 @@ const CourseBuilder = () => {
                         <Select
                           size="lg"
                           variant="bordered"
-                          label="Category"
+                          label="Teacher Name"
                           labelPlacement="outside"
-                          placeholder="Select category"
+                          placeholder="Select teacher"
                           className="w-full"
                         >
-                          {category.map((item) => (
+                          {teacher.map((item) => (
                             <SelectItem key={item.id} value={item.id}>
                               {item.label}
                             </SelectItem>

@@ -52,7 +52,7 @@ const Analytics = () => {
   ];
   const cardsData = [
     {
-      title: "Total Enrollments",
+      title: "Active Courses",
       value: "12,847",
       icon: <Album size={26} color="#06574C" />,
       changeText: "+12.5% from last month",
@@ -198,6 +198,7 @@ const Analytics = () => {
         </div>
         <Button
           startContent={<Download size={20} />}
+          size="lg"
           radius="sm"
           className="bg-[#06574C] text-white"
         >
@@ -211,10 +212,16 @@ const Analytics = () => {
             <h1 className="text-2xl font-bold">Revenue Analytics</h1>
             <Select
               radius="sm"
-              className="w-50"
+              className="w-50 "
               variant="bordered"
               defaultSelectedKeys={["all"]}
               placeholder="Select Filtered Date"
+              classNames={{
+                value: "!text-gray-400",
+                trigger: "!text-gray-400",
+                listbox: "!text-gray-400",
+                item: "!data-[selected=true]:text-gray-400",
+              }}
             >
               {Datefilters.map((filter) => (
                 <SelectItem key={filter.key}>{filter.label}</SelectItem>
@@ -232,6 +239,12 @@ const Analytics = () => {
               variant="bordered"
               defaultSelectedKeys={["all"]}
               placeholder="Select Filtered Date"
+              classNames={{
+                value: "!text-gray-400",
+                trigger: "!text-gray-400",
+                listbox: "!text-gray-400",
+                item: "!data-[selected=true]:text-gray-400",
+              }}
             >
               {Datefilters.map((filter) => (
                 <SelectItem key={filter.key}>{filter.label}</SelectItem>
@@ -249,6 +262,12 @@ const Analytics = () => {
               variant="bordered"
               defaultSelectedKeys={["all"]}
               placeholder="Select Filtered Date"
+              classNames={{
+                value: "!text-gray-400",
+                trigger: "!text-gray-400",
+                listbox: "!text-gray-400",
+                item: "!data-[selected=true]:text-gray-400",
+              }}
             >
               {Datefilters.map((filter) => (
                 <SelectItem key={filter.key}>{filter.label}</SelectItem>
@@ -313,9 +332,9 @@ const Analytics = () => {
             <div className="flex gap-3 items-center">
               <Select
                 radius="sm"
-                className="w-60 !border-[#06574C]"
+                className="w-60 !border-[#06574C] "
                 variant="bordered"
-                // defaultSelectedKeys={["all"]}
+                defaultSelectedKeys={["all"]}
                 placeholder="Filter"
               >
                 {statuses.map((items) => (
@@ -329,7 +348,7 @@ const Analytics = () => {
                 showMonthAndYearPickers
               />
               <Input
-              className="w-60"
+                className="w-60"
                 radius="sm"
                 variant="bordered"
                 placeholder="Search user activities..."
@@ -344,7 +363,7 @@ const Analytics = () => {
               removeWrapper
               classNames={{
                 base: "bg-white rounded-lg overflow-x-scroll no-scrollbar",
-                th: "font-bold p-4  text-[#333333] capitalize tracking-widest bg-[#EBD4C936] border-t border-default-200",
+                th: "font-bold text-sm p-4  text-[#333333] capitalize tracking-widest bg-[#EBD4C936] border-t border-default-200",
                 td: "py-3 items-center whitespace-nowrap",
                 tr: "border-b border-default-200",
               }}
@@ -362,7 +381,7 @@ const Analytics = () => {
                       <h1 className="font-semibold text-sm">
                         {classItem.student_name}
                       </h1>
-                      <h1 className="text-xs">{classItem.email}</h1>
+                      <h1 className="text-xs text-[#9A9A9A]">{classItem.email}</h1>
                     </TableCell>
                     <TableCell>
                       <Button
@@ -390,7 +409,7 @@ const Analytics = () => {
                           classItem.status === "Failed"
                             ? "bg-[#FFEAEC] text-[#E8505B]"
                             : "bg-[#95C4BE33] text-[#06574C]"
-                        } text-xs text-center rounded-md`}
+                        } text-xs text-center rounded-md font-semibold`}
                       >
                         {classItem.status}
                       </div>

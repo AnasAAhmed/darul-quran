@@ -51,7 +51,7 @@ export default function Videos() {
                     <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                         <div>
                             <h1 className="text-2xl font-semibold text-gray-900 sm:text-3xl">Lesson Videos</h1>
-                            <div className="mt-2 flex flex-col gap-2 text-sm text-gray-600 sm:flex-row sm:items-center sm:gap-2">
+                            <div className="mt-2 flex flex-col gap-2 text-md font-semibold text-gray-600 sm:flex-row sm:items-center sm:gap-2">
                                 <span className="flex items-center gap-1">
                                     <Menu />
                                     Total Lessons: 48
@@ -89,8 +89,8 @@ export default function Videos() {
                         <div
                             key={lesson.id}
                             className={`rounded-lg p-4 sm:p-6 transition-all ${lesson.status === "scheduled"
-                                ? "bg-pink-100"
-                                : "bg-blue-100 "
+                                ? "bg-[#F5E3DA]"
+                                : "bg-[#95C4BE33] "
                                 }`}
                         >
                             <div className="flex flex-col gap-4 sm:flex-row sm:gap-6">
@@ -154,6 +154,7 @@ export default function Videos() {
                                             variant="flat"
                                             color="default"
                                             isIconOnly
+                                            className="bg-white"
                                         >
                                             <Edit color="#06574C" className="h-4 w-4" />
                                         </Button>
@@ -244,7 +245,7 @@ export function PdfAndNotes() {
                             className="bg-[#06574C] text-white"
                             startContent={<Plus className="h-4 w-4" />}
                         >
-                            PDF/Notes
+                            Upload PDF/Notes
                         </Button>
                     </div>
                 </div>
@@ -256,8 +257,8 @@ export function PdfAndNotes() {
                         <div
                             key={document.id}
                             className={`rounded-lg p-4 sm:p-6 transition-all ${document.status === "scheduled"
-                                ? "bg-pink-100"
-                                : "bg-blue-100 "
+                                ? "bg-[#F5E3DA]"
+                                : "bg-[#95C4BE33] "
                                 }`}
                         >
                             <div className="flex flex-col gap-4 sm:flex-row sm:gap-6">
@@ -303,6 +304,7 @@ export function PdfAndNotes() {
                                             variant="flat"
                                             color="default"
                                             isIconOnly
+                                            className="bg-white"
                                         >
                                             <Edit color="#06574C" className="h-4 w-4" />
                                         </Button>
@@ -397,8 +399,8 @@ export function Assignments() {
                         <div
                             key={asignment.id}
                             className={`rounded-lg p-4 sm:p-6 transition-all ${asignment.status === "scheduled"
-                                ? "bg-pink-100"
-                                : "bg-blue-100 "
+                                ? "bg-[#F5E3DA]"
+                                : "bg-[#95C4BE33] "
                                 }`}
                         >
                             <div className="flex flex-col gap-4 sm:flex-row sm:gap-6">
@@ -434,6 +436,7 @@ export function Assignments() {
                                             variant="flat"
                                             color="default"
                                             isIconOnly
+                                            className="bg-white"
                                         >
                                             <Edit color="#06574C" className="h-4 w-4" />
                                         </Button>
@@ -536,8 +539,8 @@ export function Quizzes() {
                         <div
                             key={quiz.id}
                             className={`rounded-lg p-4 sm:p-6 transition-all ${quiz.status === "scheduled"
-                                ? "bg-pink-100"
-                                : "bg-blue-100 "
+                                ? "bg-[#F5E3DA]"
+                                : "bg-[#95C4BE33] "
                                 }`}
                         >
                             <div className="flex flex-col gap-4 sm:flex-row sm:gap-6">
@@ -589,6 +592,7 @@ export function Quizzes() {
                                             variant="flat"
                                             color="default"
                                             isIconOnly
+                                            className="bg-white"
                                         >
                                             <Edit color="#06574C" className="h-4 w-4" />
                                         </Button>
