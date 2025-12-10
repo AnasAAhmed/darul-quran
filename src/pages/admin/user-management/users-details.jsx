@@ -262,6 +262,12 @@ const UsersDetails = () => {
     },
   ];
 
+  const filters = [
+    { key: "All", label: "All" },
+    { key: "Completed", label: "Completed" },
+    { key: "Pending", label: "Pending" },
+  ];
+  
   const handleRoleChange = (e) => {
     setSelectedRole(e.target.value);
   };
@@ -465,15 +471,18 @@ const UsersDetails = () => {
         <div className="flex md:flex-row flex-col gap-2 md:justify-between md:items-center ">
           <h1 className=" text-3xl md:text-xl font-bold ">Payment History</h1>
           <div className="flex gap-3 items-center">
-            <Button
-              variant="bordered"
-              size="lg"
+            <Select
               radius="sm"
-              className="border-[#06574C] text-[#06574C]"
-              endContent={<ListFilter size={16} />}
+              variant="bordered"
+              color="success"
+              size="lg"
+              className=" text-[#06574C] w-30"
+              placeholder="Filter"
             >
-              Filter
-            </Button>
+              {filters.map((item) => (
+                <SelectItem key={item.key}>{item.label}</SelectItem>
+              ))}
+            </Select>
             <Button
               size="lg"
               radius="sm"

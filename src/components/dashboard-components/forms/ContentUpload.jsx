@@ -99,7 +99,7 @@ export default function Videos() {
                                         <img
                                             src={lesson.thumbnail}
                                             alt={lesson.title}
-                                            className="h-24 w-40 rounded-lg border border-gray-300 object-cover sm:h-28 sm:w-48"
+                                            className="h-24 w-full rounded-lg border border-gray-300 object-cover sm:h-28 sm:w-48"
                                         />
                                         <div className="absolute inset-0 flex items-center justify-center rounded-lg">
                                             <svg

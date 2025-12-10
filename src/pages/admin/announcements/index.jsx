@@ -153,17 +153,6 @@ const Announcements = () => {
               <SelectItem key={status.key}>{status.label}</SelectItem>
             ))}
           </Select>
-          {/* <Select
-                        isRequired
-                        className="md:min-w-[120px]"
-                        radius="sm"
-                        defaultSelectedKeys={["all"]}
-                        placeholder="Select an category"
-                    >
-                        {categories.map((category) => (
-                            <SelectItem key={category.key}>{category.label}</SelectItem>
-                        ))}
-                    </Select> */}
           <Select
             radius="sm"
             className="min-w-[120px]"
@@ -268,7 +257,7 @@ const Announcements = () => {
           </TableBody>
         </Table>
       </div>
-      <div className="flex items-center p-4 gap-2 justify-between">
+      <div className="flex max-md:flex-wrap overflow-hidden items-center p-4 gap-2 justify-between">
         <div className="flex text-sm items-center gap-1">
           <span>Showing</span>
           <Select
