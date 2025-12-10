@@ -14,7 +14,6 @@ import {
 } from "@heroui/react";
 import { Calendar, Copy, ListFilterIcon, PlusIcon, Trash2 } from "lucide-react";
 
-
 const Scheduling = () => {
   const classes = [
     {
@@ -214,7 +213,7 @@ const Scheduling = () => {
         desc={"Manage and organize your upcoming live sessions"}
       />
       <div className="bg-[#EBD4C9] flex-wrap gap-2 p-2 sm:p-4 rounded-lg my-3 flex justify-between items-center">
-        <div className="flex  items-center gap-2">
+        <div className="flex max-md:flex-wrap items-center gap-2">
           <Select
             className="min-w-[120px]"
             radius="sm"
@@ -225,17 +224,6 @@ const Scheduling = () => {
               <SelectItem key={status.key}>{status.label}</SelectItem>
             ))}
           </Select>
-          {/* <Select
-                        isRequired
-                        className="min-w-[120px]"
-                        radius="sm"
-                        defaultSelectedKeys={["all"]}
-                        placeholder="Select an category"
-                    >
-                        {categories.map((category) => (
-                            <SelectItem key={category.key}>{category.label}</SelectItem>
-                        ))}
-                    </Select> */}
           <Select
             radius="sm"
             className="min-w-[120px]"
@@ -254,7 +242,7 @@ const Scheduling = () => {
           startContent={<PlusIcon />}
           radius="sm"
           size="lg"
-          className="bg-[#06574C] text-white"
+          className="bg-[#06574C] text-white max-md:w-full"
         >
           Schedule New
         </Button>
@@ -349,7 +337,7 @@ const Scheduling = () => {
           </TableBody>
         </Table>
       </div>
-      <div className="flex items-center p-4 gap-2 justify-between">
+      <div className="flex flex-wrap items-center p-4 gap-2 justify-between overflow-hidden">
         <div className="flex text-sm items-center gap-1">
           <span>Showing</span>
           <Select

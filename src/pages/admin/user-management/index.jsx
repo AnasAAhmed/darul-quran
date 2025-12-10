@@ -369,7 +369,7 @@ const UserManagement = () => {
   const [selectedTab, setSelectedTab] = useState("");
   const router = useNavigate();
   return (
-    <div className="bg-white sm:bg-linear-to-t from-[#F1C2AC]/50 to-[#95C4BE]/50 px-2 sm:px-5 ">
+    <div className="bg-white bg-linear-to-t from-[#F1C2AC]/50 to-[#95C4BE]/50 px-2 sm:px-5 ">
       <DashHeading
         title={"Users Management"}
         desc={
@@ -377,7 +377,7 @@ const UserManagement = () => {
         }
       />
       <div className="bg-[#EBD4C9] flex-wrap gap-2 p-2 sm:p-4 rounded-lg my-3 flex justify-between items-center">
-        <div className="flex  items-center gap-2">
+        <div className="flex max-md:flex-wrap items-center gap-2">
           <Select
             className="min-w-[120px]"
             radius="sm"
@@ -410,21 +410,21 @@ const UserManagement = () => {
             ))}
           </Select>
         </div>
-        <div className=" flex gap-3 ">
+        <div className=" flex gap-3 max-md:flex-wrap max-md:w-full">
           <Button
             variant="bordered"
             radius="sm"
             startContent={<Plus color="#06574C" size={15} />}
-            className="border-[#06574C] text-[#06574C] py-4 px-3 sm:px-8"
+            className="border-[#06574C] text-[#06574C] py-4 px-3 sm:px-8 max-md:w-full"
             //   onPress={()=>{router.push("/admin/user-management/add-user")}}
           >
             Export
           </Button>
-          <Link href="/admin/user-management/add-user">
+          <Link className="max-md:w-full" href="/admin/user-management/add-user">
             <Button
               radius="sm"
               startContent={<Plus color="white" size={15} />}
-              className="bg-[#06574C] text-white py-4 px-3 sm:px-8"
+              className="bg-[#06574C] text-white py-4 px-3 sm:px-8 max-md:w-full"
               //   onPress={()=>{router.push("/admin/user-management/add-user")}}
             >
               Add User
@@ -434,7 +434,9 @@ const UserManagement = () => {
       </div>
       <div>
         <div className=" ">
-          <Tabs aria-label="Tabs colors" radius="full">
+          <Tabs aria-label="Tabs colors" radius="full" 
+          className="flex"
+          >
             <Tab
               key="Students"
               title={

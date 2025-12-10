@@ -262,7 +262,7 @@ const SupportTickets = () => {
           </TableBody>
         </Table>
       </div>
-      <div className="flex items-center p-4 gap-2 justify-between">
+      <div className="flex flex-wrap overflow-hidden items-center p-4 gap-2 justify-between">
         <div className="flex text-sm items-center gap-1">
           <span>Showing</span>
           <Select

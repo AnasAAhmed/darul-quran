@@ -138,7 +138,7 @@ const CourseBuilder = () => {
             base: "w-full",
             tabList: " flex flex-wrap rounded-lg px-2 py-1 ",
             tab: `
-            w-full sm:flex-1
+            w-full flex-1
       data-[selected=true]:bg-[#EBD4C9E5] rounded-lg 
       data-[selected=true]:rounded-lg 
       data-[selected=true]:border-b-3 
@@ -354,7 +354,7 @@ const CourseBuilder = () => {
               transition={{ when: "beforeChildren" }}
             >
               {/* <Form onSubmit={handleSubmit} > */}
-              <div className="w-full flex flex-wrap py-4 gap-2">
+              <div className="w-full grid grid-cols-2 md:grid-cols-4 py-4 gap-2">
                 {card.map((item) => (
                   <div className="w-full sm:flex-1 max-sm:border border-gray-300 p-3 bg-white rounded-lg">
                     <h1 className="text-[#333333] text-md font-semibold">

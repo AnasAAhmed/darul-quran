@@ -7,6 +7,8 @@ import { BrowserRouter, Route, Routes } from "react-router-dom";
 import { HeroUIProvider } from "@heroui/react";
 import { lazy } from "react";
 import ChatLayout from "./components/layouts/ChatLayout";
+import TeachersLayout from "./components/layouts/Teacherslayout";
+import TeachersDashboard from "./pages/teacher/TeachersDashboard";
 
 const AdminDashboard = lazy(() => import("./pages/admin/AdminDashboard"));
 const Home = lazy(() => import("./pages/Home"));
@@ -203,6 +205,16 @@ function App() {
           </Route>
           {/* <Route element={<ChatLayout />}>
           </Route> */}
+          <Route element={<TeachersLayout />}>
+            <Route
+            path="/teachers/"
+            element={
+              <ProtectedRoute isAuthenticated={true}>
+                <TeachersDashboard />
+              </ProtectedRoute>
+            }
+          />
+          </Route>
         </Routes>
       </BrowserRouter>
     </HeroUIProvider>

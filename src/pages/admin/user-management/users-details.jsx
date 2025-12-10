@@ -267,7 +267,7 @@ const UsersDetails = () => {
   };
 
   return (
-    <div className="bg-white sm:bg-linear-to-t from-[#F1C2AC]/50 to-[#95C4BE]/50 px-2 sm:px-5 pb-3">
+    <div className="bg-white bg-linear-to-t from-[#F1C2AC]/50 to-[#95C4BE]/50 px-2 sm:px-5 pb-3">
       <DashHeading
         title={"Users Management"}
         desc={
@@ -320,7 +320,7 @@ const UsersDetails = () => {
         </div>
       </div>
 
-      <div className="grid grid-cols-12 my-4 space-x-4">
+      <div className="grid grid-cols-12 my-4 md:space-x-4 max-md:gap-4">
         <div className="grid col-span-12 md:col-span-4 bg-white rounded-lg px-4 py-4">
           <div className="flex justify-between items-center">
             <h1 className="text-xl font-bold">Personal Details</h1>
@@ -376,10 +376,9 @@ const UsersDetails = () => {
           ))}
         </div>
       </div>
-
       <div className="bg-white p-3 my-4 rounded-lg">
-        <div className="flex flex-row justify-between items-center ">
-          <h1 className="text-xl font-bold ">Enrolled Courses</h1>
+        <div className="flex md:flex-row flex-col gap-2 md:justify-between md:items-center ">
+          <h1 className=" text-3xl md:text-xl font-bold ">Enrolled Courses</h1>
           <Button
             radius="sm"
             // size="lg"
@@ -395,9 +394,9 @@ const UsersDetails = () => {
             aria-label="Pending approvals table"
             removeWrapper
             classNames={{
-              base: "bg-white rounded-lg ",
+              base: "bg-white rounded-lg overflow-x-scroll no-scrollbar",
               th: "font-bold p-4 text-md text-[#333333] capitalize tracking-widest bg-[#EBD4C936]",
-              td: "py-3",
+              td: "py-3 ",
               tr: "border-b border-default-200 cursor-pointer ",
             }}
           >
@@ -463,8 +462,8 @@ const UsersDetails = () => {
       </div>
 
       <div className="bg-white p-3 my-4 rounded-lg">
-        <div className="flex flex-row justify-between items-center ">
-          <h1 className="text-xl font-bold ">Payment History</h1>
+        <div className="flex md:flex-row flex-col gap-2 md:justify-between md:items-center ">
+          <h1 className=" text-3xl md:text-xl font-bold ">Payment History</h1>
           <div className="flex gap-3 items-center">
             <Button
               variant="bordered"
@@ -491,7 +490,7 @@ const UsersDetails = () => {
             aria-label="Pending approvals table"
             removeWrapper
             classNames={{
-              base: "bg-white rounded-lg ",
+              base: "bg-white rounded-lg overflow-x-scroll no-scrollbar",
               th: "font-bold p-4 text-md text-[#333333] capitalize tracking-widest bg-[#EBD4C936] border-t border-default-200",
               td: "py-3",
               tr: "border-b border-default-200",

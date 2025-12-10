@@ -167,7 +167,7 @@ const Analytics = () => {
   ];
 
   return (
-    <div className="bg-white sm:bg-linear-to-t from-[#F1C2AC]/50 to-[#95C4BE]/50 px-2 sm:px-3">
+    <div className="bg-white bg-linear-to-t from-[#F1C2AC]/50 to-[#95C4BE]/50 px-2 sm:px-3">
       <DashHeading
         title={"Logs & Analytics"}
         desc={"Monitor platform activity and performance metrics"}
@@ -329,10 +329,10 @@ const Analytics = () => {
             <div>
               <h1 className="text-xl font-bold">User Activity Logs</h1>
             </div>
-            <div className="flex gap-3 items-center">
+            <div className="flex flex-wrap gap-3 items-center">
               <Select
                 radius="sm"
-                className="w-60 !border-[#06574C] "
+                className="w-full md:w-60 !border-[#06574C] "
                 variant="bordered"
                 defaultSelectedKeys={["all"]}
                 placeholder="Filter"
@@ -343,12 +343,12 @@ const Analytics = () => {
               </Select>
               <DatePicker
                 radius="sm"
-                className="w-50"
+                className="w-full md:w-50"
                 variant="bordered"
                 showMonthAndYearPickers
               />
               <Input
-                className="w-60"
+                className="w-full md:w-60"
                 radius="sm"
                 variant="bordered"
                 placeholder="Search user activities..."
@@ -418,7 +418,7 @@ const Analytics = () => {
                 ))}
               </TableBody>
             </Table>
-            <div className="flex items-center p-4 gap-2 justify-between">
+            <div className="flex flex-wrap overflow-hidden items-center p-4 gap-2 justify-between">
               <div className="flex text-sm items-center gap-1">
                 <span>Showing</span>
                 <Select
