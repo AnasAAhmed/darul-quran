@@ -27,7 +27,7 @@ const Login = () => {
       </div>
       <div className="flex-1 flex flex-col max-sm:items-center items-start md:justify-center bg-[#E9E0D6] !ml-0 px-6 sm:px-12 md:px-16 lg:px-24 py-8 lg:py-0 m-0 lg:m-6 lg:rounded-r-lg ">
           <img
-            src="/icons/darul-quran-black-logo.png"
+            src="/icons/darul-quran-logo.png"
             alt="Darul Quran"
             className=" w-45 h-45 md:hidden"
           />
