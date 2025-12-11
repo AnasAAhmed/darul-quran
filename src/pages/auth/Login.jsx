@@ -69,14 +69,25 @@ const Login = () => {
               />
             </div>
             {/* <Link to=""> */}
-            <Button
+            <div className="flex gap-3 ">
+              <Button
               type="submit"
               as={Link}
               to="/admin/dashboard"
               className="w-full text-center text-white rounded-md py-3 bg-[#06574C]"
             >
-              Login
+              Login as admin
             </Button>
+
+            <Button
+              type="submit"
+              as={Link}
+              to="/teacher/dashboard"
+              className="w-full text-center text-white rounded-md py-3 bg-[#06574C]"
+            >
+              Login as teacher
+            </Button>
+            </div>
             {/* </Link> */}
             <div className="text-center text-sm lg:text-base mb-4 text-[#3F3F44]">
               Or

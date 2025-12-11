@@ -9,6 +9,7 @@ import { lazy } from "react";
 import ChatLayout from "./components/layouts/ChatLayout";
 import TeachersLayout from "./components/layouts/Teacherslayout";
 import TeachersDashboard from "./pages/teacher/TeachersDashboard";
+import MyCourses from "./pages/teacher/my-courses";
 
 const AdminDashboard = lazy(() => import("./pages/admin/AdminDashboard"));
 const Home = lazy(() => import("./pages/Home"));
@@ -212,6 +213,16 @@ function App() {
             element={
               <ProtectedRoute isAuthenticated={true}>
                 <TeachersDashboard />
+              </ProtectedRoute>
+            }
+          />
+          </Route>
+          <Route element={<TeachersLayout />}>
+            <Route
+            path="/teacher/courses"
+            element={
+              <ProtectedRoute isAuthenticated={true}>
+                <MyCourses />
               </ProtectedRoute>
             }
           />
