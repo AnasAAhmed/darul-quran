@@ -33,11 +33,11 @@ const Login = () => {
           />
         <div className="w-full max-w-xl mx-auto lg:mx-16">
           <h1 className="text-xl sm:text-3xl lg:text-4xl xl:text-[35px] text-[#3F3F44] leading-tight mb-6 lg:mb-8 font-medium">
-            Assalamu 'alaykum, <br />
+            {/* Assalamu 'alaykum, <br /> */}
             <strong>Welcome</strong>
             {""} to{" "}
-            <span className="text-[#95C4BE]">Darul Qur'an Leicester </span> - a
-            space to grow, reflect and connect
+            <span className="text-[#95C4BE]">Darul Qur'an Leicester </span> 
+            {/* - a space to grow, reflect and connect */}
           </h1>
 
           <form
