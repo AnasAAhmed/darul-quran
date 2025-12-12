@@ -273,92 +273,33 @@ const TeachersDashboard = () => {
         </div>
       </div>
       <div className="px-3 sm:px-6 py-4 rounded-lg bg-white my-4">
-            <h2 className="text-lg font-semibold text-gray-900 mb-4">Quick Actions</h2>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <Button
-                variant="solid"
-                color="primary"
-                startContent={<PlusIcon />}
-                className="w-full py-4 bg-[#06574C] text-white"
-              >
-                New Announcement
-              </Button>
-              <Button
-                variant="solid"
-                color="primary"
-                startContent={<PlusIcon />}
-                className="w-full py-4 bg-[#06574C] text-white"
-              >
-                Shedule New Class
-              </Button>
-              <Button
-                variant="flat"
-                startContent={<PlusIcon />}
-                className="w-full py-4 bg-[#06574C] text-white font-semibold"
-              >
-                Create Quiz
-              </Button>
-            </div>
-          </div>
-    </div>
-  );
-};
-const ClassCard = ({ classItem }) => {
-  return (
-    <div className="bg-[#F1E0D9] rounded-2xl border-b border-gray-100 p-4 hover:bg-gray-50 transition-colors">
-      <div className="flex items-start gap-3">
-        <div className="w-12 h-12 rounded-full bg-linear-to-br from-teal-400 to-emerald-500 flex items-center justify-center text-white font-bold text-sm  shrink-0">
-          {classItem.teacher
-            .split(" ")
-            .map((n) => n[0])
-            .join("")}
-        </div>
-
-        <div className="flex-1 min-w-0">
-          <div className="flex items-start justify-between gap-2 ">
-            <h3 className="font-semibold text-[#06574C] text-sm leading-tight">
-              {classItem.name}
-            </h3>
-            <span className="px-2.5 py-1 text-xs rounded-md text-[#06574C] bg-[#95C4BE]/20 whitespace-nowrap font-medium">
-              {classItem.status}
-            </span>
-          </div>
-
-          <p className="text-xs text-gray-500 ">{classItem.subtitle}</p>
-
-          <div className="s">
-            <div className="flex text-gray-500 items-center gap-1 text-xs">
-              <span className="">With</span>
-              <span className="font-medium">{classItem.teacher}</span>
-            </div>
-
-            <div className="flex items-center justify-between text-xs">
-              <div className="flex items-center gap-1">
-                <svg
-                  className="w-4 h-4 text-gray-400"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
-                  />
-                </svg>
-                <span className="text-gray-600">{classItem.time}</span>
-              </div>
-
-              <div className="flex items-center gap-1">
-                <UsersIcon />
-                <span className="text-gray-600 font-medium">
-                  {classItem.enrolled}
-                </span>
-                <span className="text-gray-400">Enrolled</span>
-              </div>
-            </div>
-          </div>
+        <h2 className="text-lg font-semibold text-gray-900 mb-4">
+          Quick Actions
+        </h2>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <Button
+            variant="solid"
+            color="primary"
+            startContent={<PlusIcon />}
+            className="w-full py-4 bg-[#06574C] text-white"
+          >
+            New Announcement
+          </Button>
+          <Button
+            variant="solid"
+            color="primary"
+            startContent={<PlusIcon />}
+            className="w-full py-4 bg-[#06574C] text-white"
+          >
+            Shedule New Class
+          </Button>
+          <Button
+            variant="flat"
+            startContent={<PlusIcon />}
+            className="w-full py-4 bg-[#06574C] text-white font-semibold"
+          >
+            Create Quiz
+          </Button>
         </div>
       </div>
     </div>
