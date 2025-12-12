@@ -7,7 +7,8 @@ import { FaRegAddressCard } from "react-icons/fa";
 import { LuSquareArrowOutUpRight } from "react-icons/lu";
 import {RangeCalendar} from "@heroui/react";
 import {today, getLocalTimeZone} from "@internationalized/date";
-const SheduleClass = () => {
+import { filter } from "framer-motion/client";
+const StudentClassSheduling = () => {
   const SheduledClass = [
     {
       id: 1,
@@ -30,13 +31,11 @@ const SheduleClass = () => {
       coursename: "Javascript",
     },
   ];
-
   const filters = [
     { key: "all", label: "All Status" },
     { key: "draft", label: "Draft" },
     { key: "published", label: "Published" },
   ];
-
   return (
     <div className="bg-white bg-linear-to-t from-[#F1C2AC]/50 to-[#95C4BE]/50 h-scrseen px-2 sm:px-3">
       <DashHeading
@@ -132,8 +131,8 @@ const SheduleClass = () => {
           <div className=" w-full flex justify-center ">
             <RangeCalendar
               aria-label="Date (Read Only)"
-              // calendarWidth={30}
-            className="self-center"
+            //   calendarWidth={450}
+            className=" "
               value={{
                 start: today(getLocalTimeZone()),
                 end: today(getLocalTimeZone()).add({ weeks: 1 }),
@@ -250,4 +249,4 @@ const SheduleClass = () => {
   );
 };
 
-export default SheduleClass;
+export default StudentClassSheduling;

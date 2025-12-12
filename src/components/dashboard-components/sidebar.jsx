@@ -14,6 +14,7 @@ import {
 } from 'lucide-react';
 import { Link, useLocation } from 'react-router-dom';
 import { b } from 'framer-motion/client';
+import { FaChalkboardTeacher } from 'react-icons/fa';
 
 const Sidebar = ({ isSidebarOpen, setIsSidebarOpen }) => {
   const [expandedItems, setExpandedItems] = useState([0, 6]);
@@ -79,6 +80,8 @@ const Sidebar = ({ isSidebarOpen, setIsSidebarOpen }) => {
 
   const studentMenu = [
     { name: 'Dashboard', icon: <HomeIcon />, link: '/student/dashboard' },
+    { name: 'My Learning Journey', icon: <FaChalkboardTeacher />, link: '/student/my-learning' },
+    { name: 'Class Scheduling', icon: <FaChalkboardTeacher />, link: '/student/class-scheduling' },
     { name: 'Help', icon: <FileQuestionIcon />, link: '/help' }
   ];
 
