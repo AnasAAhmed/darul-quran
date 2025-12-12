@@ -22,10 +22,6 @@ import {
   Trash2,
 } from "lucide-react";
 import { useState } from "react";
-import FullCalendar from "@fullcalendar/react";
-import dayGridPlugin from "@fullcalendar/daygrid";
-import interactionPlugin from "@fullcalendar/interaction";
-import SharedLayoutAnimation from "../../../components/dashboard-components/motiondiv";
 
 const Attendance = () => {
   const [events, setEvents] = useState([

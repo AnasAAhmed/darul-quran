@@ -1,29 +1,19 @@
-import { Button, Progress } from "@heroui/react";
+import { Button} from "@heroui/react";
 import {
-  BookIcon,
-  ChartPie,
   Clock,
   Download,
-  Edit,
   MapPin,
-  MegaphoneIcon,
-  PlusIcon,
-  UsersIcon,
   UsersRound,
-  UserStar,
   Video,
 } from "lucide-react";
 import {
   AiOutlineBook,
-  AiOutlineEye,
   AiOutlineLineChart,
 } from "react-icons/ai";
-import { LuClock4, LuSquareArrowOutUpRight } from "react-icons/lu";
+import {  LuSquareArrowOutUpRight } from "react-icons/lu";
 import { RiDeleteBin6Line, RiGroupLine } from "react-icons/ri";
-import OverviewCards from "../../../components/dashboard-components/OverviewCards";
 import { IoBulbOutline } from "react-icons/io5";
 import { DashHeading } from "../../../components/dashboard-components/DashHeading";
-import { BsZoomIn } from "react-icons/bs";
 import { PiFilePdfDuotone } from "react-icons/pi";
 import { FaClipboardList, FaRegLightbulb } from "react-icons/fa";
 
@@ -129,18 +119,18 @@ const MyCourses = () => {
           Learn More
         </Button>
       </div> */}
-      <div className="md:flex md:justify-between md:items-center">
-        <div className="flex  items-start">
+      <div className="md:flex md:justify-between md:items-center max-md:pb-3 ">
+        <div className="flex flex-wrap items-start">
           <DashHeading
             title={"Advanced Web Development"}
             desc={"32 Students Enrolled"}
           />
-          <p className="bg-white text-[#06574C] mt-8 py-1.5 text-xs  rounded-md text-center font-semibold w-20">
+          <p className="bg-white text-[#06574C] mt-8 py-1.5 text-xs  rounded-md text-center font-semibold w-20 max-md:absolute max-md:top-1/10 max-md:left-3/4">
             Active
           </p>
         </div>
         <Button
-          className="bg-[#1570E8] text-white"
+          className="bg-[#1570E8] text-white max-md:w-full"
           size="lg"
           radius="sm"
           startContent={<LuSquareArrowOutUpRight size={20} color="white" />}

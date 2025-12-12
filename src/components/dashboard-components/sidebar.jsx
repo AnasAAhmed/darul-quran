@@ -13,6 +13,7 @@ import {
   UsersIcon
 } from 'lucide-react';
 import { Link, useLocation } from 'react-router-dom';
+import { b } from 'framer-motion/client';
 
 const Sidebar = ({ isSidebarOpen, setIsSidebarOpen }) => {
   const [expandedItems, setExpandedItems] = useState([0, 6]);
@@ -65,26 +66,25 @@ const Sidebar = ({ isSidebarOpen, setIsSidebarOpen }) => {
     {
       name: 'My Courses',
       icon: <BookIcon />,
-      link: '/teacher/courses',
+      // link: '/teacher/courses',
       children: [
-        { name: 'Create Course', link: '/teacher/courses/create' },
-        { name: 'My Live Sessions', link: '/teacher/courses/live-sessions' },
-        { name: 'Student Progress', link: '/teacher/courses/progress' }
+        { name: 'Course Details View', link: '/teacher/courses/course-details' },
+        { name: 'Upload Materials', link: '/teacher/courses/upload-material' }
       ]
     },
-    { name: 'Schedule', icon: <CalendarIcon />, link: '/teacher/schedule' },
-    { name: 'Announcements', icon: <MegaphoneIcon />, link: '/teacher/announcements' },
-    { name: 'Support', icon: <TicketIcon />, link: '/teacher/tickets' },
-    {
-      name: 'Help and Support',
-      icon: <FileQuestionIcon />,
-      link: '/teacher/help/messages',
-      children: [
-        { name: 'Message Center', link: '/teacher/help/messages' },
-        { name: 'Student Chat', link: '/teacher/help/chat' },
-        { name: 'FAQs', link: '/teacher/help/faqs' }
-      ]
-    }
+    { name: 'Student Attendance', icon: <CalendarIcon />, link: '/teacher/student-attendance' },
+    { name: 'Class Scheduling', icon: <MegaphoneIcon />, link: '/teacher/announcements', badge: 3 },
+    { name: 'Chat Center', icon: <TicketIcon />, link: '/teacher/chat' },
+    // {
+    //   name: 'Help and Support',
+    //   icon: <FileQuestionIcon />,
+    //   link: '/teacher/help/messages',
+    //   children: [
+    //     { name: 'Message Center', link: '/teacher/help/messages' },
+    //     { name: 'Student Chat', link: '/teacher/help/chat' },
+    //     { name: 'FAQs', link: '/teacher/help/faqs' }
+    //   ]
+    // }
   ];
 
   const guestMenu = [

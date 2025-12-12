@@ -10,6 +10,8 @@ import ChatLayout from "./components/layouts/ChatLayout";
 import TeachersLayout from "./components/layouts/Teacherslayout";
 import TeachersDashboard from "./pages/teacher/TeachersDashboard";
 import MyCourses from "./pages/teacher/my-courses";
+import UploadMaterial from "./pages/teacher/my-courses/uploadmaterial";
+import StudentAttendance from "./pages/teacher/student-attendance";
 
 const AdminDashboard = lazy(() => import("./pages/admin/AdminDashboard"));
 const Home = lazy(() => import("./pages/Home"));
@@ -219,10 +221,34 @@ function App() {
           </Route>
           <Route element={<TeachersLayout />}>
             <Route
-            path="/teacher/courses"
+            path="/teacher/courses/course-details"
             element={
               <ProtectedRoute isAuthenticated={true}>
                 <MyCourses />
+              </ProtectedRoute>
+            }
+          />
+            <Route
+            path="/teacher/courses/upload-material"
+            element={
+              <ProtectedRoute isAuthenticated={true}>
+                <UploadMaterial />
+              </ProtectedRoute>
+            }
+          />
+            <Route
+            path="/teacher/student-attendance"
+            element={
+              <ProtectedRoute isAuthenticated={true}>
+                <StudentAttendance />
+              </ProtectedRoute>
+            }
+          />
+            <Route
+            path="/teacher/chat"
+            element={
+              <ProtectedRoute isAuthenticated={true}>
+                <HelpMessages />
               </ProtectedRoute>
             }
           />
