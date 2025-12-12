@@ -21,6 +21,9 @@ import {
 import { LuClock4 } from "react-icons/lu";
 import { RiGroupLine } from "react-icons/ri";
 import { FaRegAddressCard } from "react-icons/fa";
+import { BiGroup } from "react-icons/bi";
+import { GrAnnounce } from "react-icons/gr";
+import { CiCalendar } from "react-icons/ci";
 
 const StudentDashboard = () => {
   const cardsData = [
@@ -92,36 +95,65 @@ const StudentDashboard = () => {
       id: 1,
       day: "11",
       month: "Nov",
-      time: "10:00 AM - 11:30 AM",
+      time: "2:00",
       Title: "Advanced Web Development",
       students: "32",
       role: "Student",
       status: "Online",
       course: "Python",
       location: "Join Zoom",
+      minutes: "60 minutes",
     },
     {
       id: 2,
       day: "11",
       month: "Nov",
-      time: "10:00 AM - 11:30 AM",
+      time: "2:00",
       Title: "Advanced Web Development",
       students: "32",
       role: "Student",
       status: "Online",
       course: "Python",
+      minutes: "Due Today",
     },
     {
       id: 3,
       day: "11",
       month: "Nov",
-      time: "10:00 AM - 11:30 AM",
+      time: "2:00",
       Title: "Advanced Web Development",
-      students: "32",
       role: "Student",
       status: "Online",
       course: "Python",
       location: "Join Zoom",
+      minutes: "30 minutes",
+    },
+  ];
+  const Announcements = [
+    {
+      id: 1,
+      icone:<GrAnnounce color="#06574C" size={30} />,
+      time: "2 hours ago",
+      desc:"Web Development 101: Complete the React project by Friday. Check the assignment details in your course portal.",
+      Title: "Advanced Web Development",
+      students: "32",
+      professer: "Prof. Sarah Johnson",
+    },
+    {
+      id: 2,
+      icone:<CiCalendar color="#D28E3D" size={30} />,
+      time: "2 hours ago",
+      desc:"Web Development 101: Complete the React project by Friday. Check the assignment details in your course portal.",
+      Title: "Class Schedule Update",
+      professer: "Prof. Sarah Johnson",
+    },
+    {
+      id: 3,
+      icone:<GrAnnounce color="#06574C" size={30} />,
+      time: "2 hours ago",
+      desc:"Web Development 101: Complete the React project by Friday. Check the assignment details in your course portal.",
+      Title: "Advanced Web Development",
+      professer: "Prof. Sarah Johnson",
     },
   ];
   return (
@@ -135,30 +167,16 @@ const StudentDashboard = () => {
           Learn More
         </Button>
       </div>
-
-      {/* <OverviewCards data={cardsData} /> */}
-
       <div>
         <div className="grid grid-cols-12 gap-3 py-4">
           {courseCard.map((item, index) => (
             <div className="col-span-12 md:col-span-6 lg:col-span-4 ">
               <div className="w-full bg-white rounded-lg">
-                <div className="bg-[linear-gradient(110.57deg,rgba(241,194,172,0.25)_0.4%,rgba(149,196,190,0.25)_93.82%)]  rounded-lg p-3 ">
-                  {/* <Button
-                    size="sm"
-                    radius="sm"
-                    className="bg-white text-[#06574C] px-4"
-                  >
-                    {item.Status}
-                  </Button> */}
-                  <div className="">
-                    <span className=" flex justify-center items-center py-15 text-2xl font-semibold ">
-                      {/* {item.course} */}
-                    </span>
-                  </div>
+                <div className="">
+                  <img className="h-full" src="/images/studentcard.png" alt="" />
                 </div>
                 <div className="p-3 space-y-3">
-                    <h1 className="text-xl ">{item.course}</h1>
+                    <h1 className="text-xl font-semibold">{item.course}</h1>
                   {/* <div className="flex justify-between items-center ">
                     <div className="flex items-center gap-3">
                       <div className="w-12 h-12 rounded-full bg-[#95C4BE33] flex items-center justify-center text-white font-bold text-sm  shrink-0">
@@ -179,7 +197,7 @@ const StudentDashboard = () => {
                     </div>
                   </div> */}
                   <div>
-                    <div className="flex justify-between items-center text-[#6B7280]">
+                    <div className="flex justify-between items-center text-sm text-[#6B7280]">
                       <div className="flex gap-1 items-center ">{<FaRegAddressCard size={22}/>}{"  "}{item.name}</div>
                       <div className="flex gap-1 items-center ">{<Clock size={22}/>}{"  "}{item.time}</div>
                     </div>
@@ -191,7 +209,8 @@ const StudentDashboard = () => {
                   </div>
                   <div>
                     <Button
-                      size="sm"
+                      size="md"
+                      radius="sm"
                       variant="bordered"
                       color="success"
                       className="w-full mt-2"
@@ -208,7 +227,7 @@ const StudentDashboard = () => {
       </div>
 
       <div className=" bg-white rounded-lg mb-3 ">
-        <h1 className="p-3 text-xl text-[#333333]">Upcoming Classes</h1>
+        <h1 className="p-3 text-xl font-medium text-[#333333]">Today's Schedule</h1>
         <div className="flex flex-col gap-3">
           {upcomingClasses.map((item, index) => (
             <div
@@ -220,10 +239,10 @@ const StudentDashboard = () => {
                 <div className="flex flex-col md:flex-row gap-3 md:items-center justify-center">
                   <div className="h-20 w-20 rounded-full shadow-xl flex flex-col items-center justify-center bg-white">
                     <p className="text-xl text-[#06574C] font-semibold">
-                      {item.day}
+                      {item.time}
                     </p>
                     <p className="text-sm text-[#06574C] font-semibold">
-                      {item.month}
+                      PM
                     </p>
                   </div>
                   <div>
@@ -233,15 +252,15 @@ const StudentDashboard = () => {
                     <div className="flex flex-wrap max-md:my-3 md:items-center mb-2 gap-5 text-sm text-[#666666]">
                       <div className="flex items-center gap-1 ">
                         <Clock size={20} />
-                        {item.time}
+                        {item.minutes}
                       </div>
-                      <div className="flex items-center gap-1 ">
-                        <MapPin size={20} />
-                        {item.status}
-                      </div>
+                      {item.students && <div className="flex items-center gap-1 ">
+                        <BiGroup  size={20} />
+                        {item.students} {item.role}
+                      </div>}
                       <div className="flex items-center gap-1 ">
                         <Video size={20} />
-                        {item.students} {item.role}
+                        {item.status}
                       </div>
                     </div>
                     <div className="flex gap-3">
@@ -249,7 +268,7 @@ const StudentDashboard = () => {
                         {item.course}
                       </Button>
                       <Button size="sm" className="bg-white text-[#D28E3D]">
-                        Join Now
+                         Starting Soon
                       </Button>
                     </div>
                   </div>
@@ -278,36 +297,41 @@ const StudentDashboard = () => {
           ))}
         </div>
       </div>
-      <div className="px-3 sm:px-6 py-4 rounded-lg bg-white my-4">
-        <h2 className="text-lg font-semibold text-gray-900 mb-4">
-          Quick Actions
-        </h2>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <Button
-            variant="solid"
-            color="primary"
-            startContent={<PlusIcon />}
-            className="w-full py-4 bg-[#06574C] text-white"
-          >
-            New Announcement
-          </Button>
-          <Button
-            variant="solid"
-            color="primary"
-            startContent={<PlusIcon />}
-            className="w-full py-4 bg-[#06574C] text-white"
-          >
-            Shedule New Class
-          </Button>
-          <Button
-            variant="flat"
-            startContent={<PlusIcon />}
-            className="w-full py-4 bg-[#06574C] text-white font-semibold"
-          >
-            Create Quiz
-          </Button>
+      <div className=" bg-white rounded-lg mb-3 ">
+        <h1 className="p-3 text-xl font-medium text-[#333333]">Recent Announcements</h1>
+        <div className="flex flex-col gap-3">
+          {Announcements.map((item, index) => (
+            <div
+              className={`${
+                item.Title !== "Class Schedule Update" ? "bg-[#EAF3F2]" : "bg-[#F5E3DA]"
+              } `}
+            >
+              <div className="flex flex-col md:flex-row gap-4 md:justify-between p-4 md:items-start">
+                <div className="flex flex-col md:flex-row gap-3 md:items-center justify-center">
+                  <div className="h-20 w-20 rounded-full shadow-xl flex flex-col items-center justify-center bg-white">
+                    {item.icone}
+                  </div>
+                  <div>
+                    <div className="text-lg text-[#06574C] font-semibold">
+                      {item.Title}
+                    </div>
+                    <div className=" text-xs text-[#666666]">
+                      <p>{item.time}</p>
+                    </div>
+                    <div className=" text-sm text-[#666666]">
+                      <p>{item.desc}</p>
+                    </div>
+                  </div>
+                </div>
+                <div>
+                  <p className="font-medium text-sm text-[#666666]">{item.professer}</p>
+                </div>
+              </div>
+            </div>
+          ))}
         </div>
       </div>
+
     </div>
   );
 };

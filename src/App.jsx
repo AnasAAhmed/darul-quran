@@ -272,7 +272,7 @@ function App() {
             }
           />
             <Route
-            path="/student/student-dashboard"
+            path="/student/dashboard"
             element={
               <ProtectedRoute isAuthenticated={true}>
                 <StudentDashboard />

@@ -77,14 +77,14 @@ const Sidebar = ({ isSidebarOpen, setIsSidebarOpen }) => {
     { name: 'Chat Center', icon: <TicketIcon />, link: '/teacher/chat' },
   ];
 
-  const guestMenu = [
-    { name: 'Home', icon: <HomeIcon />, link: '/' },
+  const studentMenu = [
+    { name: 'Dashboard', icon: <HomeIcon />, link: '/student/dashboard' },
     { name: 'Help', icon: <FileQuestionIcon />, link: '/help' }
   ];
 
   // Decide which menu to show based on role
   const menuItems =
-    role === 'admin' ? adminMenu : role === 'teacher' ? teacherMenu : guestMenu;
+    role === 'admin' ? adminMenu : role === 'teacher' ? teacherMenu : studentMenu;
 
   // If a child route is active, auto expand that parent
   useEffect(() => {
