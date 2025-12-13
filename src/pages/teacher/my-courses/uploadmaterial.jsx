@@ -1,47 +1,47 @@
 import { Button, Input, Select, SelectItem } from "@heroui/react";
 import { Clock, Download, MapPin, UsersRound, Video } from "lucide-react";
 import { AiOutlineBook, AiOutlineCheck, AiOutlineLineChart } from "react-icons/ai";
-import { LuSquareArrowOutUpRight } from "react-icons/lu";
+import { LuClipboardList, LuSquareArrowOutUpRight } from "react-icons/lu";
 import { RiDeleteBin6Line, RiGroupLine } from "react-icons/ri";
 import { IoBulbOutline, IoEyeOutline } from "react-icons/io5";
 import { DashHeading } from "../../../components/dashboard-components/DashHeading";
-import { PiFilePdfDuotone } from "react-icons/pi";
+import { PiFilePdf, PiFilePdfDuotone } from "react-icons/pi";
 import { FaClipboardList, FaRegLightbulb } from "react-icons/fa";
 import Videos, {
   Assignments,
   PdfAndNotes,
   Quizzes,
 } from "../../../components/dashboard-components/forms/ContentUpload";
-import { GoRocket } from "react-icons/go";
+import { GoLightBulb, GoRocket } from "react-icons/go";
 
 const UploadMaterial = () => {
   const cardsData = [
     {
       title: "Total Courses ",
-      value: "24",
-      icon: <AiOutlineBook color="#06574C" size={22} />,
-      changeText: "8%",
+      value: "10",
+      icon: <Video color="#06574C" size={22} />,
+      // changeText: "8%",
       changeColor: "text-[#38A100]",
     },
     {
       title: "Attendance Rate",
-      value: "$89,432",
-      icon: <AiOutlineLineChart color="#06574C" size={22} />,
-      changeText: "5%",
+      value: "10",
+      icon: <PiFilePdf color="#06574C" size={22} />,
+      // changeText: "5%",
       changeColor: "text-[#38A100]",
     },
     {
       title: "Total Students",
-      value: "3,847",
-      icon: <UsersRound color="#06574C" size={22} />,
-      changeText: "12%",
+      value: "20",
+      icon: <GoLightBulb color="#06574C" size={22} />,
+      // changeText: "12%",
       changeColor: "text-[#E8505B]",
     },
     {
       title: "Active Quizzes",
-      value: "24",
-      icon: <IoBulbOutline color="#06574C" size={22} />,
-      changeText: "-0%",
+      value: "15",
+      icon: <LuClipboardList color="#06574C" size={22} />,
+      // changeText: "-0%",
       changeColor: "text-[#9A9A9A]",
     },
   ];
@@ -113,10 +113,17 @@ const UploadMaterial = () => {
       </div>
       <div className=" bg-white rounded-lg mb-3 py-3 ">
         <Videos />
+      </div>
+      <div className=" bg-white rounded-lg mb-3 py-3 ">
         <PdfAndNotes />
+      </div>
+      <div className=" bg-white rounded-lg mb-3 py-3 ">
         <Assignments />
+      </div>
+      <div className=" bg-white rounded-lg mb-3 py-3 ">
         <Quizzes />
       </div>
+        
       <div className="p-5 my-5 bg-[#95C4BE33] rounded-md flex justify-between items-center">
         <div>
           <h1 className="text-[#06574C] font-medium text-lg">

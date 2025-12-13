@@ -516,7 +516,7 @@ export function Quizzes() {
                 <div className="mx-auto max-w-7xl px-4 py-3 sm:px-6 lg:px-8">
                     <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                         <div>
-                            <h1 className="text-2xl font-semibold text-gray-900 sm:text-3xl">Course Qiuzzes</h1>
+                            <h1 className="text-2xl font-semibold text-gray-900 sm:text-3xl">Course Quizzes</h1>
 
                         </div>
 

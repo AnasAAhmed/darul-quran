@@ -24,7 +24,7 @@ import { RiGroupLine } from "react-icons/ri";
 const TeachersDashboard = () => {
   const cardsData = [
     {
-      title: "Total Enrollments",
+      title: "Total Courses ",
       value: "12,847",
       icon: <AiOutlineBook color="#06574C" size={22} />,
       changeText: "Active",
@@ -230,11 +230,11 @@ const TeachersDashboard = () => {
                         {item.time}
                       </div>
                       <div className="flex items-center gap-1 ">
-                        <MapPin size={20} />
+                        <Video size={20} />
                         {item.status}
                       </div>
                       <div className="flex items-center gap-1 ">
-                        <Video size={20} />
+                        <RiGroupLine size={18} />
                         {item.students} {item.role}
                       </div>
                     </div>

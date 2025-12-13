@@ -1,16 +1,7 @@
-import { Button} from "@heroui/react";
-import {
-  Clock,
-  Download,
-  MapPin,
-  UsersRound,
-  Video,
-} from "lucide-react";
-import {
-  AiOutlineBook,
-  AiOutlineLineChart,
-} from "react-icons/ai";
-import {  LuSquareArrowOutUpRight } from "react-icons/lu";
+import { Button, Chip, Input, Tab, Tabs } from "@heroui/react";
+import { Clock, Download, MapPin, Plus, Search, UsersRound, Video } from "lucide-react";
+import { AiOutlineBook, AiOutlineLineChart } from "react-icons/ai";
+import { LuSquareArrowOutUpRight } from "react-icons/lu";
 import { RiDeleteBin6Line, RiGroupLine } from "react-icons/ri";
 import { IoBulbOutline } from "react-icons/io5";
 import { DashHeading } from "../../../components/dashboard-components/DashHeading";
@@ -27,8 +18,8 @@ const MyCourses = () => {
       changeColor: "text-[#38A100]",
     },
     {
-      title: "Attendance Rate",
-      value: "$89,432",
+      title: "Avg. Attendance",
+      value: "Avg. Attendance",
       icon: <AiOutlineLineChart color="#06574C" size={22} />,
       changeText: "5%",
       changeColor: "text-[#38A100]",
@@ -139,7 +130,6 @@ const MyCourses = () => {
         </Button>
       </div>
 
-      {/* <OverviewCards data={cardsData} /> */}
       <div className="pb-4 gap-5  overflow-x-auto grid grid-cols-1 sm:grid-cols-4">
         {cardsData.map((item, index) => (
           <div
@@ -199,7 +189,68 @@ const MyCourses = () => {
         </div>
       </div>
       <div className=" bg-white rounded-lg mb-3 ">
-        <h1 className="p-3 text-xl text-[#333333]">Upcoming Classes</h1>
+        {/* <h1 className="p-3 text-xl text-[#333333]">Upcoming Classes</h1> */}
+        <div className="flex w-full flex-col p-2">
+          <Tabs
+            aria-label="Options"
+            classNames={{
+              tabList:
+                "gap-6 w-full relative rounded-none p-0 border-b border-divider",
+              cursor: "w-full bg-[#06574C]",
+              tab: "max-w-fit px-0 h-12",
+              tabContent:
+                "group-data-[selected=true]:text-[#06574C] group-data-[selected=true]:font-bold",
+            }}
+            color="primary"
+            variant="underlined"
+          >
+            <Tab
+              key="photos"
+              title={
+                <div className="flex items-center space-x-2">
+                  <span>Materials</span>
+                </div>
+              }
+            />
+            <Tab
+              key="music"
+              title={
+                <div className="flex items-center space-x-2">
+                  <span>Quizzes</span>
+                </div>
+              }
+            />
+            <Tab
+              key="videos"
+              title={
+                <div className="flex items-center space-x-2">
+                  <span>Student</span>
+                </div>
+              }
+            />
+            <Tab
+              key="Attendance"
+              title={
+                <div className="flex items-center space-x-2">
+                  <span>Attendance</span>
+                </div>
+              }
+            />
+          </Tabs>
+        </div>
+        <div className="p-3 flex justify-between items-center ">
+          <div >
+            <Input  className="w-100" size="md" radius="sm" placeholder="Search Cources..." endContent={<Search />} />
+          </div>
+          <div>
+            <Button
+            size="md"
+            radius="sm"
+            startContent={<Plus size={18} />}
+            className="bg-[#06574C] text-white"
+            >Upload Materials</Button>
+          </div>
+        </div>
         <div className="flex flex-col gap-3">
           {upcomingClasses.map((item, index) => (
             <div
