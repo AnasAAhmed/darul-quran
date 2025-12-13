@@ -88,7 +88,7 @@ const MyLearning = () => {
             value={70}
           />
         </div>
-        <div className="flex md:justify-between items-center gap-3 mt-3">
+        <div className="flex flex-col md:flex-row md:justify-between items-center gap-3 mt-3">
           <Button
           size="md"
           radius="sm"

@@ -10,7 +10,8 @@ import {
   HomeIcon,
   MegaphoneIcon,
   TicketIcon,
-  UsersIcon
+  UsersIcon,
+  Video
 } from 'lucide-react';
 import { Link, useLocation } from 'react-router-dom';
 import { b } from 'framer-motion/client';
@@ -81,7 +82,8 @@ const Sidebar = ({ isSidebarOpen, setIsSidebarOpen }) => {
   const studentMenu = [
     { name: 'Dashboard', icon: <HomeIcon />, link: '/student/dashboard' },
     { name: 'My Learning Journey', icon: <FaChalkboardTeacher />, link: '/student/my-learning' },
-    { name: 'Class Scheduling', icon: <FaChalkboardTeacher />, link: '/student/class-scheduling' },
+    { name: 'Class Scheduling', icon: <Video />, link: '/student/class-scheduling' },
+    { name: 'Browse Courses', icon: <Video />, link: '/student/browse-courses' },
     { name: 'Help', icon: <FileQuestionIcon />, link: '/help' }
   ];
 
