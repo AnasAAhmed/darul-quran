@@ -4,7 +4,19 @@ import Login from "./pages/auth/Login";
 import AuthLayout from "./components/layouts/AuthLayout";
 import AdminLayout from "./components/layouts/AdminLayout";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
-import {  HeroUIProvider , Modal,  ModalContent, ModalHeader, ModalBody, ModalFooter, Button, useDisclosure, Checkbox, Input, Link, } from "@heroui/react";
+import {
+  HeroUIProvider,
+  Modal,
+  ModalContent,
+  ModalHeader,
+  ModalBody,
+  ModalFooter,
+  Button,
+  useDisclosure,
+  Checkbox,
+  Input,
+  Link,
+} from "@heroui/react";
 import { lazy, use, useEffect, useState } from "react";
 import ChatLayout from "./components/layouts/ChatLayout";
 import TeachersLayout from "./components/layouts/Teacherslayout";
@@ -56,34 +68,45 @@ const Review = lazy(() => import("./pages/admin/help/review"));
 const Faqs = lazy(() => import("./pages/admin/help/faqs"));
 
 function App() {
-  
   const appearButton = window.location.pathname === "/";
-    const [installPrompt, setInstallPrompt] = useState(null);
-  
-    useEffect(() => {
-      const handler = (e) => {
-        e.preventDefault(); // stop auto prompt
-        setInstallPrompt(e);
-      };
-  
-      window.addEventListener("beforeinstallprompt", handler);
-  
-      return () => window.removeEventListener("beforeinstallprompt", handler);
-    }, []);
-  
-    const handleInstall = async () => {
-      if (!installPrompt) return;
-  
-      installPrompt.prompt();
-  
-      const result = await installPrompt.userChoice;
-      console.log(result.outcome); // accepted / dismissed
-  
-      setInstallPrompt(null);
+  const [installPrompt, setInstallPrompt] = useState(null);
+
+  useEffect(() => {
+    const handler = (e) => {
+      e.preventDefault(); // stop auto prompt
+      setInstallPrompt(e);
     };
+
+    window.addEventListener("beforeinstallprompt", handler);
+
+    return () => window.removeEventListener("beforeinstallprompt", handler);
+  }, []);
+
+  const handleInstall = async () => {
+    if (!installPrompt) return;
+
+    installPrompt.prompt();
+
+    const result = await installPrompt.userChoice;
+    console.log(result.outcome); // accepted / dismissed
+
+    setInstallPrompt(null);
+  };
   return (
     <HeroUIProvider>
-     {appearButton && installPrompt ? <DownloadModal/>:""}
+      {/* {appearButton && installPrompt ? <DownloadModal/>:""} */}
+
+      {/* {installPrompt && ( */}
+        <Button
+          variant="solid"
+          size="md"
+          radius="sm"
+          className="bg-[#06574c] text-white md:ml-3 max-sm:w-40"
+          onPress={handleInstall}
+        >
+          Download App
+        </Button>
+      {/* )} */}
       <BrowserRouter>
         <Routes>
           {/* ---------- Auth Layout (NO HEADER/FOOTER) ---------- */}

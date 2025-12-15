@@ -21,28 +21,28 @@ import "swiper/css/navigation";
 import { Autoplay, Pagination, Navigation } from "swiper/modules";
 
 const DownloadModal = () => {
+  const appearButton = window.location.pathname === "/";
   const [installPrompt, setInstallPrompt] = useState(null);
 
   useEffect(() => {
-  const handler = (e) => {
-    console.log("beforeinstallprompt fired");
-    e.preventDefault();
-    setInstallPrompt(e);
-  };
+    const handler = (e) => {
+      e.preventDefault(); // stop auto prompt
+      setInstallPrompt(e);
+    };
 
-  window.addEventListener("beforeinstallprompt", handler);
+    window.addEventListener("beforeinstallprompt", handler);
 
-  return () =>
-    window.removeEventListener("beforeinstallprompt", handler);
-}, []);
+    return () => window.removeEventListener("beforeinstallprompt", handler);
+  }, []);
+
   const handleInstall = async () => {
-    if (!installPrompt) {
-      alert("App is already installed or not supported");
-      return;
-    }
+    if (!installPrompt) return;
 
     installPrompt.prompt();
-    await installPrompt.userChoice;
+
+    const result = await installPrompt.userChoice;
+    console.log(result.outcome); // accepted / dismissed
+
     setInstallPrompt(null);
   };
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
@@ -116,9 +116,17 @@ const DownloadModal = () => {
                   >
                     Close
                   </Button>
-                  <Button disabled={!installPrompt} onPress={handleInstall}>
-                    {installPrompt ? "Download App" : "Already Installed"}
+                  {/* {installPrompt &&  */}
+                  <Button
+                    variant="solid"
+                    size="md"
+                    radius="sm"
+                    className="bg-[#06574c] text-white md:ml-3 max-sm:w-40"
+                    onPress={handleInstall}
+                  >
+                    Download App
                   </Button>
+                  {/* }  */}
                 </div>
 
                 <div className="my-6  ">
@@ -151,10 +159,8 @@ const DownloadModal = () => {
                         key={index}
                       >
                         <Image
-                          className="max-md:w-[200px] max-md:h-[500px] "
-                          src={item.img}
-                          alt="image"
-                        />
+                        className="max-md:w-[200px] max-md:h-[500px] "
+                        src={item.img} alt="image" />
                       </SwiperSlide>
                     ))}
                   </Swiper>
