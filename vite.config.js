@@ -9,30 +9,46 @@ export default defineConfig({
     tailwindcss(),
     react(),
     VitePWA({
-      registerType: "autoUpdate",
-      manifest: {
-        name: "Darul Quran",
-        short_name: "Darul Quran",
-        description: "",
-        start_url: "/",
-        scope: "/",
-        display: "standalone",
-        background_color: "#ffffff",
-        theme_color: "#0d6efd",
-        icons: [
-          {
-            src: "/icons/darul-quran-logo.png",
-            sizes: "192x192",
-            type: "image/png",
-          },
-          {
-            src: "/icons/darul-quran-logo.png",
-            sizes: "512x512",
-            type: "image/png",
-          },
-        ],
+  registerType: "autoUpdate",
+  manifest: {
+    name: "Darul Quran",
+    short_name: "Darul Quran",
+    start_url: "/",
+    scope: "/",
+    display: "standalone",
+    background_color: "#ffffff",
+    theme_color: "#0d6efd",
+    prefer_related_applications: false,
+
+    icons: [
+      {
+        src: "/icons/darul-quran-logo.png",
+        sizes: "192x192",
+        type: "image/png"
       },
-    }),
+      {
+        src: "/icons/darul-quran-logo.png",
+        sizes: "512x512",
+        type: "image/png"
+      }
+    ],
+
+    screenshots: [
+      {
+        src: "/images/download-1.png",
+        sizes: "1080x1920",
+        type: "image/png",
+        form_factor: "narrow"
+      },
+      {
+        src: "/images/download-2.png",
+        sizes: "1440x1024",
+        type: "image/png",
+        form_factor: "wide"
+      }
+    ]
+  }
+})
   ],
   server: {
     host: true,
