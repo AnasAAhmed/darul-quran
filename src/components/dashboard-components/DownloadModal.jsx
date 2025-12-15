@@ -115,7 +115,7 @@ const DownloadModal = () => {
                   >
                     Close
                   </Button>
-                  {installPrompt ? 
+                  {/* {installPrompt ?  */}
                   <Button
                     variant="solid"
                     size="md"
@@ -125,7 +125,7 @@ const DownloadModal = () => {
                   >
                     Download App
                   </Button>
-                  :""} 
+                  {/* :""}  */}
                 </div>
 
                 <div className="my-6  ">
