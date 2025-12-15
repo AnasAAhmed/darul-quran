@@ -24,24 +24,25 @@ const DownloadModal = () => {
   const [installPrompt, setInstallPrompt] = useState(null);
 
   useEffect(() => {
-    const handler = (e) => {
-      e.preventDefault(); // stop auto prompt
-      setInstallPrompt(e);
-    };
+  const handler = (e) => {
+    console.log("beforeinstallprompt fired");
+    e.preventDefault();
+    setInstallPrompt(e);
+  };
 
-    window.addEventListener("beforeinstallprompt", handler);
+  window.addEventListener("beforeinstallprompt", handler);
 
-    return () => window.removeEventListener("beforeinstallprompt", handler);
-  }, []);
-
+  return () =>
+    window.removeEventListener("beforeinstallprompt", handler);
+}, []);
   const handleInstall = async () => {
-    if (!installPrompt) return;
- 
+    if (!installPrompt) {
+      alert("App is already installed or not supported");
+      return;
+    }
+
     installPrompt.prompt();
-
-    const result = await installPrompt.userChoice;
-    console.log(result.outcome); // accepted / dismissed
-
+    await installPrompt.userChoice;
     setInstallPrompt(null);
   };
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
@@ -115,17 +116,9 @@ const DownloadModal = () => {
                   >
                     Close
                   </Button>
-                  {/* {installPrompt ?  */}
-                  <Button
-                    variant="solid"
-                    size="md"
-                    radius="sm"
-                    className="bg-[#06574c] text-white md:ml-3 max-sm:w-40"
-                    onPress={handleInstall}
-                  >
-                    Download App
+                  <Button disabled={!installPrompt} onPress={handleInstall}>
+                    {installPrompt ? "Download App" : "Already Installed"}
                   </Button>
-                  {/* :""}  */}
                 </div>
 
                 <div className="my-6  ">
@@ -158,8 +151,10 @@ const DownloadModal = () => {
                         key={index}
                       >
                         <Image
-                        className="max-md:w-[200px] max-md:h-[500px] "
-                        src={item.img} alt="image" />
+                          className="max-md:w-[200px] max-md:h-[500px] "
+                          src={item.img}
+                          alt="image"
+                        />
                       </SwiperSlide>
                     ))}
                   </Swiper>
