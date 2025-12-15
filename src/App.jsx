@@ -4,7 +4,7 @@ import Login from "./pages/auth/Login";
 import AuthLayout from "./components/layouts/AuthLayout";
 import AdminLayout from "./components/layouts/AdminLayout";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
-import { HeroUIProvider } from "@heroui/react";
+import { Button, HeroUIProvider } from "@heroui/react";
 import { lazy } from "react";
 import ChatLayout from "./components/layouts/ChatLayout";
 import TeachersLayout from "./components/layouts/Teacherslayout";
@@ -20,56 +20,89 @@ import StudentClassSheduling from "./pages/student/class-sheduling";
 import BrowseCourses from "./pages/student/browse-courses";
 import PaymentsInvoices from "./pages/student/payments-invoices";
 import CourseDetails from "./pages/student/browse-courses/course-details";
-import { useRegisterSW } from 'virtual:pwa-register/react'
-
+import { useRegisterSW } from "virtual:pwa-register/react";
+import { useEffect, useState } from "react";
 
 const AdminDashboard = lazy(() => import("./pages/admin/AdminDashboard"));
 const Home = lazy(() => import("./pages/Home"));
-const CourseManagement = lazy(() => import("./pages/admin/course-management/index"));
-const LiveSession = lazy(() => import("./pages/admin/course-management/LiveSession"));
-const Attendance = lazy(() => import("./pages/admin/course-management/Attendance"));
+const CourseManagement = lazy(() =>
+  import("./pages/admin/course-management/index")
+);
+const LiveSession = lazy(() =>
+  import("./pages/admin/course-management/LiveSession")
+);
+const Attendance = lazy(() =>
+  import("./pages/admin/course-management/Attendance")
+);
 const UserManagement = lazy(() => import("./pages/admin/user-management"));
 const Adduser = lazy(() => import("./pages/admin/user-management/add-user"));
-const UserDetails = lazy(() => import("./pages/admin/user-management/users-details"));
+const UserDetails = lazy(() =>
+  import("./pages/admin/user-management/users-details")
+);
 const Scheduling = lazy(() => import("./pages/admin/scheduling"));
 const Announcements = lazy(() => import("./pages/admin/announcements"));
 const PaymentsRefunds = lazy(() => import("./pages/admin/payment-refund"));
 const SupportTickets = lazy(() => import("./pages/admin/support-ticket"));
 const Analytics = lazy(() => import("./pages/admin/analytics"));
 
-const CourseBuilder = lazy(() => import("./pages/admin/course-management/course-builder"));
+const CourseBuilder = lazy(() =>
+  import("./pages/admin/course-management/course-builder")
+);
 
 const HelpMessages = lazy(() => import("./pages/admin/help"));
-const TeacherAndStudentChat = lazy(() => import("./pages/admin/help/TeacherAndStudent"));
+const TeacherAndStudentChat = lazy(() =>
+  import("./pages/admin/help/TeacherAndStudent")
+);
 const Review = lazy(() => import("./pages/admin/help/review"));
 const Faqs = lazy(() => import("./pages/admin/help/faqs"));
 
-
 function App() {
-    const {
-    needRefresh,
-    updateServiceWorker
-  } = useRegisterSW()
+  const [installPrompt, setInstallPrompt] = useState(null);
+
+  useEffect(() => {
+    const handler = (e) => {
+      e.preventDefault(); // stop auto prompt
+      setInstallPrompt(e);
+    };
+
+    window.addEventListener("beforeinstallprompt", handler);
+
+    return () => window.removeEventListener("beforeinstallprompt", handler);
+  }, []);
+
+  const handleInstall = async () => {
+    if (!installPrompt) return;
+
+    installPrompt.prompt();
+
+    const result = await installPrompt.userChoice;
+    console.log(result.outcome); // accepted / dismissed
+
+    setInstallPrompt(null);
+  };
   return (
     <HeroUIProvider>
-           {needRefresh && (
-        <div style={{
-          position: 'fixed',
-          bottom: 20,
-          right: 20,
-          background: '#000',
-          color: '#fff',
-          padding: '12px',
-          borderRadius: '8px'
-        }}>
-          <span>New version available</span>
-          <button
-            style={{ marginLeft: '10px' }}
-            onClick={() => updateServiceWorker(true)}
-          >
-            Update
+      {installPrompt ? (
+        <div
+          style={{
+            position: "fixed",
+            bottom: 20,
+            right: 20,
+            background: "#000",
+            color: "#fff",
+            padding: "12px",
+            borderRadius: "8px",
+            cursor: "pointer",
+            zIndex: 1000,
+          }}
+        >
+          <span>Download Darul Quran App</span>
+          <button style={{ marginLeft: "10px" }} onClick={handleInstall}>
+            Download
           </button>
         </div>
+      ) : (
+        ""
       )}
       <BrowserRouter>
         <Routes>
@@ -121,9 +154,11 @@ function App() {
             />
             <Route
               path="/admin/courses-management/builder"
-              element={<ProtectedRoute isAuthenticated={true}>
-                <CourseBuilder />
-              </ProtectedRoute>}
+              element={
+                <ProtectedRoute isAuthenticated={true}>
+                  <CourseBuilder />
+                </ProtectedRoute>
+              }
             />
             <Route
               path="/admin/courses-management/live-sessions"
@@ -222,141 +257,141 @@ function App() {
                 </ProtectedRoute>
               }
             />
-          <Route
-            path="/admin/help/messages"
-            element={
-              <ProtectedRoute isAuthenticated={true}>
-                <HelpMessages />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/admin/help/chat"
-            element={
-              <ProtectedRoute isAuthenticated={true}>
-                <TeacherAndStudentChat />
-              </ProtectedRoute>
-            }
-          />
+            <Route
+              path="/admin/help/messages"
+              element={
+                <ProtectedRoute isAuthenticated={true}>
+                  <HelpMessages />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/admin/help/chat"
+              element={
+                <ProtectedRoute isAuthenticated={true}>
+                  <TeacherAndStudentChat />
+                </ProtectedRoute>
+              }
+            />
           </Route>
           {/* <Route element={<ChatLayout />}>
           </Route> */}
           {/* teachers routes -------------*/}
           <Route element={<TeachersLayout />}>
             <Route
-            path="/teacher/dashboard"
-            element={
-              <ProtectedRoute isAuthenticated={true}>
-                <TeachersDashboard />
-              </ProtectedRoute>
-            }
-          />
+              path="/teacher/dashboard"
+              element={
+                <ProtectedRoute isAuthenticated={true}>
+                  <TeachersDashboard />
+                </ProtectedRoute>
+              }
+            />
           </Route>
           <Route element={<TeachersLayout />}>
             <Route
-            path="/teacher/courses/course-details"
-            element={
-              <ProtectedRoute isAuthenticated={true}>
-                <MyCourses />
-              </ProtectedRoute>
-            }
-          />
+              path="/teacher/courses/course-details"
+              element={
+                <ProtectedRoute isAuthenticated={true}>
+                  <MyCourses />
+                </ProtectedRoute>
+              }
+            />
             <Route
-            path="/teacher/courses/upload-material"
-            element={
-              <ProtectedRoute isAuthenticated={true}>
-                <UploadMaterial />
-              </ProtectedRoute>
-            }
-          />
+              path="/teacher/courses/upload-material"
+              element={
+                <ProtectedRoute isAuthenticated={true}>
+                  <UploadMaterial />
+                </ProtectedRoute>
+              }
+            />
             <Route
-            path="/teacher/student-attendance"
-            element={
-              <ProtectedRoute isAuthenticated={true}>
-                <StudentAttendance />
-              </ProtectedRoute>
-            }
-          />
+              path="/teacher/student-attendance"
+              element={
+                <ProtectedRoute isAuthenticated={true}>
+                  <StudentAttendance />
+                </ProtectedRoute>
+              }
+            />
             <Route
-            path="/teacher/class-scheduling"
-            element={
-              <ProtectedRoute isAuthenticated={true}>
-                <ClassSheduling />
-              </ProtectedRoute>
-            }
-          />
+              path="/teacher/class-scheduling"
+              element={
+                <ProtectedRoute isAuthenticated={true}>
+                  <ClassSheduling />
+                </ProtectedRoute>
+              }
+            />
             <Route
-            path="/teacher/class-scheduling/sheduled-class"
-            element={
-              <ProtectedRoute isAuthenticated={true}>
-                <SheduleClass />
-              </ProtectedRoute>
-            }
-          />
+              path="/teacher/class-scheduling/sheduled-class"
+              element={
+                <ProtectedRoute isAuthenticated={true}>
+                  <SheduleClass />
+                </ProtectedRoute>
+              }
+            />
             <Route
-            path="/teacher/chat"
-            element={
-              <ProtectedRoute isAuthenticated={true}>
-                <HelpMessages />
-              </ProtectedRoute>
-            }
-          />
+              path="/teacher/chat"
+              element={
+                <ProtectedRoute isAuthenticated={true}>
+                  <HelpMessages />
+                </ProtectedRoute>
+              }
+            />
             <Route
-            path="/student/dashboard"
-            element={
-              <ProtectedRoute isAuthenticated={true}>
-                <StudentDashboard />
-              </ProtectedRoute>
-            }
-          />
+              path="/student/dashboard"
+              element={
+                <ProtectedRoute isAuthenticated={true}>
+                  <StudentDashboard />
+                </ProtectedRoute>
+              }
+            />
             <Route
-            path="/student/my-learning"
-            element={
-              <ProtectedRoute isAuthenticated={true}>
-                <MyLearning />
-              </ProtectedRoute>
-            }
-          />
+              path="/student/my-learning"
+              element={
+                <ProtectedRoute isAuthenticated={true}>
+                  <MyLearning />
+                </ProtectedRoute>
+              }
+            />
             <Route
-            path="/student/class-scheduling"
-            element={
-              <ProtectedRoute isAuthenticated={true}>
-                <StudentClassSheduling />
-              </ProtectedRoute>
-            }
-          />
+              path="/student/class-scheduling"
+              element={
+                <ProtectedRoute isAuthenticated={true}>
+                  <StudentClassSheduling />
+                </ProtectedRoute>
+              }
+            />
             <Route
-            path="/student/browse-courses"
-            element={
-              <ProtectedRoute isAuthenticated={true}>
-                <BrowseCourses />
-              </ProtectedRoute>
-            }
-          />
+              path="/student/browse-courses"
+              element={
+                <ProtectedRoute isAuthenticated={true}>
+                  <BrowseCourses />
+                </ProtectedRoute>
+              }
+            />
             <Route
-            path="/student/browse-courses/course-details"
-            element={
-              <ProtectedRoute isAuthenticated={true}>
-                <CourseDetails />
-              </ProtectedRoute>
-            }
-          />
+              path="/student/browse-courses/course-details"
+              element={
+                <ProtectedRoute isAuthenticated={true}>
+                  <CourseDetails />
+                </ProtectedRoute>
+              }
+            />
             <Route
-            path="/student/help/messages"
-            element={
-              <ProtectedRoute isAuthenticated={true}>
-                <HelpMessages />
-              </ProtectedRoute>
-            }
-          />
+              path="/student/help/messages"
+              element={
+                <ProtectedRoute isAuthenticated={true}>
+                  <HelpMessages />
+                </ProtectedRoute>
+              }
+            />
             <Route
-            path="/student/payments"
-            element={
-              <ProtectedRoute isAuthenticated={true}>
-                <PaymentsInvoices />
-              </ProtectedRoute>
-            }
-          />
+              path="/student/payments"
+              element={
+                <ProtectedRoute isAuthenticated={true}>
+                  <PaymentsInvoices />
+                </ProtectedRoute>
+              }
+            />
           </Route>
         </Routes>
       </BrowserRouter>
