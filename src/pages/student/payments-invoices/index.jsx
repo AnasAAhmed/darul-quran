@@ -66,7 +66,6 @@ const PaymentsInvoices = () => {
       course_desc: "Advanced JavaScript Course",
       price: "$ 199",
       desc: "Advanced JavaScript Course",
-      payment_method: "•••• 4532",
       last_active: "2 hourse ago",
       email: "john.davis@email.com",
       roles: "Support Staff",
@@ -86,7 +85,6 @@ const PaymentsInvoices = () => {
       email: "john.davis@email.com",
       roles: "Support Staff",
       status: "Active",
-      payment_method: "•••• 4532",
       date: "Nov 20, 2025",
     },
     {
