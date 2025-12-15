@@ -5,7 +5,7 @@ import AuthLayout from "./components/layouts/AuthLayout";
 import AdminLayout from "./components/layouts/AdminLayout";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import { Button, HeroUIProvider } from "@heroui/react";
-import { lazy } from "react";
+import { lazy, use } from "react";
 import ChatLayout from "./components/layouts/ChatLayout";
 import TeachersLayout from "./components/layouts/Teacherslayout";
 import TeachersDashboard from "./pages/teacher/TeachersDashboard";
@@ -57,6 +57,8 @@ const Review = lazy(() => import("./pages/admin/help/review"));
 const Faqs = lazy(() => import("./pages/admin/help/faqs"));
 
 function App() {
+
+  const appearbutton = window.location ==="/";
   const [installPrompt, setInstallPrompt] = useState(null);
 
   useEffect(() => {
@@ -82,7 +84,7 @@ function App() {
   };
   return (
     <HeroUIProvider>
-      {installPrompt ? (
+      {appearbutton && installPrompt ? (
         <div
           style={{
             position: "fixed",
@@ -96,9 +98,8 @@ function App() {
             zIndex: 1000,
           }}
         >
-          <span>Download Darul Quran App</span>
           <button style={{ marginLeft: "10px" }} onClick={handleInstall}>
-            Download
+            Download App
           </button>
         </div>
       ) : (
