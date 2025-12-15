@@ -36,7 +36,7 @@ const DownloadModal = () => {
 
   const handleInstall = async () => {
     if (!installPrompt) return;
-
+ 
     installPrompt.prompt();
 
     const result = await installPrompt.userChoice;
