@@ -45,6 +45,30 @@ export default defineConfig({
         sizes: "1440x1024",
         type: "image/png",
         form_factor: "wide"
+      },
+      {
+        src: "/images/download-3.png",
+        sizes: "1080x1920",
+        type: "image/png",
+        form_factor: "narrow"
+      },
+      {
+        src: "/images/download-4.png",
+        sizes: "1440x1024",
+        type: "image/png",
+        form_factor: "wide"
+      },
+      {
+        src: "/images/download-5.png",
+        sizes: "1080x1920",
+        type: "image/png",
+        form_factor: "narrow"
+      },
+      {
+        src: "/images/download-6.png",
+        sizes: "1440x1024",
+        type: "image/png",
+        form_factor: "wide"
       }
     ]
   }
