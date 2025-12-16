@@ -2,7 +2,7 @@ import React from "react";
 import { DashHeading } from "../../../components/dashboard-components/DashHeading";
 import { Button, Divider, Select, SelectItem } from "@heroui/react";
 import { CiCalendar } from "react-icons/ci";
-import { Clock } from "lucide-react";
+import { Clock, Lock } from "lucide-react";
 import { FaRegAddressCard } from "react-icons/fa";
 import { LuSquareArrowOutUpRight } from "react-icons/lu";
 import { RangeCalendar } from "@heroui/react";
@@ -106,15 +106,27 @@ const SheduleClass = () => {
                     >
                       Reschedule
                     </Button>
-                    <Button
-                      radius="sm"
-                      size="md"
-                      variant="solid"
-                      className="bg-[#1570E8] text-white"
-                      startContent={<LuSquareArrowOutUpRight size={20} />}
-                    >
-                      Join Zoom
-                    </Button>
+                    {item.id == 1 ? (
+                      <Button
+                        radius="sm"
+                        size="md"
+                        variant="solid"
+                        className="bg-[#1570E8] text-white"
+                        startContent={<LuSquareArrowOutUpRight size={20} />}
+                      >
+                        Join Zoom
+                      </Button>
+                    ) : (
+                      <Button
+                        radius="sm"
+                        size="md"
+                        variant="solid"
+                        className="bg-[#9A9A9A] text-white"
+                        startContent={<Lock size={20} />}
+                      >
+                        Start In 3h
+                      </Button>
+                    )}
                   </div>
                 </div>
               </div>
@@ -247,15 +259,27 @@ const SheduleClass = () => {
                     >
                       Reschedule
                     </Button>
-                    <Button
-                      radius="sm"
-                      size="md"
-                      variant="solid"
-                      className="bg-[#1570E8] text-white"
-                      startContent={<LuSquareArrowOutUpRight size={20} />}
-                    >
-                      Join Zoom
-                    </Button>
+                    {item.id == 1 ? (
+                      <Button
+                        radius="sm"
+                        size="md"
+                        variant="solid"
+                        className="bg-[#1570E8] text-white"
+                        startContent={<LuSquareArrowOutUpRight size={20} />}
+                      >
+                        Join Zoom
+                      </Button>
+                    ) : (
+                      <Button
+                        radius="sm"
+                        size="md"
+                        variant="solid"
+                        className="bg-[#9A9A9A] text-white"
+                        startContent={<Lock size={20} />}
+                      >
+                        Start In 3h
+                      </Button>
+                    )}
                   </div>
                 </div>
               </div>

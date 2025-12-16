@@ -2,7 +2,7 @@ import React from "react";
 import { DashHeading } from "../../../components/dashboard-components/DashHeading";
 import { Button, Divider, Select, SelectItem } from "@heroui/react";
 import { CiCalendar } from "react-icons/ci";
-import { Clock } from "lucide-react";
+import { Clock, Lock } from "lucide-react";
 import { FaRegAddressCard } from "react-icons/fa";
 import { LuSquareArrowOutUpRight } from "react-icons/lu";
 import { RangeCalendar } from "@heroui/react";
@@ -105,6 +105,7 @@ const StudentClassSheduling = () => {
                     >
                       Reschedule
                     </Button>
+                    {item.id == 1 ? 
                     <Button
                       radius="sm"
                       size="md"
@@ -113,7 +114,16 @@ const StudentClassSheduling = () => {
                       startContent={<LuSquareArrowOutUpRight size={20} />}
                     >
                       Join Zoom
-                    </Button>
+                    </Button>:
+                    <Button
+                      radius="sm"
+                      size="md"
+                      variant="solid"
+                      className="bg-[#9A9A9A] text-white"
+                      startContent={<Lock size={20} />}
+                    >
+                      Start In 3h
+                    </Button>}
                   </div>
                 </div>
               </div>
@@ -246,6 +256,7 @@ const StudentClassSheduling = () => {
                     >
                       Reschedule
                     </Button>
+                    {item.id == 1 ? 
                     <Button
                       radius="sm"
                       size="md"
@@ -254,7 +265,16 @@ const StudentClassSheduling = () => {
                       startContent={<LuSquareArrowOutUpRight size={20} />}
                     >
                       Join Zoom
-                    </Button>
+                    </Button>:
+                    <Button
+                      radius="sm"
+                      size="md"
+                      variant="solid"
+                      className="bg-[#9A9A9A] text-white"
+                      startContent={<Lock size={20} />}
+                    >
+                      Start In 3h
+                    </Button>}
                   </div>
                 </div>
               </div>

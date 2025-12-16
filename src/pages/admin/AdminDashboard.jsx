@@ -3,6 +3,7 @@ import BarCharts from '../../components/charts/BarCharts'
 import AreaCharts from '../../components/charts/AreaChart'
 import { BookIcon, ChartPie, MegaphoneIcon, PlusIcon, UsersIcon, UsersRound, UserStar, Video } from 'lucide-react'
 import OverviewCards from '../../components/dashboard-components/OverviewCards'
+import { Link } from "react-router-dom";
 
 const AdminDashboard = () => {
   const classes = [
@@ -225,6 +226,8 @@ const AdminDashboard = () => {
                 color="primary"
                 startContent={<PlusIcon />}
                 className="w-full py-4 bg-[#06574C] text-white"
+                as={Link}
+              to={"/admin/user-management/add-user"}
               >
                 Add New User
               </Button>
@@ -232,6 +235,8 @@ const AdminDashboard = () => {
                 variant="solid"
                 color="primary"
                 startContent={<BookIcon />}
+                as={Link}
+                to={"/admin/courses-management/builder"}
                 className="w-full py-4 bg-[#06574C] text-white"
               >
                 Create Course
