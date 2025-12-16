@@ -450,7 +450,7 @@ const UserManagement = () => {
                   transition={{ duration: 0.6, ease: "easeInOut" }}
                 >
                   <Table
-                    //    isHeaderSticky
+                    isHeaderSticky
                     selectionMode="multiple"
                     aria-label="Pending approvals table"
                     removeWrapper
@@ -459,6 +459,7 @@ const UserManagement = () => {
                       th: "font-bold p-4 text-md  text-[#333333] capitalize tracking-widest  bg-[#EBD4C936]",
                       td: "py-3 items-center whitespace-nowrap",
                       tr: "border-b border-default-200 ",
+                      
                     }}
                   >
                     <TableHeader>
@@ -541,7 +542,7 @@ const UserManagement = () => {
                   transition={{ duration: 0.6, ease: "easeInOut" }}
                 >
                   <Table
-                    //    isHeaderSticky
+                    // isHeaderSticky
                     selectionMode="multiple"
                     aria-label="Pending approvals table"
                     removeWrapper

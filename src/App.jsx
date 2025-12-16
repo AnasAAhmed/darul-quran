@@ -96,7 +96,7 @@ function App() {
     <HeroUIProvider>
       {/* {appearButton && installPrompt ? <DownloadModal/>:""} */}
 
-      {btnvisibility && installPrompt && (
+      {/* {btnvisibility && installPrompt && (
         <div
         style={{
           position: "fixed",
@@ -119,7 +119,7 @@ function App() {
           Download App
         </Button>
       </div>
-      )}
+      )} */}
       <BrowserRouter>
         <Routes>
           {/* ---------- Auth Layout (NO HEADER/FOOTER) ---------- */}
