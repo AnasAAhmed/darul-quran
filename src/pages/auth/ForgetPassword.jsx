@@ -1,7 +1,7 @@
 import { Button, Input } from "@heroui/react";
 import { Link } from "react-router-dom";
 
-const Login = () => {
+const ForgetPassword = () => {
   const handleSubmit = (e) => {
     e.preventDefault();
   };
@@ -44,71 +44,53 @@ const Login = () => {
             onSubmit={handleSubmit}
             className="w-full space-y-5 lg:space-y-6"
           >
-            <div className="w-full space-y-2">
-              <p className="text-sm lg:text-base text-[#3F3F44]">
-                Your email or phone number
-              </p>
+            <div className="w-full space-y-2 pb-3">
               <Input
                 className="rounded-md"
                 placeholder="youremail@guru.com"
                 type="email"
+                label="Enter your registered email or phone number"
+                labelPlacement="outside"
               />
             </div>
 
-            <div className="w-full space-y-2">
-              <div className="flex justify-between items-center text-sm lg:text-base">
-                <p className="text-[#3F3F44]">Password</p>
-                <Link to="/auth/forget-password" className=" cursor-pointer hover:underline">
-                  Forget Password?
-                </Link>
-              </div>
+            <div className="w-full space-y-2 pb-3">
               <Input
                 className="rounded-md"
                 placeholder="Enter your password"
                 type="password"
+                label="New Password"
+                labelPlacement="outside"
               />
             </div>
-            {/* <Link to=""> */}
-            <div className="flex max-sm:flex-wrap gap-3 ">
+            <div className="w-full space-y-2  ">
+              <Input
+                className="rounded-md"
+                placeholder="Enter your password"
+                type="password"
+                label="Confirm Password"
+                labelPlacement="outside"
+              />
+            </div>
+             <div className="flex max-sm:flex-wrap gap-3 ">
               <Button
               type="submit"
               as={Link}
-              to="/admin/dashboard"
+            //   to="/admin/dashboard"
               className="w-full text-center text-white rounded-md py-3 bg-[#06574C]"
             >
-              Login as admin
+              Change Password
             </Button>
-
-            <Button
-              type="submit"
-              as={Link}
-              to="/teacher/dashboard"
-              className="w-full text-center text-white rounded-md py-3 bg-[#06574C]"
-            >
-              Login as teacher
-            </Button>
-            <Button
-              type="submit"
-              as={Link}
-              to="/student/dashboard"
-              className="w-full text-center text-white rounded-md py-3 bg-[#06574C]"
-            >
-              Login as student
-            </Button>
-            </div>
-            {/* </Link> */}
-            <div className="text-center text-sm lg:text-base mb-4 text-[#3F3F44]">
-              Or
             </div>
           </form>
-          <Button className="w-full text-center bg-white rounded-md py-3 border border-gray-300 hover:bg-gray-50 flex items-center justify-center gap-2">
+          {/* <Button className="w-full text-center bg-white rounded-md py-3 border border-gray-300 hover:bg-gray-50 flex items-center justify-center gap-2">
             <img src="/icons/google.png" className="w-6 h-6" alt="" />
             <span className="text-sm lg:text-base">Sign in with Google</span>
-          </Button>
+          </Button> */}
         </div>
       </div>
     </main>
   );
 };
 
-export default Login;
+export default ForgetPassword;

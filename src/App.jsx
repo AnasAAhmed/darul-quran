@@ -32,6 +32,7 @@ import StudentClassSheduling from "./pages/student/class-sheduling";
 import BrowseCourses from "./pages/student/browse-courses";
 import PaymentsInvoices from "./pages/student/payments-invoices";
 import CourseDetails from "./pages/student/browse-courses/course-details";
+import ForgetPassword from "./pages/auth/ForgetPassword";
 
 const AdminDashboard = lazy(() => import("./pages/admin/AdminDashboard"));
 const Home = lazy(() => import("./pages/Home"));
@@ -94,7 +95,6 @@ function App() {
   const btnvisibility = window.location.pathname === "/";
   return (
     <HeroUIProvider>
-      {/* {appearButton && installPrompt ? <DownloadModal/>:""} */}
 
       {/* {btnvisibility && installPrompt && (
         <div
@@ -133,6 +133,18 @@ function App() {
                   redirect="/dashboard"
                 >
                   <Login />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/auth/forget-password"
+              element={
+                <ProtectedRoute
+                  publicOnly
+                  isAuthenticated={false}
+                  redirect="/dashboard"
+                >
+                  <ForgetPassword />
                 </ProtectedRoute>
               }
             />
