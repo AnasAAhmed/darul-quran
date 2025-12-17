@@ -44,7 +44,7 @@ export default function TeacherAndStudentChat() {
           </div>
         </div>
 
-        <div className="flex-1 overflow-y-auto">
+        <div className="flex-1 no-scrollbar overflow-y-auto">
           {filteredChats.length > 0 ? (
             filteredChats.map((chat) => (
               <div
