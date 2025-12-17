@@ -26,11 +26,11 @@ const ChangePassword = () => {
                 </div> */}
       </div>
       <div className="flex-1 flex flex-col max-sm:items-center items-start md:justify-center bg-[#E9E0D6] !ml-0 px-6 sm:px-12 md:px-16 lg:px-24 py-8 lg:py-0 m-0 lg:m-6 lg:rounded-r-lg ">
-          <img
-            src="/icons/darul-quran-logo.png"
-            alt="Darul Quran"
-            className=" w-45 h-45 md:hidden"
-          />
+        <img
+          src="/icons/darul-quran-logo.png"
+          alt="Darul Quran"
+          className=" w-45 h-45 md:hidden"
+        />
         <div className="w-full max-w-xl mx-auto lg:mx-16">
           <h1 className="text-xl sm:text-3xl lg:text-4xl xl:text-[35px] text-[#3F3F44] leading-tight mb-6 lg:mb-8 font-medium">
             <strong>Change Password</strong>
@@ -41,8 +41,9 @@ const ChangePassword = () => {
             className="w-full space-y-5 lg:space-y-6"
           >
             <div className="w-full space-y-2 pb-3">
-              <Input              
-              radius="sm"
+              <Input
+                radius="sm"
+                size="lg"
                 placeholder="Enter new password"
                 type="password"
                 label="New Password"
@@ -50,25 +51,26 @@ const ChangePassword = () => {
               />
             </div>
             <div className="w-full space-y-2">
-              <Input              
-              radius="sm"
+              <Input
+                radius="sm"
+                size="lg"
                 placeholder="Confirm Password"
                 type="password"
                 label="Confirm Password"
                 labelPlacement="outside"
               />
             </div>
-            
-             <div className="flex max-sm:flex-wrap gap-3 ">
+
+            <div className="flex max-sm:flex-wrap gap-3 ">
               <Button
-              radius="md"
-              type="submit"
-              as={Link}
-            //   to="/admin/dashboard"
-              className="w-full text-center text-white rounded-sm py-3 bg-[#06574C]"
-            >
-              Change Password
-            </Button>
+                radius="md"
+                type="submit"
+                as={Link}
+                //   to="/admin/dashboard"
+                className="w-full text-center text-white rounded-sm py-3 bg-[#06574C]"
+              >
+                Change Password
+              </Button>
             </div>
           </form>
           {/* <Button className="w-full text-center bg-white rounded-md py-3 border border-gray-300 hover:bg-gray-50 flex items-center justify-center gap-2">

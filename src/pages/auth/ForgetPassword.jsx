@@ -43,6 +43,7 @@ const ForgetPassword = () => {
             <div className="w-full space-y-2 pb-3">
               <Input
               radius="sm"
+                size="lg"
                 placeholder="youremail@guru.com"
                 type="email"
                 label="Enter your registered email or phone number"
