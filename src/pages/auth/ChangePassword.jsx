@@ -1,7 +1,7 @@
 import { Button, Input } from "@heroui/react";
 import { Link } from "react-router-dom";
 
-const ForgetPassword = () => {
+const ChangePassword = () => {
   const handleSubmit = (e) => {
     e.preventDefault();
   };
@@ -33,7 +33,7 @@ const ForgetPassword = () => {
           />
         <div className="w-full max-w-xl mx-auto lg:mx-16">
           <h1 className="text-xl sm:text-3xl lg:text-4xl xl:text-[35px] text-[#3F3F44] leading-tight mb-6 lg:mb-8 font-medium">
-            <strong>Send Otp</strong>
+            <strong>Change Password</strong>
           </h1>
 
           <form
@@ -41,29 +41,44 @@ const ForgetPassword = () => {
             className="w-full space-y-5 lg:space-y-6"
           >
             <div className="w-full space-y-2 pb-3">
-              <Input
+              <Input              
               radius="sm"
-                placeholder="youremail@guru.com"
-                type="email"
-                label="Enter your registered email or phone number"
+                placeholder="Enter new password"
+                type="password"
+                label="New Password"
                 labelPlacement="outside"
               />
-              <p className="text-sm text-end cursor-pointer">Resend OTP</p>
             </div>
-          </form>
-          <Button
+            <div className="w-full space-y-2">
+              <Input              
+              radius="sm"
+                placeholder="Confirm Password"
+                type="password"
+                label="Confirm Password"
+                labelPlacement="outside"
+              />
+            </div>
+            
+             <div className="flex max-sm:flex-wrap gap-3 ">
+              <Button
               radius="md"
               type="submit"
               as={Link}
-              to="/auth/change-password"
+            //   to="/admin/dashboard"
               className="w-full text-center text-white rounded-sm py-3 bg-[#06574C]"
             >
-              Send
+              Change Password
             </Button>
+            </div>
+          </form>
+          {/* <Button className="w-full text-center bg-white rounded-md py-3 border border-gray-300 hover:bg-gray-50 flex items-center justify-center gap-2">
+            <img src="/icons/google.png" className="w-6 h-6" alt="" />
+            <span className="text-sm lg:text-base">Sign in with Google</span>
+          </Button> */}
         </div>
       </div>
     </main>
   );
 };
 
-export default ForgetPassword;
+export default ChangePassword;

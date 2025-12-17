@@ -33,6 +33,7 @@ import BrowseCourses from "./pages/student/browse-courses";
 import PaymentsInvoices from "./pages/student/payments-invoices";
 import CourseDetails from "./pages/student/browse-courses/course-details";
 import ForgetPassword from "./pages/auth/ForgetPassword";
+import ChangePassword from "./pages/auth/ChangePassword";
 
 const AdminDashboard = lazy(() => import("./pages/admin/AdminDashboard"));
 const Home = lazy(() => import("./pages/Home"));
@@ -145,6 +146,18 @@ function App() {
                   redirect="/dashboard"
                 >
                   <ForgetPassword />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/auth/change-password"
+              element={
+                <ProtectedRoute
+                  publicOnly
+                  isAuthenticated={false}
+                  redirect="/dashboard"
+                >
+                  <ChangePassword />
                 </ProtectedRoute>
               }
             />
