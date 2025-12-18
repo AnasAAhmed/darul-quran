@@ -88,23 +88,6 @@ const StudentClassSheduling = () => {
                     </div>
                   </div>
                   <div className="flex gap-3 items-center">
-                    <Button
-                      radius="sm"
-                      size="md"
-                      variant="bordered"
-                      color="danger"
-                      className="text-[#E8505B]"
-                    >
-                      Cancel Class
-                    </Button>
-                    <Button
-                      radius="sm"
-                      size="md"
-                      variant="bordered"
-                      color="success"
-                    >
-                      Reschedule
-                    </Button>
                     {item.id == 1 ? 
                     <Button
                       radius="sm"
@@ -124,6 +107,24 @@ const StudentClassSheduling = () => {
                     >
                       Start In 3h
                     </Button>}
+                    <Button
+                      radius="sm"
+                      size="md"
+                      variant="bordered"
+                      color="danger"
+                      className="text-[#E8505B]"
+                    >
+                      Cancel Class
+                    </Button>
+                    <Button
+                      radius="sm"
+                      size="md"
+                      variant="bordered"
+                      color="success"
+                    >
+                      Reschedule
+                    </Button>
+                    
                   </div>
                 </div>
               </div>
@@ -239,23 +240,6 @@ const StudentClassSheduling = () => {
                     </div>
                   </div>
                   <div className="flex gap-3 items-center">
-                    <Button
-                      radius="sm"
-                      size="md"
-                      variant="bordered"
-                      color="danger"
-                      className="text-[#E8505B]"
-                    >
-                      Cancel Class
-                    </Button>
-                    <Button
-                      radius="sm"
-                      size="md"
-                      variant="bordered"
-                      color="success"
-                    >
-                      Reschedule
-                    </Button>
                     {item.id == 1 ? 
                     <Button
                       radius="sm"
@@ -274,7 +258,26 @@ const StudentClassSheduling = () => {
                       startContent={<Lock size={20} />}
                     >
                       Start In 3h
-                    </Button>}
+                    </Button>
+                    }
+                    <Button
+                      radius="sm"
+                      size="md"
+                      variant="bordered"
+                      color="danger"
+                      className="text-[#E8505B]"
+                    >
+                      Cancel Class
+                    </Button>
+                    <Button
+                      radius="sm"
+                      size="md"
+                      variant="bordered"
+                      color="success"
+                    >
+                      Reschedule
+                    </Button>
+                    
                   </div>
                 </div>
               </div>

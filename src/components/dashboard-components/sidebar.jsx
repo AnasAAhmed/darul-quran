@@ -77,14 +77,14 @@ const Sidebar = ({ isSidebarOpen, setIsSidebarOpen }) => {
       ]
     },
     { name: 'Student Attendance', icon: <CalendarIcon />, link: '/teacher/student-attendance' },
-    { name: 'Class Scheduling', icon: <MegaphoneIcon />, link: '/teacher/class-scheduling', badge: 3 },
+    { name: 'Class Schedule', icon: <MegaphoneIcon />, link: '/teacher/class-scheduling', badge: 3 },
     { name: 'Chat Center', icon: <TicketIcon />, link: '/teacher/chat' },
   ];
 
   const studentMenu = [
     { name: 'Dashboard', icon: <HomeIcon />, link: '/student/dashboard' },
     { name: 'My Learning Journey', icon: <FaChalkboardTeacher />, link: '/student/my-learning' },
-    { name: 'Class Scheduling', icon: <Video />, link: '/student/class-scheduling' },
+    { name: 'Class Schedule', icon: <Video />, link: '/student/class-scheduling' },
     { name: 'Browse Courses', icon: <Video />, link: '/student/browse-courses' },
     {
       name: 'Help and Support',
