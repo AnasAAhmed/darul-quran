@@ -116,7 +116,7 @@ const DownloadModal = () => {
           Download App
         </Button>
       </div>}
-      {!isOpen && appearButton && !shouldShowIosInstallModal() && isSafari() && <div
+      {!isOpen && appearButton && !isInStandaloneMode() && isSafari() && <div
         style={{
           position: "fixed",
           bottom: 20,
