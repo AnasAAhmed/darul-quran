@@ -82,23 +82,34 @@ function App() {
 
     return () => window.removeEventListener("beforeinstallprompt", handler);
   }, []);
+  const isIos = () => {
+    const userAgent = window.navigator.userAgent.toLowerCase();
+    return /iphone|ipad|ipod/.test(userAgent);
+  };
+
+  const isInStandaloneMode = () => ("standalone" in window.navigator) && window.navigator.standalone;
 
   const handleInstall = async () => {
-    if (!installPrompt) return;
-
-    installPrompt.prompt();
-
-    const result = await installPrompt.userChoice;
-    console.log(result.outcome); // accepted / dismissed
-
-    setInstallPrompt(null);
+    if (installPrompt) {
+      // Android / supported browsers
+      installPrompt.prompt();
+      const result = await installPrompt.userChoice;
+      console.log("User choice:", result.outcome); // accepted / dismissed
+      setInstallPrompt(null);
+    } else if (isIos() && !isInStandaloneMode()) {
+      // iOS Safari
+      alert(
+        "To install this app on your iPhone, tap the Share icon and select 'Add to Home Screen'."
+      );
+    } else {
+      alert("Already Installed OR Try Again Later");
+    }
   };
   const btnvisibility = window.location.pathname === "/";
   return (
     <HeroUIProvider>
 
-      {btnvisibility && installPrompt && (
-        <div
+      <div
         style={{
           position: "fixed",
           bottom: 20,
@@ -118,9 +129,9 @@ function App() {
           onPress={handleInstall}
         >
           Download App
+          {/* { btnvisibility && installPrompt ?  'Download App':'Open App'} */}
         </Button>
       </div>
-      )}
       <BrowserRouter>
         <Routes>
           {/* ---------- Auth Layout (NO HEADER/FOOTER) ---------- */}
