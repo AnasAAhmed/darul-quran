@@ -85,13 +85,13 @@ const DownloadModal = () => {
     { img: "/images/download-6.png" },
     { img: "/images/download-7.png" },
   ];
-  const shouldShowIosInstallModal = () => {
-    return (
-      isIos() &&
-      isSafari() &&
-      !isInStandaloneMode()
-    );
-  };
+const [installed, setInstalled] = useState(isInStandaloneMode());
+
+useEffect(() => {
+  const checkStandalone = () => setInstalled(isInStandaloneMode());
+  window.addEventListener("resize", checkStandalone); // catches some changes
+  return () => window.removeEventListener("resize", checkStandalone);
+}, []);
   return (
     <div>
       {appearButton && installPrompt && !isSafari() && <div
@@ -116,7 +116,8 @@ const DownloadModal = () => {
           Download App
         </Button>
       </div>}
-      {!isOpen && appearButton && !isInStandaloneMode() && isSafari() && <div
+      {/* //for ios */}
+      {!isOpen && appearButton && !installed&& isSafari() && <div
         style={{
           position: "fixed",
           bottom: 20,
