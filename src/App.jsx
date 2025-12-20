@@ -91,13 +91,11 @@ function App() {
 
   const handleInstall = async () => {
     if (installPrompt) {
-      // Android / supported browsers
       installPrompt.prompt();
       const result = await installPrompt.userChoice;
-      console.log("User choice:", result.outcome); // accepted / dismissed
+      console.log("User choice:", result.outcome); 
       setInstallPrompt(null);
     } else if (isIos() && !isInStandaloneMode()) {
-      // iOS Safari
       alert(
         "To install this app on your iPhone, tap the Share icon and select 'Add to Home Screen'."
       );
@@ -109,7 +107,7 @@ function App() {
   return (
     <HeroUIProvider>
 
-      <div
+      {btnvisibility && installPrompt && <div
         style={{
           position: "fixed",
           bottom: 20,
@@ -129,9 +127,8 @@ function App() {
           onPress={handleInstall}
         >
           Download App
-          {/* { btnvisibility && installPrompt ?  'Download App':'Open App'} */}
         </Button>
-      </div>
+      </div>}
       <BrowserRouter>
         <Routes>
           {/* ---------- Auth Layout (NO HEADER/FOOTER) ---------- */}
