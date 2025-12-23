@@ -3,6 +3,7 @@ import {
   Button,
   Checkbox,
   Divider,
+  form,
   Form,
   Input,
   Select,
@@ -23,39 +24,69 @@ const Adduser = () => {
   ];
 
   const courses = [
-    { key: "Advance_JavaScript", label: "Advance JavaScript" },
-    { key: "Advance_React", label: "Advance React" },
-    { key: "Advance_Python", label: "Advance Python" },
-    { key: "Advance_JavaScript", label: "Advance JavaScript" },
-    { key: "Advance_React", label: "Advance React" },
-    { key: "Advance_Python", label: "Advance Python" },
-    { key: "Advance_JavaScript", label: "Advance JavaScript" },
-    { key: "Advance_React", label: "Advance React" },
-    { key: "Advance_Python", label: "Advance Python" },
-    { key: "Advance_JavaScript", label: "Advance JavaScript" },
-    { key: "Advance_React", label: "Advance React" },
-    { key: "Advance_Python", label: "Advance Python" },
+    {
+      key: "Advance_JavaScript",
+      label: "Advance JavaScript",
+      value: "advance_javaScript",
+    },
+    { key: "Advance_React", label: "Advance React", value: "advance_react" },
+    { key: "Advance_Python", label: "Advance Python", value: "advance_python" },
+    // { key: "Advance_JavaScript", label: "Advance JavaScript" , value: "advance_javaScript"},
+    // { key: "Advance_React", label: "Advance React" , value: "advance_react"},
+    // { key: "Advance_Python", label: "Advance Python" , value: "advance_python"},
+    // { key: "Advance_JavaScript", label: "Advance JavaScript" , value: "advance_javaScript"},
+    // { key: "Advance_React", label: "Advance React" , value: "advance_react"},
+    // { key: "Advance_Python", label: "Advance Python" , value: "advance_python"},
+    // { key: "Advance_JavaScript", label: "Advance JavaScript" , value: "advance_javaScript"},
+    // { key: "Advance_React", label: "Advance React" , value: "advance_react"},
+    // { key: "Advance_Python", label: "Advance Python" , value: "advance_python"},
   ];
 
   const handleRoleChange = (e) => {
     setSelectedRole(e.target.value);
   };
 
-  
+  const handleUserSubmit = async (e) => {
+    e.preventDefault();
+    const formData = new FormData(e.target);
+    const permissions = formData.getAll("permissions");
+    const payload = {
+      name: formData.get("name")?.toString() || "",
+      first_name: formData.get("first_name")?.toString() || "",
+      last_name: formData.get("last_name")?.toString() || "",
+      email: formData.get("email")?.toString() || "",
+      phone_number: formData.get("phone_number")?.toString() || "",
+      city: formData.get("city")?.toString() || 0,
+      role: formData.get("role")?.toString() || "",
+      is_active: isSelected ? true : false,
+      password: formData.get("password")?.toString() || "",
+      permissions: permissions,
+    };
+    console.log("Payload:", payload);
+    const res = await fetch(import.meta.env.VITE_PUBLIC_SERVER_URL + "/api/auth/create-user", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(payload),
+    });
+  };
+
   const [isSelected, setIsSelected] = useState(true);
 
   return (
-    <div className="bg-white sm:bg-linear-to-t from-[#F1C2AC]/50 to-[#95C4BE]/50 px-2 sm:px-5 pb-3">
+    <div className="bg-white bg-linear-to-t from-[#F1C2AC]/50 to-[#95C4BE]/50 px-2 sm:px-5 pb-3">
       <DashHeading
         title={"Add New User"}
         desc={"Add a new user to the platform"}
       />
-      <div className="p-6 bg-white rounded-lg mb-6">
-        <Form className="w-full">
+      <Form onSubmit={handleUserSubmit} className="w-full">
+        <div className="p-6 bg-white rounded-lg mb-6 w-full">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full">
             <div className="flex flex-col gap-5">
               <Input
                 type="text"
+                name="first_name"
                 labelPlacement="outside"
                 variant="bordered"
                 size="lg"
@@ -64,6 +95,7 @@ const Adduser = () => {
               />
               <Input
                 type="text"
+                name="email"
                 labelPlacement="outside"
                 variant="bordered"
                 size="lg"
@@ -72,6 +104,7 @@ const Adduser = () => {
               />
               <Input
                 type="text"
+                name="city"
                 labelPlacement="outside"
                 variant="bordered"
                 size="lg"
@@ -82,6 +115,7 @@ const Adduser = () => {
             <div className="flex flex-col gap-5">
               <Input
                 type="text"
+                name="last_name"
                 labelPlacement="outside"
                 variant="bordered"
                 size="lg"
@@ -90,6 +124,7 @@ const Adduser = () => {
               />
               <Input
                 type="text"
+                name="phone_number"
                 labelPlacement="outside"
                 variant="bordered"
                 size="lg"
@@ -97,6 +132,7 @@ const Adduser = () => {
                 placeholder="Enter your phone number"
               />
               <Select
+                name="role"
                 labelPlacement="outside"
                 variant="bordered"
                 size="lg"
@@ -113,55 +149,84 @@ const Adduser = () => {
               </Select>
             </div>
           </div>
+          <div className="py-3">
+            <Input
+              type="text"
+              name="password"
+              labelPlacement="outside"
+              variant="bordered"
+              size="lg"
+              label="Password"
+              placeholder="Enter your password"
+            />
+          </div>
           <div className="w-full p-3 bg-[#95C4BE33] rounded-lg mt-3 flex items-center justify-between">
             <span className="text-[#06574C] text-sm">Status</span>
             <div className="flex items-center gap-3">
-              <p className="text-md text-[#06574C]">{isSelected ? "Active" : "Inactive"}</p>
-            <Switch color="success" defaultSelected aria-label="Automatic updates" isSelected={isSelected} onValueChange={setIsSelected} />
+              <p className="text-md text-[#06574C]">
+                {isSelected ? "Active" : "Inactive"}
+              </p>
+              <Switch
+                name="is_active"
+                color="success"
+                defaultSelected
+                aria-label="Automatic updates"
+                isSelected={isSelected}
+                onValueChange={setIsSelected}
+              />
             </div>
           </div>
-        </Form>
-      </div>
-
-      {selectedRole === "Teacher" && (
-        <div className="p-3 bg-white rounded-lg">
-          <div className="flex justify-between items-center py-2">
-            <span className="text-lg text-[#06574C] font-bold">Courses</span>
-            <Input
-              size="md"
-              radius="md"
-              placeholder="Search course...."
-              className="w-1/3"
-              endContent={
-                <SearchCheck className="text-default-400 pointer-events-none flex-shrink-0" />
-              }
-            />
-          </div>
-          <Divider className="my-2" />
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-            {courses.map((item) => (
-              <Checkbox key={item.key} color="success">
-                {item.label}
-              </Checkbox>
-            ))}
-          </div>
         </div>
-      )}
 
-      <div className="flex items-center justify-end mt-4 gap-4">
-        <Button
-        radius="sm"
-          className="w-40 border-[#06574C] text-[#06574C]"
-          variant="bordered"
-        >
-          Cancel
-        </Button>
-        <Link to="/admin/user-management/users-details">
-        <Button  radius="sm" className="w-50 bg-[#06574C]" variant="solid" color="primary">
-          Create User
-        </Button>
-        </Link>
-      </div>
+        {selectedRole === "Teacher" && (
+          <div className="p-3 bg-white rounded-lg w-full">
+            <div className="flex justify-between items-center py-2">
+              <span className="text-lg text-[#06574C] font-bold">Courses</span>
+              <Input
+                size="md"
+                radius="md"
+                placeholder="Search course...."
+                className="w-1/3"
+                endContent={
+                  <SearchCheck className="text-default-400 pointer-events-none flex-shrink-0" />
+                }
+              />
+            </div>
+            <Divider className="my-2" />
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+              {courses.map((item, index) => (
+                <Checkbox
+                  key={index}
+                  value={item.value}
+                  name="permissions"
+                  color="success"
+                >
+                  {item.label}
+                </Checkbox>
+              ))}
+            </div>
+          </div>
+        )}
+
+        <div className="flex items-center justify-end mt-4 gap-4 w-full">
+          <Button
+            radius="sm"
+            className="w-40 border-[#06574C] text-[#06574C]"
+            variant="bordered"
+          >
+            Cancel
+          </Button>
+          <Button
+            type="Submit"
+            radius="sm"
+            className="w-50 bg-[#06574C]"
+            variant="solid"
+            color="primary"
+          >
+            Create User
+          </Button>
+        </div>
+      </Form>
     </div>
   );
 };

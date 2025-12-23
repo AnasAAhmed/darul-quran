@@ -1,4 +1,4 @@
-import { Button, Input } from "@heroui/react";
+import { Button, Form, Input } from "@heroui/react";
 import { Link } from "react-router-dom";
 
 const Login = () => {
@@ -40,9 +40,9 @@ const Login = () => {
             {/* - a space to grow, reflect and connect */}
           </h1>
 
-          <form
+          <Form
             onSubmit={handleSubmit}
-            className="w-full space-y-5 lg:space-y-6"
+            className="w-full space-y-5 lg:space-y-6 items-center justify-center"
           >
             <div className="w-full space-y-2">
               <p className="text-sm lg:text-base text-[#3F3F44]">
@@ -69,7 +69,7 @@ const Login = () => {
               />
             </div>
             {/* <Link to=""> */}
-            <div className="flex max-sm:flex-wrap gap-3 ">
+            <div className="flex max-sm:flex-wrap gap-3 w-full  ">
               <Button
               type="submit"
               as={Link}
@@ -100,7 +100,7 @@ const Login = () => {
             <div className="text-center text-sm lg:text-base mb-4 text-[#3F3F44]">
               Or
             </div>
-          </form>
+          </Form>
           <Button className="w-full text-center bg-white rounded-md py-3 border border-gray-300 hover:bg-gray-50 flex items-center justify-center gap-2">
             <img src="/icons/google.png" className="w-6 h-6" alt="" />
             <span className="text-sm lg:text-base">Sign in with Google</span>

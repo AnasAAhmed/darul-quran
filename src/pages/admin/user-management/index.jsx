@@ -20,7 +20,7 @@ import {
   SquarePen,
   Trash2,
 } from "lucide-react";
-import {  useState } from "react";
+import {  useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { AnimatePresence } from "motion/react";
 import * as motion from "motion/react-client";
@@ -317,7 +317,7 @@ const UserManagement = () => {
     },
   ];
 
-  const students = [
+  const studentsss = [
     { id: 1, name: "Alex Thompson", course: "React Masterclass", progress: 75 },
     { id: 2, name: "Alex Thompson", course: "React Masterclass", progress: 75 },
     { id: 3, name: "Alex Thompson", course: "React Masterclass", progress: 75 },
@@ -358,6 +358,28 @@ const UserManagement = () => {
 
   const [selectedTab, setSelectedTab] = useState("");
   const router = useNavigate();
+const [teachers, setTeachers] = useState([]);
+const [students, setStudents] = useState([]);
+const [admins, setAdmins] = useState([]);
+
+useEffect(() => {
+  const fetchUsers = async () => {
+    const res = await fetch(import.meta.env.VITE_PUBLIC_SERVER_URL + "/api/auth/getAllUsers");
+    const data = await res.json();
+
+    const teacherData = data.users.filter(u => u.role === "Teacher");
+    const studentData = data.users.filter(u => u.role === "Student");
+    const adminData = data.users.filter(u => u.role === "Admin");
+
+    setTeachers(teacherData);
+    setStudents(studentData);
+    setAdmins(adminData);
+  };
+
+  fetchUsers();
+}, []); 
+
+
   return (
     <div className="bg-white bg-linear-to-t from-[#F1C2AC]/50 to-[#95C4BE]/50 px-2 sm:px-5 ">
       <DashHeading
@@ -436,7 +458,7 @@ const UserManagement = () => {
                     size="sm"
                     className="text-xs text-[#06574C] bg-white shadow-md"
                   >
-                    {classes.length}
+                    {students.length}
                   </Chip>
                 </div>
               }
@@ -469,12 +491,12 @@ const UserManagement = () => {
                     </TableHeader>
 
                     <TableBody>
-                      {classes.map((classItem) => (
+                      {students.map((classItem) => (
                         <TableRow key={classItem.id}>
                           <TableCell className="px-4">
                             <div>
                               <div className="font-medium text-gray-900">
-                                {classItem.name}
+                                {classItem.first_name} {classItem.last_name}
                               </div>
                               <div className="text-xs text-gray-500 mt-0.5">
                                 {classItem.email}
@@ -483,16 +505,16 @@ const UserManagement = () => {
                           </TableCell>
                           <TableCell>
                             <Button className="text-sm p-2 rounded-md bg-[#FBF4EC] text-[#D28E3D]">
-                              {classItem.roles}
+                              {classItem.role}
                             </Button>
                           </TableCell>
-                          <TableCell>{classItem.date}</TableCell>
+                          <TableCell>{classItem.created_at}</TableCell>
                           <TableCell>
                             <Button className="text-sm p-2 rounded-md bg-[#95C4BE33] text-[#06574C]">
-                              {classItem.status}
+                              {classItem.is_active == true ? "Active" : "Inactive"}
                             </Button>
                           </TableCell>
-                          <TableCell>{classItem.last_active}</TableCell>
+                          <TableCell>{classItem.last_active || "N/A"}</TableCell>
                           <TableCell className="flex gap-2">
                             <Button
                               variant="bordered"
@@ -501,6 +523,7 @@ const UserManagement = () => {
                               startContent={
                                 <SquarePen size={18} color="#06574C" />
                               }
+                              onPress={classItem.id}
                             >
                               Edit
                             </Button>
@@ -528,7 +551,7 @@ const UserManagement = () => {
                     size="sm"
                     className="text-xs text-[#06574C] bg-white shadow-md"
                   >
-                    {classes.length}
+                    {teachers.length}
                   </Chip>
                 </div>
               }
@@ -560,12 +583,12 @@ const UserManagement = () => {
                     </TableHeader>
 
                     <TableBody>
-                      {Teachers.map((classItem) => (
+                      {teachers.map((classItem) => (
                         <TableRow key={classItem.id}>
                           <TableCell className="px-4">
                             <div>
                               <div className="font-medium text-gray-900">
-                                {classItem.name}
+                                {classItem.first_name} {classItem.last_name}
                               </div>
                               <div className="text-xs text-gray-500 mt-0.5">
                                 {classItem.email}
@@ -574,16 +597,16 @@ const UserManagement = () => {
                           </TableCell>
                           <TableCell>
                             <Button className="text-sm p-2 rounded-md bg-[#FBF4EC] text-[#D28E3D]">
-                              {classItem.roles}
+                              {classItem.role}
                             </Button>
                           </TableCell>
-                          <TableCell>{classItem.date}</TableCell>
+                          <TableCell>{classItem.created_at}</TableCell>
                           <TableCell>
                             <Button className="text-sm p-2 rounded-md bg-[#95C4BE33] text-[#06574C]">
-                              {classItem.status}
+                              {classItem.is_active == true ? "Active" : "Inactive"}
                             </Button>
                           </TableCell>
-                          <TableCell>{classItem.last_active}</TableCell>
+                          <TableCell>{classItem.last_active || "N/A"}</TableCell>
                           <TableCell className="flex gap-2">
                             <Button
                               variant="bordered"
@@ -614,12 +637,12 @@ const UserManagement = () => {
               key="Supports_Staff"
               title={
                 <div className="text-[#06574C] flex gap-2 items-center">
-                  <span>Supports Staff</span>
+                  <span>Admins </span>
                   <Chip
                     size="sm"
                     className="text-xs text-[#06574C] bg-white shadow-md"
                   >
-                    {classes.length}
+                    {admins.length}
                   </Chip>
                 </div>
               }
@@ -651,12 +674,13 @@ const UserManagement = () => {
                     </TableHeader>
 
                     <TableBody>
-                      {Supports_Staff.map((classItem) => (
+                      {admins.length > 0 ? 
+                      admins.map((classItem) => (
                         <TableRow key={classItem.id}>
                           <TableCell className="px-4">
                             <div>
                               <div className="font-medium text-gray-900">
-                                {classItem.name}
+                                {classItem.first_name} {classItem.last_name}
                               </div>
                               <div className="text-xs text-gray-500 mt-0.5">
                                 {classItem.email}
@@ -665,16 +689,16 @@ const UserManagement = () => {
                           </TableCell>
                           <TableCell>
                             <Button className="text-sm p-2 rounded-md bg-[#FBF4EC] text-[#D28E3D]">
-                              {classItem.roles}
+                              {classItem.role}
                             </Button>
                           </TableCell>
-                          <TableCell>{classItem.date}</TableCell>
+                          <TableCell>{classItem.created_at}</TableCell>
                           <TableCell>
                             <Button className="text-sm p-2 rounded-md bg-[#95C4BE33] text-[#06574C]">
-                              {classItem.status}
+                              {classItem.is_active == true ? "Active" : "Inactive"}
                             </Button>
                           </TableCell>
-                          <TableCell>{classItem.last_active}</TableCell>
+                          <TableCell>{classItem.last_active || "N/A"}</TableCell>
                           <TableCell className="flex gap-2">
                             <Button
                               variant="bordered"
@@ -695,7 +719,11 @@ const UserManagement = () => {
                             </Button>
                           </TableCell>
                         </TableRow>
-                      ))}
+                      )) : <TableRow>
+                        <TableCell colSpan={6} className="text-center py-4">
+                          No Admin Users Found.
+                        </TableCell>
+                      </TableRow>}
                     </TableBody>
                   </Table>
                 </motion.div>
