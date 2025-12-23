@@ -1,4 +1,5 @@
 import { Button, Form, Input } from "@heroui/react";
+import { EyeIcon, EyeOffIcon } from "lucide-react";
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 
@@ -11,16 +12,20 @@ const Login = () => {
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
 
   const handleLogin = async (e) => {
     e.preventDefault();
 
     try {
-      const res = await fetch( import.meta.env.VITE_PUBLIC_SERVER_URL + "/api/auth/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password }),
-      });
+      const res = await fetch(
+        import.meta.env.VITE_PUBLIC_SERVER_URL + "/api/auth/login",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email, password }),
+        }
+      );
 
       const data = await res.json();
 
@@ -76,7 +81,7 @@ const Login = () => {
           </h1>
 
           <Form
-           onSubmit={handleLogin}
+            onSubmit={handleLogin}
             className="w-full space-y-5 lg:space-y-6 items-center justify-center"
           >
             <div className="w-full space-y-2">
@@ -104,7 +109,16 @@ const Login = () => {
               <Input
                 className="rounded-md"
                 placeholder="Enter your password"
-                type="password"
+                type={showPassword ? "text" : "password"}
+                endContent={
+                  <span onClick={() => setShowPassword(!showPassword)}>
+                    {showPassword ? (
+                      <EyeOffIcon className="cursor-pointer" size={20} />
+                    ) : (
+                      <EyeIcon className="cursor-pointer" size={20} />
+                    )}
+                  </span>
+                }
                 onChange={(e) => setPassword(e.target.value)}
               />
             </div>
