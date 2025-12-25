@@ -379,6 +379,24 @@ useEffect(() => {
   fetchUsers();
 }, []); 
 
+const handleDelete = async (userId) => {
+  if (window.confirm("Are you sure you want to delete this user?")) {
+    try {
+      const res = await fetch(import.meta.env.VITE_PUBLIC_SERVER_URL + `/api/auth/deleteUser/${userId}`, {
+        method: "DELETE",
+      });
+
+      if (res.ok) {
+        alert("User deleted successfully!");
+        window.location.reload();
+      } else {
+        alert("Failed to delete user.");
+      }
+    } catch (error) {
+      console.error("Error deleting user:", error);
+    }
+  }
+};
 
   return (
     <div className="bg-white bg-linear-to-t from-[#F1C2AC]/50 to-[#95C4BE]/50 px-2 sm:px-5 h-screen max:md:absolute top-0 bottom-0 right-0 left-0 overflow-y-auto pb-5">
@@ -531,6 +549,7 @@ useEffect(() => {
                               radius="sm"
                               className="bg-[#06574C] text-white"
                               startContent={<Trash2 size={18} color="white" />}
+                              onPress={() => handleDelete(classItem.id)}
                             >
                               Delete
                             </Button>
@@ -629,6 +648,7 @@ useEffect(() => {
                               radius="sm"
                               className="bg-[#06574C] text-white"
                               startContent={<Trash2 size={18} color="white" />}
+                              onPress={() => handleDelete(classItem.id)}
                             >
                               Delete
                             </Button>
@@ -727,6 +747,7 @@ useEffect(() => {
                               radius="sm"
                               className="bg-[#06574C] text-white"
                               startContent={<Trash2 size={18} color="white" />}
+                              onPress={() => handleDelete(classItem.id)}
                             >
                               Delete
                             </Button>
