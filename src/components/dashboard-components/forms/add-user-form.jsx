@@ -25,10 +25,7 @@ const AddUserForm = ({ id, title, desc, userData ,isEdit }) => {
 
   const courses = [
     {
-      key: "Advance_JavaScript",
-      label: "Advance JavaScript",
-      value: "advance_javaScript",
-    },
+      key: "Advance_JavaScript", label: "Advance JavaScript", value: "advance_javaScript", },
     { key: "Advance_React", label: "Advance React", value: "advance_react" },
     { key: "Advance_Python", label: "Advance Python", value: "advance_python" },
     // { key: "Advance_JavaScript", label: "Advance JavaScript" , value: "advance_javaScript"},
@@ -123,6 +120,8 @@ const AddUserForm = ({ id, title, desc, userData ,isEdit }) => {
                 size="lg"
                 label="First Name"
                 placeholder="Enter your first name"
+                isRequired
+                errorMessage="Please enter first name"
               />
               <Input
                 key={userData?.email}
@@ -134,6 +133,8 @@ const AddUserForm = ({ id, title, desc, userData ,isEdit }) => {
                 size="lg"
                 label="Email Address"
                 placeholder="Enter your email address"
+                isRequired
+                errorMessage="Please enter email address"
               />
               <Input
                 defaultValue={userData?.city}
@@ -145,6 +146,8 @@ const AddUserForm = ({ id, title, desc, userData ,isEdit }) => {
                 size="lg"
                 label="Country/City"
                 placeholder="Enter your country/city"
+                isRequired
+                errorMessage="Please enter country/city"
               />
             </div>
             <div className="flex flex-col gap-5">
@@ -158,6 +161,8 @@ const AddUserForm = ({ id, title, desc, userData ,isEdit }) => {
                 size="lg"
                 label="Last Name"
                 placeholder="Enter your Last name"
+                isRequired
+                errorMessage="Please enter last name"
               />
               <Input
                 key={userData?.phone_number}
@@ -169,6 +174,8 @@ const AddUserForm = ({ id, title, desc, userData ,isEdit }) => {
                 size="lg"
                 label="Phone Number"
                 placeholder="Enter your phone number"
+                isRequired
+                errorMessage="Please enter phone number without spaceing"
               />
               <Select
                 name="role"
@@ -179,6 +186,8 @@ const AddUserForm = ({ id, title, desc, userData ,isEdit }) => {
                 placeholder="Select a role"
                 value={selectedRole}
                 onChange={handleRoleChange}
+                isRequired
+                errorMessage="Please select a role"
               >
                 {role.map((item) => (
                   <SelectItem key={item.key} value={item.key}>
@@ -199,6 +208,8 @@ const AddUserForm = ({ id, title, desc, userData ,isEdit }) => {
               size="lg"
               label="Password"
               placeholder="Enter your password"
+              isRequired
+              errorMessage="Please enter password"
             />
           </div>
           <div className="w-full p-3 bg-[#95C4BE33] rounded-lg mt-3 flex items-center justify-between">

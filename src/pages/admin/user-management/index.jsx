@@ -491,7 +491,7 @@ const handleDelete = async (userId) => {
                 >
                   <Table
                     isHeaderSticky
-                    selectionMode="multiple"
+                    selectionMode={students.length > 0 ? "multiple" : undefined}
                     aria-label="Pending approvals table"
                     removeWrapper
                     classNames={{
@@ -590,7 +590,7 @@ const handleDelete = async (userId) => {
                 >
                   <Table
                     // isHeaderSticky
-                    selectionMode="multiple"
+                    selectionMode={teachers.length > 0 ? "multiple" : undefined}
                     aria-label="Pending approvals table"
                     removeWrapper
                     classNames={{
@@ -689,7 +689,7 @@ const handleDelete = async (userId) => {
                 >
                   <Table
                     //    isHeaderSticky
-                    selectionMode="multiple"
+                    selectionMode={admins.length > 0 ? "multiple" : undefined}
                     aria-label="Pending approvals table"
                     removeWrapper
                     classNames={{
