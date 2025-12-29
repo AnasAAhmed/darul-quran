@@ -14,7 +14,7 @@ import { DashHeading } from "../DashHeading";
 import { SearchCheck } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
-const AddUserForm = ({ id, title, desc, userData ,isEdit }) => {
+const AddUserForm = ({ id, title, desc, userData, isEdit }) => {
   const [selectedRole, setSelectedRole] = useState("");
   console.log("User Data in Form:", userData);
   const role = [
@@ -25,7 +25,10 @@ const AddUserForm = ({ id, title, desc, userData ,isEdit }) => {
 
   const courses = [
     {
-      key: "Advance_JavaScript", label: "Advance JavaScript", value: "advance_javaScript", },
+      key: "Advance_JavaScript",
+      label: "Advance JavaScript",
+      value: "advance_javaScript",
+    },
     { key: "Advance_React", label: "Advance React", value: "advance_react" },
     { key: "Advance_Python", label: "Advance Python", value: "advance_python" },
     // { key: "Advance_JavaScript", label: "Advance JavaScript" , value: "advance_javaScript"},
@@ -46,13 +49,16 @@ const AddUserForm = ({ id, title, desc, userData ,isEdit }) => {
   };
 
   useEffect(() => {
-  if (userData) {
-    // normalize role value to match keys
-    const roleKey = role.find(r => r.key.toLowerCase() === (userData.role || "").toLowerCase())?.key || "";
-    setSelectedRole(roleKey);
-    setIsSelected(userData.is_active ?? true);
-  }
-}, [userData]);
+    if (userData) {
+      // normalize role value to match keys
+      const roleKey =
+        role.find(
+          (r) => r.key.toLowerCase() === (userData.role || "").toLowerCase()
+        )?.key || "";
+      setSelectedRole(roleKey);
+      setIsSelected(userData.is_active ?? true);
+    }
+  }, [userData]);
   const handleUserSubmit = async (e) => {
     e.preventDefault();
 
@@ -197,21 +203,23 @@ const AddUserForm = ({ id, title, desc, userData ,isEdit }) => {
               </Select>
             </div>
           </div>
-          <div className="py-3">
-            <Input
-              key={userData?.password}
-              defaultValue={userData?.password}
-              type="text"
-              name="password"
-              labelPlacement="outside"
-              variant="bordered"
-              size="lg"
-              label="Password"
-              placeholder="Enter your password"
-              isRequired
-              errorMessage="Please enter password"
-            />
-          </div>
+          {!userData?.id ? (
+            <div className="py-3">
+              <Input
+                type="password"
+                name="password"
+                labelPlacement="outside"
+                variant="bordered"
+                size="lg"
+                label="Password"
+                placeholder="Enter your password"
+                isRequired
+                errorMessage="Please enter password"
+              />
+            </div>
+          ) : (
+            ""
+          )}
           <div className="w-full p-3 bg-[#95C4BE33] rounded-lg mt-3 flex items-center justify-between">
             <span className="text-[#06574C] text-sm">Status</span>
             <div className="flex items-center gap-3">
@@ -266,6 +274,8 @@ const AddUserForm = ({ id, title, desc, userData ,isEdit }) => {
             radius="sm"
             className="w-40 border-[#06574C] text-[#06574C]"
             variant="bordered"
+            as={Link}
+            to="/admin/user-management"
           >
             Cancel
           </Button>
@@ -278,8 +288,13 @@ const AddUserForm = ({ id, title, desc, userData ,isEdit }) => {
             isDisabled={loading}
             isLoading={loading}
           >
-           {isEdit === true ? (loading ? "Updating User..." : "Update User") : (loading ? "Creating User..." : "Create User")}
-           
+            {isEdit === true
+              ? loading
+                ? "Updating User..."
+                : "Update User"
+              : loading
+              ? "Creating User..."
+              : "Create User"}
           </Button>
         </div>
       </Form>

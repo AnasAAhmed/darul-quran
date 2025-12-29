@@ -1,10 +1,11 @@
 import { Button, Form, Input } from "@heroui/react";
+import { EyeIcon, EyeOffIcon } from "lucide-react";
 import { useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 
 const ChangePassword = () => {
   const [searchParams] = useSearchParams();
-    const navigate = useNavigate(); // ✅ ADD THIS
+  const navigate = useNavigate(); // ✅ ADD THIS
 
   const token = searchParams.get("token");
   const email = searchParams.get("email");
@@ -13,7 +14,7 @@ const ChangePassword = () => {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
-
+  const [showPassword, setShowPassword] = useState(false);
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
@@ -81,9 +82,7 @@ const ChangePassword = () => {
 
           {/* 🔴 Global Error */}
           {error && (
-            <p className="text-red-600 bg-red-100 p-3 rounded mb-4">
-              {error}
-            </p>
+            <p className="text-red-600 bg-red-100 p-3 rounded mb-4">{error}</p>
           )}
 
           <Form onSubmit={handleSubmit} className="space-y-6">
@@ -91,7 +90,16 @@ const ChangePassword = () => {
             <Input
               radius="sm"
               size="lg"
-              type="password"
+              type={showPassword ? "text" : "password"}
+              endContent={
+                <span onClick={() => setShowPassword(!showPassword)}>
+                  {showPassword ? (
+                    <EyeOffIcon className="cursor-pointer" size={20} />
+                  ) : (
+                    <EyeIcon className="cursor-pointer" size={20} />
+                  )}
+                </span>
+              }
               label="New Password"
               labelPlacement="outside"
               placeholder="Enter new password"
@@ -106,15 +114,23 @@ const ChangePassword = () => {
             <Input
               radius="sm"
               size="lg"
-              type="password"
+              type={showPassword ? "text" : "password"}
+              endContent={
+                <span onClick={() => setShowPassword(!showPassword)}>
+                  {showPassword ? (
+                    <EyeOffIcon className="cursor-pointer" size={20} />
+                  ) : (
+                    <EyeIcon className="cursor-pointer" size={20} />
+                  )}
+                </span>
+              }
               label="Confirm Password"
               labelPlacement="outside"
               placeholder="Confirm password"
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
               isInvalid={
-                !!error &&
-                (!confirmPassword || password !== confirmPassword)
+                !!error && (!confirmPassword || password !== confirmPassword)
               }
               errorMessage={
                 !confirmPassword

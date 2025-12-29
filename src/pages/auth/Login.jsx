@@ -1,4 +1,14 @@
-import { Button, Form, Input } from "@heroui/react";
+import {
+  Button,
+  Form,
+  Input,
+  Modal,
+  ModalBody,
+  ModalContent,
+  ModalFooter,
+  ModalHeader,
+  useDisclosure,
+} from "@heroui/react";
 import { EyeIcon, EyeOffIcon } from "lucide-react";
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
@@ -13,9 +23,16 @@ const Login = () => {
   const [email, setEmail] = useState("syedmazzh@gmail.com");
   const [password, setPassword] = useState("password123");
   const [showPassword, setShowPassword] = useState(false);
+  const { isOpen, onOpen, onClose } = useDisclosure();
 
+  const [loading, setLoading] = useState(false);
+  const [modalType, setModalType] = useState("success"); // success | error
+  const [modalMessage, setModalMessage] = useState("");
   const handleLogin = async (e) => {
     e.preventDefault();
+    if (loading) return;
+
+    setLoading(true);
 
     try {
       const res = await fetch(
@@ -30,23 +47,32 @@ const Login = () => {
       const data = await res.json();
 
       if (!res.ok) {
-        alert(data.message);
+        setModalType("error");
+        setModalMessage(data.message || "Login failed");
+        onOpen();
         return;
       }
-      // if (data.is_active === false) {
-      //   alert("Your account is currently inactive.");
-      //   return;
-      // }
 
-      if (data.user.role === "Admin") {
-        navigate("/admin/dashboard");
-      } else if (data.user.role === "Teacher") {
-        navigate("/teacher/dashboard");
-      } else {
-        navigate("/student/dashboard");
-      }
+      // ✅ success
+      setModalType("success");
+      setModalMessage("You're successfully logged in!");
+      onOpen();
+
+      setTimeout(() => {
+        if (data.user.role === "Admin") {
+          navigate("/admin/dashboard");
+        } else if (data.user.role === "Teacher") {
+          navigate("/teacher/dashboard");
+        } else {
+          navigate("/student/dashboard");
+        }
+      }, 1200);
     } catch (error) {
-      alert("Server not responding");
+      setModalType("error");
+      setModalMessage("Server not responding");
+      onOpen();
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -158,8 +184,10 @@ const Login = () => {
               <Button
                 type="submit"
                 className="w-full text-center text-white rounded-md py-3 bg-[#06574C]"
+                isLoading={loading}
+                isDisabled={loading}
               >
-                Login
+                {loading ? "Logging in..." : "Login"}
               </Button>
             </div>
             {/* </Link> */}
@@ -173,6 +201,30 @@ const Login = () => {
           </Button>
         </div>
       </div>
+      <Modal isOpen={isOpen} onClose={onClose} placement="center">
+        <ModalContent>
+          <ModalHeader
+            className={
+              modalType === "success" ? "text-green-600" : "text-red-600"
+            }
+          >
+            {modalType === "success" ? "Success" : "Error"}
+          </ModalHeader>
+
+          <ModalBody>
+            <p>{modalMessage}</p>
+          </ModalBody>
+
+          <ModalFooter>
+            <Button
+              color={modalType === "success" ? "success" : "danger"}
+              onPress={onClose}
+            >
+              OK
+            </Button>
+          </ModalFooter>
+        </ModalContent>
+      </Modal>
     </main>
   );
 };
