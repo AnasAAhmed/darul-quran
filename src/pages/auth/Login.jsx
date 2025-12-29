@@ -218,6 +218,7 @@ const Login = () => {
           <ModalFooter>
             <Button
               color={modalType === "success" ? "success" : "danger"}
+              className={modalType === "success" ? "hidden" : "flex"}
               onPress={onClose}
             >
               OK

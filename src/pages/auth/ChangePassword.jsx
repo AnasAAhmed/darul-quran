@@ -5,7 +5,7 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 
 const ChangePassword = () => {
   const [searchParams] = useSearchParams();
-  const navigate = useNavigate(); // ✅ ADD THIS
+  const navigate = useNavigate();
 
   const token = searchParams.get("token");
   const email = searchParams.get("email");
@@ -19,7 +19,6 @@ const ChangePassword = () => {
     e.preventDefault();
     setError("");
 
-    // 🔐 Frontend validation
     if (!password || !confirmPassword) {
       return setError("Both password fields are required");
     }
@@ -74,17 +73,19 @@ const ChangePassword = () => {
       </div>
 
       {/* RIGHT SIDE */}
-      <div className="flex-1 flex flex-col items-start md:justify-center bg-[#E9E0D6] px-6 lg:px-24 py-8 lg:py-0 m-0 lg:m-6 lg:rounded-r-lg">
+      <div className="flex-1 flex flex-col  items-start md:justify-center bg-[#E9E0D6] px-6 sm:px-12 md:px-16 lg:px-24 py-8 lg:py-0 m-0 lg:m-6 lg:rounded-r-lg lg:!ml-0">
+        <img
+          src="/icons/darul-quran-logo.png"
+          alt="Darul Quran"
+          className=" w-45 h-45 !self-center md:hidden"
+        />
         <div className="w-full max-w-xl mx-auto">
           <h1 className="text-3xl font-medium mb-6">
             <strong>Change Password</strong>
           </h1>
-
-          {/* 🔴 Global Error */}
           {error && (
             <p className="text-red-600 bg-red-100 p-3 rounded mb-4">{error}</p>
           )}
-
           <Form onSubmit={handleSubmit} className="space-y-6">
             {/* New Password */}
             <Input

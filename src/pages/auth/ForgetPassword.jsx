@@ -74,7 +74,7 @@ const ForgetPassword = () => {
         <img
           src="/icons/darul-quran-logo.png"
           alt="Darul Quran"
-          className="w-45 h-45 md:hidden"
+          className="w-45 h-45 !self-center md:hidden"
         />
 
         <div className="w-full max-w-xl mx-auto lg:mx-16">
@@ -96,9 +96,9 @@ const ForgetPassword = () => {
                 required
               />
 
-              <p className="text-sm text-end cursor-pointer hover:underline">
+              {/* <p className="text-sm text-end cursor-pointer hover:underline">
                 Resend OTP
-              </p>
+              </p> */}
 
               {message && (
                 <p className="text-sm text-center text-green-600">{message}</p>
