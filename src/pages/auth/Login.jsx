@@ -12,7 +12,7 @@ import {
 import { EyeIcon, EyeOffIcon } from "lucide-react";
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-
+import toast from "react-hot-toast";
 const Login = () => {
   // const handleSubmit = (e) => {
   //   e.preventDefault();
@@ -48,16 +48,14 @@ const Login = () => {
 
       if (!res.ok) {
         setModalType("error");
-        setModalMessage(data.message || "Login failed");
+        toast.error(data.message || "Login failed");
         onOpen();
         return;
       }
-
+      if (res.ok) {
       // ✅ success
-      setModalType("success");
-      setModalMessage("You're successfully logged in!");
-      onOpen();
-
+        toast.success("Login successful");
+      }
       setTimeout(() => {
         if (data.user.role === "Admin") {
           navigate("/admin/dashboard");
@@ -68,9 +66,7 @@ const Login = () => {
         }
       }, 1200);
     } catch (error) {
-      setModalType("error");
-      setModalMessage("Server not responding");
-      onOpen();
+      toast.error("Something went wrong. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -201,31 +197,6 @@ const Login = () => {
           </Button>
         </div>
       </div>
-      <Modal isOpen={isOpen} onClose={onClose} placement="center">
-        <ModalContent>
-          <ModalHeader
-            className={
-              modalType === "success" ? "text-green-600" : "text-red-600"
-            }
-          >
-            {modalType === "success" ? "Success" : "Error"}
-          </ModalHeader>
-
-          <ModalBody>
-            <p>{modalMessage}</p>
-          </ModalBody>
-
-          <ModalFooter>
-            <Button
-              color={modalType === "success" ? "success" : "danger"}
-              className={modalType === "success" ? "hidden" : "flex"}
-              onPress={onClose}
-            >
-              OK
-            </Button>
-          </ModalFooter>
-        </ModalContent>
-      </Modal>
     </main>
   );
 };

@@ -157,7 +157,7 @@ const AddUserForm = ({ id, title, desc, userData, isEdit }) => {
         role: selectedRoleValue,
         is_active: isSelected,
         permissions: selectedCourseValues,
-        ...(passwordValue ? { password: passwordValue } : {}), // ✅ conditional password
+        ...(passwordValue ? { password: passwordValue } : {}),
       };
 
       console.log("Submitting payload:", payload);
@@ -176,7 +176,6 @@ const AddUserForm = ({ id, title, desc, userData, isEdit }) => {
         throw new Error(errorData.message || "Failed to save user");
       }
 
-      // Show success toast based on whether it's edit or create
       if (userData?.id) {
         toast.success("User updated successfully!");
       } else {

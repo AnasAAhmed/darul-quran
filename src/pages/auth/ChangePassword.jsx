@@ -2,6 +2,7 @@ import { Button, Form, Input } from "@heroui/react";
 import { EyeIcon, EyeOffIcon } from "lucide-react";
 import { useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
+import toast from "react-hot-toast";
 
 const ChangePassword = () => {
   const [searchParams] = useSearchParams();
@@ -15,12 +16,18 @@ const ChangePassword = () => {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
 
+    // Validate inputs
     if (!password || !confirmPassword) {
       return setError("Both password fields are required");
+    }
+
+    if (password.length < 8) {
+      return setError("Password must be at least 8 characters long");
     }
 
     if (password !== confirmPassword) {
@@ -46,15 +53,30 @@ const ChangePassword = () => {
       const data = await res.json();
 
       if (!res.ok || !data.success) {
-        throw new Error(data.message || "Failed to change password");
+        // Check for specific token errors
+        if (data.message?.toLowerCase().includes('expired') || 
+            data.message?.toLowerCase().includes('invalid') ||
+            data.message?.toLowerCase().includes('token')) {
+          toast.error("Password reset link has expired or is invalid. Please request a new one.");
+          navigate("/forgot-password");
+          return;
+        }
+        
+        toast.error(data.message || "Failed to change password");
+        return;
       }
 
-      alert("Password changed successfully");
-
+      // Success case
+      toast.success("Password changed successfully!");
       setPassword("");
       setConfirmPassword("");
-      navigate("/");
+      
+      // Redirect after a short delay
+      setTimeout(() => {
+        navigate("/login");
+      }, 1500);
     } catch (err) {
+      toast.error(err.message || "An error occurred. Please try again.");
       setError(err.message);
     } finally {
       setLoading(false);
@@ -73,61 +95,110 @@ const ChangePassword = () => {
       </div>
 
       {/* RIGHT SIDE */}
-      <div className="flex-1 flex flex-col  items-start md:justify-center bg-[#E9E0D6] px-6 sm:px-12 md:px-16 lg:px-24 py-8 lg:py-0 m-0 lg:m-6 lg:rounded-r-lg lg:!ml-0">
+      <div className="flex-1 flex flex-col items-start md:justify-center bg-[#E9E0D6] px-6 sm:px-12 md:px-16 lg:px-24 py-8 lg:py-0 m-0 lg:m-6 lg:rounded-r-lg lg:!ml-0">
         <img
           src="/icons/darul-quran-logo.png"
           alt="Darul Quran"
-          className=" w-45 h-45 !self-center md:hidden"
+          className="w-45 h-45 !self-center md:hidden"
         />
+        
         <div className="w-full max-w-xl mx-auto">
           <h1 className="text-3xl font-medium mb-6">
             <strong>Change Password</strong>
           </h1>
-          {error && (
-            <p className="text-red-600 bg-red-100 p-3 rounded mb-4">{error}</p>
+          
+          {/* Email display */}
+          {email && (
+            <div className="mb-4 p-3 bg-gray-100 rounded border border-gray-200">
+              <p className="text-sm text-gray-700">
+                Reset password for: <strong className="text-[#06574C]">{email}</strong>
+              </p>
+            </div>
           )}
-          <Form onSubmit={handleSubmit} className="space-y-6">
+          
+          {/* Token missing warning */}
+          {(!token || !email) && (
+            <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded">
+              <p className="text-red-600 text-sm">
+                <strong>Invalid reset link:</strong> Token or email is missing. Please use the link from your email.
+              </p>
+              <button
+                onClick={() => navigate("/forgot-password")}
+                className="mt-2 text-blue-600 hover:text-blue-800 text-sm underline"
+              >
+                Request a new password reset link
+              </button>
+            </div>
+          )}
+          
+          {error && (
+            <p className="text-red-600 bg-red-50 p-3 rounded mb-4 border border-red-200">
+              {error}
+            </p>
+          )}
+          
+          <Form onSubmit={handleSubmit} className="space-y-6 w-full">
             {/* New Password */}
-            <Input
-              radius="sm"
-              size="lg"
-              type={showPassword ? "text" : "password"}
-              endContent={
-                <span onClick={() => setShowPassword(!showPassword)}>
-                  {showPassword ? (
-                    <EyeOffIcon className="cursor-pointer" size={20} />
-                  ) : (
-                    <EyeIcon className="cursor-pointer" size={20} />
-                  )}
-                </span>
-              }
-              label="New Password"
-              labelPlacement="outside"
-              placeholder="Enter new password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              isInvalid={!!error && !password}
-              errorMessage={!password ? "Password is required" : ""}
-              required
-            />
+            <div className="space-y-2 w-full">
+              <Input
+                radius="sm"
+                size="lg"
+                type={showPassword ? "text" : "password"}
+                endContent={
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="focus:outline-none"
+                  >
+                    {showPassword ? (
+                      <EyeOffIcon className="cursor-pointer text-gray-500" size={20} />
+                    ) : (
+                      <EyeIcon className="cursor-pointer text-gray-500" size={20} />
+                    )}
+                  </button>
+                }
+                label="New Password"
+                labelPlacement="outside"
+                placeholder="Enter new password (min. 8 characters)"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                isInvalid={!!error && (!password || password.length < 8)}
+                errorMessage={
+                  !password 
+                    ? "Password is required" 
+                    : password.length < 8 
+                    ? "Password must be at least 8 characters"
+                    : ""
+                }
+                required
+              />
+              <p className="text-xs text-gray-500 ml-1">
+                Password must be at least 8 characters long
+              </p>
+            </div>
 
             {/* Confirm Password */}
             <Input
               radius="sm"
               size="lg"
+              className="w-full"
               type={showPassword ? "text" : "password"}
               endContent={
-                <span onClick={() => setShowPassword(!showPassword)}>
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="focus:outline-none"
+                >
                   {showPassword ? (
-                    <EyeOffIcon className="cursor-pointer" size={20} />
+                    <EyeOffIcon className="cursor-pointer text-gray-500" size={20} />
                   ) : (
-                    <EyeIcon className="cursor-pointer" size={20} />
+                    <EyeIcon className="cursor-pointer text-gray-500" size={20} />
                   )}
-                </span>
+                </button>
               }
               label="Confirm Password"
               labelPlacement="outside"
-              placeholder="Confirm password"
+              placeholder="Confirm your password"
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
               isInvalid={
@@ -147,10 +218,23 @@ const ChangePassword = () => {
               type="submit"
               radius="md"
               isLoading={loading}
-              className="w-full text-white bg-[#06574C]"
+              disabled={loading || !token || !email}
+              className={`w-full text-white bg-[#06574C] hover:bg-[#05463d] transition-colors ${
+                (!token || !email) ? "opacity-50 cursor-not-allowed" : ""
+              }`}
             >
-              Change Password
+              {loading ? "Changing Password..." : "Change Password"}
             </Button>
+            
+            <div className="text-center pt-4">
+              <button
+                type="button"
+                onClick={() => navigate("/")}
+                className="text-[#06574C] hover:text-[#05463d] text-sm underline"
+              >
+                Back to Login
+              </button>
+            </div>
           </Form>
         </div>
       </div>
