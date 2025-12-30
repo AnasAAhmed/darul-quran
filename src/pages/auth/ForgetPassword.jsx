@@ -1,5 +1,6 @@
 import { Button, Form, Input } from "@heroui/react";
 import { useState } from "react";
+import toast from "react-hot-toast";
 
 const ForgetPassword = () => {
   const [email, setEmail] = useState("");
@@ -29,8 +30,6 @@ const ForgetPassword = () => {
           body: JSON.stringify({ email }),
         }
       );
-
-      // ✅ Safely parse JSON
       let data;
       const text = await res.text();
       try {
@@ -40,19 +39,19 @@ const ForgetPassword = () => {
       }
 
       if (!res.ok) {
-        setError(data.message || "Something went wrong");
+        toast.error(data.message || "Something went wrong");
         return;
       }
 
       // Success message
-      setMessage(
+      toast.success(
         "If the email exists, a password reset link has been sent. Please check your inbox."
       );
 
       // Do NOT redirect automatically — user must use emailed link
     } catch (err) {
       console.error(err);
-      setError("Server error. Please try again later.");
+      toast.error("Server error. Please try again later.");
     } finally {
       setLoading(false);
     }
@@ -79,7 +78,7 @@ const ForgetPassword = () => {
 
         <div className="w-full max-w-xl mx-auto lg:mx-16">
           <h1 className="text-xl sm:text-3xl lg:text-4xl text-[#3F3F44] mb-6 font-medium">
-            <strong>Send OTP</strong>
+            <strong>Send Email</strong>
           </h1>
 
           <Form onSubmit={handleSubmit} className="w-full">
@@ -95,17 +94,12 @@ const ForgetPassword = () => {
                 onChange={(e) => setEmail(e.target.value)}
                 required
               />
-
-              {/* <p className="text-sm text-end cursor-pointer hover:underline">
-                Resend OTP
-              </p> */}
-
-              {message && (
+              {/* {message && (
                 <p className="text-sm text-center text-green-600">{message}</p>
               )}
               {error && (
                 <p className="text-sm text-center text-red-600">{error}</p>
-              )}
+              )} */}
             </div>
 
             <Button
