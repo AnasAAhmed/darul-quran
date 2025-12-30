@@ -76,6 +76,48 @@ const AddUserForm = ({ id, title, desc, userData, isEdit }) => {
     return Array.from(selectedCity)[0] || "";
   }, [selectedCity]);
 
+  // Validation functions
+  const validateEmail = (value) => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!value) return "Email is required";
+    if (!emailRegex.test(value)) return "Please enter a valid email address (must contain @)";
+    return true;
+  };
+
+  const validatePassword = (value) => {
+    // For new users, password is required
+    if (!userData?.id && !value) return "Password is required";
+    
+    // If password is provided (for new user or change), validate it
+    if (value && value.length < 6) {
+      return "Password must be at least 6 characters";
+    }
+    
+    return true;
+  };
+
+  const validatePhoneNumber = (value) => {
+    if (!value) return "Phone number is required";
+    
+    // Remove any non-digit characters
+    const cleanPhone = value.replace(/\D/g, '');
+    
+    if (selectedCountryValue === "Pakistan") {
+      // Check for valid Pakistani mobile numbers (starting with 03 and length 11)
+      const pakistaniRegex = /^03[0-9]{9}$/;
+      if (!pakistaniRegex.test(cleanPhone)) {
+        return "Please enter a valid Pakistani mobile number (e.g., 03163137189)";
+      }
+    } else {
+      // For other countries, just check if it's all digits and reasonable length
+      if (cleanPhone.length < 7 || cleanPhone.length > 15) {
+        return "Please enter a valid phone number";
+      }
+    }
+    
+    return true;
+  };
+
   useEffect(() => {
     if (userData) {
       // Set role
@@ -132,33 +174,31 @@ const AddUserForm = ({ id, title, desc, userData, isEdit }) => {
     setLoading(true);
 
     try {
-      const formData = new FormData(e.target);
-      
       // Get selected courses values
       const selectedCourseValues = Array.from(selectedCourses).map(key => {
         const course = courses.find(c => c.key === key);
         return course ? course.value : key;
       });
 
-      // ✅ Only include password if creating a new user
-      let passwordValue = formData.get("password") || "";
-      if (userData?.id) {
-        passwordValue = undefined; // ignore password on edit
-      }
-
+      // Build payload
       const payload = {
         id: userData?.id || undefined,
-        first_name: formData.get("first_name") || "",
-        last_name: formData.get("last_name") || "",
-        email: formData.get("email") || "",
-        phone_number: formData.get("phone_number") || "",
+        first_name: e.target.first_name.value,
+        last_name: e.target.last_name.value,
+        email: e.target.email.value,
+        phone_number: e.target.phone_number.value,
         country: selectedCountryValue,
         city: selectedCityValue,
         role: selectedRoleValue,
         is_active: isSelected,
         permissions: selectedCourseValues,
-        ...(passwordValue ? { password: passwordValue } : {}),
       };
+
+      // Add password only if provided and valid
+      const passwordValue = e.target.password?.value || "";
+      if (passwordValue.trim() !== "") {
+        payload.password = passwordValue;
+      }
 
       console.log("Submitting payload:", payload);
 
@@ -173,7 +213,7 @@ const AddUserForm = ({ id, title, desc, userData, isEdit }) => {
 
       if (!res.ok) {
         const errorData = await res.json();
-        throw new Error(errorData.message || "Failed to save user");
+        throw new Error(errorData.message);
       }
 
       if (userData?.id) {
@@ -183,10 +223,8 @@ const AddUserForm = ({ id, title, desc, userData, isEdit }) => {
       }
 
       navigate("/admin/user-management");
-    } catch (err) {
-      console.error(err);
-      // Show error toast
-      toast.error(err.message || "An error occurred while saving the user");
+    } catch (error) {
+      toast.error(error.message || "An error occurred");
     } finally {
       setLoading(false);
     }
@@ -198,7 +236,11 @@ const AddUserForm = ({ id, title, desc, userData, isEdit }) => {
         title={title || "Add New User"}
         desc={desc || "Create a new user by filling out the form below."}
       />
-      <Form onSubmit={handleUserSubmit} className="w-full">
+      <Form 
+        onSubmit={handleUserSubmit} 
+        className="w-full"
+        validationBehavior="native"
+      >
         <div className="p-6 bg-white rounded-lg mb-6 w-full">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full">
             {/* Left Column */}
@@ -218,7 +260,7 @@ const AddUserForm = ({ id, title, desc, userData, isEdit }) => {
               />
               <Input
                 key={userData?.email}
-                type="text"
+                type="email"
                 name="email"
                 defaultValue={userData?.email}
                 labelPlacement="outside"
@@ -227,7 +269,8 @@ const AddUserForm = ({ id, title, desc, userData, isEdit }) => {
                 label="Email Address"
                 placeholder="Enter your email address"
                 isRequired
-                errorMessage="Please enter email address"
+                errorMessage="Please enter a valid email address (must contain @)"
+                validate={validateEmail}
               />
             </div>
 
@@ -249,57 +292,65 @@ const AddUserForm = ({ id, title, desc, userData, isEdit }) => {
               <Input
                 key={userData?.phone_number}
                 defaultValue={userData?.phone_number}
-                type="number"
+                type="text"
                 name="phone_number"
                 labelPlacement="outside"
                 variant="bordered"
                 size="lg"
                 label="Phone Number"
-                placeholder="Enter your phone number"
+                placeholder="e.g., 03163137189"
                 isRequired
-                errorMessage="Please enter phone number without spacing"
+                errorMessage="Please enter a valid phone number"
+                validate={validatePhoneNumber}
+                description={selectedCountryValue === "Pakistan" ? "Format: 03XXXXXXXXX (11 digits)" : "Enter valid phone number"}
               />
             </div>
           </div>
 
           {/* ================= COUNTRY + CITY ROW ================= */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 py-4">
-            <Select
-              name="country"
-              labelPlacement="outside"
-              variant="bordered"
-              size="lg"
-              label="Country"
-              placeholder="Select Country"
-              selectedKeys={selectedCountry}
-              onSelectionChange={handleCountryChange}
-              isRequired
-            >
-              {countries.map((c) => (
-                <SelectItem key={c.key} value={c.key}>
-                  {c.label}
-                </SelectItem>
-              ))}
-            </Select>
+            <div>
+              <Select
+                name="country"
+                labelPlacement="outside"
+                variant="bordered"
+                size="lg"
+                label="Country"
+                placeholder="Select Country"
+                selectedKeys={selectedCountry}
+                onSelectionChange={handleCountryChange}
+                isRequired
+                errorMessage="Please select a country"
+              >
+                {countries.map((c) => (
+                  <SelectItem key={c.key} value={c.key}>
+                    {c.label}
+                  </SelectItem>
+                ))}
+              </Select>
+            </div>
 
-            <Select
-              name="city"
-              labelPlacement="outside"
-              variant="bordered"
-              size="lg"
-              label="City"
-              placeholder="Select City"
-              selectedKeys={selectedCity}
-              onSelectionChange={handleCityChange}
-              isDisabled={selectedCountry.size === 0}
-              isRequired
-            >
-              {(citiesByCountry[selectedCountryValue] || []).map((c) => (
-                <SelectItem key={c.key} value={c.key}>
-                  {c.label}
-                </SelectItem>
-              ))}
-            </Select>
+            <div>
+              <Select
+                name="city"
+                labelPlacement="outside"
+                variant="bordered"
+                size="lg"
+                label="City"
+                placeholder="Select City"
+                selectedKeys={selectedCity}
+                onSelectionChange={handleCityChange}
+                isDisabled={selectedCountry.size === 0}
+                isRequired
+                errorMessage="Please select a city"
+              >
+                {(citiesByCountry[selectedCountryValue] || []).map((c) => (
+                  <SelectItem key={c.key} value={c.key}>
+                    {c.label}
+                  </SelectItem>
+                ))}
+              </Select>
+            </div>
           </div>
 
           {/* ================= ROLE ROW (FULL WIDTH) ================= */}
@@ -314,6 +365,7 @@ const AddUserForm = ({ id, title, desc, userData, isEdit }) => {
               selectedKeys={selectedRole}
               onSelectionChange={handleRoleChange}
               isRequired
+              errorMessage="Please select a role"
             >
               {role.map((item) => (
                 <SelectItem key={item.key} value={item.key}>
@@ -334,7 +386,9 @@ const AddUserForm = ({ id, title, desc, userData, isEdit }) => {
                 label="Password"
                 placeholder="Enter your password"
                 isRequired
-                errorMessage="Please enter password"
+                errorMessage="Password must be at least 6 characters"
+                validate={validatePassword}
+                description="Minimum 6 characters"
               />
             </div>
           )}
