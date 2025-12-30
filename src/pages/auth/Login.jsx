@@ -187,14 +187,14 @@ const Login = () => {
               </Button>
             </div>
             {/* </Link> */}
-            <div className="text-center text-sm lg:text-base mb-4 text-[#3F3F44]">
+            {/* <div className="text-center text-sm lg:text-base mb-4 text-[#3F3F44]">
               Or
-            </div>
+            </div> */}
           </Form>
-          <Button className="w-full text-center bg-white rounded-md py-3 border border-gray-300 hover:bg-gray-50 flex items-center justify-center gap-2">
+          {/* <Button className="w-full text-center bg-white rounded-md py-3 border border-gray-300 hover:bg-gray-50 flex items-center justify-center gap-2">
             <img src="/icons/google.png" className="w-6 h-6" alt="" />
             <span className="text-sm lg:text-base">Sign in with Google</span>
-          </Button>
+          </Button> */}
         </div>
       </div>
     </main>

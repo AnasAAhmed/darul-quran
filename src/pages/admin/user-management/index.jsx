@@ -33,302 +33,302 @@ import { AnimatePresence } from "motion/react";
 import * as motion from "motion/react-client";
 
 const UserManagement = () => {
-  const [events, setEvents] = useState([
-    { title: "iOS Workshop", date: "2025-11-02" },
-    { title: "React Basics", date: "2025-11-06", color: "#f0e68c" },
-    { title: "Python Basics", date: "2025-11-09", color: "#dcd0ff" },
-    { title: "Marketing Research", date: "2025-11-14", color: "#90ee90" },
-    { title: "iOS Workshop", date: "2025-11-18", color: "#ffcccc" },
-    { title: "JS Workshop", date: "2025-11-18", color: "#ffebcc" },
-    { title: "React Basics", date: "2025-11-22", color: "#f0e68c" },
-    { title: "iOS Workshop", date: "2025-11-22", color: "#ffcccc" },
-    { title: "React Basics", date: "2025-11-28", color: "#f0e68c" },
-    { title: "iOS Workshop", date: "2025-11-28", color: "#ffcccc" },
-    { title: "JS Workshop", date: "2025-11-28", color: "#ffebcc" },
-    { title: "Python Basics", date: "2025-11-28", color: "#dcd0ff" },
-  ]);
-  const classes = [
-    {
-      id: 1,
-      name: "John Davis",
-      desc: "Advanced JavaScript Course",
-      last_active: "2 hourse ago",
-      email: "john.davis@email.com",
-      roles: "Students",
-      status: "Active",
-      date: "2025-11-27",
-    },
-    {
-      id: 2,
-      name: "John Davis",
-      desc: "Advanced JavaScript Course",
-      last_active: "2 hourse ago",
-      email: "john.davis@email.com",
-      roles: "Students",
-      status: "Active",
-      date: "2025-11-26",
-    },
-    {
-      id: 3,
-      name: "John Davis",
-      desc: "Advanced JavaScript Course",
-      last_active: "2 hourse ago",
-      email: "john.davis@email.com",
-      roles: "Students",
-      status: "Active",
-      date: "2025-11-17",
-    },
-    {
-      id: 4,
-      name: "John Davis",
-      desc: "Advanced JavaScript Course",
-      last_active: "2 hourse ago",
-      email: "john.davis@email.com",
-      roles: "Students",
-      status: "Active",
-      date: "2025-11-16",
-    },
-    {
-      id: 5,
-      name: "John Davis",
-      desc: "Advanced JavaScript Course",
-      last_active: "2 hourse ago",
-      email: "john.davis@email.com",
-      roles: "Students",
-      status: "Active",
-      date: "2025-11-15",
-    },
-    {
-      id: 6,
-      name: "John Davis",
-      desc: "Advanced JavaScript Course",
-      last_active: "2 hourse ago",
-      email: "john.davis@email.com",
-      roles: "Students",
-      status: "Active",
-      date: "2025-11-12",
-    },
-    {
-      id: 7,
-      name: "John Davis",
-      desc: "Advanced JavaScript Course",
-      last_active: "2 hourse ago",
-      email: "john.davis@email.com",
-      roles: "Students",
-      status: "Active",
-      date: "2025-11-03",
-    },
-    {
-      id: 8,
-      name: "John Davis",
-      desc: "Advanced JavaScript Course",
-      last_active: "2 hourse ago",
-      email: "john.davis@email.com",
-      roles: "Students",
-      status: "Active",
-      date: "2025-11-29",
-    },
-    {
-      id: 9,
-      name: "John Davis",
-      desc: "Advanced JavaScript Course",
-      last_active: "2 hourse ago",
-      email: "john.davis@email.com",
-      roles: "Students",
-      status: "Active",
-      date: "2025-11-22",
-    },
-  ];
-  const Teachers = [
-    {
-      id: 1,
-      name: "John Davis",
-      desc: "Advanced JavaScript Course",
-      last_active: "2 hourse ago",
-      email: "john.davis@email.com",
-      roles: "Teacher",
-      status: "Active",
-      date: "2025-11-27",
-    },
-    {
-      id: 2,
-      name: "John Davis",
-      desc: "Advanced JavaScript Course",
-      last_active: "2 hourse ago",
-      email: "john.davis@email.com",
-      roles: "Teacher",
-      status: "Active",
-      date: "2025-11-26",
-    },
-    {
-      id: 3,
-      name: "John Davis",
-      desc: "Advanced JavaScript Course",
-      last_active: "2 hourse ago",
-      email: "john.davis@email.com",
-      roles: "Teacher",
-      status: "Active",
-      date: "2025-11-17",
-    },
-    {
-      id: 4,
-      name: "John Davis",
-      desc: "Advanced JavaScript Course",
-      last_active: "2 hourse ago",
-      email: "john.davis@email.com",
-      roles: "Teacher",
-      status: "Active",
-      date: "2025-11-16",
-    },
-    {
-      id: 5,
-      name: "John Davis",
-      desc: "Advanced JavaScript Course",
-      last_active: "2 hourse ago",
-      email: "john.davis@email.com",
-      roles: "Teacher",
-      status: "Active",
-      date: "2025-11-15",
-    },
-    {
-      id: 6,
-      name: "John Davis",
-      desc: "Advanced JavaScript Course",
-      last_active: "2 hourse ago",
-      email: "john.davis@email.com",
-      roles: "Teacher",
-      status: "Active",
-      date: "2025-11-12",
-    },
-    {
-      id: 7,
-      name: "John Davis",
-      desc: "Advanced JavaScript Course",
-      last_active: "2 hourse ago",
-      email: "john.davis@email.com",
-      roles: "Teacher",
-      status: "Active",
-      date: "2025-11-03",
-    },
-    {
-      id: 8,
-      name: "John Davis",
-      desc: "Advanced JavaScript Course",
-      last_active: "2 hourse ago",
-      email: "john.davis@email.com",
-      roles: "Teacher",
-      status: "Active",
-      date: "2025-11-29",
-    },
-    {
-      id: 9,
-      name: "John Davis",
-      desc: "Advanced JavaScript Course",
-      last_active: "2 hourse ago",
-      email: "john.davis@email.com",
-      roles: "Teacher",
-      status: "Active",
-      date: "2025-11-22",
-    },
-  ];
-  const Supports_Staff = [
-    {
-      id: 1,
-      name: "John Davis",
-      desc: "Advanced JavaScript Course",
-      last_active: "2 hourse ago",
-      email: "john.davis@email.com",
-      roles: "Support Staff",
-      status: "Active",
-      date: "2025-11-27",
-    },
-    {
-      id: 2,
-      name: "John Davis",
-      desc: "Advanced JavaScript Course",
-      last_active: "2 hourse ago",
-      email: "john.davis@email.com",
-      roles: "Support Staff",
-      status: "Active",
-      date: "2025-11-26",
-    },
-    {
-      id: 3,
-      name: "John Davis",
-      desc: "Advanced JavaScript Course",
-      last_active: "2 hourse ago",
-      email: "john.davis@email.com",
-      roles: "Support Staff",
-      status: "Active",
-      date: "2025-11-17",
-    },
-    {
-      id: 4,
-      name: "John Davis",
-      desc: "Advanced JavaScript Course",
-      last_active: "2 hourse ago",
-      email: "john.davis@email.com",
-      roles: "Support Staff",
-      status: "Active",
-      date: "2025-11-16",
-    },
-    {
-      id: 5,
-      name: "John Davis",
-      desc: "Advanced JavaScript Course",
-      last_active: "2 hourse ago",
-      email: "john.davis@email.com",
-      roles: "Support Staff",
-      status: "Active",
-      date: "2025-11-15",
-    },
-    {
-      id: 6,
-      name: "John Davis",
-      desc: "Advanced JavaScript Course",
-      last_active: "2 hourse ago",
-      email: "john.davis@email.com",
-      roles: "Support Staff",
-      status: "Active",
-      date: "2025-11-12",
-    },
-    {
-      id: 7,
-      name: "John Davis",
-      desc: "Advanced JavaScript Course",
-      last_active: "2 hourse ago",
-      email: "john.davis@email.com",
-      roles: "Support Staff",
-      status: "Active",
-      date: "2025-11-03",
-    },
-    {
-      id: 8,
-      name: "John Davis",
-      desc: "Advanced JavaScript Course",
-      last_active: "2 hourse ago",
-      email: "john.davis@email.com",
-      roles: "Support Staff",
-      status: "Active",
-      date: "2025-11-29",
-    },
-    {
-      id: 9,
-      name: "John Davis",
-      desc: "Advanced JavaScript Course",
-      last_active: "2 hourse ago",
-      email: "john.davis@email.com",
-      roles: "Students",
-      status: "Active",
-      date: "2025-11-22",
-    },
-  ];
+  // const [events, setEvents] = useState([
+  //   { title: "iOS Workshop", date: "2025-11-02" },
+  //   { title: "React Basics", date: "2025-11-06", color: "#f0e68c" },
+  //   { title: "Python Basics", date: "2025-11-09", color: "#dcd0ff" },
+  //   { title: "Marketing Research", date: "2025-11-14", color: "#90ee90" },
+  //   { title: "iOS Workshop", date: "2025-11-18", color: "#ffcccc" },
+  //   { title: "JS Workshop", date: "2025-11-18", color: "#ffebcc" },
+  //   { title: "React Basics", date: "2025-11-22", color: "#f0e68c" },
+  //   { title: "iOS Workshop", date: "2025-11-22", color: "#ffcccc" },
+  //   { title: "React Basics", date: "2025-11-28", color: "#f0e68c" },
+  //   { title: "iOS Workshop", date: "2025-11-28", color: "#ffcccc" },
+  //   { title: "JS Workshop", date: "2025-11-28", color: "#ffebcc" },
+  //   { title: "Python Basics", date: "2025-11-28", color: "#dcd0ff" },
+  // ]);
+  // const classes = [
+  //   {
+  //     id: 1,
+  //     name: "John Davis",
+  //     desc: "Advanced JavaScript Course",
+  //     last_active: "2 hourse ago",
+  //     email: "john.davis@email.com",
+  //     roles: "Students",
+  //     status: "Active",
+  //     date: "2025-11-27",
+  //   },
+  //   {
+  //     id: 2,
+  //     name: "John Davis",
+  //     desc: "Advanced JavaScript Course",
+  //     last_active: "2 hourse ago",
+  //     email: "john.davis@email.com",
+  //     roles: "Students",
+  //     status: "Active",
+  //     date: "2025-11-26",
+  //   },
+  //   {
+  //     id: 3,
+  //     name: "John Davis",
+  //     desc: "Advanced JavaScript Course",
+  //     last_active: "2 hourse ago",
+  //     email: "john.davis@email.com",
+  //     roles: "Students",
+  //     status: "Active",
+  //     date: "2025-11-17",
+  //   },
+  //   {
+  //     id: 4,
+  //     name: "John Davis",
+  //     desc: "Advanced JavaScript Course",
+  //     last_active: "2 hourse ago",
+  //     email: "john.davis@email.com",
+  //     roles: "Students",
+  //     status: "Active",
+  //     date: "2025-11-16",
+  //   },
+  //   {
+  //     id: 5,
+  //     name: "John Davis",
+  //     desc: "Advanced JavaScript Course",
+  //     last_active: "2 hourse ago",
+  //     email: "john.davis@email.com",
+  //     roles: "Students",
+  //     status: "Active",
+  //     date: "2025-11-15",
+  //   },
+  //   {
+  //     id: 6,
+  //     name: "John Davis",
+  //     desc: "Advanced JavaScript Course",
+  //     last_active: "2 hourse ago",
+  //     email: "john.davis@email.com",
+  //     roles: "Students",
+  //     status: "Active",
+  //     date: "2025-11-12",
+  //   },
+  //   {
+  //     id: 7,
+  //     name: "John Davis",
+  //     desc: "Advanced JavaScript Course",
+  //     last_active: "2 hourse ago",
+  //     email: "john.davis@email.com",
+  //     roles: "Students",
+  //     status: "Active",
+  //     date: "2025-11-03",
+  //   },
+  //   {
+  //     id: 8,
+  //     name: "John Davis",
+  //     desc: "Advanced JavaScript Course",
+  //     last_active: "2 hourse ago",
+  //     email: "john.davis@email.com",
+  //     roles: "Students",
+  //     status: "Active",
+  //     date: "2025-11-29",
+  //   },
+  //   {
+  //     id: 9,
+  //     name: "John Davis",
+  //     desc: "Advanced JavaScript Course",
+  //     last_active: "2 hourse ago",
+  //     email: "john.davis@email.com",
+  //     roles: "Students",
+  //     status: "Active",
+  //     date: "2025-11-22",
+  //   },
+  // ];
+  // const Teachers = [
+  //   {
+  //     id: 1,
+  //     name: "John Davis",
+  //     desc: "Advanced JavaScript Course",
+  //     last_active: "2 hourse ago",
+  //     email: "john.davis@email.com",
+  //     roles: "Teacher",
+  //     status: "Active",
+  //     date: "2025-11-27",
+  //   },
+  //   {
+  //     id: 2,
+  //     name: "John Davis",
+  //     desc: "Advanced JavaScript Course",
+  //     last_active: "2 hourse ago",
+  //     email: "john.davis@email.com",
+  //     roles: "Teacher",
+  //     status: "Active",
+  //     date: "2025-11-26",
+  //   },
+  //   {
+  //     id: 3,
+  //     name: "John Davis",
+  //     desc: "Advanced JavaScript Course",
+  //     last_active: "2 hourse ago",
+  //     email: "john.davis@email.com",
+  //     roles: "Teacher",
+  //     status: "Active",
+  //     date: "2025-11-17",
+  //   },
+  //   {
+  //     id: 4,
+  //     name: "John Davis",
+  //     desc: "Advanced JavaScript Course",
+  //     last_active: "2 hourse ago",
+  //     email: "john.davis@email.com",
+  //     roles: "Teacher",
+  //     status: "Active",
+  //     date: "2025-11-16",
+  //   },
+  //   {
+  //     id: 5,
+  //     name: "John Davis",
+  //     desc: "Advanced JavaScript Course",
+  //     last_active: "2 hourse ago",
+  //     email: "john.davis@email.com",
+  //     roles: "Teacher",
+  //     status: "Active",
+  //     date: "2025-11-15",
+  //   },
+  //   {
+  //     id: 6,
+  //     name: "John Davis",
+  //     desc: "Advanced JavaScript Course",
+  //     last_active: "2 hourse ago",
+  //     email: "john.davis@email.com",
+  //     roles: "Teacher",
+  //     status: "Active",
+  //     date: "2025-11-12",
+  //   },
+  //   {
+  //     id: 7,
+  //     name: "John Davis",
+  //     desc: "Advanced JavaScript Course",
+  //     last_active: "2 hourse ago",
+  //     email: "john.davis@email.com",
+  //     roles: "Teacher",
+  //     status: "Active",
+  //     date: "2025-11-03",
+  //   },
+  //   {
+  //     id: 8,
+  //     name: "John Davis",
+  //     desc: "Advanced JavaScript Course",
+  //     last_active: "2 hourse ago",
+  //     email: "john.davis@email.com",
+  //     roles: "Teacher",
+  //     status: "Active",
+  //     date: "2025-11-29",
+  //   },
+  //   {
+  //     id: 9,
+  //     name: "John Davis",
+  //     desc: "Advanced JavaScript Course",
+  //     last_active: "2 hourse ago",
+  //     email: "john.davis@email.com",
+  //     roles: "Teacher",
+  //     status: "Active",
+  //     date: "2025-11-22",
+  //   },
+  // ];
+  // const Supports_Staff = [
+  //   {
+  //     id: 1,
+  //     name: "John Davis",
+  //     desc: "Advanced JavaScript Course",
+  //     last_active: "2 hourse ago",
+  //     email: "john.davis@email.com",
+  //     roles: "Support Staff",
+  //     status: "Active",
+  //     date: "2025-11-27",
+  //   },
+  //   {
+  //     id: 2,
+  //     name: "John Davis",
+  //     desc: "Advanced JavaScript Course",
+  //     last_active: "2 hourse ago",
+  //     email: "john.davis@email.com",
+  //     roles: "Support Staff",
+  //     status: "Active",
+  //     date: "2025-11-26",
+  //   },
+  //   {
+  //     id: 3,
+  //     name: "John Davis",
+  //     desc: "Advanced JavaScript Course",
+  //     last_active: "2 hourse ago",
+  //     email: "john.davis@email.com",
+  //     roles: "Support Staff",
+  //     status: "Active",
+  //     date: "2025-11-17",
+  //   },
+  //   {
+  //     id: 4,
+  //     name: "John Davis",
+  //     desc: "Advanced JavaScript Course",
+  //     last_active: "2 hourse ago",
+  //     email: "john.davis@email.com",
+  //     roles: "Support Staff",
+  //     status: "Active",
+  //     date: "2025-11-16",
+  //   },
+  //   {
+  //     id: 5,
+  //     name: "John Davis",
+  //     desc: "Advanced JavaScript Course",
+  //     last_active: "2 hourse ago",
+  //     email: "john.davis@email.com",
+  //     roles: "Support Staff",
+  //     status: "Active",
+  //     date: "2025-11-15",
+  //   },
+  //   {
+  //     id: 6,
+  //     name: "John Davis",
+  //     desc: "Advanced JavaScript Course",
+  //     last_active: "2 hourse ago",
+  //     email: "john.davis@email.com",
+  //     roles: "Support Staff",
+  //     status: "Active",
+  //     date: "2025-11-12",
+  //   },
+  //   {
+  //     id: 7,
+  //     name: "John Davis",
+  //     desc: "Advanced JavaScript Course",
+  //     last_active: "2 hourse ago",
+  //     email: "john.davis@email.com",
+  //     roles: "Support Staff",
+  //     status: "Active",
+  //     date: "2025-11-03",
+  //   },
+  //   {
+  //     id: 8,
+  //     name: "John Davis",
+  //     desc: "Advanced JavaScript Course",
+  //     last_active: "2 hourse ago",
+  //     email: "john.davis@email.com",
+  //     roles: "Support Staff",
+  //     status: "Active",
+  //     date: "2025-11-29",
+  //   },
+  //   {
+  //     id: 9,
+  //     name: "John Davis",
+  //     desc: "Advanced JavaScript Course",
+  //     last_active: "2 hourse ago",
+  //     email: "john.davis@email.com",
+  //     roles: "Students",
+  //     status: "Active",
+  //     date: "2025-11-22",
+  //   },
+  // ];
 
-  const studentsss = [
-    { id: 1, name: "Alex Thompson", course: "React Masterclass", progress: 75 },
-    { id: 2, name: "Alex Thompson", course: "React Masterclass", progress: 75 },
-    { id: 3, name: "Alex Thompson", course: "React Masterclass", progress: 75 },
-  ];
+  // const studentsss = [
+  //   { id: 1, name: "Alex Thompson", course: "React Masterclass", progress: 75 },
+  //   { id: 2, name: "Alex Thompson", course: "React Masterclass", progress: 75 },
+  //   { id: 3, name: "Alex Thompson", course: "React Masterclass", progress: 75 },
+  // ];
 
   const handleDateClick = (info) => {
     alert("Clicked on date: " + info.dateStr);
@@ -405,7 +405,6 @@ const handleDelete = async () => {
       toast.success("User deleted successfully!");
       onClose();
       setUserToDelete(null);
-      // Refresh the user list
       const response = await fetch(import.meta.env.VITE_PUBLIC_SERVER_URL + "/api/auth/getAllUsers");
       const data = await response.json();
       const teacherData = data.users.filter(u => u.role === "Teacher");
@@ -525,8 +524,9 @@ const handleCancelDelete = () => {
                     aria-label="Pending approvals table"
                     removeWrapper
                     classNames={{
-                      base: "w-full bg-white rounded-lg overflow-x-scroll w-full no-scrollbar",
-                      th: "font-bold p-4 text-md  text-[#333333] capitalize tracking-widest  bg-[#EBD4C936]",
+                      base: "w-full bg-white rounded-lg h-[calc(100vh-350px)] overflow-x-scroll w-full no-scrollbar",
+                      th: "font-bold p-4 text-md  text-[#333333] capitalize tracking-widest  bg-white",
+                      tbody: "overflow-y-scroll no-scrollbar",
                       td: "py-3 items-center whitespace-nowrap",
                       tr: "border-b border-default-200 ",
                       
@@ -586,7 +586,7 @@ const handleCancelDelete = () => {
                           </TableCell>
                         </TableRow>
                       )) : <TableRow>
-                        <TableCell colSpan={6} className="text-center py-4">
+                         <TableCell colSpan={6} className="text-center py-4 h-[calc(100vh-350px)]">
                           No Student Users Found.
                         </TableCell>
                       </TableRow>
@@ -619,13 +619,14 @@ const handleCancelDelete = () => {
                   transition={{ duration: 0.6, ease: "easeInOut" }}
                 >
                   <Table
-                    // isHeaderSticky
+                    isHeaderSticky
                     selectionMode={teachers.length > 0 ? "multiple" : undefined}
                     aria-label="Pending approvals table"
                     removeWrapper
                     classNames={{
-                      base: "w-full bg-white rounded-lg overflow-x-scroll w-full no-scrollbar",
-                      th: "font-bold p-4 text-md  text-[#333333] capitalize tracking-widest  bg-[#EBD4C936]",
+                      base: "w-full bg-white rounded-lg h-[calc(100vh-350px)] overflow-x-scroll w-full no-scrollbar",
+                      th: "font-bold p-4 text-md  text-[#333333] capitalize tracking-widest  bg-white",
+                      tbody: "overflow-y-scroll no-scrollbar",
                       td: "py-3 items-center whitespace-nowrap",
                       tr: "border-b border-default-200 ",
                     }}
@@ -686,7 +687,7 @@ const handleCancelDelete = () => {
                         </TableRow>
                       ))
                       : <TableRow>
-                        <TableCell colSpan={6} className="text-center py-4">
+                         <TableCell colSpan={6} className="text-center py-4 h-[calc(100vh-350px)]">
                           No Teacher Users Found.
                         </TableCell>
                       </TableRow>}
@@ -719,12 +720,14 @@ const handleCancelDelete = () => {
                 >
                   <Table
                     //    isHeaderSticky
+                     isHeaderSticky
                     selectionMode={admins.length > 0 ? "multiple" : undefined}
                     aria-label="Pending approvals table"
                     removeWrapper
                     classNames={{
-                      base: "w-full bg-white rounded-lg overflow-x-scroll w-full no-scrollbar",
-                      th: "font-bold p-4 text-md  text-[#333333] capitalize tracking-widest  bg-[#EBD4C936]",
+                      base: "w-full bg-white rounded-lg h-[calc(100vh-350px)] overflow-x-scroll w-full no-scrollbar",
+                      th: "font-bold p-4 text-md  text-[#333333] capitalize tracking-widest  bg-white",
+                      tbody: "overflow-y-scroll no-scrollbar",
                       td: "py-3 items-center whitespace-nowrap",
                       tr: "border-b border-default-200 ",
                     }}
@@ -784,7 +787,7 @@ const handleCancelDelete = () => {
                           </TableCell>
                         </TableRow>
                       )) : <TableRow>
-                        <TableCell colSpan={6} className="text-center py-4">
+                        <TableCell colSpan={6} className="text-center py-4 h-[calc(100vh-350px)]">
                           No Admin Users Found.
                         </TableCell>
                       </TableRow>}
