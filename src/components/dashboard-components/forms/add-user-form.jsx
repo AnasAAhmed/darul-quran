@@ -8,16 +8,24 @@ import {
   Select,
   SelectItem,
   Switch,
+  Autocomplete,
+  AutocompleteItem,
 } from "@heroui/react";
 import { DashHeading } from "../DashHeading";
 import { EyeIcon, EyeOffIcon, SearchCheck } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
+import { Country, City } from "country-state-city";
 
 const AddUserForm = ({ id, title, desc, userData, isEdit }) => {
   const [selectedRole, setSelectedRole] = useState(new Set());
-  const [selectedCountry, setSelectedCountry] = useState(new Set());
-  const [selectedCity, setSelectedCity] = useState(new Set());
+  
+  // Use null for single value selection with Autocomplete
+  const [selectedCountry, setSelectedCountry] = useState(null);
+  const [selectedCity, setSelectedCity] = useState(null);
+  const [countryInputValue, setCountryInputValue] = useState("");
+  const [cityInputValue, setCityInputValue] = useState("");
+  
   const [isSelected, setIsSelected] = useState(true);
   const [loading, setLoading] = useState(false);
   const [selectedCourses, setSelectedCourses] = useState(new Set());
@@ -43,38 +51,43 @@ const AddUserForm = ({ id, title, desc, userData, isEdit }) => {
     { key: "Advance_Python", label: "Advance Python", value: "advance_python" },
   ];
 
-  const countries = [
-    { key: "Pakistan", label: "Pakistan" },
-    { key: "USA", label: "USA" },
-    { key: "UK", label: "United Kingdom" },
-  ];
+  // Get all countries from country-state-city
+  const allCountries = useMemo(() => Country.getAllCountries(), []);
 
-  const citiesByCountry = {
-    Pakistan: [
-      { key: "Karachi", label: "Karachi" },
-      { key: "Lahore", label: "Lahore" },
-    ],
-    USA: [
-      { key: "New_York", label: "New York" },
-      { key: "Chicago", label: "Chicago" },
-    ],
-    UK: [
-      { key: "London", label: "London" },
-      { key: "Manchester", label: "Manchester" },
-    ],
-  };
+  // Filtered countries based on search input
+  const filteredCountries = useMemo(() => {
+    if (!countryInputValue) return allCountries;
+    return allCountries.filter((country) =>
+      country.name.toLowerCase().includes(countryInputValue.toLowerCase())
+    );
+  }, [countryInputValue, allCountries]);
+
+  // Get cities based on selected country
+  const availableCities = useMemo(() => {
+    if (!selectedCountry?.isoCode) return [];
+    return City.getCitiesOfCountry(selectedCountry.isoCode);
+  }, [selectedCountry]);
+
+  // Filtered cities based on search input
+  const filteredCities = useMemo(() => {
+    if (!cityInputValue) return availableCities;
+    return availableCities.filter((city) =>
+      city.name.toLowerCase().includes(cityInputValue.toLowerCase())
+    );
+  }, [cityInputValue, availableCities]);
 
   // Convert Set to string for form submission
   const selectedRoleValue = useMemo(() => {
     return Array.from(selectedRole)[0] || "";
   }, [selectedRole]);
 
+  // Use direct values for country/city
   const selectedCountryValue = useMemo(() => {
-    return Array.from(selectedCountry)[0] || "";
+    return selectedCountry?.name || "";
   }, [selectedCountry]);
 
   const selectedCityValue = useMemo(() => {
-    return Array.from(selectedCity)[0] || "";
+    return selectedCity?.name || "";
   }, [selectedCity]);
 
   // Validation functions
@@ -129,12 +142,26 @@ const AddUserForm = ({ id, title, desc, userData, isEdit }) => {
 
       // Set country
       if (userData.country) {
-        setSelectedCountry(new Set([userData.country]));
+        // Find country object by name
+        const country = allCountries.find(c => c.name === userData.country);
+        if (country) {
+          setSelectedCountry(country);
+          setCountryInputValue(country.name);
+        }
       }
 
       // Set city
-      if (userData.city) {
-        setSelectedCity(new Set([userData.city]));
+      if (userData.city && userData.country) {
+        // We need to wait for country to be set, but we can do it here if we have country isoCode
+        const country = allCountries.find(c => c.name === userData.country);
+        if (country) {
+          const cities = City.getCitiesOfCountry(country.isoCode);
+          const city = cities.find(c => c.name === userData.city);
+          if (city) {
+            setSelectedCity(city);
+            setCityInputValue(city.name);
+          }
+        }
       }
 
       // Set status
@@ -148,20 +175,29 @@ const AddUserForm = ({ id, title, desc, userData, isEdit }) => {
         setSelectedCourses(new Set(courseKeys));
       }
     }
-  }, [userData]);
+  }, [userData, allCountries]);
 
   const handleRoleChange = (keys) => {
     setSelectedRole(new Set(keys));
   };
 
-  const handleCountryChange = (keys) => {
-    const country = Array.from(keys)[0];
-    setSelectedCountry(new Set([country]));
-    setSelectedCity(new Set()); // Reset city when country changes
+  const handleCountrySelect = (key) => {
+    const country = allCountries.find(c => c.isoCode === key);
+    if (country) {
+        setSelectedCountry(country);
+        setCountryInputValue(country.name);
+        setSelectedCity(null); // Reset city
+        setCityInputValue("");
+    }
   };
 
-  const handleCityChange = (keys) => {
-    setSelectedCity(new Set(keys));
+  const handleCitySelect = (key) => {
+    // Since city names might not be unique globally, but are within country, we search in availableCities
+    const city = availableCities.find(c => c.name === key);
+    if (city) {
+        setSelectedCity(city);
+        setCityInputValue(city.name);
+    }
   };
 
   const handleCourseChange = (keys) => {
@@ -311,46 +347,60 @@ const AddUserForm = ({ id, title, desc, userData, isEdit }) => {
           {/* ================= COUNTRY + CITY ROW ================= */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 py-4">
             <div>
-              <Select
-                name="country"
-                labelPlacement="outside"
-                variant="bordered"
+              <Autocomplete
                 size="lg"
+                variant="bordered"
                 label="Country"
+                labelPlacement="outside"
                 placeholder="Select Country"
-                selectedKeys={selectedCountry}
-                onSelectionChange={handleCountryChange}
+                allowsCustomValue={false}
+                menuTrigger="input"
+                items={filteredCountries}
+                selectedKey={selectedCountry?.isoCode || null}
+                inputValue={countryInputValue}
+                onInputChange={setCountryInputValue}
+                onSelectionChange={handleCountrySelect}
                 isRequired
                 errorMessage="Please select a country"
               >
-                {countries.map((c) => (
-                  <SelectItem key={c.key} value={c.key}>
-                    {c.label}
-                  </SelectItem>
-                ))}
-              </Select>
+                {(country) => (
+                  <AutocompleteItem
+                    key={country.isoCode}
+                    textValue={country.name}
+                  >
+                    {country.name}
+                  </AutocompleteItem>
+                )}
+              </Autocomplete>
             </div>
 
             <div>
-              <Select
-                name="city"
-                labelPlacement="outside"
-                variant="bordered"
+              <Autocomplete
                 size="lg"
+                variant="bordered"
                 label="City"
+                labelPlacement="outside"
                 placeholder="Select City"
-                selectedKeys={selectedCity}
-                onSelectionChange={handleCityChange}
-                isDisabled={selectedCountry.size === 0}
+                allowsCustomValue={false}
+                menuTrigger="input"
+                isDisabled={!selectedCountry}
+                items={filteredCities}
+                selectedKey={selectedCity?.name || null} // Use name for city key as we search by name
+                inputValue={cityInputValue}
+                onInputChange={setCityInputValue}
+                onSelectionChange={handleCitySelect}
                 isRequired
                 errorMessage="Please select a city"
               >
-                {(citiesByCountry[selectedCountryValue] || []).map((c) => (
-                  <SelectItem key={c.key} value={c.key}>
-                    {c.label}
-                  </SelectItem>
-                ))}
-              </Select>
+                {(city) => (
+                  <AutocompleteItem
+                    key={city.name}
+                    textValue={city.name}
+                  >
+                    {city.name}
+                  </AutocompleteItem>
+                )}
+              </Autocomplete>
             </div>
           </div>
 

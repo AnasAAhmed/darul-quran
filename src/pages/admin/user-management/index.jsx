@@ -371,6 +371,12 @@ const [admins, setAdmins] = useState([]);
 const [userToDelete, setUserToDelete] = useState(null);
 const { isOpen, onOpen, onClose } = useDisclosure();
 
+// States for bulk delete
+const [selectedStudents, setSelectedStudents] = useState(new Set());
+const [selectedTeachers, setSelectedTeachers] = useState(new Set());
+const [selectedAdmins, setSelectedAdmins] = useState(new Set());
+const { isOpen: isBulkDeleteOpen, onOpen: onBulkDeleteOpen, onClose: onBulkDeleteClose } = useDisclosure();
+
 useEffect(() => {
   const fetchUsers = async () => {
     const res = await fetch(import.meta.env.VITE_PUBLIC_SERVER_URL + "/api/auth/getAllUsers");
@@ -427,6 +433,67 @@ const handleCancelDelete = () => {
   onClose();
 };
 
+// Bulk delete handler
+const handleBulkDelete = async () => {
+  const currentTab = getCurrentTab();
+  const selectedIds = Array.from(currentTab.selectedKeys);
+  
+  if (selectedIds.length === 0) {
+    toast.error("No users selected");
+    return;
+  }
+
+  try {
+    // Delete all selected users
+    const deletePromises = selectedIds.map(userId =>
+      fetch(import.meta.env.VITE_PUBLIC_SERVER_URL + `/api/auth/deleteUser/${userId}`, {
+        method: "DELETE",
+      })
+    );
+
+    const results = await Promise.all(deletePromises);
+    const successCount = results.filter(res => res.ok).length;
+    const failCount = results.length - successCount;
+
+    if (successCount > 0) {
+      toast.success(`${successCount} user deleted successfully!`);
+    }
+    if (failCount > 0) {
+      toast.error(`Failed to delete ${failCount} user`);
+    }
+
+    // Clear selections
+    setSelectedStudents(new Set());
+    setSelectedTeachers(new Set());
+    setSelectedAdmins(new Set());
+    
+    onBulkDeleteClose();
+
+    // Refresh user list
+    const response = await fetch(import.meta.env.VITE_PUBLIC_SERVER_URL + "/api/auth/getAllUsers");
+    const data = await response.json();
+    const teacherData = data.users.filter(u => u.role === "Teacher");
+    const studentData = data.users.filter(u => u.role === "Student");
+    const adminData = data.users.filter(u => u.role === "Admin");
+    setTeachers(teacherData);
+    setStudents(studentData);
+    setAdmins(adminData);
+  } catch (error) {
+    console.error("Error deleting users:", error);
+    toast.error("An error occurred while deleting users.");
+  }
+};
+
+// Helper function to get current tab's selected keys
+const getCurrentTab = () => {
+  // Determine which tab is active based on selected keys
+  if (selectedStudents.size > 0) return { selectedKeys: selectedStudents, type: 'students' };
+  if (selectedTeachers.size > 0) return { selectedKeys: selectedTeachers, type: 'teachers' };
+  if (selectedAdmins.size > 0) return { selectedKeys: selectedAdmins, type: 'admins' };
+  return { selectedKeys: new Set(), type: null };
+};
+
+
   return (
     <div className="bg-white bg-linear-to-t from-[#F1C2AC]/50 to-[#95C4BE]/50 px-2 sm:px-5 h-screen max:md:absolute top-0 bottom-0 right-0 left-0 overflow-y-auto pb-5">
       <DashHeading
@@ -470,6 +537,17 @@ const handleCancelDelete = () => {
           </Select>
         </div>
         <div className=" flex gap-3 max-md:flex-wrap max-md:w-full">
+          {/* Bulk Delete Button - Shows when users are selected */}
+          {(selectedStudents.size > 0 || selectedTeachers.size > 0 || selectedAdmins.size > 0) && (
+            <Button
+              radius="sm"
+              startContent={<Trash2 color="white" size={15} />}
+              className="bg-red-600 text-white py-4 px-3 sm:px-8 max-md:w-full"
+              onPress={onBulkDeleteOpen}
+            >
+              Delete Selected ({selectedStudents.size + selectedTeachers.size + selectedAdmins.size})
+            </Button>
+          )}
           <Button
             variant="bordered"
             radius="sm"
@@ -521,6 +599,8 @@ const handleCancelDelete = () => {
                   <Table
                     isHeaderSticky
                     selectionMode={students.length > 0 ? "multiple" : undefined}
+                    selectedKeys={selectedStudents}
+                    onSelectionChange={setSelectedStudents}
                     aria-label="Pending approvals table"
                     removeWrapper
                     classNames={{
@@ -621,6 +701,8 @@ const handleCancelDelete = () => {
                   <Table
                     isHeaderSticky
                     selectionMode={teachers.length > 0 ? "multiple" : undefined}
+                    selectedKeys={selectedTeachers}
+                    onSelectionChange={setSelectedTeachers}
                     aria-label="Pending approvals table"
                     removeWrapper
                     classNames={{
@@ -722,6 +804,8 @@ const handleCancelDelete = () => {
                     //    isHeaderSticky
                      isHeaderSticky
                     selectionMode={admins.length > 0 ? "multiple" : undefined}
+                    selectedKeys={selectedAdmins}
+                    onSelectionChange={setSelectedAdmins}
                     aria-label="Pending approvals table"
                     removeWrapper
                     classNames={{
@@ -851,6 +935,34 @@ const handleCancelDelete = () => {
               onPress={handleDelete}
             >
               Yes, Delete
+            </Button>
+          </ModalFooter>
+        </ModalContent>
+      </Modal>
+
+      {/* Bulk Delete Confirmation Modal */}
+      <Modal isOpen={isBulkDeleteOpen} onClose={onBulkDeleteClose} size="md">
+        <ModalContent>
+          <ModalHeader className="flex flex-col gap-1">
+            Confirm Bulk Delete
+          </ModalHeader>
+          <ModalBody>
+            <p>Are you sure you want to delete {selectedStudents.size + selectedTeachers.size + selectedAdmins.size} selected user?</p>
+            <p className="text-sm text-gray-500">This action cannot be undone.</p>
+          </ModalBody>
+          <ModalFooter>
+            <Button
+              color="default"
+              variant="light"
+              onPress={onBulkDeleteClose}
+            >
+              Cancel
+            </Button>
+            <Button
+              color="danger"
+              onPress={handleBulkDelete}
+            >
+              Yes, Delete All
             </Button>
           </ModalFooter>
         </ModalContent>
