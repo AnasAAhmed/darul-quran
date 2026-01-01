@@ -1,19 +1,9 @@
 import { Button } from '@heroui/react'
-import React from 'react'
-import { useNavigate } from 'react-router-dom'
+import { Navigate } from 'react-router-dom'
 
-const Home = () => {
-    const router = useNavigate();
-    return (
-        <div>
-            <Button onPress={()=>router('/login')}>
-                Login
-            </Button>
-              <Button onPress={()=>router('/admin/dashboard')}>
-                Admin Dashboard
-            </Button>
-        </div>
-    )
+const Home = ({ redirect }) => {
+   return  <Navigate to={redirect?redirect:'/login'} />
+
 }
 
 export default Home

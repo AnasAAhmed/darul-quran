@@ -27,10 +27,11 @@ import {
   SquarePen,
   Trash2,
 } from "lucide-react";
-import {  useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { AnimatePresence } from "motion/react";
 import * as motion from "motion/react-client";
+import { dateFormatter } from "../../../lib/utils";
 
 const UserManagement = () => {
   // const [events, setEvents] = useState([
@@ -365,52 +366,111 @@ const UserManagement = () => {
 
   const [selectedTab, setSelectedTab] = useState("");
   const router = useNavigate();
-const [teachers, setTeachers] = useState([]);
-const [students, setStudents] = useState([]);
-const [admins, setAdmins] = useState([]);
-const [userToDelete, setUserToDelete] = useState(null);
-const { isOpen, onOpen, onClose } = useDisclosure();
+  const [teachers, setTeachers] = useState([]);
+  const [students, setStudents] = useState([]);
+  const [admins, setAdmins] = useState([]);
+  const [userToDelete, setUserToDelete] = useState(null);
+  const { isOpen, onOpen, onClose } = useDisclosure();
 
-// States for bulk delete
-const [selectedStudents, setSelectedStudents] = useState(new Set());
-const [selectedTeachers, setSelectedTeachers] = useState(new Set());
-const [selectedAdmins, setSelectedAdmins] = useState(new Set());
-const { isOpen: isBulkDeleteOpen, onOpen: onBulkDeleteOpen, onClose: onBulkDeleteClose } = useDisclosure();
+  // States for bulk delete
+  const [selectedStudents, setSelectedStudents] = useState(new Set());
+  const [selectedTeachers, setSelectedTeachers] = useState(new Set());
+  const [selectedAdmins, setSelectedAdmins] = useState(new Set());
+  const { isOpen: isBulkDeleteOpen, onOpen: onBulkDeleteOpen, onClose: onBulkDeleteClose } = useDisclosure();
 
-useEffect(() => {
-  const fetchUsers = async () => {
-    const res = await fetch(import.meta.env.VITE_PUBLIC_SERVER_URL + "/api/auth/getAllUsers");
-    const data = await res.json();
+  useEffect(() => {
+    const fetchUsers = async () => {
+      const res = await fetch(import.meta.env.VITE_PUBLIC_SERVER_URL + "/api/auth/getAllUsers");
+      const data = await res.json();
 
-    const teacherData = data.users.filter(u => u.role === "Teacher");
-    const studentData = data.users.filter(u => u.role === "Student");
-    const adminData = data.users.filter(u => u.role === "Admin");
+      const teacherData = data.users.filter(u => u.role === "Teacher");
+      const studentData = data.users.filter(u => u.role === "Student");
+      const adminData = data.users.filter(u => u.role === "Admin");
 
-    setTeachers(teacherData);
-    setStudents(studentData);
-    setAdmins(adminData);
+      setTeachers(teacherData);
+      setStudents(studentData);
+      setAdmins(adminData);
+    };
+
+    fetchUsers();
+  }, []);
+
+  const openDeleteModal = (userId) => {
+    setUserToDelete(userId);
+    onOpen();
   };
 
-  fetchUsers();
-}, []); 
+  const handleDelete = async () => {
+    if (!userToDelete) return;
 
-const openDeleteModal = (userId) => {
-  setUserToDelete(userId);
-  onOpen();
-};
+    try {
+      const res = await fetch(import.meta.env.VITE_PUBLIC_SERVER_URL + `/api/auth/deleteUser/${userToDelete}`, {
+        method: "DELETE",
+      });
 
-const handleDelete = async () => {
-  if (!userToDelete) return;
-  
-  try {
-    const res = await fetch(import.meta.env.VITE_PUBLIC_SERVER_URL + `/api/auth/deleteUser/${userToDelete}`, {
-      method: "DELETE",
-    });
+      if (res.ok) {
+        toast.success("User deleted successfully!");
+        onClose();
+        setUserToDelete(null);
+        const response = await fetch(import.meta.env.VITE_PUBLIC_SERVER_URL + "/api/auth/getAllUsers");
+        const data = await response.json();
+        const teacherData = data.users.filter(u => u.role === "Teacher");
+        const studentData = data.users.filter(u => u.role === "Student");
+        const adminData = data.users.filter(u => u.role === "Admin");
+        setTeachers(teacherData);
+        setStudents(studentData);
+        setAdmins(adminData);
+      } else {
+        toast.error("Failed to delete user.");
+      }
+    } catch (error) {
+      console.error("Error deleting user:", error);
+      toast.error("An error occurred while deleting the user.");
+    }
+  };
 
-    if (res.ok) {
-      toast.success("User deleted successfully!");
-      onClose();
-      setUserToDelete(null);
+  const handleCancelDelete = () => {
+    setUserToDelete(null);
+    onClose();
+  };
+
+  // Bulk delete handler
+  const handleBulkDelete = async () => {
+    const currentTab = getCurrentTab();
+    const selectedIds = Array.from(currentTab.selectedKeys);
+
+    if (selectedIds.length === 0) {
+      toast.error("No users selected");
+      return;
+    }
+
+    try {
+      // Delete all selected users
+      const deletePromises = selectedIds.map(userId =>
+        fetch(import.meta.env.VITE_PUBLIC_SERVER_URL + `/api/auth/deleteUser/${userId}`, {
+          method: "DELETE",
+        })
+      );
+
+      const results = await Promise.all(deletePromises);
+      const successCount = results.filter(res => res.ok).length;
+      const failCount = results.length - successCount;
+
+      if (successCount > 0) {
+        toast.success(`${successCount} user deleted successfully!`);
+      }
+      if (failCount > 0) {
+        toast.error(`Failed to delete ${failCount} user`);
+      }
+
+      // Clear selections
+      setSelectedStudents(new Set());
+      setSelectedTeachers(new Set());
+      setSelectedAdmins(new Set());
+
+      onBulkDeleteClose();
+
+      // Refresh user list
       const response = await fetch(import.meta.env.VITE_PUBLIC_SERVER_URL + "/api/auth/getAllUsers");
       const data = await response.json();
       const teacherData = data.users.filter(u => u.role === "Teacher");
@@ -419,79 +479,20 @@ const handleDelete = async () => {
       setTeachers(teacherData);
       setStudents(studentData);
       setAdmins(adminData);
-    } else {
-      toast.error("Failed to delete user.");
+    } catch (error) {
+      console.error("Error deleting users:", error);
+      toast.error("An error occurred while deleting users.");
     }
-  } catch (error) {
-    console.error("Error deleting user:", error);
-    toast.error("An error occurred while deleting the user.");
-  }
-};
+  };
 
-const handleCancelDelete = () => {
-  setUserToDelete(null);
-  onClose();
-};
-
-// Bulk delete handler
-const handleBulkDelete = async () => {
-  const currentTab = getCurrentTab();
-  const selectedIds = Array.from(currentTab.selectedKeys);
-  
-  if (selectedIds.length === 0) {
-    toast.error("No users selected");
-    return;
-  }
-
-  try {
-    // Delete all selected users
-    const deletePromises = selectedIds.map(userId =>
-      fetch(import.meta.env.VITE_PUBLIC_SERVER_URL + `/api/auth/deleteUser/${userId}`, {
-        method: "DELETE",
-      })
-    );
-
-    const results = await Promise.all(deletePromises);
-    const successCount = results.filter(res => res.ok).length;
-    const failCount = results.length - successCount;
-
-    if (successCount > 0) {
-      toast.success(`${successCount} user deleted successfully!`);
-    }
-    if (failCount > 0) {
-      toast.error(`Failed to delete ${failCount} user`);
-    }
-
-    // Clear selections
-    setSelectedStudents(new Set());
-    setSelectedTeachers(new Set());
-    setSelectedAdmins(new Set());
-    
-    onBulkDeleteClose();
-
-    // Refresh user list
-    const response = await fetch(import.meta.env.VITE_PUBLIC_SERVER_URL + "/api/auth/getAllUsers");
-    const data = await response.json();
-    const teacherData = data.users.filter(u => u.role === "Teacher");
-    const studentData = data.users.filter(u => u.role === "Student");
-    const adminData = data.users.filter(u => u.role === "Admin");
-    setTeachers(teacherData);
-    setStudents(studentData);
-    setAdmins(adminData);
-  } catch (error) {
-    console.error("Error deleting users:", error);
-    toast.error("An error occurred while deleting users.");
-  }
-};
-
-// Helper function to get current tab's selected keys
-const getCurrentTab = () => {
-  // Determine which tab is active based on selected keys
-  if (selectedStudents.size > 0) return { selectedKeys: selectedStudents, type: 'students' };
-  if (selectedTeachers.size > 0) return { selectedKeys: selectedTeachers, type: 'teachers' };
-  if (selectedAdmins.size > 0) return { selectedKeys: selectedAdmins, type: 'admins' };
-  return { selectedKeys: new Set(), type: null };
-};
+  // Helper function to get current tab's selected keys
+  const getCurrentTab = () => {
+    // Determine which tab is active based on selected keys
+    if (selectedStudents.size > 0) return { selectedKeys: selectedStudents, type: 'students' };
+    if (selectedTeachers.size > 0) return { selectedKeys: selectedTeachers, type: 'teachers' };
+    if (selectedAdmins.size > 0) return { selectedKeys: selectedAdmins, type: 'admins' };
+    return { selectedKeys: new Set(), type: null };
+  };
 
 
   return (
@@ -553,26 +554,26 @@ const getCurrentTab = () => {
             radius="sm"
             startContent={<Plus color="#06574C" size={15} />}
             className="border-[#06574C] text-[#06574C] py-4 px-3 sm:px-8 max-md:w-full"
-            //   onPress={()=>{router.push("/admin/user-management/add-user")}}
+          //   onPress={()=>{router.push("/admin/user-management/add-user")}}
           >
             Export
           </Button>
-            <Button
-              radius="sm"
-              as={Link}
-              to={"/admin/user-management/add-user"}
-              startContent={<Plus color="white" size={15} />}
-              className="bg-[#06574C] text-white py-4 px-3 sm:px-8 max-md:w-full"
-              //   onPress={()=>{router.push("/admin/user-management/add-user")}}
-            >
-              Add User
-            </Button>
+          <Button
+            radius="sm"
+            as={Link}
+            to={"/admin/user-management/add-user"}
+            startContent={<Plus color="white" size={15} />}
+            className="bg-[#06574C] text-white py-4 px-3 sm:px-8 max-md:w-full"
+          //   onPress={()=>{router.push("/admin/user-management/add-user")}}
+          >
+            Add User
+          </Button>
         </div>
       </div>
       <div>
         <div className=" ">
-          <Tabs aria-label="Tabs colors" radius="full" 
-          className="flex"
+          <Tabs aria-label="Tabs colors" radius="full"
+            className="flex"
           >
             <Tab
               key="Students"
@@ -609,7 +610,7 @@ const getCurrentTab = () => {
                       tbody: "overflow-y-scroll no-scrollbar",
                       td: "py-3 items-center whitespace-nowrap",
                       tr: "border-b border-default-200 ",
-                      
+
                     }}
                   >
                     <TableHeader>
@@ -619,7 +620,7 @@ const getCurrentTab = () => {
                     </TableHeader>
 
                     <TableBody>
-                      {students.length >  0 ? students.map((classItem) => (
+                      {students.length > 0 ? students.map((classItem) => (
                         <TableRow key={classItem.id}>
                           <TableCell className="px-4">
                             <div>
@@ -642,7 +643,7 @@ const getCurrentTab = () => {
                               {classItem.is_active == true ? "Active" : "Inactive"}
                             </Button>
                           </TableCell>
-                          <TableCell>{classItem.last_active || "N/A"}</TableCell>
+                          <TableCell>{classItem.last_active ? dateFormatter(classItem.last_active,true) : "N/A"}</TableCell>
                           <TableCell className="flex gap-2">
                             <Button
                               variant="bordered"
@@ -651,7 +652,7 @@ const getCurrentTab = () => {
                               startContent={
                                 <SquarePen size={18} color="#06574C" />
                               }
-                              onPress={() => {router(`/admin/user-management/edit-user/${classItem.id}`)}}
+                              onPress={() => { router(`/admin/user-management/edit-user/${classItem.id}`) }}
                             >
                               Edit
                             </Button>
@@ -666,7 +667,7 @@ const getCurrentTab = () => {
                           </TableCell>
                         </TableRow>
                       )) : <TableRow>
-                         <TableCell colSpan={6} className="text-center py-4 h-[calc(100vh-350px)]">
+                        <TableCell colSpan={6} className="text-center py-4 h-[calc(100vh-350px)]">
                           No Student Users Found.
                         </TableCell>
                       </TableRow>
@@ -720,59 +721,59 @@ const getCurrentTab = () => {
                     </TableHeader>
 
                     <TableBody>
-                      {teachers.length >  0 ?
-                       teachers.map((classItem) => (
-                        <TableRow key={classItem.id}>
-                          <TableCell className="px-4">
-                            <div>
-                              <div className="font-medium text-gray-900">
-                                {classItem.first_name} {classItem.last_name}
+                      {teachers.length > 0 ?
+                        teachers.map((classItem) => (
+                          <TableRow key={classItem.id}>
+                            <TableCell className="px-4">
+                              <div>
+                                <div className="font-medium text-gray-900">
+                                  {classItem.first_name} {classItem.last_name}
+                                </div>
+                                <div className="text-xs text-gray-500 mt-0.5">
+                                  {classItem.email}
+                                </div>
                               </div>
-                              <div className="text-xs text-gray-500 mt-0.5">
-                                {classItem.email}
-                              </div>
-                            </div>
+                            </TableCell>
+                            <TableCell>
+                              <Button className="text-sm p-2 rounded-md bg-[#FBF4EC] text-[#D28E3D]">
+                                {classItem.role}
+                              </Button>
+                            </TableCell>
+                            <TableCell>{dateFormatter(classItem.created_at)}</TableCell>
+                            <TableCell>
+                              <Button className={`text-sm p-2 rounded-md ${classItem.is_active === true ? "bg-[#95C4BE33] text-[#06574C]" : "bg-[#FBF4EC] text-[#D28E3D]"} `}>
+                                {classItem.is_active == true ? "Active" : "Inactive"}
+                              </Button>
+                            </TableCell>
+                            <TableCell>{classItem.last_active ? dateFormatter(classItem.last_active,true) : "N/A"}</TableCell>
+                            <TableCell className="flex gap-2">
+                              <Button
+                                variant="bordered"
+                                radius="sm"
+                                className="border-[#06574C]"
+                                startContent={
+                                  <SquarePen size={18} color="#06574C" />
+                                }
+                                onPress={() => { router(`/admin/user-management/edit-user/${classItem.id}`) }}
+                              >
+                                Edit
+                              </Button>
+                              <Button
+                                radius="sm"
+                                className="bg-[#06574C] text-white"
+                                startContent={<Trash2 size={18} color="white" />}
+                                onPress={() => openDeleteModal(classItem.id)}
+                              >
+                                Delete
+                              </Button>
+                            </TableCell>
+                          </TableRow>
+                        ))
+                        : <TableRow>
+                          <TableCell colSpan={6} className="text-center py-4 h-[calc(100vh-350px)]">
+                            No Teacher Users Found.
                           </TableCell>
-                          <TableCell>
-                            <Button className="text-sm p-2 rounded-md bg-[#FBF4EC] text-[#D28E3D]">
-                              {classItem.role}
-                            </Button>
-                          </TableCell>
-                          <TableCell>{dateFormatter(classItem.created_at)}</TableCell>
-                          <TableCell>
-                            <Button className={`text-sm p-2 rounded-md ${classItem.is_active === true ? "bg-[#95C4BE33] text-[#06574C]" : "bg-[#FBF4EC] text-[#D28E3D]"} `}>
-                              {classItem.is_active == true ? "Active" : "Inactive"}
-                            </Button>
-                          </TableCell>
-                          <TableCell>{classItem.last_active || "N/A"}</TableCell>
-                          <TableCell className="flex gap-2">
-                            <Button
-                              variant="bordered"
-                              radius="sm"
-                              className="border-[#06574C]"
-                              startContent={
-                                <SquarePen size={18} color="#06574C" />
-                              }
-                              onPress={() => {router(`/admin/user-management/edit-user/${classItem.id}`)}}
-                            >
-                              Edit
-                            </Button>
-                            <Button
-                              radius="sm"
-                              className="bg-[#06574C] text-white"
-                              startContent={<Trash2 size={18} color="white" />}
-                              onPress={() => openDeleteModal(classItem.id)}
-                            >
-                              Delete
-                            </Button>
-                          </TableCell>
-                        </TableRow>
-                      ))
-                      : <TableRow>
-                         <TableCell colSpan={6} className="text-center py-4 h-[calc(100vh-350px)]">
-                          No Teacher Users Found.
-                        </TableCell>
-                      </TableRow>}
+                        </TableRow>}
                     </TableBody>
                   </Table>
                 </motion.div>
@@ -802,7 +803,7 @@ const getCurrentTab = () => {
                 >
                   <Table
                     //    isHeaderSticky
-                     isHeaderSticky
+                    isHeaderSticky
                     selectionMode={admins.length > 0 ? "multiple" : undefined}
                     selectedKeys={selectedAdmins}
                     onSelectionChange={setSelectedAdmins}
@@ -823,58 +824,58 @@ const getCurrentTab = () => {
                     </TableHeader>
 
                     <TableBody>
-                      {admins.length > 0 ? 
-                      admins.map((classItem) => (
-                        <TableRow key={classItem.id}>
-                          <TableCell className="px-4">
-                            <div>
-                              <div className="font-medium text-gray-900">
-                                {classItem.first_name} {classItem.last_name}
+                      {admins.length > 0 ?
+                        admins.map((classItem) => (
+                          <TableRow key={classItem.id}>
+                            <TableCell className="px-4">
+                              <div>
+                                <div className="font-medium text-gray-900">
+                                  {classItem.first_name} {classItem.last_name}
+                                </div>
+                                <div className="text-xs text-gray-500 mt-0.5">
+                                  {classItem.email}
+                                </div>
                               </div>
-                              <div className="text-xs text-gray-500 mt-0.5">
-                                {classItem.email}
-                              </div>
-                            </div>
+                            </TableCell>
+                            <TableCell>
+                              <Button className="text-sm p-2 rounded-md bg-[#FBF4EC] text-[#D28E3D]">
+                                {classItem.role}
+                              </Button>
+                            </TableCell>
+                            <TableCell>{dateFormatter(classItem.created_at)}</TableCell>
+                            <TableCell>
+                              <Button className={`text-sm p-2 rounded-md ${classItem.is_active === true ? "bg-[#95C4BE33] text-[#06574C]" : "bg-[#FBF4EC] text-[#D28E3D]"} `}>
+                                {classItem.is_active == true ? "Active" : "Inactive"}
+                              </Button>
+                            </TableCell>
+                            <TableCell>{classItem.last_active ? dateFormatter(classItem.last_active,true) : "N/A"}</TableCell>
+                            <TableCell className="flex gap-2">
+                              <Button
+                                variant="bordered"
+                                radius="sm"
+                                className="border-[#06574C]"
+                                startContent={
+                                  <SquarePen size={18} color="#06574C" />
+                                }
+                                onPress={() => { router(`/admin/user-management/edit-user/${classItem.id}`) }}
+                              >
+                                Edit
+                              </Button>
+                              <Button
+                                radius="sm"
+                                className="bg-[#06574C] text-white"
+                                startContent={<Trash2 size={18} color="white" />}
+                                onPress={() => openDeleteModal(classItem.id)}
+                              >
+                                Delete
+                              </Button>
+                            </TableCell>
+                          </TableRow>
+                        )) : <TableRow>
+                          <TableCell colSpan={6} className="text-center py-4 h-[calc(100vh-350px)]">
+                            No Admin Users Found.
                           </TableCell>
-                          <TableCell>
-                            <Button className="text-sm p-2 rounded-md bg-[#FBF4EC] text-[#D28E3D]">
-                              {classItem.role}
-                            </Button>
-                          </TableCell>
-                          <TableCell>{dateFormatter(classItem.created_at)}</TableCell>
-                          <TableCell>
-                            <Button className={`text-sm p-2 rounded-md ${classItem.is_active === true ? "bg-[#95C4BE33] text-[#06574C]" : "bg-[#FBF4EC] text-[#D28E3D]"} `}>
-                              {classItem.is_active == true ? "Active" : "Inactive"}
-                            </Button>
-                          </TableCell>
-                          <TableCell>{classItem.last_active || "N/A"}</TableCell>
-                          <TableCell className="flex gap-2">
-                            <Button
-                              variant="bordered"
-                              radius="sm"
-                              className="border-[#06574C]"
-                              startContent={
-                                <SquarePen size={18} color="#06574C" />
-                              }
-                              onPress={() => {router(`/admin/user-management/edit-user/${classItem.id}`)}}
-                            >
-                              Edit
-                            </Button>
-                           <Button
-                              radius="sm"
-                              className="bg-[#06574C] text-white"
-                              startContent={<Trash2 size={18} color="white" />}
-                              onPress={() => openDeleteModal(classItem.id)}
-                            >
-                              Delete
-                            </Button>
-                          </TableCell>
-                        </TableRow>
-                      )) : <TableRow>
-                        <TableCell colSpan={6} className="text-center py-4 h-[calc(100vh-350px)]">
-                          No Admin Users Found.
-                        </TableCell>
-                      </TableRow>}
+                        </TableRow>}
                     </TableBody>
                   </Table>
                 </motion.div>
@@ -971,12 +972,4 @@ const getCurrentTab = () => {
   );
 };
 
-export default UserManagement;  
-export const dateFormatter = (date) => {
-    const formatterUS = new Intl.DateTimeFormat('en-US', {
-        year: 'numeric',
-        month: 'short',
-        day: 'numeric',
-    });
-    return formatterUS.format(new Date(date))
-}
+export default UserManagement;

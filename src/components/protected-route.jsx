@@ -19,10 +19,10 @@ const ProtectedRoute = ({
     children,
     redirect = "/",
 }) => {
-    if (publicOnly) {
-        if (isAuthenticated) return <Navigate to={redirect} />;
-        return children ? children : <Outlet />;
-    }
+    // if (publicOnly) {
+    //     if (isAuthenticated) return <Navigate to={redirect} />;
+    //     return children ? children : <Outlet />;
+    // }
 
     if (!isAuthenticated) return <Navigate to={redirect} />;
 

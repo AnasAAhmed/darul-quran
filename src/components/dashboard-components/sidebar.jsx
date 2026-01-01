@@ -16,12 +16,13 @@ import {
 import { Link, useLocation } from 'react-router-dom';
 import { b } from 'framer-motion/client';
 import { FaChalkboardTeacher } from 'react-icons/fa';
-import { Dropdown, DropdownItem, DropdownMenu, DropdownTrigger } from '@heroui/react';
+import { Button, Dropdown, DropdownItem, DropdownMenu, DropdownTrigger, Spinner } from '@heroui/react';
 import { MdLogout } from 'react-icons/md';
+import { errorMessage, successMessage } from '../../lib/toast.config';
 
 const Sidebar = ({ isSidebarOpen, setIsSidebarOpen }) => {
   const [expandedItems, setExpandedItems] = useState([0, 6]);
-  const location = useLocation();
+  const { pathname } = useLocation();
   const sideBarRef = useRef(null);
 
   // ===== role detection from pathname =====
@@ -30,7 +31,7 @@ const Sidebar = ({ isSidebarOpen, setIsSidebarOpen }) => {
     if (pathname.startsWith('/teacher')) return 'teacher';
     return 'guest'; // fallback
   };
-  const role = getRoleFromPath(location.pathname);
+  const role = getRoleFromPath(pathname);
 
   // ===== menus for different roles =====
   const adminMenu = [
@@ -106,12 +107,12 @@ const Sidebar = ({ isSidebarOpen, setIsSidebarOpen }) => {
   // If a child route is active, auto expand that parent
   useEffect(() => {
     menuItems.forEach((item, idx) => {
-      if (item.children?.some((child) => child.link === location.pathname)) {
+      if (item.children?.some((child) => child.link === pathname)) {
         if (!expandedItems.includes(idx)) setExpandedItems((prev) => [...prev, idx]);
       }
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [location.pathname]); // note: menuItems stable in this component; if you move menus out, add them to deps
+  }, [pathname]); // note: menuItems stable in this component; if you move menus out, add them to deps
 
   const toggleExpand = (index) => {
     setExpandedItems((prev) =>
@@ -160,6 +161,29 @@ const Sidebar = ({ isSidebarOpen, setIsSidebarOpen }) => {
     };
   }, []);
 
+  const [loggingOut, setLoggingOut] = useState(false);
+
+  const handleLogut = async () => {
+    setLoggingOut(true);
+    try {
+      const res = await fetch(import.meta.env.VITE_PUBLIC_SERVER_URL + `/api/auth/logout`, {
+        method: "POST",
+        credentials: "include",
+      });
+      const data = await res.json();
+
+      if (!res.ok) throw new Error(data?.message || "Logout failed");
+
+      successMessage(data?.message || "Logout successful");
+      location.reload();
+    } catch (error) {
+      console.log(error);
+      errorMessage(error.message);
+    } finally {
+      setLoggingOut(false);
+    }
+  };
+
   return (
     <div ref={sideBarRef} className="w-full z-5 h-full bg-[#1a5850] text-white flex flex-col">
       <div
@@ -187,8 +211,8 @@ const Sidebar = ({ isSidebarOpen, setIsSidebarOpen }) => {
         <ul className="space-y-1 mx-2">
           {menuItems.map((item, idx) => {
             const isActiveParent =
-              location.pathname.startsWith(item.link) ||
-              (item.children && item.children.some((child) => child.link === location.pathname));
+              pathname.startsWith(item.link) ||
+              (item.children && item.children.some((child) => child.link === pathname));
 
             return (
               <li key={idx}>
@@ -249,7 +273,7 @@ const Sidebar = ({ isSidebarOpen, setIsSidebarOpen }) => {
                           <Link
                             to={child.link}
                             className={`block pl-14 pr-6 py-2 text-sm transition-colors 
-                              ${location.pathname === child.link ? 'text-white' : 'text-[#b8d4d0] hover:text-white'}
+                              ${pathname === child.link ? 'text-white' : 'text-[#b8d4d0] hover:text-white'}
                             `}
                           >
                             {child.name}
@@ -264,7 +288,6 @@ const Sidebar = ({ isSidebarOpen, setIsSidebarOpen }) => {
           })}
         </ul>
       </div>
-
 
       <Dropdown
         showArrow
@@ -290,14 +313,14 @@ const Sidebar = ({ isSidebarOpen, setIsSidebarOpen }) => {
         </DropdownTrigger>
         <DropdownMenu aria-label="Dropdown menu with description" variant="faded">
           <DropdownItem
-            as={Link}
-            to={'/'}
             className="hover:text-white! text-[#323232] hover:bg-[#406C65]!"
             startContent={
-              <span className="w-5">
+              loggingOut ? <Spinner color='success' /> : <span className="w-5">
                 <MdLogout size={18} />
               </span>
             }
+            onClick={handleLogut}
+            disabled={loggingOut}
           >
             Logout
           </DropdownItem>

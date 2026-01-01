@@ -54,18 +54,18 @@ const Login = () => {
         return;
       }
       if (res.ok) {
-        // ✅ success
+        location.reload();
         toast.success("Login successful");
       }
-      setTimeout(() => {
-        if (data.user.role === "Admin") {
-          navigate("/admin/dashboard");
-        } else if (data.user.role === "Teacher") {
-          navigate("/teacher/dashboard");
-        } else {
-          navigate("/student/dashboard");
-        }
-      }, 1200);
+      // setTimeout(() => {
+      //   if (data.user.role === "Admin") {
+      //     navigate("/admin/dashboard");
+      //   } else if (data.user.role === "Teacher") {
+      //     navigate("/teacher/dashboard");
+      //   } else {
+      //     navigate("/student/dashboard");
+      //   }
+      // }, 1200);
     } catch (error) {
       toast.error("Something went wrong. Please try again.");
     } finally {

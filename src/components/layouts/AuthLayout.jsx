@@ -1,7 +1,9 @@
 import { useEffect } from "react";
-import { Outlet, useNavigate } from "react-router-dom";
+import { Navigate, Outlet } from "react-router-dom";
 
-export default function AuthLayout({ isAuthenticated }) {
+export default function AuthLayout({ isAuthenticated, redirect }) {
+
+if(isAuthenticated) return <Navigate to={redirect} />
 
   return (
     <div className="auth-container">
