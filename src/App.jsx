@@ -3,24 +3,13 @@ import ProtectedRoute from "./components/protected-route";
 import Login from "./pages/auth/Login";
 import AuthLayout from "./components/layouts/AuthLayout";
 import AdminLayout from "./components/layouts/AdminLayout";
-import { BrowserRouter, Route, Routes, useLocation, useNavigate } from "react-router-dom";
+import { Route, Routes, useLocation, useNavigate } from "react-router-dom";
 import {
   HeroUIProvider,
-  Modal,
-  ModalContent,
-  ModalHeader,
-  ModalBody,
-  ModalFooter,
-  Button,
-  useDisclosure,
-  Checkbox,
-  Input,
-  Link,
-  Spinner,
 } from "@heroui/react";
-import { lazy, use, useEffect, useState } from "react";
+import { lazy, useEffect, useState } from "react";
 import { Toaster } from "react-hot-toast";
-import ChatLayout from "./components/layouts/ChatLayout";
+import { useDispatch, useSelector } from "react-redux";
 import TeachersLayout from "./components/layouts/Teacherslayout";
 import TeachersDashboard from "./pages/teacher/TeachersDashboard";
 import MyCourses from "./pages/teacher/my-courses";
@@ -39,6 +28,9 @@ import ChangePassword from "./pages/auth/ChangePassword";
 import DownloadModal from "./components/dashboard-components/DownloadModal";
 import AddUser from "./pages/admin/user-management/add-user";
 import EditUser from "./pages/admin/user-management/add-user/edituser";
+import { showMessage } from "./lib/toast.config";
+import { clearUser, setUser } from "./redux/reducers/user";
+import Loader from "./components/Loader";
 
 const AdminDashboard = lazy(() => import("./pages/admin/AdminDashboard"));
 const Home = lazy(() => import("./pages/Home"));
@@ -75,61 +67,63 @@ const Faqs = lazy(() => import("./pages/admin/help/faqs"));
 function App() {
   const navigate = useNavigate();
   const { pathname } = useLocation();
-  const [loading, setLoading] = useState(false);
-  const [redirect, setRedirect] = useState("/");
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+
+  const dispatch = useDispatch();
+
+  const { user, loading, shouldFetch } = useSelector(
+    (state) => state?.user
+  )
+
   useEffect(() => {
-    const checkAuth = async () => {
+    async function loadUser() {
       try {
-        setLoading(true)
-        const res = await fetch(import.meta.env.VITE_PUBLIC_SERVER_URL + `/api/auth/me`, {
-          credentials: "include",
-        });
-        const { user, session } = await res.json();
-        if (res.ok) {
+        // dispatch(setLoading(true));
+
+        const res = await fetch(
+          import.meta.env.VITE_PUBLIC_SERVER_URL + "/api/auth/me",
+          { credentials: "include" }
+        );
+
+        const data = await res.json();
+
+        if (res.ok && data.user) {
+          dispatch(setUser(data.user));
           setIsAuthenticated(true);
-          if (session.role?.toLowerCase() === "admin") {
-            setRedirect("/admin/dashboard");
-          } else if (session.role?.toLowerCase() === "student") {
-            setRedirect("/student/dashboard");
-          } else if (session.role?.toLowerCase() === "teacher") {
-            setRedirect("/teacher/dashboard");
+          // redirect ONLY if on auth pages
+          if (["/", "/auth/forget-password", "/auth/change-password"].includes(pathname)) {
+            const role = data.user.role?.toLowerCase();
+
+            if (role === "admin") {
+              navigate("/admin/dashboard", { replace: true });
+            } else if (role === "teacher") {
+              navigate("/teacher/dashboard", { replace: true });
+            } else if (role === "student") {
+              navigate("/student/dashboard", { replace: true });
+            }
           }
+        } else {
+          dispatch(clearUser());
         }
-      } catch (err) {
-        setRedirect("/");
-      } finally {
-        const authroutes = ["/", "/auth/forget-password", "/auth/change-password"]
-        const isAuthRoute = authroutes.includes(pathname);
-        if (isAuthRoute) {
-          navigate(redirect)
-        }
-        setLoading(false)
+      } catch (error) {
+        dispatch(clearUser());
+          setIsAuthenticated(false);
+        showMessage(error.message);
       }
-    };
+    }
 
-    checkAuth();
-  }, []);
-
-  if (loading) return (
-    <div className="h-screen flex items-center justify-center">
-      <Spinner size="lg" label="Loading..." labelColor="success" color="success" />
-    </div>
-  );
-
+    if (loading || shouldFetch) {
+      loadUser();
+    }
+  }, [shouldFetch]);
+  if (loading) return <Loader/>;
   return (
     <HeroUIProvider>
       <Toaster position="top-right" />
       <DownloadModal />
       <Routes>
-        {/* <Route
-          path="/"
-          element={
-            <Home redirect={redirect} />
-          }
-        /> */}
         {/* ---------- Auth/Public Layout (NO HEADER/FOOTER) ---------- */}
-        <Route element={<AuthLayout isAuthenticated={isAuthenticated} redirect={redirect} />}>
+        <Route element={<AuthLayout isAuthenticated={!isAuthenticated} redirect={''} />}>
           <Route
             path="/"
             element={
@@ -154,7 +148,7 @@ function App() {
           <Route
             path="/admin/dashboard"
             element={
-              <ProtectedRoute isAuthenticated={isAuthenticated}>
+              <ProtectedRoute isAuthenticated={isAuthenticated} redirect="/" >
                 <AdminDashboard />
               </ProtectedRoute>
             }
@@ -162,7 +156,7 @@ function App() {
           <Route
             path="/admin/courses-management"
             element={
-              <ProtectedRoute isAuthenticated={isAuthenticated}>
+              <ProtectedRoute isAuthenticated={isAuthenticated} redirect="/">
                 <CourseManagement />
               </ProtectedRoute>
             }
@@ -170,7 +164,7 @@ function App() {
           <Route
             path="/admin/courses-management/builder"
             element={
-              <ProtectedRoute isAuthenticated={isAuthenticated}>
+              <ProtectedRoute isAuthenticated={isAuthenticated} redirect="/">
                 <CourseBuilder />
               </ProtectedRoute>
             }
@@ -178,7 +172,7 @@ function App() {
           <Route
             path="/admin/courses-management/live-sessions"
             element={
-              <ProtectedRoute isAuthenticated={isAuthenticated}>
+              <ProtectedRoute isAuthenticated={isAuthenticated} redirect="/">
                 <LiveSession />
               </ProtectedRoute>
             }
@@ -186,7 +180,7 @@ function App() {
           <Route
             path="/admin/courses-management/attendance"
             element={
-              <ProtectedRoute isAuthenticated={isAuthenticated}>
+              <ProtectedRoute isAuthenticated={isAuthenticated} redirect="/">
                 <Attendance />
               </ProtectedRoute>
             }
@@ -194,7 +188,7 @@ function App() {
           <Route
             path="/admin/user-management"
             element={
-              <ProtectedRoute isAuthenticated={isAuthenticated}>
+              <ProtectedRoute isAuthenticated={isAuthenticated} redirect="/">
                 <UserManagement />
               </ProtectedRoute>
             }
@@ -202,7 +196,7 @@ function App() {
           <Route
             path="/admin/user-management/add-user"
             element={
-              <ProtectedRoute isAuthenticated={isAuthenticated}>
+              <ProtectedRoute isAuthenticated={isAuthenticated} redirect="/">
                 <AddUser />
               </ProtectedRoute>
             }
@@ -210,7 +204,7 @@ function App() {
           <Route
             path="/admin/user-management/edit-user/:id"
             element={
-              <ProtectedRoute isAuthenticated={isAuthenticated}>
+              <ProtectedRoute isAuthenticated={isAuthenticated} redirect="/">
                 <EditUser />
               </ProtectedRoute>
             }
@@ -218,7 +212,7 @@ function App() {
           <Route
             path="/admin/user-management/users-details"
             element={
-              <ProtectedRoute isAuthenticated={isAuthenticated}>
+              <ProtectedRoute isAuthenticated={isAuthenticated} redirect="/">
                 <UserDetails />
               </ProtectedRoute>
             }
@@ -226,7 +220,7 @@ function App() {
           <Route
             path="/admin/scheduling"
             element={
-              <ProtectedRoute isAuthenticated={isAuthenticated}>
+              <ProtectedRoute isAuthenticated={isAuthenticated} redirect="/">
                 <Scheduling />
               </ProtectedRoute>
             }
@@ -234,7 +228,7 @@ function App() {
           <Route
             path="/admin/announcements"
             element={
-              <ProtectedRoute isAuthenticated={isAuthenticated}>
+              <ProtectedRoute isAuthenticated={isAuthenticated} redirect="/">
                 <Announcements />
               </ProtectedRoute>
             }
@@ -242,7 +236,7 @@ function App() {
           <Route
             path="/admin/payments"
             element={
-              <ProtectedRoute isAuthenticated={isAuthenticated}>
+              <ProtectedRoute isAuthenticated={isAuthenticated} redirect="/">
                 <PaymentsRefunds />
               </ProtectedRoute>
             }
@@ -250,7 +244,7 @@ function App() {
           <Route
             path="/admin/tickets"
             element={
-              <ProtectedRoute isAuthenticated={isAuthenticated}>
+              <ProtectedRoute isAuthenticated={isAuthenticated} redirect="/">
                 <SupportTickets />
               </ProtectedRoute>
             }
@@ -258,7 +252,7 @@ function App() {
           <Route
             path="/admin/analytics"
             element={
-              <ProtectedRoute isAuthenticated={isAuthenticated}>
+              <ProtectedRoute isAuthenticated={isAuthenticated} redirect="/">
                 <Analytics />
               </ProtectedRoute>
             }
@@ -267,7 +261,7 @@ function App() {
           <Route
             path="/admin/help/reviews"
             element={
-              <ProtectedRoute isAuthenticated={isAuthenticated}>
+              <ProtectedRoute isAuthenticated={isAuthenticated} redirect="/">
                 <Review />
               </ProtectedRoute>
             }
@@ -275,7 +269,7 @@ function App() {
           <Route
             path="/admin/help/faqs"
             element={
-              <ProtectedRoute isAuthenticated={isAuthenticated}>
+              <ProtectedRoute isAuthenticated={isAuthenticated} redirect="/">
                 <Faqs />
               </ProtectedRoute>
             }
@@ -283,7 +277,7 @@ function App() {
           <Route
             path="/admin/help/messages"
             element={
-              <ProtectedRoute isAuthenticated={isAuthenticated}>
+              <ProtectedRoute isAuthenticated={isAuthenticated} redirect="/">
                 <HelpMessages />
               </ProtectedRoute>
             }
@@ -291,7 +285,7 @@ function App() {
           <Route
             path="/admin/help/chat"
             element={
-              <ProtectedRoute isAuthenticated={isAuthenticated}>
+              <ProtectedRoute isAuthenticated={isAuthenticated} redirect="/">
                 <TeacherAndStudentChat />
               </ProtectedRoute>
             }
@@ -304,7 +298,7 @@ function App() {
           <Route
             path="/teacher/dashboard"
             element={
-              <ProtectedRoute isAuthenticated={isAuthenticated}>
+              <ProtectedRoute isAuthenticated={isAuthenticated} redirect="/">
                 <TeachersDashboard />
               </ProtectedRoute>
             }
@@ -314,7 +308,7 @@ function App() {
           <Route
             path="/teacher/courses/course-details"
             element={
-              <ProtectedRoute isAuthenticated={isAuthenticated}>
+              <ProtectedRoute isAuthenticated={isAuthenticated} redirect="/">
                 <MyCourses />
               </ProtectedRoute>
             }
@@ -322,7 +316,7 @@ function App() {
           <Route
             path="/teacher/courses/upload-material"
             element={
-              <ProtectedRoute isAuthenticated={isAuthenticated}>
+              <ProtectedRoute isAuthenticated={isAuthenticated} redirect="/">
                 <UploadMaterial />
               </ProtectedRoute>
             }
@@ -330,7 +324,7 @@ function App() {
           <Route
             path="/teacher/student-attendance"
             element={
-              <ProtectedRoute isAuthenticated={isAuthenticated}>
+              <ProtectedRoute isAuthenticated={isAuthenticated} redirect="/">
                 <StudentAttendance />
               </ProtectedRoute>
             }
@@ -338,7 +332,7 @@ function App() {
           <Route
             path="/teacher/class-scheduling"
             element={
-              <ProtectedRoute isAuthenticated={isAuthenticated}>
+              <ProtectedRoute isAuthenticated={isAuthenticated} redirect="/">
                 <ClassSheduling />
               </ProtectedRoute>
             }
@@ -346,7 +340,7 @@ function App() {
           <Route
             path="/teacher/class-scheduling/sheduled-class"
             element={
-              <ProtectedRoute isAuthenticated={isAuthenticated}>
+              <ProtectedRoute isAuthenticated={isAuthenticated} redirect="/">
                 <SheduleClass />
               </ProtectedRoute>
             }
@@ -354,7 +348,7 @@ function App() {
           <Route
             path="/teacher/chat"
             element={
-              <ProtectedRoute isAuthenticated={isAuthenticated}>
+              <ProtectedRoute isAuthenticated={isAuthenticated} redirect="/">
                 <HelpMessages />
               </ProtectedRoute>
             }
@@ -362,7 +356,7 @@ function App() {
           <Route
             path="/student/dashboard"
             element={
-              <ProtectedRoute isAuthenticated={isAuthenticated}>
+              <ProtectedRoute isAuthenticated={isAuthenticated} redirect="/">
                 <StudentDashboard />
               </ProtectedRoute>
             }
@@ -370,7 +364,7 @@ function App() {
           <Route
             path="/student/my-learning"
             element={
-              <ProtectedRoute isAuthenticated={isAuthenticated}>
+              <ProtectedRoute isAuthenticated={isAuthenticated} redirect="/">
                 <MyLearning />
               </ProtectedRoute>
             }
@@ -378,7 +372,7 @@ function App() {
           <Route
             path="/student/class-scheduling"
             element={
-              <ProtectedRoute isAuthenticated={isAuthenticated}>
+              <ProtectedRoute isAuthenticated={isAuthenticated} redirect="/">
                 <StudentClassSheduling />
               </ProtectedRoute>
             }
@@ -386,7 +380,7 @@ function App() {
           <Route
             path="/student/browse-courses"
             element={
-              <ProtectedRoute isAuthenticated={isAuthenticated}>
+              <ProtectedRoute isAuthenticated={isAuthenticated} redirect="/">
                 <BrowseCourses />
               </ProtectedRoute>
             }
@@ -394,7 +388,7 @@ function App() {
           <Route
             path="/student/browse-courses/course-details"
             element={
-              <ProtectedRoute isAuthenticated={isAuthenticated}>
+              <ProtectedRoute isAuthenticated={isAuthenticated} redirect="/">
                 <CourseDetails />
               </ProtectedRoute>
             }
@@ -402,7 +396,7 @@ function App() {
           <Route
             path="/student/help/messages"
             element={
-              <ProtectedRoute isAuthenticated={isAuthenticated}>
+              <ProtectedRoute isAuthenticated={isAuthenticated} redirect="/">
                 <HelpMessages />
               </ProtectedRoute>
             }
@@ -410,7 +404,7 @@ function App() {
           <Route
             path="/student/payments"
             element={
-              <ProtectedRoute isAuthenticated={isAuthenticated}>
+              <ProtectedRoute isAuthenticated={isAuthenticated} redirect="/">
                 <PaymentsInvoices />
               </ProtectedRoute>
             }

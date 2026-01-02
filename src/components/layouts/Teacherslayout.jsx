@@ -1,12 +1,16 @@
-import { Link, Outlet, useLocation } from "react-router-dom";
+import { Link, Navigate, Outlet, useLocation } from "react-router-dom";
 import Sidebar from "../dashboard-components/sidebar";
 import { Suspense, useEffect, useState } from "react";
 import { AnimatePresence, motion } from 'framer-motion'
 import { Button, Chip, Input, Popover, PopoverContent, PopoverTrigger, Spinner } from "@heroui/react";
 import { Bell, MenuIcon, Plus, Search, SidebarClose, SidebarOpen } from "lucide-react";
 import { TbBell } from "react-icons/tb";
+import { useSelector } from "react-redux";
+import Loader from "../Loader";
 
 export default function TeachersLayout() {
+    const { user, loading } = useSelector((s) => s?.user);
+
     const { pathname } = useLocation()
 
     const [isSidebarOpen, setIsSidebarOpen] = useState(() => {
@@ -31,8 +35,21 @@ export default function TeachersLayout() {
     }, [isMobile, window.innerWidth]);
 
 
-        const shouldHeaderOnRoutes = pathname.includes("help")|| pathname.includes("chat");
+    const shouldHeaderOnRoutes = pathname.includes("help") || pathname.includes("chat");
+    if (loading) return <Loader />;
 
+    if (user && user.role?.toLowerCase() !== "teacher") {
+        let route = '/';
+        const role = user.role?.toLowerCase();
+        if (role === "admin") {
+            route = "/admin/dashboard";
+        } else if (role === "teacher") {
+            route = "/teacher/dashboard";
+        } else if (role === "student") {
+            route = "/student/dashboard";
+        }
+        return <Navigate to={route} replace />;
+    }
     return (
         <>
             <main className="flex h-screen w-screen overflow-hidden bg-gray-50">

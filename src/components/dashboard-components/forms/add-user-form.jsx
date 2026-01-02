@@ -36,9 +36,9 @@ const AddUserForm = ({ id, title, desc, userData, isEdit }) => {
   console.log("User Data in Form:", userData);
 
   const role = [
-    { key: "Admin", label: "Admin" },
-    { key: "Teacher", label: "Teacher" },
-    { key: "Student", label: "Student" },
+    { key: "admin", label: "Admin" },
+    { key: "teacher", label: "Teacher" },
+    { key: "student", label: "Student" },
   ];
 
   const courses = [

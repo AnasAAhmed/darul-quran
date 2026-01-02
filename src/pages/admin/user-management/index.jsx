@@ -17,6 +17,7 @@ import {
   ModalBody,
   ModalFooter,
   useDisclosure,
+  Spinner,
 } from "@heroui/react";
 import { Chip } from "@heroui/react";
 import toast from "react-hot-toast";
@@ -32,6 +33,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { AnimatePresence } from "motion/react";
 import * as motion from "motion/react-client";
 import { dateFormatter } from "../../../lib/utils";
+import { errorMessage, showMessage } from "../../../lib/toast.config";
 
 const UserManagement = () => {
   // const [events, setEvents] = useState([
@@ -348,9 +350,9 @@ const UserManagement = () => {
 
   const filters = [{ key: "all", label: "Filter" }];
   const header = [
-    { key: "Students", label: "Students" },
-    { key: "Roles", label: "Roles" },
-    { key: "Date", label: "Join Dates" },
+    { key: "User", label: "User" },
+    { key: "Role", label: "Role" },
+    { key: "Date", label: "Join Date" },
     { key: "Status", label: "Status" },
     { key: "Active", label: "Last Active" },
     { key: "Action", label: "Action" },
@@ -368,6 +370,7 @@ const UserManagement = () => {
   const router = useNavigate();
   const [teachers, setTeachers] = useState([]);
   const [students, setStudents] = useState([]);
+  const [loading, setLoading] = useState(false);
   const [admins, setAdmins] = useState([]);
   const [userToDelete, setUserToDelete] = useState(null);
   const { isOpen, onOpen, onClose } = useDisclosure();
@@ -380,16 +383,25 @@ const UserManagement = () => {
 
   useEffect(() => {
     const fetchUsers = async () => {
-      const res = await fetch(import.meta.env.VITE_PUBLIC_SERVER_URL + "/api/auth/getAllUsers");
-      const data = await res.json();
+      try {
+        setLoading(true);
+        const res = await fetch(import.meta.env.VITE_PUBLIC_SERVER_URL + "/api/auth/getAllUsers");
+        const data = await res.json();
 
-      const teacherData = data.users.filter(u => u.role === "Teacher");
-      const studentData = data.users.filter(u => u.role === "Student");
-      const adminData = data.users.filter(u => u.role === "Admin");
+        const teacherData = data.users.filter(u => u.role?.toLowerCase() === "teacher");
+        const studentData = data.users.filter(u => u.role?.toLowerCase() === "student");
+        const adminData = data.users.filter(u => u.role?.toLowerCase() === "admin");
 
-      setTeachers(teacherData);
-      setStudents(studentData);
-      setAdmins(adminData);
+        setTeachers(teacherData);
+        setStudents(studentData);
+        setAdmins(adminData);
+
+      } catch (error) {
+        console.log(error);
+        errorMessage(error.message)
+      } finally {
+        setLoading(false);
+      }
     };
 
     fetchUsers();
@@ -601,6 +613,7 @@ const UserManagement = () => {
                     isHeaderSticky
                     selectionMode={students.length > 0 ? "multiple" : undefined}
                     selectedKeys={selectedStudents}
+
                     onSelectionChange={setSelectedStudents}
                     aria-label="Pending approvals table"
                     removeWrapper
@@ -619,8 +632,8 @@ const UserManagement = () => {
                       ))}
                     </TableHeader>
 
-                    <TableBody>
-                      {students.length > 0 ? students.map((classItem) => (
+                    <TableBody loadingContent={<Spinner color="success"/>} emptyContent={"  No Student Users Found."} loadingState={loading ? 'loading' : 'idle'}>
+                      {students?.map((classItem) => (
                         <TableRow key={classItem.id}>
                           <TableCell className="px-4">
                             <div>
@@ -643,7 +656,7 @@ const UserManagement = () => {
                               {classItem.is_active == true ? "Active" : "Inactive"}
                             </Button>
                           </TableCell>
-                          <TableCell>{classItem.last_active ? dateFormatter(classItem.last_active,true) : "N/A"}</TableCell>
+                          <TableCell>{classItem.last_active ? dateFormatter(classItem.last_active, true) : "N/A"}</TableCell>
                           <TableCell className="flex gap-2">
                             <Button
                               variant="bordered"
@@ -666,12 +679,7 @@ const UserManagement = () => {
                             </Button>
                           </TableCell>
                         </TableRow>
-                      )) : <TableRow>
-                        <TableCell colSpan={6} className="text-center py-4 h-[calc(100vh-350px)]">
-                          No Student Users Found.
-                        </TableCell>
-                      </TableRow>
-                      }
+                      )) }
                     </TableBody>
                   </Table>
                 </motion.div>
@@ -745,7 +753,7 @@ const UserManagement = () => {
                                 {classItem.is_active == true ? "Active" : "Inactive"}
                               </Button>
                             </TableCell>
-                            <TableCell>{classItem.last_active ? dateFormatter(classItem.last_active,true) : "N/A"}</TableCell>
+                            <TableCell>{classItem.last_active ? dateFormatter(classItem.last_active, true) : "N/A"}</TableCell>
                             <TableCell className="flex gap-2">
                               <Button
                                 variant="bordered"
@@ -848,7 +856,7 @@ const UserManagement = () => {
                                 {classItem.is_active == true ? "Active" : "Inactive"}
                               </Button>
                             </TableCell>
-                            <TableCell>{classItem.last_active ? dateFormatter(classItem.last_active,true) : "N/A"}</TableCell>
+                            <TableCell>{classItem.last_active ? dateFormatter(classItem.last_active, true) : "N/A"}</TableCell>
                             <TableCell className="flex gap-2">
                               <Button
                                 variant="bordered"
