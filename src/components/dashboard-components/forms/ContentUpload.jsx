@@ -47,7 +47,7 @@ export default function Videos() {
     ];
     const hideBtn = window.location.pathname === "/teacher/courses/upload-material" ? "hidden" : "";
     return (
-        <div className=" bg-white rounded-lg my-2">
+        <div className=" bg-white rounded-lg my-2 w-full">
             {/* Header */}
             <div className="">
                 <div className="mx-auto max-w-7xl px-4 py-3 sm:px-6 lg:px-8">
@@ -235,7 +235,7 @@ export function PdfAndNotes() {
         { key: "false", label: "Deattach To Lesson" },
     ];
     return (
-        <div className=" bg-white rounded-lg my-2">
+        <div className=" bg-white rounded-lg my-2 w-full">
             <div className="">
                 <div className="mx-auto max-w-7xl px-4 py-3 sm:px-6 lg:px-8">
                     <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
@@ -381,7 +381,7 @@ export function Assignments() {
     
     const changetitle = window.location.pathname === "/teacher/courses/upload-material";
     return (
-        <div className=" bg-white rounded-lg my-2">
+        <div className=" bg-white rounded-lg my-2 w-full">
             <div className="">
                 <div className="mx-auto max-w-7xl px-4 py-3 sm:px-6 lg:px-8">
                     <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
@@ -523,7 +523,7 @@ export function Quizzes() {
         { key: "false", label: "Deattach To Lesson" },
     ];
     return (
-        <div className=" bg-white rounded-lg my-2">
+        <div className=" bg-white rounded-lg my-2 w-full">
             {/* Header */}
             <div className="">
                 <div className="mx-auto max-w-7xl px-4 py-3 sm:px-6 lg:px-8">
