@@ -9,6 +9,7 @@ import {
   Textarea,
   Button,
   Switch,
+  Image,
 } from "@heroui/react";
 import { motion } from "framer-motion";
 import FileDropzone from "../../../components/dashboard-components/dropzone";
@@ -29,6 +30,7 @@ import Videos, {
 import { useSearchParams } from "react-router-dom";
 import { label } from "framer-motion/client";
 import { UploadButton, UploadDropzone } from "../../../lib/uploadthing";
+import { ToastBar } from "react-hot-toast";
 const containerVariants = {
   hidden: { opacity: 0, y: 10, scale: 0.98 },
 
@@ -44,23 +46,25 @@ const containerVariants = {
   },
 };
 const CourseBuilder = () => {
-// useEffect(() => {
-//   const fetchCourses = async () => {
-//     const response = await fetch(
-//       import.meta.env.VITE_PUBLIC_SERVER_URL + "/api/admin/addCourse",
-//       {
-//         method: "POST",
-//       }
-//     );
-//     const data = await response.json();
-//     console.log(data);
-//   };
+  // useEffect(() => {
+  //   const fetchCourses = async () => {
+  //     const response = await fetch(
+  //       import.meta.env.VITE_PUBLIC_SERVER_URL + "/api/admin/addCourse",
+  //       {
+  //         method: "POST",
+  //       }
+  //     );
+  //     const data = await response.json();
+  //     console.log(data);
+  //   };
 
-//   fetchCourses();
-// }, []);
+  //   fetchCourses();
+  // }, []);
 
   const [thumbnail, setThumbnail] = useState([]); //file
-  console.log("thumbnail",thumbnail);
+  const [thumbnailUrl, setThumbnailUrl] = useState("");
+
+  console.log("thumbnail", thumbnail);
   const category = [
     { key: "Advance_JavaScript", label: "Advance JavaScript" },
     { key: "Advance_React", label: "Advance React" },
@@ -127,147 +131,141 @@ const CourseBuilder = () => {
     // searchParams.set('tab', value);
     setSearchParams({ tab: value });
   };
-const [formData, setFormData] = useState({
-  course_name: "",
-  category: "",
-  difficulty_level: "",
-  description: "",
-  course_price: "",
-  teacher_name: "",
-  access_duration: "",
-  previous_lesson: "",
-  enroll_number: "",
-  status: "Draft", // Default
-});
-const handleChange = (name, value) => {
-  setFormData((prev) => ({
-    ...prev,
-    [name]: value,
-  }));
-};
- const handleSubmitTab1 = async (e) => {
-  e.preventDefault();
+  const [formData, setFormData] = useState({
+    course_name: "",
+    category: "",
+    difficulty_level: "",
+    description: "",
+    course_price: "",
+    teacher_name: "",
+    access_duration: "",
+    previous_lesson: "",
+    enroll_number: "",
+    status: "Draft", // Default
+  });
+  const handleChange = (name, value) => {
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
+  const handleSubmitTab1 = async (e) => {
+    e.preventDefault();
 
-  const payload = {
-    ...formData,
-    previous_lesson: formData.previous_lesson ? parseInt(formData.previous_lesson) : null,
-    enroll_number: formData.enroll_number ? parseInt(formData.enroll_number) : null,
-    status: "Draft",
-  };
-  const uploadfiles = {
-    thumbnail: thumbnail,
-    // videos: videos,
-    // pdf_and_notes: pdf_and_notes,
-    // assignments: assignments,
-    // quizzes: quizzes,
-  };
-  console.log("uploadfiles",uploadfiles);
-  try{
-  const uploadfilesData = await response.json();
-  if(uploadfilesData.success){
-    const response = await fetch (
-      import.meta.env.VITE_PUBLIC_SERVER_URL + "/api/admin/addCourse",
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        credentials: "include", 
-        body: JSON.stringify(payload , uploadfilesData),
+    if (!thumbnailUrl) {
+      alert("Please upload a thumbnail image first");
+      return;
+    }
+
+    const payload = {
+      ...formData,
+      previous_lesson: formData.previous_lesson
+        ? parseInt(formData.previous_lesson)
+        : null,
+      enroll_number: formData.enroll_number
+        ? parseInt(formData.enroll_number)
+        : null,
+      status: "Draft",
+      thumbnailurl: thumbnailUrl,
+    };
+
+    console.log("Submitting payload:", payload);
+
+    try {
+      const response = await fetch(
+        import.meta.env.VITE_PUBLIC_SERVER_URL + "/api/admin/addCourse",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          credentials: "include",
+          body: JSON.stringify(payload),
+        }
+      );
+      const data = await response.json();
+      console.log(data);
+      if (data.success) {
+        alert("Course Created Successfully");
+        // navigate logic here if needed
+      } else {
+        alert("Failed to create course");
       }
-    );
-    const data = await response.json();
-    console.log(data);
-  }
-  }catch(error){
-    console.log(error);
-  }
-  // const response = await fetch(
-  //   import.meta.env.VITE_PUBLIC_SERVER_URL + "/api/admin/addCourse",
+    } catch (error) {
+      console.log(error);
+      toast.error("Server Error");
+    }
+  };
+  // const handleSubmitTab1 = async (e) => {
+  //   e.preventDefault();
+
+  //   const payload = {
+  //     ...formData,
+  //     previous_lesson: formData.previous_lesson
+  //       ? parseInt(formData.previous_lesson)
+  //       : null,
+  //     enroll_number: formData.enroll_number
+  //       ? parseInt(formData.enroll_number)
+  //       : null,
+  //     status: "Draft",
+  //   };
+
+  //   const uploadfiles = {
+  //     images: thumbnail, // ⚠️ backend expects "images"
+  //     isConvert: true,
+  //   };
+
+  //   try {
+  //     const response = await fetch(
+  //   import.meta.env.VITE_PUBLIC_SERVER_URL + "/api/admin/uploadImages",
   //   {
   //     method: "POST",
-  //     headers: { "Content-Type": "application/json" },
-  //     body: JSON.stringify(payload),
+  //     credentials: "include",
+  //     body: formData, // ✅ NO headers
   //   }
-  // );
+  //     );
 
-  // const data = await response.json();
+  //     const uploadfilesData = await response.json();
 
-  // if (data.success) {
-  //   // Navigate to Tab 2 with the course ID
-  //   navigate(`/course-builder/${data.courseId}?tab=content`);
-  // }
-};
-// const handleSubmitTab1 = async (e) => {
-//   e.preventDefault();
+  //     if (!response.ok) {
+  //       console.error(uploadfilesData);
+  //       return;
+  //     }
 
-//   const payload = {
-//     ...formData,
-//     previous_lesson: formData.previous_lesson
-//       ? parseInt(formData.previous_lesson)
-//       : null,
-//     enroll_number: formData.enroll_number
-//       ? parseInt(formData.enroll_number)
-//       : null,
-//     status: "Draft",
-//   };
+  //     // upload success
+  //     const courseResponse = await fetch(
+  //       import.meta.env.VITE_PUBLIC_SERVER_URL + "/api/admin/addCourse",
+  //       {
+  //         method: "POST",
+  //         headers: { "Content-Type": "application/json" },
+  //         credentials: "include",
+  //         body: JSON.stringify({
+  //           ...payload,
+  //           thumbnail: uploadfilesData.uploaded,
+  //         }),
+  //       }
+  //     );
 
-//   const uploadfiles = {
-//     images: thumbnail, // ⚠️ backend expects "images"
-//     isConvert: true,
-//   };
+  //     const data = await courseResponse.json();
+  //     console.log("Course Created:", data);
+  //   } catch (error) {
+  //     console.error(error);
+  //   }
+  // };
 
-//   try {
-//     const response = await fetch(
-//   import.meta.env.VITE_PUBLIC_SERVER_URL + "/api/admin/uploadImages",
-//   {
-//     method: "POST",
-//     credentials: "include",
-//     body: formData, // ✅ NO headers
-//   }
-//     );
+  // const handleUpdate = async (fieldsToUpdate) => {
+  //   if (!courseId) return;
 
-//     const uploadfilesData = await response.json();
+  //   const response = await fetch(
+  //     `${import.meta.env.VITE_PUBLIC_SERVER_URL}/api/admin/updateCourse/${courseId}`,
+  //     {
+  //       method: "PATCH",
+  //       headers: { "Content-Type": "application/json" },
+  //       body: JSON.stringify(fieldsToUpdate),
+  //     }
+  //   );
 
-//     if (!response.ok) {
-//       console.error(uploadfilesData);
-//       return;
-//     }
-
-//     // upload success
-//     const courseResponse = await fetch(
-//       import.meta.env.VITE_PUBLIC_SERVER_URL + "/api/admin/addCourse",
-//       {
-//         method: "POST",
-//         headers: { "Content-Type": "application/json" },
-//         credentials: "include",
-//         body: JSON.stringify({
-//           ...payload,
-//           thumbnail: uploadfilesData.uploaded,
-//         }),
-//       }
-//     );
-
-//     const data = await courseResponse.json();
-//     console.log("Course Created:", data);
-//   } catch (error) {
-//     console.error(error);
-//   }
-// };
-
-// const handleUpdate = async (fieldsToUpdate) => {
-//   if (!courseId) return;
-
-//   const response = await fetch(
-//     `${import.meta.env.VITE_PUBLIC_SERVER_URL}/api/admin/updateCourse/${courseId}`,
-//     {
-//       method: "PATCH",
-//       headers: { "Content-Type": "application/json" },
-//       body: JSON.stringify(fieldsToUpdate),
-//     }
-//   );
-
-//   const data = await response.json();
-//   console.log(data);
-// };
+  //   const data = await response.json();
+  //   console.log(data);
+  // };
   return (
     <div className="h-full bg-linear-to-t from-[#F1C2AC]/50 to-[#95C4BE]/50 px-2 sm:px-3 w-full no-scrollbar top-0 bottom-0 overflow-y-auto">
       <DashHeading
@@ -340,10 +338,14 @@ const handleChange = (name, value) => {
                       <Input
                         size="lg"
                         variant="bordered"
-                        label="Course Title "
+                        label="Course Title"
                         labelPlacement="outside"
-                        placeholder="Enter course title "
+                        placeholder="Enter course title"
                         className="w-full"
+                        value={formData.course_name}
+                        onChange={(e) =>
+                          handleChange("course_name", e.target.value)
+                        }
                       />
 
                       <div className="flex max-sm:flex-wrap gap-3 items-center pt-4">
@@ -355,10 +357,12 @@ const handleChange = (name, value) => {
                           placeholder="Select category"
                           className="w-full"
                           selectedKeys={[formData.category]}
-                          onSelectionChange={(keys) => handleChange("category", [...keys][0])}
+                          onSelectionChange={(keys) =>
+                            handleChange("category", [...keys][0])
+                          }
                         >
                           {category.map((item) => (
-                            <SelectItem key={item.id} value={item.id}>
+                            <SelectItem key={item.key} value={item.id}>
                               {item.label}
                             </SelectItem>
                           ))}
@@ -371,10 +375,12 @@ const handleChange = (name, value) => {
                           placeholder="Select Difficulty Level"
                           className="w-full"
                           selectedKeys={[formData.difficulty_level]}
-                          onSelectionChange={(keys) => handleChange("difficulty_level", [...keys][0])}
+                          onSelectionChange={(keys) =>
+                            handleChange("difficulty_level", [...keys][0])
+                          }
                         >
                           {Difficulty.map((item) => (
-                            <SelectItem key={item.id} value={item.id}>
+                            <SelectItem key={item.key} value={item.id}>
                               {item.label}
                             </SelectItem>
                           ))}
@@ -386,7 +392,9 @@ const handleChange = (name, value) => {
                           variant="bordered"
                           label="Description"
                           value={formData.description}
-                          onChange={(e) => handleChange("description", e.target.value)}
+                          onChange={(e) =>
+                            handleChange("description", e.target.value)
+                          }
                           labelPlacement="outside"
                           placeholder="Enter course description"
                         />
@@ -399,7 +407,9 @@ const handleChange = (name, value) => {
                         placeholder="$  0.00"
                         className="w-full"
                         value={formData.course_price}
-                        onChange={(e) => handleChange("course_price", e.target.value)}
+                        onChange={(e) =>
+                          handleChange("course_price", e.target.value)
+                        }
                       />
                       <div className="py-4">
                         <Select
@@ -410,10 +420,12 @@ const handleChange = (name, value) => {
                           placeholder="Select teacher"
                           className="w-full"
                           selectedKeys={[formData.teacher_name]}
-                          onSelectionChange={(keys) => handleChange("teacher_name", [...keys][0])}
+                          onSelectionChange={(keys) =>
+                            handleChange("teacher_name", [...keys][0])
+                          }
                         >
                           {teacher.map((item) => (
-                            <SelectItem key={item.id} value={item.id}>
+                            <SelectItem key={item.key} value={item.id}>
                               {item.label}
                             </SelectItem>
                           ))}
@@ -431,39 +443,59 @@ const handleChange = (name, value) => {
                           files={thumbnail}
                           setFiles={setThumbnail}
                         /> */}
-                       <UploadDropzone
-                         className="w-full h-[300px] border-2 border-dashed border-gray-300 rounded-lg ut-label:text-lg ut-allowed-content:ut-uploading:text-red-300 relative"
-                         endpoint="imageUploader"
-                         appearance={{
-                           container: {
-                             width: "100%",
-                             height: "300px",
-                             display: "flex",
-                             justifyContent: "center",
-                             alignItems: "center",
-                             backgroundColor: "white",
-                             
-                           },
-                           button: {
-                            position: "absolute",
-                            bottom: "3rem",
-                             background: "#06574C",
-                             color: "white",
-                             marginTop: "1rem", // Add spacing if needed
-                           },
-                           label: {
-                             color: "#06574C",
-                           },
-                         }}
-                         onClientUploadComplete={(res) => {
-                           console.log("Files: ", res);
-                           toast.success("Upload Completed");
-                         }}
-                         onUploadError={(error) => {
-                           // Do something with the error.
-                           toast.error(`ERROR! ${error.message}`);
-                         }}
-                       />
+                        {thumbnailUrl ? (
+                          <div className="relative w-full h-[300px] overflow-hidden rounded-lg">
+                            <Image
+                              removeWrapper
+                              className="w-full h-full object-cover"
+                              src={thumbnailUrl}
+                              alt="Course Thumbnail"
+                            />
+                            <Button
+                              size="sm"
+                              className="absolute top-2 right-2 bg-red-500 text-white z-10"
+                              onPress={() => setThumbnailUrl("")}
+                            >
+                              Remove
+                            </Button>
+                          </div>
+                        ) : (
+                          <UploadDropzone
+                            className="w-full h-[300px] border-2 border-dashed border-gray-300 rounded-lg ut-label:text-lg ut-allowed-content:ut-uploading:text-red-300 relative"
+                            endpoint="imageUploader"
+                            appearance={{
+                              container: {
+                                width: "100%",
+                                height: "300px",
+                                display: "flex",
+                                justifyContent: "center",
+                                alignItems: "center",
+                                backgroundColor: "white",
+                              },
+                              button: {
+                                position: "absolute",
+                                bottom: "3rem",
+                                background: "#06574C",
+                                color: "white",
+                                marginTop: "1rem", // Add spacing if needed
+                              },
+                              label: {
+                                color: "#06574C",
+                              },
+                            }}
+                            onClientUploadComplete={(res) => {
+                              console.log("Files: ", res);
+                              if (res && res.length > 0) {
+                                setThumbnailUrl(res[0].url);
+                                toast.success("Upload Completed");
+                              }
+                            }}
+                            onUploadError={(error) => {
+                              // Do something with the error.
+                              toast.error(`ERROR! ${error.message}`);
+                            }}
+                          />
+                        )}
                       </div>
                     </div>
                     <div className="bg-white rounded-lg p-3 shadow-xl mt-3">
@@ -495,17 +527,17 @@ const handleChange = (name, value) => {
                   >
                     Save Draft
                   </Button>
-                   {/* 
+                  {/* 
                    <UploadButton
-      endpoint="imageUploader"
-      onClientUploadComplete={(res) => {
-        console.log("Upload complete:", res);
-      }}
-      onUploadError={(error) => {
-        console.error("Upload error:", error);
-      }}
-    /> 
-    */}
+                      endpoint="imageUploader"
+                      onClientUploadComplete={(res) => {
+                        console.log("Upload complete:", res);
+                      }}
+                      onUploadError={(error) => {
+                        console.error("Upload error:", error);
+                      }}
+                    /> 
+                  */}
                   <div className="flex flex-wrap gap-3">
                     <Button
                       size="lg"
@@ -553,73 +585,73 @@ const handleChange = (name, value) => {
               animate="show"
               transition={{ when: "beforeChildren" }}
             >
-              <Form 
-              // onSubmit={handleUpdate} 
+              <Form
+              // onSubmit={handleUpdate}
               >
-              <div className="w-full grid grid-cols-2 md:grid-cols-4 py-4 gap-2">
-                {card.map((item) => (
-                  <div className="w-full sm:flex-1 max-sm:border border-gray-300 p-3 bg-white rounded-lg">
-                    <h1 className="text-[#333333] text-md font-semibold">
-                      {item.title}
-                    </h1>
-                    <div className="mt-3 flex gap-2 items-center">
-                      <div className="h-12 w-12 rounded-full bg-[#95C4BE33] p-1 items-center flex justify-center">
-                        {item.icone}
-                      </div>
-                      <h1 className="text-2xl text-[#333333] font-bold">
-                        {item.count}
+                <div className="w-full grid grid-cols-2 md:grid-cols-4 py-4 gap-2">
+                  {card.map((item) => (
+                    <div className="w-full sm:flex-1 max-sm:border border-gray-300 p-3 bg-white rounded-lg">
+                      <h1 className="text-[#333333] text-md font-semibold">
+                        {item.title}
                       </h1>
+                      <div className="mt-3 flex gap-2 items-center">
+                        <div className="h-12 w-12 rounded-full bg-[#95C4BE33] p-1 items-center flex justify-center">
+                          {item.icone}
+                        </div>
+                        <h1 className="text-2xl text-[#333333] font-bold">
+                          {item.count}
+                        </h1>
+                      </div>
                     </div>
+                  ))}
+                </div>
+                <Videos />
+                <PdfAndNotes />
+                <Assignments />
+                <Quizzes />
+                <div className="p-3 my-5 bg-[#95C4BE33] rounded-md flex justify-between items-center">
+                  <div>
+                    <h1 className="text-[#06574C] font-medium text-lg">
+                      Content Drip Schedule
+                    </h1>
+                    <h1 className="text-[#06574C] font-medium text-sm">
+                      Control when students can access each lesson. Content will
+                      be released automatically based on their enrollment date.
+                      This helps create a structured learning experience and
+                      prevents overwhelming students with too much content at
+                      once.
+                    </h1>
                   </div>
-                ))}
-              </div>
-              <Videos />
-              <PdfAndNotes />
-              <Assignments />
-              <Quizzes />
-              <div className="p-3 my-5 bg-[#95C4BE33] rounded-md flex justify-between items-center">
-                <div>
-                  <h1 className="text-[#06574C] font-medium text-lg">
-                    Content Drip Schedule
-                  </h1>
-                  <h1 className="text-[#06574C] font-medium text-sm">
-                    Control when students can access each lesson. Content will
-                    be released automatically based on their enrollment date.
-                    This helps create a structured learning experience and
-                    prevents overwhelming students with too much content at
-                    once.
-                  </h1>
                 </div>
-              </div>
-              <div className="flex gap-3 flex-wrap justify-center sm:justify-between items-center w-full ">
-                <Button
-                  size="lg"
-                  startContent={<FolderDot color="#06574C" size={16} />}
-                  variant="bordered"
-                  className="border-[#06574C] w-78 sm:w-40 text-[#06574C]"
-                  onPress={() => handleSelected("info")}
-                >
-                  Previous Step
-                </Button>
-                <div className="flex flex-wrap my-5 gap-3">
+                <div className="flex gap-3 flex-wrap justify-center sm:justify-between items-center w-full ">
                   <Button
                     size="lg"
-                    startContent={<Rocket color="white" size={16} />}
-                    className="bg-[#B1A7A7] w-full text-white sm:w-60"
-                    type="submit"
+                    startContent={<FolderDot color="#06574C" size={16} />}
+                    variant="bordered"
+                    className="border-[#06574C] w-78 sm:w-40 text-[#06574C]"
+                    onPress={() => handleSelected("info")}
                   >
-                    Publish Course
+                    Previous Step
                   </Button>
-                  <Button
-                    size="lg"
-                    className="bg-[#06574C] w-full text-white sm:w-35"
-                    // type="submit"
-                    onPress={() => handleSelected("pricing")}
-                  >
-                    Next Step
-                  </Button>
+                  <div className="flex flex-wrap my-5 gap-3">
+                    <Button
+                      size="lg"
+                      startContent={<Rocket color="white" size={16} />}
+                      className="bg-[#B1A7A7] w-full text-white sm:w-60"
+                      type="submit"
+                    >
+                      Publish Course
+                    </Button>
+                    <Button
+                      size="lg"
+                      className="bg-[#06574C] w-full text-white sm:w-35"
+                      // type="submit"
+                      onPress={() => handleSelected("pricing")}
+                    >
+                      Next Step
+                    </Button>
+                  </div>
                 </div>
-              </div>
               </Form>
             </motion.div>
           </Tab>
@@ -671,7 +703,7 @@ const handleChange = (name, value) => {
                         </div>
                         <div className="flex items-center gap-3">
                           <p className="text-md text-[#06574C]">
-                            {isSelected ? "Active" : "Inactive"}
+                            {formData.status === "Published" ? "Paid" : "Free"}
                           </p>
                           <Switch
                             color="success"
@@ -681,7 +713,10 @@ const handleChange = (name, value) => {
                             // onValueChange={setIsSelected}
                             isSelected={formData.status === "Published"}
                             onValueChange={(val) =>
-                              handleChange("status", val ? "Published" : "Draft")
+                              handleChange(
+                                "status",
+                                val ? "Published" : "Draft"
+                              )
                             }
                           />
                         </div>
@@ -724,7 +759,9 @@ const handleChange = (name, value) => {
                           placeholder="Select Access Duration"
                           className="w-full"
                           selectedKeys={[formData.access_duration]}
-                          onSelectionChange={(keys) => handleChange("access_duration", [...keys][0])}
+                          onSelectionChange={(keys) =>
+                            handleChange("access_duration", [...keys][0])
+                          }
                         >
                           {accessDuration.map((item) => (
                             <SelectItem key={item.id} value={item.id}>
@@ -741,7 +778,9 @@ const handleChange = (name, value) => {
                           className="w-full"
                           type="number"
                           value={formData.previous_lesson}
-                          onChange={(e) => handleChange("previous_lesson", e.target.value)}
+                          onChange={(e) =>
+                            handleChange("previous_lesson", e.target.value)
+                          }
                         />
                       </div>
                       <Input
@@ -753,7 +792,9 @@ const handleChange = (name, value) => {
                         className="w-full"
                         type="number"
                         value={formData.enroll_number}
-                        onChange={(e) => handleChange("enroll_number", e.target.value)} 
+                        onChange={(e) =>
+                          handleChange("enroll_number", e.target.value)
+                        }
                       />
                       <span className="text-xs text-[#06574C]">
                         Leave empty for unlimited enrollments
