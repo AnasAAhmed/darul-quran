@@ -22,6 +22,7 @@ import {
   Video,
 } from "lucide-react";
 import { useEffect, useState } from "react";
+import toast from "react-hot-toast";
 import Videos, {
   Assignments,
   PdfAndNotes,
@@ -30,7 +31,8 @@ import Videos, {
 import { useSearchParams } from "react-router-dom";
 import { label } from "framer-motion/client";
 import { UploadButton, UploadDropzone } from "../../../lib/uploadthing";
-import { ToastBar } from "react-hot-toast";
+import { useNavigate } from "react-router-dom";
+
 const containerVariants = {
   hidden: { opacity: 0, y: 10, scale: 0.98 },
 
@@ -60,9 +62,11 @@ const CourseBuilder = () => {
 
   //   fetchCourses();
   // }, []);
-
+  const navigate = useNavigate();
   const [thumbnail, setThumbnail] = useState([]); //file
   const [thumbnailUrl, setThumbnailUrl] = useState("");
+  const [loadingAction, setLoadingAction] = useState(null);
+  const [pendingAction, setPendingAction] = useState(null);
 
   console.log("thumbnail", thumbnail);
   const category = [
@@ -88,8 +92,8 @@ const CourseBuilder = () => {
   ];
 
   const teacher = [
-    { id: "All:", label: "All Teachers" },
-    { id: "jhon_davis:", label: "John Davis" },
+    { key: "All", label: "All Teachers" },
+    { key: "jhon_davis", label: "John Davis" },
   ];
 
   const card = [
@@ -119,6 +123,7 @@ const CourseBuilder = () => {
   ];
   const [searchParams, setSearchParams] = useSearchParams();
   const currentTab = searchParams.get("tab");
+  const courseId = searchParams.get("id"); // Extract courseId
   const [selected, setSelected] = useState(currentTab || "info");
   useEffect(() => {
     if (currentTab) {
@@ -128,8 +133,12 @@ const CourseBuilder = () => {
   }, [currentTab]);
   const handleSelected = (value) => {
     setSelected(value);
-    // searchParams.set('tab', value);
-    setSearchParams({ tab: value });
+    // Preserve existing params like 'id'
+    setSearchParams((prev) => {
+      const newParams = new URLSearchParams(prev);
+      newParams.set("tab", value);
+      return newParams;
+    });
   };
   const [formData, setFormData] = useState({
     course_name: "",
@@ -151,11 +160,15 @@ const CourseBuilder = () => {
   };
   const handleSubmitTab1 = async (e) => {
     e.preventDefault();
+    setLoadingAction(pendingAction);
 
     if (!thumbnailUrl) {
-      alert("Please upload a thumbnail image first");
+      toast.error("Please upload a thumbnail image first");
       return;
     }
+
+
+
 
     const payload = {
       ...formData,
@@ -169,8 +182,6 @@ const CourseBuilder = () => {
       thumbnailurl: thumbnailUrl,
     };
 
-    console.log("Submitting payload:", payload);
-
     try {
       const response = await fetch(
         import.meta.env.VITE_PUBLIC_SERVER_URL + "/api/admin/addCourse",
@@ -181,19 +192,31 @@ const CourseBuilder = () => {
           body: JSON.stringify(payload),
         }
       );
+
       const data = await response.json();
-      console.log(data);
-      if (data.success) {
-        alert("Course Created Successfully");
-        // navigate logic here if needed
+
+      console.log("Add Course Response:", data);
+
+      if (data.success && data.courseId) {
+        const courseId = data.courseId;
+        setSearchParams({
+          tab: "content",
+          id: courseId,
+        });
+        setSelected("content");
+        toast.success("Course details saved!");
       } else {
-        alert("Failed to create course");
+        toast.error("Failed to create course: " + (data.message || "Unknown error"));
       }
     } catch (error) {
-      console.log(error);
-      toast.error("Server Error");
+      console.error(error);
+      toast.error("An error occurred. Please try again.");
+    } finally {
+      setLoadingAction(null);
+      setPendingAction(null);
     }
   };
+
   // const handleSubmitTab1 = async (e) => {
   //   e.preventDefault();
 
@@ -251,21 +274,75 @@ const CourseBuilder = () => {
   //   }
   // };
 
-  // const handleUpdate = async (fieldsToUpdate) => {
-  //   if (!courseId) return;
+  const handleUpdate = async (e) => {
+    if (e && e.preventDefault) e.preventDefault();
+    setLoadingAction(pendingAction);
+    if (!courseId) return;
 
-  //   const response = await fetch(
-  //     `${import.meta.env.VITE_PUBLIC_SERVER_URL}/api/admin/updateCourse/${courseId}`,
-  //     {
-  //       method: "PATCH",
-  //       headers: { "Content-Type": "application/json" },
-  //       body: JSON.stringify(fieldsToUpdate),
-  //     }
-  //   );
 
-  //   const data = await response.json();
-  //   console.log(data);
-  // };
+
+    try {
+      const response = await fetch(
+        `${import.meta.env.VITE_PUBLIC_SERVER_URL}/api/admin/updateCourse/${courseId}`,
+        {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(formData), // Use formData here if we want to save all fields
+        }
+      );
+
+      const data = await response.json();
+      console.log(data);
+      if (data.success) {
+        toast.success("Course details updated!");
+        // If we want to navigate (e.g. from "Next Step"), we can check if that was the intent
+        // However, user said "sara form ka button han jin sa next tab pa ja raha ha un pa loader lagaou"
+        // So I'll make it navigate automatically for now to match Tab 1's behavior
+        handleSelected("pricing");
+      } else {
+        toast.error("Failed to update course");
+      }
+    } catch (error) {
+      console.error(error);
+      toast.error("An error occurred");
+    } finally {
+      setLoadingAction(null);
+      setPendingAction(null);
+    }
+  };
+
+  const handleSubmit3tab = async (e) => {
+    if (e) e.preventDefault();
+    setLoadingAction(pendingAction);
+    console.log(formData);
+
+
+    try {
+      const response = await fetch(
+        `${import.meta.env.VITE_PUBLIC_SERVER_URL}/api/admin/updateCourse/${courseId}`,
+        {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(formData),
+        }
+      );
+
+      const data = await response.json();
+      console.log(data);
+      if (data.success) {
+        toast.success("Course Updated Successfully");
+      } else {
+        toast.error("Failed to update course");
+      }
+    } catch (error) {
+      console.error(error);
+      toast.error("Error updating course");
+    } finally {
+      setLoadingAction(null);
+      setPendingAction(null);
+    }
+  };
+
   return (
     <div className="h-full bg-linear-to-t from-[#F1C2AC]/50 to-[#95C4BE]/50 px-2 sm:px-3 w-full no-scrollbar top-0 bottom-0 overflow-y-auto">
       <DashHeading
@@ -425,7 +502,7 @@ const CourseBuilder = () => {
                           }
                         >
                           {teacher.map((item) => (
-                            <SelectItem key={item.key} value={item.id}>
+                            <SelectItem key={item.key} value={item.key}>
                               {item.label}
                             </SelectItem>
                           ))}
@@ -492,7 +569,7 @@ const CourseBuilder = () => {
                             }}
                             onUploadError={(error) => {
                               // Do something with the error.
-                              toast.error(`ERROR! ${error.message}`);
+                              toast.error("ERROR! " + error.message);
                             }}
                           />
                         )}
@@ -518,15 +595,17 @@ const CourseBuilder = () => {
                   </div>
                 </div>
                 <div className="flex gap-3 flex-wrap justify-center sm:justify-between items-center w-full ">
-                  <Button
-                    size="lg"
-                    startContent={<FolderDot color="#06574C" size={16} />}
-                    variant="bordered"
-                    className="border-[#06574C] w-78  sm:w-40 text-[#06574C]"
-                    type="submit"
-                  >
-                    Save Draft
-                  </Button>
+                    <Button
+                      size="lg"
+                      startContent={<FolderDot color="#06574C" size={16} />}
+                      variant="bordered"
+                      className="border-[#06574C] w-78  sm:w-40 text-[#06574C]"
+                      type="submit"
+                      onClick={() => setPendingAction("save-1")}
+                      isLoading={loadingAction === "save-1"}
+                    >
+                      Save Draft
+                    </Button>
                   {/* 
                    <UploadButton
                       endpoint="imageUploader"
@@ -544,6 +623,8 @@ const CourseBuilder = () => {
                       startContent={<Rocket color="white" size={16} />}
                       className="bg-[#B1A7A7] w-full text-white sm:w-60"
                       type="submit"
+                      onClick={() => setPendingAction("publish-1")}
+                      isLoading={loadingAction === "publish-1"}
                     >
                       Publish Course
                     </Button>
@@ -551,6 +632,8 @@ const CourseBuilder = () => {
                       size="lg"
                       className="bg-[#06574C] w-full text-white sm:w-35"
                       type="submit"
+                      onClick={() => setPendingAction("next-1")}
+                      isLoading={loadingAction === "next-1"}
                     >
                       Next Step
                     </Button>
@@ -586,7 +669,7 @@ const CourseBuilder = () => {
               transition={{ when: "beforeChildren" }}
             >
               <Form
-              // onSubmit={handleUpdate}
+              onSubmit={handleUpdate}
               >
                 <div className="w-full grid grid-cols-2 md:grid-cols-4 py-4 gap-2">
                   {card.map((item) => (
@@ -639,14 +722,17 @@ const CourseBuilder = () => {
                       startContent={<Rocket color="white" size={16} />}
                       className="bg-[#B1A7A7] w-full text-white sm:w-60"
                       type="submit"
+                      onClick={() => setPendingAction("publish-2")}
+                      isLoading={loadingAction === "publish-2"}
                     >
                       Publish Course
                     </Button>
                     <Button
                       size="lg"
                       className="bg-[#06574C] w-full text-white sm:w-35"
-                      // type="submit"
-                      onPress={() => handleSelected("pricing")}
+                      type="submit"
+                      onClick={() => setPendingAction("next-2")}
+                      isLoading={loadingAction === "next-2"}
                     >
                       Next Step
                     </Button>
@@ -683,7 +769,7 @@ const CourseBuilder = () => {
               animate="show"
               transition={{ when: "beforeChildren" }}
             >
-              <Form className="w-full py-4">
+              <Form onSubmit={handleSubmit3tab} className="w-full py-4">
                 <div className="grid grid-cols-12 gap-2 w-full">
                   <div className="bg-white rounded-lg p-4 col-span-12 shadow-xl">
                     <div>
@@ -764,7 +850,7 @@ const CourseBuilder = () => {
                           }
                         >
                           {accessDuration.map((item) => (
-                            <SelectItem key={item.id} value={item.id}>
+                            <SelectItem key={item.key} value={item.label}>
                               {item.label}
                             </SelectItem>
                           ))}
@@ -840,6 +926,8 @@ const CourseBuilder = () => {
                       variant="bordered"
                       className="border-[#06574C] text-[#06574C] w-80 sm:w-40"
                       type="submit"
+                      onClick={() => setPendingAction("save-3")}
+                      isLoading={loadingAction === "save-3"}
                     >
                       Save Draft
                     </Button>
@@ -850,6 +938,8 @@ const CourseBuilder = () => {
                       startContent={<Rocket color="white" size={16} />}
                       className="bg-[#06574C] text-white w-80 sm:w-60"
                       type="submit"
+                      onClick={() => setPendingAction("publish-3")}
+                      isLoading={loadingAction === "publish-3"}
                     >
                       Publish Course
                     </Button>
