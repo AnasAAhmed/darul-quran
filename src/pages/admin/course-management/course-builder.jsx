@@ -48,23 +48,33 @@ const containerVariants = {
   },
 };
 const CourseBuilder = () => {
-  // useEffect(() => {
-  //   const fetchCourses = async () => {
-  //     const response = await fetch(
-  //       import.meta.env.VITE_PUBLIC_SERVER_URL + "/api/admin/addCourse",
-  //       {
-  //         method: "POST",
-  //       }
-  //     );
-  //     const data = await response.json();
-  //     console.log(data);
-  //   };
+  useEffect(() => {
+    const fetchTeachers = async () => {
+      try {
+        const response = await fetch(
+          import.meta.env.VITE_PUBLIC_SERVER_URL + "/api/admin/getTeachers"
+        );
+        const data = await response.json();
 
-  //   fetchCourses();
-  // }, []);
+        if (data.success) {
+          setTeachers(data.user);
+          console.log(data.user);
+        }
+      } catch (error) {
+        console.error("Failed to fetch teachers", error);
+      }
+    };
+
+    fetchTeachers();
+  }, []);
+  const [teachers, setTeachers] = useState([]);
   const navigate = useNavigate();
   const [thumbnail, setThumbnail] = useState([]); //file
   const [thumbnailUrl, setThumbnailUrl] = useState("");
+  const [videoUrl, setVideoUrl] = useState("");
+  const [pdfUrl, setPdfUrl] = useState("");
+  const [assignmentUrl, setAssignmentUrl] = useState("");
+  const [quizUrl, setQuizUrl] = useState("");
   const [loadingAction, setLoadingAction] = useState(null);
   const [pendingAction, setPendingAction] = useState(null);
 
@@ -164,12 +174,10 @@ const CourseBuilder = () => {
 
     if (!thumbnailUrl) {
       toast.error("Please upload a thumbnail image first");
+      setLoadingAction(null);
+      setPendingAction(null);
       return;
     }
-
-
-
-
     const payload = {
       ...formData,
       previous_lesson: formData.previous_lesson
@@ -180,6 +188,16 @@ const CourseBuilder = () => {
         : null,
       status: "Draft",
       thumbnailurl: thumbnailUrl,
+      course_file: {
+        lesson_video: videoUrl,
+        pdf_notes: pdfUrl,
+        assignments: assignmentUrl,
+        quizzes: quizUrl
+      },
+      lesson_video: videoUrl,
+      pdf_notes: pdfUrl,
+      assignments: assignmentUrl,
+      quizzes: quizUrl
     };
 
     try {
@@ -206,11 +224,17 @@ const CourseBuilder = () => {
         setSelected("content");
         toast.success("Course details saved!");
       } else {
-        toast.error("Failed to create course: " + (data.message || "Unknown error"));
+        toast.error(
+          "Failed to create course: " + (data.message || "Unknown error")
+        );
+        setLoadingAction(null);
+        setPendingAction(null);
       }
     } catch (error) {
       console.error(error);
       toast.error("An error occurred. Please try again.");
+      setLoadingAction(null);
+      setPendingAction(null);
     } finally {
       setLoadingAction(null);
       setPendingAction(null);
@@ -279,15 +303,29 @@ const CourseBuilder = () => {
     setLoadingAction(pendingAction);
     if (!courseId) return;
 
-
-
     try {
+      const payload = {
+        ...formData,
+        thumbnailurl: thumbnailUrl,
+        course_file: {
+          lesson_video: videoUrl,
+          pdf_notes: pdfUrl,
+          assignments: assignmentUrl,
+          quizzes: quizUrl
+        },
+        lesson_video: videoUrl,
+        pdf_notes: pdfUrl,
+        assignments: assignmentUrl,
+        quizzes: quizUrl
+      };
       const response = await fetch(
-        `${import.meta.env.VITE_PUBLIC_SERVER_URL}/api/admin/updateCourse/${courseId}`,
+        `${
+          import.meta.env.VITE_PUBLIC_SERVER_URL
+        }/api/admin/updateCourse/${courseId}`,
         {
           method: "PATCH",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(formData), // Use formData here if we want to save all fields
+          body: JSON.stringify(payload), // Use full payload including URLs
         }
       );
 
@@ -295,12 +333,11 @@ const CourseBuilder = () => {
       console.log(data);
       if (data.success) {
         toast.success("Course details updated!");
-        // If we want to navigate (e.g. from "Next Step"), we can check if that was the intent
-        // However, user said "sara form ka button han jin sa next tab pa ja raha ha un pa loader lagaou"
-        // So I'll make it navigate automatically for now to match Tab 1's behavior
         handleSelected("pricing");
       } else {
         toast.error("Failed to update course");
+        setLoadingAction(null);
+        setPendingAction(null);
       }
     } catch (error) {
       console.error(error);
@@ -316,14 +353,29 @@ const CourseBuilder = () => {
     setLoadingAction(pendingAction);
     console.log(formData);
 
-
     try {
+      const payload = {
+        ...formData,
+        thumbnailurl: thumbnailUrl,
+        course_file: {
+          lesson_video: videoUrl,
+          pdf_notes: pdfUrl,
+          assignments: assignmentUrl,
+          quizzes: quizUrl
+        },
+        lesson_video: videoUrl,
+        pdf_notes: pdfUrl,
+        assignments: assignmentUrl,
+        quizzes: quizUrl
+      };
       const response = await fetch(
-        `${import.meta.env.VITE_PUBLIC_SERVER_URL}/api/admin/updateCourse/${courseId}`,
+        `${
+          import.meta.env.VITE_PUBLIC_SERVER_URL
+        }/api/admin/updateCourse/${courseId}`,
         {
           method: "PATCH",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(formData),
+          body: JSON.stringify(payload),
         }
       );
 
@@ -351,14 +403,16 @@ const CourseBuilder = () => {
       />
       <div className="flex w-full flex-col my-3">
         <Tabs
-          className="w-full md:inline-block py-2"
+          isDisabled
+          className="w-full md:inline-block py-2 !opacity-100"
           aria-label="Disabled Options"
+          // disabledKeys={["info" , "pricing" , "content"]}
           selectedKey={selected}
           onSelectionChange={handleSelected}
           classNames={{
-            base: "w-full",
-            tabList: " flex flex-wrap rounded-lg px-2 py-1 ",
-            tab: `
+            base: "w-full !opacity-100",
+            tabList: " flex flex-wrap rounded-lg px-2 py-1 !opacity-100",
+            tab: `!opacity-100
             w-full flex-1
       data-[selected=true]:bg-[#EBD4C9E5] rounded-lg 
       data-[selected=true]:rounded-lg 
@@ -372,7 +426,7 @@ const CourseBuilder = () => {
       group-data-[selected=true]:text-[#06574C]
       text-[#3F3F44]
       font-semibold
-      flex  md:items-center gap-3
+      flex  md:items-center gap-3 opacity-100
     `,
           }}
         >
@@ -496,16 +550,24 @@ const CourseBuilder = () => {
                           labelPlacement="outside"
                           placeholder="Select teacher"
                           className="w-full"
-                          selectedKeys={[formData.teacher_name]}
-                          onSelectionChange={(keys) =>
-                            handleChange("teacher_name", [...keys][0])
+                          selectedKeys={
+                            formData.teacher_name
+                              ? new Set([formData.teacher_name])
+                              : new Set()
                           }
+                          onSelectionChange={(keys) => {
+                            const selectedValue = [...keys][0];
+                            handleChange("teacher_name", selectedValue);
+                          }}
                         >
-                          {teacher.map((item) => (
-                            <SelectItem key={item.key} value={item.key}>
-                              {item.label}
-                            </SelectItem>
-                          ))}
+                          {teachers.map((teacher, index) => {
+                            const fullName = `${teacher.first_name} ${teacher.last_name}`;
+                            return (
+                              <SelectItem key={fullName} value={fullName}>
+                                {fullName}
+                              </SelectItem>
+                            );
+                          })}
                         </Select>
                       </div>
                     </div>
@@ -595,17 +657,17 @@ const CourseBuilder = () => {
                   </div>
                 </div>
                 <div className="flex gap-3 flex-wrap justify-center sm:justify-between items-center w-full ">
-                    <Button
-                      size="lg"
-                      startContent={<FolderDot color="#06574C" size={16} />}
-                      variant="bordered"
-                      className="border-[#06574C] w-78  sm:w-40 text-[#06574C]"
-                      type="submit"
-                      onClick={() => setPendingAction("save-1")}
-                      isLoading={loadingAction === "save-1"}
-                    >
-                      Save Draft
-                    </Button>
+                  <Button
+                    size="lg"
+                    startContent={<FolderDot color="#06574C" size={16} />}
+                    variant="bordered"
+                    className="border-[#06574C] w-78  sm:w-40 text-[#06574C]"
+                    type="submit"
+                    onPress={() => setPendingAction("save-1")}
+                    isLoading={loadingAction === "save-1"}
+                  >
+                    Save Draft
+                  </Button>
                   {/* 
                    <UploadButton
                       endpoint="imageUploader"
@@ -623,7 +685,7 @@ const CourseBuilder = () => {
                       startContent={<Rocket color="white" size={16} />}
                       className="bg-[#B1A7A7] w-full text-white sm:w-60"
                       type="submit"
-                      onClick={() => setPendingAction("publish-1")}
+                      onPress={() => setPendingAction("publish-1")}
                       isLoading={loadingAction === "publish-1"}
                     >
                       Publish Course
@@ -632,7 +694,7 @@ const CourseBuilder = () => {
                       size="lg"
                       className="bg-[#06574C] w-full text-white sm:w-35"
                       type="submit"
-                      onClick={() => setPendingAction("next-1")}
+                      onPress={() => setPendingAction("next-1")}
                       isLoading={loadingAction === "next-1"}
                     >
                       Next Step
@@ -668,9 +730,7 @@ const CourseBuilder = () => {
               animate="show"
               transition={{ when: "beforeChildren" }}
             >
-              <Form
-              onSubmit={handleUpdate}
-              >
+              <Form onSubmit={handleUpdate}>
                 <div className="w-full grid grid-cols-2 md:grid-cols-4 py-4 gap-2">
                   {card.map((item) => (
                     <div className="w-full sm:flex-1 max-sm:border border-gray-300 p-3 bg-white rounded-lg">
@@ -688,10 +748,10 @@ const CourseBuilder = () => {
                     </div>
                   ))}
                 </div>
-                <Videos />
-                <PdfAndNotes />
-                <Assignments />
-                <Quizzes />
+                <Videos videoUrl={videoUrl} setVideoUrl={setVideoUrl} />
+                <PdfAndNotes pdfUrl={pdfUrl} setPdfUrl={setPdfUrl} />
+                <Assignments assignmentUrl={assignmentUrl} setAssignmentUrl={setAssignmentUrl} />
+                <Quizzes quizUrl={quizUrl} setQuizUrl={setQuizUrl} />
                 <div className="p-3 my-5 bg-[#95C4BE33] rounded-md flex justify-between items-center">
                   <div>
                     <h1 className="text-[#06574C] font-medium text-lg">
@@ -722,7 +782,7 @@ const CourseBuilder = () => {
                       startContent={<Rocket color="white" size={16} />}
                       className="bg-[#B1A7A7] w-full text-white sm:w-60"
                       type="submit"
-                      onClick={() => setPendingAction("publish-2")}
+                      onPress={() => setPendingAction("publish-2")}
                       isLoading={loadingAction === "publish-2"}
                     >
                       Publish Course
@@ -731,7 +791,7 @@ const CourseBuilder = () => {
                       size="lg"
                       className="bg-[#06574C] w-full text-white sm:w-35"
                       type="submit"
-                      onClick={() => setPendingAction("next-2")}
+                      onPress={() => setPendingAction("next-2")}
                       isLoading={loadingAction === "next-2"}
                     >
                       Next Step
@@ -926,7 +986,7 @@ const CourseBuilder = () => {
                       variant="bordered"
                       className="border-[#06574C] text-[#06574C] w-80 sm:w-40"
                       type="submit"
-                      onClick={() => setPendingAction("save-3")}
+                      onPress={() => setPendingAction("save-3")}
                       isLoading={loadingAction === "save-3"}
                     >
                       Save Draft
@@ -938,7 +998,7 @@ const CourseBuilder = () => {
                       startContent={<Rocket color="white" size={16} />}
                       className="bg-[#06574C] text-white w-80 sm:w-60"
                       type="submit"
-                      onClick={() => setPendingAction("publish-3")}
+                      onPress={() => setPendingAction("publish-3")}
                       isLoading={loadingAction === "publish-3"}
                     >
                       Publish Course

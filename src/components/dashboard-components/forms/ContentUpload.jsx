@@ -1,8 +1,9 @@
 import { useState, useRef } from "react";
 import { Plus, Download, Trash2, Eye, Clock, Menu, Edit, ClipboardListIcon, List } from "lucide-react";
 import FileDropzone from "../dropzone";
-import { Button, Select, SelectItem } from "@heroui/react";
+import { Button, Image, Select, SelectItem } from "@heroui/react";
 import { PiFile, PiFilePdf } from "react-icons/pi";
+import { UploadDropzone } from "../../../lib/uploadthing";
 
 const LESSONS = [
     {
@@ -29,7 +30,7 @@ const LESSONS = [
     },
 ];
 
-export default function Videos() {
+export default function Videos({ videoUrl, setVideoUrl }) {
     const [lessons, setLessons] = useState(LESSONS);
     const [lessonsFiles, setLessonsFiles] = useState([]);
 
@@ -176,13 +177,66 @@ export default function Videos() {
                         </div>
                     ))}
                 </div>
-                <FileDropzone
+                {/* <FileDropzone
                     label="Drag & Drop Your Files Here"
                     text="or click to browse and select files"
                     files={lessonsFiles}
                     uploadBgColor="#ffff"
                     setFiles={setLessonsFiles}
-                />
+                /> */}
+                {videoUrl ? (
+                          <div className="relative w-full h-[300px] overflow-hidden rounded-lg">
+                            <Image
+                              removeWrapper
+                              className="w-full h-full object-cover"
+                              src={videoUrl}
+                              alt="Video Preview"
+                            />
+                            <Button
+                              size="sm"
+                              className="absolute top-2 right-2 bg-red-500 text-white z-10"
+                              onPress={() => setVideoUrl("")}
+                            >
+                              Remove
+                            </Button>
+                          </div>
+                        ) : (
+                          <UploadDropzone
+                            className="w-full h-[300px] border-2 border-dashed border-gray-300 rounded-lg ut-label:text-lg ut-allowed-content:ut-uploading:text-red-300 relative"
+                            endpoint="imageUploader"
+                            appearance={{
+                              container: {
+                                width: "100%",
+                                height: "300px",
+                                display: "flex",
+                                justifyContent: "center",
+                                alignItems: "center",
+                                backgroundColor: "white",
+                              },
+                              button: {
+                                position: "absolute",
+                                bottom: "3rem",
+                                background: "#06574C",
+                                color: "white",
+                                marginTop: "1rem", // Add spacing if needed
+                              },
+                              label: {
+                                color: "#06574C",
+                              },
+                            }}
+                            onClientUploadComplete={(res) => {
+                              console.log("Files: ", res);
+                              if (res && res.length > 0) {
+                                setVideoUrl(res[0].url);
+                                toast.success("Upload Completed");
+                              }
+                            }}
+                            onUploadError={(error) => {
+                              // Do something with the error.
+                              toast.error("ERROR! " + error.message);
+                            }}
+                          />
+                        )}
             </div>
 
 
@@ -218,7 +272,7 @@ const DOCUMENTS = [
     },
 ];
 
-export function PdfAndNotes() {
+export function PdfAndNotes({ pdfUrl, setPdfUrl }) {
     const [documents, setDocuments] = useState(DOCUMENTS);
     const [documentsFiles, setDocumentsFiles] = useState([]);
 
@@ -328,13 +382,66 @@ export function PdfAndNotes() {
                         </div>
                     ))}
                 </div>
-                <FileDropzone
+                {/* <FileDropzone
                     label="Drag & Drop Your Files Here"
                     text="or click to browse and select files"
                     files={documentsFiles}
                     uploadBgColor="#ffff"
                     setFiles={setDocumentsFiles}
-                />
+                /> */}
+                {pdfUrl ? (
+                          <div className="relative w-full h-[300px] overflow-hidden rounded-lg">
+                            <Image
+                              removeWrapper
+                              className="w-full h-full object-cover"
+                              src={pdfUrl}
+                              alt="PDF Preview"
+                            />
+                            <Button
+                              size="sm"
+                              className="absolute top-2 right-2 bg-red-500 text-white z-10"
+                              onPress={() => setPdfUrl("")}
+                            >
+                              Remove
+                            </Button>
+                          </div>
+                        ) : (
+                          <UploadDropzone
+                            className="w-full h-[300px] border-2 border-dashed border-gray-300 rounded-lg ut-label:text-lg ut-allowed-content:ut-uploading:text-red-300 relative"
+                            endpoint="imageUploader"
+                            appearance={{
+                              container: {
+                                width: "100%",
+                                height: "300px",
+                                display: "flex",
+                                justifyContent: "center",
+                                alignItems: "center",
+                                backgroundColor: "white",
+                              },
+                              button: {
+                                position: "absolute",
+                                bottom: "3rem",
+                                background: "#06574C",
+                                color: "white",
+                                marginTop: "1rem", // Add spacing if needed
+                              },
+                              label: {
+                                color: "#06574C",
+                              },
+                            }}
+                            onClientUploadComplete={(res) => {
+                              console.log("Files: ", res);
+                              if (res && res.length > 0) {
+                                setPdfUrl(res[0].url);
+                                toast.success("Upload Completed");
+                              }
+                            }}
+                            onUploadError={(error) => {
+                              // Do something with the error.
+                              toast.error("ERROR! " + error.message);
+                            }}
+                          />
+                        )}
             </div>
         </div>
     );
@@ -362,7 +469,7 @@ const ASSIGNMENTS = [
         releaseDate: "3",
     },
 ];
-export function Assignments() {
+export function Assignments({ assignmentUrl, setAssignmentUrl }) {
     const [asignments, setAssignments] = useState(ASSIGNMENTS);
     const [asignmentsFiles, setAsignmentsFiles] = useState([]);
 
@@ -468,13 +575,66 @@ export function Assignments() {
                         </div>
                     ))}
                 </div>
-                <FileDropzone
+                {/* <FileDropzone
                     label="Drag & Drop Your Files Here"
                     text="or click to browse and select files"
                     files={asignmentsFiles}
                     uploadBgColor="#ffff"
                     setFiles={setAsignmentsFiles}
-                />
+                /> */}
+                {assignmentUrl ? (
+                          <div className="relative w-full h-[300px] overflow-hidden rounded-lg">
+                            <Image
+                              removeWrapper
+                              className="w-full h-full object-cover"
+                              src={assignmentUrl}
+                              alt="Assignment Preview"
+                            />
+                            <Button
+                              size="sm"
+                              className="absolute top-2 right-2 bg-red-500 text-white z-10"
+                              onPress={() => setAssignmentUrl("")}
+                            >
+                              Remove
+                            </Button>
+                          </div>
+                        ) : (
+                          <UploadDropzone
+                            className="w-full h-[300px] border-2 border-dashed border-gray-300 rounded-lg ut-label:text-lg ut-allowed-content:ut-uploading:text-red-300 relative"
+                            endpoint="imageUploader"
+                            appearance={{
+                              container: {
+                                width: "100%",
+                                height: "300px",
+                                display: "flex",
+                                justifyContent: "center",
+                                alignItems: "center",
+                                backgroundColor: "white",
+                              },
+                              button: {
+                                position: "absolute",
+                                bottom: "3rem",
+                                background: "#06574C",
+                                color: "white",
+                                marginTop: "1rem", // Add spacing if needed
+                              },
+                              label: {
+                                color: "#06574C",
+                              },
+                            }}
+                            onClientUploadComplete={(res) => {
+                              console.log("Files: ", res);
+                              if (res && res.length > 0) {
+                                setAssignmentUrl(res[0].url);
+                                toast.success("Upload Completed");
+                              }
+                            }}
+                            onUploadError={(error) => {
+                              // Do something with the error.
+                              toast.error("ERROR! " + error.message);
+                            }}
+                          />
+                        )}
             </div>
 
 
@@ -506,7 +666,7 @@ const QUIZZES = [
         is_attached: true,
     },
 ];
-export function Quizzes() {
+export function Quizzes({ quizUrl, setQuizUrl }) {
     const [quizzes, setQuizzes] = useState(QUIZZES);
     const [quizzesFiles, setQuizzesFiles] = useState([]);
 
@@ -624,13 +784,66 @@ export function Quizzes() {
                         </div>
                     ))}
                 </div>
-                <FileDropzone
+                {/* <FileDropzone
                     label="Drag & Drop Your Files Here"
                     text="or click to browse and select files"
                     files={quizzesFiles}
                     uploadBgColor="#ffff"
                     setFiles={setQuizzesFiles}
-                />
+                /> */}
+                    {quizUrl ? (
+                          <div className="relative w-full h-[300px] overflow-hidden rounded-lg">
+                            <Image
+                              removeWrapper
+                              className="w-full h-full object-cover"
+                              src={quizUrl}
+                              alt="Quiz Preview"
+                            />
+                            <Button
+                              size="sm"
+                              className="absolute top-2 right-2 bg-red-500 text-white z-10"
+                              onPress={() => setQuizUrl("")}
+                            >
+                              Remove
+                            </Button>
+                          </div>
+                        ) : (
+                          <UploadDropzone
+                            className="w-full h-[300px] border-2 border-dashed border-gray-300 rounded-lg ut-label:text-lg ut-allowed-content:ut-uploading:text-red-300 relative"
+                            endpoint="imageUploader"
+                            appearance={{
+                              container: {
+                                width: "100%",
+                                height: "300px",
+                                display: "flex",
+                                justifyContent: "center",
+                                alignItems: "center",
+                                backgroundColor: "white",
+                              },
+                              button: {
+                                position: "absolute",
+                                bottom: "3rem",
+                                background: "#06574C",
+                                color: "white",
+                                marginTop: "1rem", // Add spacing if needed
+                              },
+                              label: {
+                                color: "#06574C",
+                              },
+                            }}
+                            onClientUploadComplete={(res) => {
+                              console.log("Files: ", res);
+                              if (res && res.length > 0) {
+                                setQuizUrl(res[0].url);
+                                toast.success("Upload Completed");
+                              }
+                            }}
+                            onUploadError={(error) => {
+                              // Do something with the error.
+                              toast.error("ERROR! " + error.message);
+                            }}
+                          />
+                        )}
             </div>
 
 
