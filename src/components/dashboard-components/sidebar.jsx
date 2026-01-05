@@ -19,11 +19,14 @@ import { FaChalkboardTeacher } from 'react-icons/fa';
 import { Button, Dropdown, DropdownItem, DropdownMenu, DropdownTrigger, Spinner } from '@heroui/react';
 import { MdLogout } from 'react-icons/md';
 import { errorMessage, successMessage } from '../../lib/toast.config';
+import { useDispatch } from 'react-redux';
+import { clearUser } from '../../redux/reducers/user';
 
 const Sidebar = ({ isSidebarOpen, setIsSidebarOpen }) => {
   const [expandedItems, setExpandedItems] = useState([0, 6]);
   const { pathname } = useLocation();
   const sideBarRef = useRef(null);
+  const dispatch = useDispatch();
 
   // ===== role detection from pathname =====
   const getRoleFromPath = (pathname) => {
@@ -175,7 +178,8 @@ const Sidebar = ({ isSidebarOpen, setIsSidebarOpen }) => {
       if (!res.ok) throw new Error(data?.message || "Logout failed");
 
       successMessage(data?.message || "Logout successful");
-      location.reload();
+      dispatch(clearUser());
+      // location.reload();
     } catch (error) {
       console.log(error);
       errorMessage(error.message);

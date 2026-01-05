@@ -12,6 +12,7 @@ import { Toaster } from "react-hot-toast";
 import { useDispatch, useSelector } from "react-redux";
 import TeachersLayout from "./components/layouts/Teacherslayout";
 import TeachersDashboard from "./pages/teacher/TeachersDashboard";
+import AdminDashboard from "./pages/admin/AdminDashboard";
 import MyCourses from "./pages/teacher/my-courses";
 import UploadMaterial from "./pages/teacher/my-courses/uploadmaterial";
 import StudentAttendance from "./pages/teacher/student-attendance";
@@ -32,7 +33,6 @@ import { showMessage } from "./lib/toast.config";
 import { clearUser, setUser } from "./redux/reducers/user";
 import Loader from "./components/Loader";
 
-const AdminDashboard = lazy(() => import("./pages/admin/AdminDashboard"));
 const Home = lazy(() => import("./pages/Home"));
 const CourseManagement = lazy(() =>
   import("./pages/admin/course-management/index")
@@ -67,11 +67,10 @@ const Faqs = lazy(() => import("./pages/admin/help/faqs"));
 function App() {
   const navigate = useNavigate();
   const { pathname } = useLocation();
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
 
   const dispatch = useDispatch();
 
-  const { user, loading, shouldFetch } = useSelector(
+  const { user, loading, shouldFetch,isAuthenticated } = useSelector(
     (state) => state?.user
   )
 
@@ -89,7 +88,6 @@ function App() {
 
         if (res.ok && data.user) {
           dispatch(setUser(data.user));
-          setIsAuthenticated(true);
           // redirect ONLY if on auth pages
           if (["/", "/auth/forget-password", "/auth/change-password"].includes(pathname)) {
             const role = data.user.role?.toLowerCase();
@@ -107,7 +105,6 @@ function App() {
         }
       } catch (error) {
         dispatch(clearUser());
-          setIsAuthenticated(false);
         showMessage(error.message);
       }
     }
@@ -115,7 +112,7 @@ function App() {
     if (loading || shouldFetch) {
       loadUser();
     }
-  }, [shouldFetch]);
+  }, [shouldFetch,user]);
   if (loading) return <Loader/>;
   return (
     <HeroUIProvider>

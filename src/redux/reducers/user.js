@@ -12,6 +12,7 @@ const initialState = {
   user: null,
   loading: true,
   shouldFetch: false,
+  isAuthenticated:false,
 };
 
 const userReducer = createSlice({
@@ -22,13 +23,14 @@ const userReducer = createSlice({
       state.user = action.payload;
       state.loading = false;
       state.shouldFetch = false;
-    },
+      state.isAuthenticated = true;},
 
 
     clearUser(state) {
       state.user = null;
       state.loading = false;
       state.shouldFetch = false;
+      state.isAuthenticated = false;
     },
 
     setLoading(state, action) {

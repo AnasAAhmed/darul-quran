@@ -13,6 +13,8 @@ import { EyeIcon, EyeOffIcon } from "lucide-react";
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
+import { setUser } from "../../redux/reducers/user";
+import { useDispatch } from "react-redux";
 const Login = () => {
   // const handleSubmit = (e) => {
   //   e.preventDefault();
@@ -24,10 +26,10 @@ const Login = () => {
   const [password, setPassword] = useState("password123");
   const [showPassword, setShowPassword] = useState(false);
   const { isOpen, onOpen, onClose } = useDisclosure();
+  const dispatch = useDispatch();
 
   const [loading, setLoading] = useState(false);
-  const [modalType, setModalType] = useState("success"); // success | error
-  const [modalMessage, setModalMessage] = useState("");
+  const [modalType, setModalType] = useState("success");
   const handleLogin = async (e) => {
     e.preventDefault();
     if (loading) return;
@@ -54,8 +56,20 @@ const Login = () => {
         return;
       }
       if (res.ok) {
-        location.reload();
+        // location.reload();
+        dispatch(setUser(data.user));
         toast.success("Login successful");
+        const role = data.user.role?.toLowerCase();
+        let route = '/';
+        if (role === "admin") {
+          route = "/admin/dashboard"
+        } else if (role === "teacher") {
+          route = "/teacher/dashboard"
+        } else if (role === "student") {
+          route = "/student/dashboard"
+        }
+        window.history.replaceState({}, document.title, window.location.pathname);
+        navigate(route, { replace: true });
       }
       // setTimeout(() => {
       //   if (data.user.role === "Admin") {
