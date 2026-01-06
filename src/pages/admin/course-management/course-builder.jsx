@@ -202,7 +202,7 @@ const CourseBuilder = () => {
 
     try {
       const response = await fetch(
-        import.meta.env.VITE_PUBLIC_SERVER_URL + "/api/admin/addCourse",
+        import.meta.env.VITE_PUBLIC_SERVER_URL + "/api/course/addCourse",
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -321,7 +321,7 @@ const CourseBuilder = () => {
       const response = await fetch(
         `${
           import.meta.env.VITE_PUBLIC_SERVER_URL
-        }/api/admin/updateCourse/${courseId}`,
+        }/api/course/updateCourse/${courseId}`,
         {
           method: "PATCH",
           headers: { "Content-Type": "application/json" },
@@ -371,7 +371,7 @@ const CourseBuilder = () => {
       const response = await fetch(
         `${
           import.meta.env.VITE_PUBLIC_SERVER_URL
-        }/api/admin/updateCourse/${courseId}`,
+        }/api/course/updateCourse/${courseId}`,
         {
           method: "PATCH",
           headers: { "Content-Type": "application/json" },
@@ -680,7 +680,7 @@ const CourseBuilder = () => {
                     /> 
                   */}
                   <div className="flex flex-wrap gap-3">
-                    <Button
+                    {/* <Button
                       size="lg"
                       startContent={<Rocket color="white" size={16} />}
                       className="bg-[#B1A7A7] w-full text-white sm:w-60"
@@ -689,7 +689,7 @@ const CourseBuilder = () => {
                       isLoading={loadingAction === "publish-1"}
                     >
                       Publish Course
-                    </Button>
+                    </Button> */}
                     <Button
                       size="lg"
                       className="bg-[#06574C] w-full text-white sm:w-35"
@@ -777,7 +777,7 @@ const CourseBuilder = () => {
                     Previous Step
                   </Button>
                   <div className="flex flex-wrap my-5 gap-3">
-                    <Button
+                    {/* <Button
                       size="lg"
                       startContent={<Rocket color="white" size={16} />}
                       className="bg-[#B1A7A7] w-full text-white sm:w-60"
@@ -786,7 +786,7 @@ const CourseBuilder = () => {
                       isLoading={loadingAction === "publish-2"}
                     >
                       Publish Course
-                    </Button>
+                    </Button> */}
                     <Button
                       size="lg"
                       className="bg-[#06574C] w-full text-white sm:w-35"
