@@ -294,15 +294,7 @@ const CourseManagement = () => {
               emptyContent={"  No Course Found."}
               loadingState={loading ? "loading" : "idle"}
             >
-              {
-                // loading ? (
-                //   <TableRow>
-                //     <TableCell colSpan={8} className="h-80 text-center">
-                //       <Spinner className="animate-spin" size="lg" color="success" />
-                //     </TableCell>
-                //   </TableRow>
-                // ) : (
-                courses?.map((classItem) => (
+              {courses?.map((classItem) => (
                   <TableRow key={classItem.id}>
                     <TableCell>
                       <div className="min-w-0">
@@ -371,7 +363,6 @@ const CourseManagement = () => {
                     </TableCell>
                   </TableRow>
                 ))
-                // )
               }
             </TableBody>
           </Table>
