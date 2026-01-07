@@ -152,6 +152,7 @@ const CourseManagement = () => {
           import.meta.env.VITE_PUBLIC_SERVER_URL
         }/api/course/getAllCourses`, {
         method: "GET",
+        credentials: "include",
         headers: {
           "Content-Type": "application/json",
         },
@@ -187,7 +188,7 @@ const CourseManagement = () => {
   const handleDelete = (id) => {
     setOpen(true);
       const deleteCourse = async () => {
-        const response = await fetch(`${import.meta.env.VITE_PUBLIC_SERVER_URL}/api/admin/deleteCourse`, {
+        const response = await fetch(`${import.meta.env.VITE_PUBLIC_SERVER_URL}/api/course/deleteCourse`, {
           method: "DELETE",
           headers: {
             "Content-Type": "application/json",
@@ -199,7 +200,7 @@ const CourseManagement = () => {
         if (data.success) {
           setOpen(false);
           setLoading(true);
-          const response = await fetch(`${import.meta.env.VITE_PUBLIC_SERVER_URL}/api/admin/getAllCourses`, {
+          const response = await fetch(`${import.meta.env.VITE_PUBLIC_SERVER_URL}/api/course/getAllCourses`, {
             method: "GET",
             headers: {
               "Content-Type": "application/json",
@@ -259,7 +260,7 @@ const CourseManagement = () => {
             aria-label="Pending approvals table"
             removeWrapper
             classNames={{
-              base: "table-fixed w-full bg-white rounded-lg",
+              base: "table-fixed w-full bg-white rounded-lg h-[calc(100vh-300px)] overflow-y-auto",
               th: "font-bold p-4 text-sm text-[#333333] capitalize tracking-widest bg-[#EBD4C936] cursor-default",
               td: "py-3 align-center",
               tr: "border-b border-default-200 last:border-b-0 hover:bg-[#EBD4C936]",
@@ -276,14 +277,15 @@ const CourseManagement = () => {
               <TableColumn className="w-24">Actions</TableColumn>
             </TableHeader>
 
-            <TableBody>
-              {loading ? (
-                <TableRow>
-                  <TableCell colSpan={8} className="h-80 text-center">
-                    <Spinner className="animate-spin" size="lg" color="success" />
-                  </TableCell>
-                </TableRow>
-              ) : (
+            <TableBody loadingContent={<Spinner color="success"/>} emptyContent={"  No Course Found."} loadingState={loading ? 'loading' : 'idle'}>
+              {
+              // loading ? (
+              //   <TableRow>
+              //     <TableCell colSpan={8} className="h-80 text-center">
+              //       <Spinner className="animate-spin" size="lg" color="success" />
+              //     </TableCell>
+              //   </TableRow>
+              // ) : (
                 courses?.map((classItem) => (
                   <TableRow key={classItem.id}>
                     <TableCell>
@@ -306,10 +308,10 @@ const CourseManagement = () => {
                     <TableCell>
                       <div className="min-w-0">
                         <div className="font-medium truncate">
-                          {classItem?.teacher_name}
+                          {classItem?.first_name} {classItem?.last_name}
                         </div>
                         <div className="text-xs text-gray-500 mt-0.5 truncate max-w-[150px]">
-                          {classItem?.teacher_email}
+                          {classItem?.email}
                         </div>
                       </div>
                     </TableCell>
@@ -350,7 +352,8 @@ const CourseManagement = () => {
                     </TableCell>
                   </TableRow>
                 ))
-              )}
+              // )
+              }
             </TableBody>
           </Table>
         </div>

@@ -58,7 +58,7 @@ const CourseBuilder = () => {
 
         if (data.success) {
           setTeachers(data.user);
-          console.log(data.user);
+          console.log("Teachers", data.user);
         }
       } catch (error) {
         console.error("Failed to fetch teachers", error);
@@ -156,7 +156,7 @@ const CourseBuilder = () => {
     difficulty_level: "",
     description: "",
     course_price: "",
-    teacher_name: "",
+    teacher_id: "",
     access_duration: "",
     previous_lesson: "",
     enroll_number: "",
@@ -180,6 +180,7 @@ const CourseBuilder = () => {
     }
     const payload = {
       ...formData,
+      teacher_id: formData.teacher_id,
       previous_lesson: formData.previous_lesson
         ? parseInt(formData.previous_lesson)
         : null,
@@ -544,31 +545,30 @@ const CourseBuilder = () => {
                       />
                       <div className="py-4">
                         <Select
-                          size="lg"
-                          variant="bordered"
-                          label="Teacher Name"
-                          labelPlacement="outside"
-                          placeholder="Select teacher"
-                          className="w-full"
-                          selectedKeys={
-                            formData.teacher_name
-                              ? new Set([formData.teacher_name])
-                              : new Set()
-                          }
-                          onSelectionChange={(keys) => {
-                            const selectedValue = [...keys][0];
-                            handleChange("teacher_name", selectedValue);
-                          }}
-                        >
-                          {teachers.map((teacher, index) => {
-                            const fullName = `${teacher.first_name} ${teacher.last_name}`;
-                            return (
-                              <SelectItem key={fullName} value={fullName}>
-                                {fullName}
-                              </SelectItem>
-                            );
-                          })}
-                        </Select>
+  size="lg"
+  variant="bordered"
+  label="Teacher Name"
+  labelPlacement="outside"
+  placeholder="Select teacher"
+  className="w-full"
+  selectedKeys={
+    formData.teacher_id ? new Set([String(formData.teacher_id)]) : new Set()
+  }
+  onSelectionChange={(keys) => {
+    const teacherId = [...keys][0];
+    handleChange("teacher_id", teacherId); // ✅ ID store
+  }}
+>
+  {teachers.map((teacher) => {
+    const fullName = `${teacher.first_name} ${teacher.last_name}`;
+    return (
+      <SelectItem key={String(teacher.id)} textValue={fullName}>
+        {fullName}
+      </SelectItem>
+    );
+  })}
+</Select>
+
                       </div>
                     </div>
                   </div>
