@@ -10,6 +10,11 @@ import {
   Button,
   Switch,
   Image,
+  Modal,
+  ModalContent,
+  ModalHeader,
+  ModalBody,
+  ModalFooter,
 } from "@heroui/react";
 import { motion } from "framer-motion";
 import FileDropzone from "../../../components/dashboard-components/dropzone";
@@ -19,6 +24,7 @@ import {
   Lightbulb,
   Rocket,
   ScrollText,
+  Trash2Icon,
   Video,
 } from "lucide-react";
 import { useEffect, useState } from "react";
@@ -78,7 +84,6 @@ const CourseBuilder = () => {
   const [loadingAction, setLoadingAction] = useState(null);
   const [pendingAction, setPendingAction] = useState(null);
 
-  console.log("thumbnail", thumbnail);
   const category = [
     { key: "Advance_JavaScript", label: "Advance JavaScript" },
     { key: "Advance_React", label: "Advance React" },
@@ -125,7 +130,7 @@ const CourseBuilder = () => {
     },
   ];
   const [isSelected, setIsSelected] = useState(true);
-
+  const [categories, setCategories] = useState([]);
   const accessDuration = [
     { key: "108_days", label: "108 Days" },
     { key: "Lifetime_Access", label: "Lifetime Access" },
@@ -135,6 +140,8 @@ const CourseBuilder = () => {
   const currentTab = searchParams.get("tab");
   const courseId = searchParams.get("id"); // Extract courseId
   const [selected, setSelected] = useState(currentTab || "info");
+  const [isAddCategoryOpen, setIsAddCategoryOpen] = useState(false);
+  const [newCategory, setNewCategory] = useState("");
   useEffect(() => {
     if (currentTab) {
       setSelected(currentTab);
@@ -152,7 +159,7 @@ const CourseBuilder = () => {
   };
   const [formData, setFormData] = useState({
     course_name: "",
-    category: "",
+    category_id: null,
     difficulty_level: "",
     description: "",
     course_price: "",
@@ -167,6 +174,7 @@ const CourseBuilder = () => {
       ...prev,
       [name]: value,
     }));
+    console.log(formData);
   };
   const handleSubmitTab1 = async (e) => {
     e.preventDefault();
@@ -455,6 +463,101 @@ const CourseBuilder = () => {
     fetchCourseById();
   }, [searchParams]);
 
+  const handleSubmitAddCategory = async () => {
+    if (!newCategory.trim()) {
+      toast.error("Category name is required");
+      return;
+    }
+
+    try {
+      const response = await fetch(
+        `${import.meta.env.VITE_PUBLIC_SERVER_URL}/api/course/addCategory`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          credentials: "include",
+          body: JSON.stringify({
+            category_name: newCategory,
+          }),
+        }
+      );
+
+      const data = await response.json();
+
+      if (!data.success) {
+        toast.error(data.message || "Failed to add category"); 
+        return;
+      }
+      setCategories((prev) => [...prev, data.category]);
+      toast.success("Category added successfully");
+      setIsAddCategoryOpen(false);
+      setNewCategory("");
+    } catch (error) {
+      console.error(error);
+      toast.error("Server error");
+    }
+  };
+
+  const fetchCategories = async () => {
+    try {
+      const response = await fetch(
+        `${import.meta.env.VITE_PUBLIC_SERVER_URL}/api/course/getAllCategories`,
+        {
+          method: "GET",
+          headers: { "Content-Type": "application/json" },
+          credentials: "include",
+        }
+      );
+
+      const data = await response.json();
+
+      if (!data.success) {
+        toast.error(data.message || "Failed to fetch categories");
+        return;
+      }
+
+      setCategories(data.categories);
+    } catch (error) {
+      console.error(error);
+      toast.error("Server error");
+    }
+  };
+  useEffect(() => {
+    fetchCategories();
+  }, []);
+
+  const deleteCategory = async (id) => {
+    try {
+      console.log("id",id);
+      const response = await fetch(
+        `${import.meta.env.VITE_PUBLIC_SERVER_URL}/api/course/deleteCategory`,
+        {
+          method: "DELETE",
+          headers: { "Content-Type": "application/json" },
+          credentials: "include",
+          body: JSON.stringify({
+            category_id: id,
+          }),
+        }
+      );
+
+      const data = await response.json();
+      
+      if (!data.success) {
+
+        toast.error(data.message || "Failed to delete category");
+        return;
+      }
+
+      setCategories((prev) => prev.filter((category) => category.id !== id));
+      console.log("data",data);
+      toast.success("Category deleted successfully");
+    } catch (error) {
+      console.error(error);
+      toast.error("Server error");
+    }
+  };
+
   return (
     <div className="h-full bg-linear-to-t from-[#F1C2AC]/50 to-[#95C4BE]/50 px-2 sm:px-3 w-full no-scrollbar top-0 bottom-0 overflow-y-auto">
       <DashHeading
@@ -547,16 +650,42 @@ const CourseBuilder = () => {
                           labelPlacement="outside"
                           placeholder="Select category"
                           className="w-full"
-                          selectedKeys={[formData.category]}
-                          onSelectionChange={(keys) =>
-                            handleChange("category", [...keys][0])
+                          selectedKeys={
+                            formData.category_id ? [String(formData.category_id)] : []
                           }
+                          onSelectionChange={(keys) => {
+                            const selected = [...keys][0];
+                            if (selected === "add-category") {
+                              setIsAddCategoryOpen(true);
+                              return;
+                            }
+
+                            handleChange("category_id",Number(selected));
+                          }}
                         >
-                          {category.map((item) => (
-                            <SelectItem key={item.key} value={item.id}>
-                              {item.label}
+                          {categories.map((item) => (
+                            <SelectItem 
+                            endContent={<Button
+                              size="sm"
+                              variant="light"
+                              color="danger"
+                              isIconOnly
+                              onPress={() => {deleteCategory(item.id)}}
+                            >
+                              <Trash2Icon className="text-red-500" size={15}/>
+                            </Button>}
+                            key={String(item.id)} value={String(item.id)}>
+                              {item.categoryName}
                             </SelectItem>
                           ))}
+
+                          <SelectItem
+                            key="add-category"
+                            className="text-primary font-semibold"
+                            textValue="Add Category"
+                          >
+                            ➕ Add Category
+                          </SelectItem>
                         </Select>
                         <Select
                           size="lg"
@@ -765,6 +894,39 @@ const CourseBuilder = () => {
                   </div>
                 </div>
               </Form>
+              <Modal
+                isOpen={isAddCategoryOpen}
+                onOpenChange={setIsAddCategoryOpen}
+              >
+                <ModalContent>
+                  <ModalHeader>Add Category</ModalHeader>
+
+                  <ModalBody>
+                    <Input
+                      size="lg"
+                      variant="bordered"
+                      label="Category Name"
+                      labelPlacement="outside"
+                      placeholder="Enter category name"
+                      value={newCategory}
+                      onChange={(e) => setNewCategory(e.target.value)}
+                    />
+                  </ModalBody>
+
+                  <ModalFooter>
+                    <Button
+                      variant="light"
+                      onPress={() => setIsAddCategoryOpen(false)}
+                    >
+                      Cancel
+                    </Button>
+
+                    <Button color="primary" onPress={handleSubmitAddCategory}>
+                      Add
+                    </Button>
+                  </ModalFooter>
+                </ModalContent>
+              </Modal>
             </motion.div>
           </Tab>
           <Tab
@@ -811,7 +973,7 @@ const CourseBuilder = () => {
                     </div>
                   ))}
                 </div>
-                <Videos videoUrl={videoUrl} setVideoUrl={setVideoUrl}  />
+                <Videos videoUrl={videoUrl} setVideoUrl={setVideoUrl} />
                 <PdfAndNotes pdfUrl={pdfUrl} setPdfUrl={setPdfUrl} />
                 <Assignments
                   assignmentUrl={assignmentUrl}

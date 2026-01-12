@@ -314,10 +314,9 @@ const CourseManagement = () => {
 
                   <TableCell>
                     <p className="p-2 w-full text-xs rounded-md text-[#06574C] bg-[#95C4BE]/20">
-                      {classItem?.category}
+                      {classItem?.category_name}
                     </p>
                   </TableCell>
-
                   <TableCell>
                     <div className="min-w-0">
                       <div className="font-medium truncate">
