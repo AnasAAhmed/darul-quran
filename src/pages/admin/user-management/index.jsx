@@ -34,304 +34,9 @@ import { AnimatePresence } from "motion/react";
 import * as motion from "motion/react-client";
 import { dateFormatter } from "../../../lib/utils";
 import { errorMessage, showMessage } from "../../../lib/toast.config";
+import { useGetAllUsersQuery } from "../../../redux/api/user";
 
 const UserManagement = () => {
-  // const [events, setEvents] = useState([
-  //   { title: "iOS Workshop", date: "2025-11-02" },
-  //   { title: "React Basics", date: "2025-11-06", color: "#f0e68c" },
-  //   { title: "Python Basics", date: "2025-11-09", color: "#dcd0ff" },
-  //   { title: "Marketing Research", date: "2025-11-14", color: "#90ee90" },
-  //   { title: "iOS Workshop", date: "2025-11-18", color: "#ffcccc" },
-  //   { title: "JS Workshop", date: "2025-11-18", color: "#ffebcc" },
-  //   { title: "React Basics", date: "2025-11-22", color: "#f0e68c" },
-  //   { title: "iOS Workshop", date: "2025-11-22", color: "#ffcccc" },
-  //   { title: "React Basics", date: "2025-11-28", color: "#f0e68c" },
-  //   { title: "iOS Workshop", date: "2025-11-28", color: "#ffcccc" },
-  //   { title: "JS Workshop", date: "2025-11-28", color: "#ffebcc" },
-  //   { title: "Python Basics", date: "2025-11-28", color: "#dcd0ff" },
-  // ]);
-  // const classes = [
-  //   {
-  //     id: 1,
-  //     name: "John Davis",
-  //     desc: "Advanced JavaScript Course",
-  //     last_active: "2 hourse ago",
-  //     email: "john.davis@email.com",
-  //     roles: "Students",
-  //     status: "Active",
-  //     date: "2025-11-27",
-  //   },
-  //   {
-  //     id: 2,
-  //     name: "John Davis",
-  //     desc: "Advanced JavaScript Course",
-  //     last_active: "2 hourse ago",
-  //     email: "john.davis@email.com",
-  //     roles: "Students",
-  //     status: "Active",
-  //     date: "2025-11-26",
-  //   },
-  //   {
-  //     id: 3,
-  //     name: "John Davis",
-  //     desc: "Advanced JavaScript Course",
-  //     last_active: "2 hourse ago",
-  //     email: "john.davis@email.com",
-  //     roles: "Students",
-  //     status: "Active",
-  //     date: "2025-11-17",
-  //   },
-  //   {
-  //     id: 4,
-  //     name: "John Davis",
-  //     desc: "Advanced JavaScript Course",
-  //     last_active: "2 hourse ago",
-  //     email: "john.davis@email.com",
-  //     roles: "Students",
-  //     status: "Active",
-  //     date: "2025-11-16",
-  //   },
-  //   {
-  //     id: 5,
-  //     name: "John Davis",
-  //     desc: "Advanced JavaScript Course",
-  //     last_active: "2 hourse ago",
-  //     email: "john.davis@email.com",
-  //     roles: "Students",
-  //     status: "Active",
-  //     date: "2025-11-15",
-  //   },
-  //   {
-  //     id: 6,
-  //     name: "John Davis",
-  //     desc: "Advanced JavaScript Course",
-  //     last_active: "2 hourse ago",
-  //     email: "john.davis@email.com",
-  //     roles: "Students",
-  //     status: "Active",
-  //     date: "2025-11-12",
-  //   },
-  //   {
-  //     id: 7,
-  //     name: "John Davis",
-  //     desc: "Advanced JavaScript Course",
-  //     last_active: "2 hourse ago",
-  //     email: "john.davis@email.com",
-  //     roles: "Students",
-  //     status: "Active",
-  //     date: "2025-11-03",
-  //   },
-  //   {
-  //     id: 8,
-  //     name: "John Davis",
-  //     desc: "Advanced JavaScript Course",
-  //     last_active: "2 hourse ago",
-  //     email: "john.davis@email.com",
-  //     roles: "Students",
-  //     status: "Active",
-  //     date: "2025-11-29",
-  //   },
-  //   {
-  //     id: 9,
-  //     name: "John Davis",
-  //     desc: "Advanced JavaScript Course",
-  //     last_active: "2 hourse ago",
-  //     email: "john.davis@email.com",
-  //     roles: "Students",
-  //     status: "Active",
-  //     date: "2025-11-22",
-  //   },
-  // ];
-  // const Teachers = [
-  //   {
-  //     id: 1,
-  //     name: "John Davis",
-  //     desc: "Advanced JavaScript Course",
-  //     last_active: "2 hourse ago",
-  //     email: "john.davis@email.com",
-  //     roles: "Teacher",
-  //     status: "Active",
-  //     date: "2025-11-27",
-  //   },
-  //   {
-  //     id: 2,
-  //     name: "John Davis",
-  //     desc: "Advanced JavaScript Course",
-  //     last_active: "2 hourse ago",
-  //     email: "john.davis@email.com",
-  //     roles: "Teacher",
-  //     status: "Active",
-  //     date: "2025-11-26",
-  //   },
-  //   {
-  //     id: 3,
-  //     name: "John Davis",
-  //     desc: "Advanced JavaScript Course",
-  //     last_active: "2 hourse ago",
-  //     email: "john.davis@email.com",
-  //     roles: "Teacher",
-  //     status: "Active",
-  //     date: "2025-11-17",
-  //   },
-  //   {
-  //     id: 4,
-  //     name: "John Davis",
-  //     desc: "Advanced JavaScript Course",
-  //     last_active: "2 hourse ago",
-  //     email: "john.davis@email.com",
-  //     roles: "Teacher",
-  //     status: "Active",
-  //     date: "2025-11-16",
-  //   },
-  //   {
-  //     id: 5,
-  //     name: "John Davis",
-  //     desc: "Advanced JavaScript Course",
-  //     last_active: "2 hourse ago",
-  //     email: "john.davis@email.com",
-  //     roles: "Teacher",
-  //     status: "Active",
-  //     date: "2025-11-15",
-  //   },
-  //   {
-  //     id: 6,
-  //     name: "John Davis",
-  //     desc: "Advanced JavaScript Course",
-  //     last_active: "2 hourse ago",
-  //     email: "john.davis@email.com",
-  //     roles: "Teacher",
-  //     status: "Active",
-  //     date: "2025-11-12",
-  //   },
-  //   {
-  //     id: 7,
-  //     name: "John Davis",
-  //     desc: "Advanced JavaScript Course",
-  //     last_active: "2 hourse ago",
-  //     email: "john.davis@email.com",
-  //     roles: "Teacher",
-  //     status: "Active",
-  //     date: "2025-11-03",
-  //   },
-  //   {
-  //     id: 8,
-  //     name: "John Davis",
-  //     desc: "Advanced JavaScript Course",
-  //     last_active: "2 hourse ago",
-  //     email: "john.davis@email.com",
-  //     roles: "Teacher",
-  //     status: "Active",
-  //     date: "2025-11-29",
-  //   },
-  //   {
-  //     id: 9,
-  //     name: "John Davis",
-  //     desc: "Advanced JavaScript Course",
-  //     last_active: "2 hourse ago",
-  //     email: "john.davis@email.com",
-  //     roles: "Teacher",
-  //     status: "Active",
-  //     date: "2025-11-22",
-  //   },
-  // ];
-  // const Supports_Staff = [
-  //   {
-  //     id: 1,
-  //     name: "John Davis",
-  //     desc: "Advanced JavaScript Course",
-  //     last_active: "2 hourse ago",
-  //     email: "john.davis@email.com",
-  //     roles: "Support Staff",
-  //     status: "Active",
-  //     date: "2025-11-27",
-  //   },
-  //   {
-  //     id: 2,
-  //     name: "John Davis",
-  //     desc: "Advanced JavaScript Course",
-  //     last_active: "2 hourse ago",
-  //     email: "john.davis@email.com",
-  //     roles: "Support Staff",
-  //     status: "Active",
-  //     date: "2025-11-26",
-  //   },
-  //   {
-  //     id: 3,
-  //     name: "John Davis",
-  //     desc: "Advanced JavaScript Course",
-  //     last_active: "2 hourse ago",
-  //     email: "john.davis@email.com",
-  //     roles: "Support Staff",
-  //     status: "Active",
-  //     date: "2025-11-17",
-  //   },
-  //   {
-  //     id: 4,
-  //     name: "John Davis",
-  //     desc: "Advanced JavaScript Course",
-  //     last_active: "2 hourse ago",
-  //     email: "john.davis@email.com",
-  //     roles: "Support Staff",
-  //     status: "Active",
-  //     date: "2025-11-16",
-  //   },
-  //   {
-  //     id: 5,
-  //     name: "John Davis",
-  //     desc: "Advanced JavaScript Course",
-  //     last_active: "2 hourse ago",
-  //     email: "john.davis@email.com",
-  //     roles: "Support Staff",
-  //     status: "Active",
-  //     date: "2025-11-15",
-  //   },
-  //   {
-  //     id: 6,
-  //     name: "John Davis",
-  //     desc: "Advanced JavaScript Course",
-  //     last_active: "2 hourse ago",
-  //     email: "john.davis@email.com",
-  //     roles: "Support Staff",
-  //     status: "Active",
-  //     date: "2025-11-12",
-  //   },
-  //   {
-  //     id: 7,
-  //     name: "John Davis",
-  //     desc: "Advanced JavaScript Course",
-  //     last_active: "2 hourse ago",
-  //     email: "john.davis@email.com",
-  //     roles: "Support Staff",
-  //     status: "Active",
-  //     date: "2025-11-03",
-  //   },
-  //   {
-  //     id: 8,
-  //     name: "John Davis",
-  //     desc: "Advanced JavaScript Course",
-  //     last_active: "2 hourse ago",
-  //     email: "john.davis@email.com",
-  //     roles: "Support Staff",
-  //     status: "Active",
-  //     date: "2025-11-29",
-  //   },
-  //   {
-  //     id: 9,
-  //     name: "John Davis",
-  //     desc: "Advanced JavaScript Course",
-  //     last_active: "2 hourse ago",
-  //     email: "john.davis@email.com",
-  //     roles: "Students",
-  //     status: "Active",
-  //     date: "2025-11-22",
-  //   },
-  // ];
-
-  // const studentsss = [
-  //   { id: 1, name: "Alex Thompson", course: "React Masterclass", progress: 75 },
-  //   { id: 2, name: "Alex Thompson", course: "React Masterclass", progress: 75 },
-  //   { id: 3, name: "Alex Thompson", course: "React Masterclass", progress: 75 },
-  // ];
 
   const handleDateClick = (info) => {
     alert("Clicked on date: " + info.dateStr);
@@ -372,6 +77,10 @@ const UserManagement = () => {
   const [students, setStudents] = useState([]);
   const [loading, setLoading] = useState(false);
   const [admins, setAdmins] = useState([]);
+  const [role, setRole] = useState('student');
+  const [page, setPage] = useState(1);
+  const [limit, setLimit] = useState(10);
+  const [status, setStatus] = useState('all');
   const [userToDelete, setUserToDelete] = useState(null);
   const { isOpen, onOpen, onClose } = useDisclosure();
 
@@ -381,6 +90,8 @@ const UserManagement = () => {
   const [selectedAdmins, setSelectedAdmins] = useState(new Set());
   const [isDeleting, setIsDeleting] = useState(false);
   const { isOpen: isBulkDeleteOpen, onOpen: onBulkDeleteOpen, onClose: onBulkDeleteClose } = useDisclosure();
+
+  const { data, isError, isLoading } = useGetAllUsersQuery({ page, limit, status, role });
 
   useEffect(() => {
     const fetchUsers = async () => {
@@ -441,7 +152,7 @@ const UserManagement = () => {
       console.error("Error deleting user:", error);
       toast.error("An error occurred while deleting the user.");
     } finally {
-        setIsDeleting(false);
+      setIsDeleting(false);
     }
   };
 
@@ -452,20 +163,20 @@ const UserManagement = () => {
 
   // Bulk delete handler
   const handleBulkDelete = async () => {
-      const { selectedKeys, type, total } = getCurrentTab();
-      let selectedIds = [];
+    const { selectedKeys, type, total } = getCurrentTab();
+    let selectedIds = [];
 
-      if (selectedKeys === "all") {
-          const dataSource = type === 'students' ? students : type === 'teachers' ? teachers : admins;
-          selectedIds = dataSource.map(u => u.id);
-      } else {
-          selectedIds = Array.from(selectedKeys);
-      }
+    if (selectedKeys === "all") {
+      const dataSource = type === 'students' ? students : type === 'teachers' ? teachers : admins;
+      selectedIds = dataSource.map(u => u.id);
+    } else {
+      selectedIds = Array.from(selectedKeys);
+    }
 
-      if (selectedIds.length === 0) {
-          toast.error("No users selected");
-          return;
-      }
+    if (selectedIds.length === 0) {
+      toast.error("No users selected");
+      return;
+    }
 
     try {
       setIsDeleting(true);
@@ -502,32 +213,32 @@ const UserManagement = () => {
       console.error("Error deleting users:", error);
       toast.error("An error occurred while deleting users.");
     } finally {
-        setIsDeleting(false);
+      setIsDeleting(false);
     }
   };
 
   // Helper function to get current tab's selected keys
   const getCurrentTab = () => {
-      if (selectedStudents === "all" || (selectedStudents instanceof Set && selectedStudents.size > 0)) {
-          return { selectedKeys: selectedStudents, type: 'students', total: students.length };
-      }
-      if (selectedTeachers === "all" || (selectedTeachers instanceof Set && selectedTeachers.size > 0)) {
-          return { selectedKeys: selectedTeachers, type: 'teachers', total: teachers.length };
-      }
-      if (selectedAdmins === "all" || (selectedAdmins instanceof Set && selectedAdmins.size > 0)) {
-          return { selectedKeys: selectedAdmins, type: 'admins', total: admins.length };
-      }
-      return { selectedKeys: new Set(), type: null, total: 0 };
+    if (selectedStudents === "all" || (selectedStudents instanceof Set && selectedStudents.size > 0)) {
+      return { selectedKeys: selectedStudents, type: 'students', total: students.length };
+    }
+    if (selectedTeachers === "all" || (selectedTeachers instanceof Set && selectedTeachers.size > 0)) {
+      return { selectedKeys: selectedTeachers, type: 'teachers', total: teachers.length };
+    }
+    if (selectedAdmins === "all" || (selectedAdmins instanceof Set && selectedAdmins.size > 0)) {
+      return { selectedKeys: selectedAdmins, type: 'admins', total: admins.length };
+    }
+    return { selectedKeys: new Set(), type: null, total: 0 };
   };
 
   const isSelectionEmpty = (selection) => {
-      if (selection === "all") return false;
-      return selection.size === 0;
+    if (selection === "all") return false;
+    return selection.size === 0;
   };
 
   const getSelectionCount = (selection, total) => {
-      if (selection === "all") return total;
-      return selection.size;
+    if (selection === "all") return total;
+    return selection.size;
   };
 
 
@@ -583,9 +294,9 @@ const UserManagement = () => {
               onPress={onBulkDeleteOpen}
             >
               Delete Selected ({
-                  getSelectionCount(selectedStudents, students.length) + 
-                  getSelectionCount(selectedTeachers, teachers.length) + 
-                  getSelectionCount(selectedAdmins, admins.length)
+                getSelectionCount(selectedStudents, students.length) +
+                getSelectionCount(selectedTeachers, teachers.length) +
+                getSelectionCount(selectedAdmins, admins.length)
               })
             </Button>
           )}
@@ -612,6 +323,145 @@ const UserManagement = () => {
       </div>
       <div>
         <div className=" ">
+          <Tabs aria-label="Tabs colors" radius="full"
+            className="flex"
+          >
+            <Tab
+              key="Students"
+              onClick={()=>setRole('student')}
+              title={
+                <div className="text-[#06574C] flex gap-2 items-center">
+                  <span>Students</span>
+                  <Chip
+                    size="sm"
+                    className="text-xs text-[#06574C] bg-white shadow-md"
+                  >
+                    {students.length}
+                  </Chip>
+                </div>
+              }
+            >
+            </Tab>
+            <Tab
+              key="Teachers"
+              onClick={()=>setRole('teacher')}
+              title={
+                <div className="text-[#06574C] flex gap-2 items-center">
+                  <span>Teachers</span>
+                  <Chip
+                    size="sm"
+                    className="text-xs text-[#06574C] bg-white shadow-md"
+                  >
+                    {teachers.length}
+                  </Chip>
+                </div>
+              }
+            >
+            </Tab>
+            <Tab
+              key="Supports_Staff"
+              onClick={()=>setRole('admin')}
+              title={
+                <div className="text-[#06574C] flex gap-2 items-center">
+                  <span>Admins </span>
+                  <Chip
+                    size="sm"
+                    className="text-xs text-[#06574C] bg-white shadow-md"
+                  >
+                    {admins.length}
+                  </Chip>
+                </div>
+              }
+            >
+            </Tab>
+          </Tabs>
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={selectedTab ? selectedTab.label : "empty"}
+              initial={{ y: 10, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              exit={{ y: -10, opacity: 0 }}
+              transition={{ duration: 0.6, ease: "easeInOut" }}
+            >
+              <Table
+                //    isHeaderSticky
+                isHeaderSticky
+                selectionMode={admins.length > 0 ? "multiple" : undefined}
+                selectedKeys={selectedAdmins}
+                onSelectionChange={setSelectedAdmins}
+                aria-label="Pending approvals table"
+                removeWrapper
+                classNames={{
+                  base: "w-full bg-white rounded-lg h-[calc(100vh-350px)] overflow-x-scroll w-full no-scrollbar",
+                  th: "font-bold p-4 text-md  text-[#333333] capitalize tracking-widest  bg-white",
+                  tbody: "overflow-y-scroll no-scrollbar",
+                  td: "py-3 items-center whitespace-nowrap",
+                  tr: "border-b border-default-200 ",
+                }}
+              >
+                <TableHeader>
+                  {header.map((item) => (
+                    <TableColumn key={item.key}>{item.label}</TableColumn>
+                  ))}
+                </TableHeader>
+
+                <TableBody>
+                  {data?.users.length > 0 ?
+                    data?.users.map((classItem) => (
+                      <TableRow key={classItem.id}>
+                        <TableCell className="px-4">
+                          <div>
+                            <div className="font-medium text-gray-900">
+                              {classItem.first_name} {classItem.last_name}
+                            </div>
+                            <div className="text-xs text-gray-500 mt-0.5">
+                              {classItem.email}
+                            </div>
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          <Button className="text-sm p-2 rounded-md bg-[#FBF4EC] text-[#D28E3D]">
+                            {classItem.role}
+                          </Button>
+                        </TableCell>
+                        <TableCell>{dateFormatter(classItem.created_at)}</TableCell>
+                        <TableCell>
+                          <Button className={`text-sm p-2 rounded-md ${classItem.is_active === true ? "bg-[#95C4BE33] text-[#06574C]" : "bg-[#FBF4EC] text-[#D28E3D]"} `}>
+                            {classItem.is_active == true ? "Active" : "Inactive"}
+                          </Button>
+                        </TableCell>
+                        <TableCell>{classItem.last_active ? dateFormatter(classItem.last_active, true) : "N/A"}</TableCell>
+                        <TableCell className="flex gap-2">
+                          <Button
+                            variant="bordered"
+                            radius="sm"
+                            className="border-[#06574C]"
+                            startContent={
+                              <SquarePen size={18} color="#06574C" />
+                            }
+                            onPress={() => { router(`/admin/user-management/edit-user/${classItem.id}`) }}
+                          >
+                            Edit
+                          </Button>
+                          <Button
+                            radius="sm"
+                            className="bg-[#06574C] text-white"
+                            startContent={<Trash2 size={18} color="white" />}
+                            onPress={() => openDeleteModal(classItem.id)}
+                          >
+                            Delete
+                          </Button>
+                        </TableCell>
+                      </TableRow>
+                    )) : <TableRow>
+                      <TableCell colSpan={6} className="text-center py-4 h-[calc(100vh-350px)]">
+                        No {role} Users Found.
+                      </TableCell>
+                    </TableRow>}
+                </TableBody>
+              </Table>
+            </motion.div>
+          </AnimatePresence>
           <Tabs aria-label="Tabs colors" radius="full"
             className="flex"
           >
@@ -660,7 +510,7 @@ const UserManagement = () => {
                       ))}
                     </TableHeader>
 
-                    <TableBody loadingContent={<Spinner color="success"/>} emptyContent={"  No Student Users Found."} loadingState={loading ? 'loading' : 'idle'}>
+                    <TableBody loadingContent={<Spinner color="success" />} emptyContent={"  No Student Users Found."} loadingState={loading ? 'loading' : 'idle'}>
                       {students?.map((classItem) => (
                         <TableRow key={classItem.id}>
                           <TableCell className="px-4">
@@ -707,7 +557,7 @@ const UserManagement = () => {
                             </Button>
                           </TableCell>
                         </TableRow>
-                      )) }
+                      ))}
                     </TableBody>
                   </Table>
                 </motion.div>
@@ -987,9 +837,9 @@ const UserManagement = () => {
           </ModalHeader>
           <ModalBody>
             <p>Are you sure you want to delete {
-                getSelectionCount(selectedStudents, students.length) + 
-                getSelectionCount(selectedTeachers, teachers.length) + 
-                getSelectionCount(selectedAdmins, admins.length)
+              getSelectionCount(selectedStudents, students.length) +
+              getSelectionCount(selectedTeachers, teachers.length) +
+              getSelectionCount(selectedAdmins, admins.length)
             } selected user?</p>
             <p className="text-sm text-gray-500">This action cannot be undone.</p>
           </ModalBody>
