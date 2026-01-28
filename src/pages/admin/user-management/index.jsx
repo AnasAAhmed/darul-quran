@@ -91,7 +91,7 @@ const UserManagement = () => {
   const [isDeleting, setIsDeleting] = useState(false);
   const { isOpen: isBulkDeleteOpen, onOpen: onBulkDeleteOpen, onClose: onBulkDeleteClose } = useDisclosure();
 
-  const { data, isError, isLoading } = useGetAllUsersQuery({ page, limit, status, role });
+  // const { data, isError, isLoading } = useGetAllUsersQuery({ page, limit, status, role });
 
   useEffect(() => {
     const fetchUsers = async () => {
@@ -323,7 +323,7 @@ const UserManagement = () => {
       </div>
       <div>
         <div className=" ">
-          <Tabs aria-label="Tabs colors" radius="full"
+          {/* <Tabs aria-label="Tabs colors" radius="full"
             className="flex"
           >
             <Tab
@@ -461,7 +461,7 @@ const UserManagement = () => {
                 </TableBody>
               </Table>
             </motion.div>
-          </AnimatePresence>
+          </AnimatePresence> */}
           <Tabs aria-label="Tabs colors" radius="full"
             className="flex"
           >
