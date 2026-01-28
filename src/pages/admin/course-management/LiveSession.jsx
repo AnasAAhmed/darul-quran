@@ -9,8 +9,8 @@ import interactionPlugin from "@fullcalendar/interaction";
 const LiveSession = () => {
 
     const [events, setEvents] = useState([
-        { title: "iOS Workshop", date: "2025-11-02" ,color: "#FEEDED" ,textColor:"#DC2626" },
-        { title: "React Basics", date: "2025-11-06", color: "#FEEDED" ,textColor:"#DC2626"},
+        { title: "iOS Workshop", date: "2025-11-02", color: "#FEEDED", textColor: "#DC2626" },
+        { title: "React Basics", date: "2025-11-06", color: "#FEEDED", textColor: "#DC2626" },
         { title: "Python Basics", date: "2025-11-09", color: "#dcd0ff" },
         { title: "Marketing Research", date: "2025-11-14", color: "#90ee90" },
         { title: "iOS Workshop", date: "2025-11-18", color: "#ffcccc" },
@@ -44,8 +44,8 @@ const LiveSession = () => {
         <div className='bg-white sm:bg-linear-to-t from-[#F1C2AC]/50 to-[#95C4BE]/50 px-2 sm:px-5'>
 
             <DashHeading
-            title={"Live Sessions Schedule"}
-            desc={'Manage upcoming live classes and sessions'} />
+                title={"Live Sessions Schedule"}
+                desc={'Manage upcoming live classes and sessions'} />
             <div className="bg-[#EBD4C9]  max-md:flex-wrap gap-2 p-2 sm:p-4 rounded-lg my-3 flex flex-col md:flex-row justify-between md:items-center">
                 <div className=" md:flex md:gap-3 max-md:space-y-2">
                     <Select

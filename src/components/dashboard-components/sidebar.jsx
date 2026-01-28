@@ -21,12 +21,16 @@ import { MdLogout } from 'react-icons/md';
 import { errorMessage, successMessage } from '../../lib/toast.config';
 import { useDispatch } from 'react-redux';
 import { clearUser } from '../../redux/reducers/user';
+import { useSelector } from "react-redux";
 
 const Sidebar = ({ isSidebarOpen, setIsSidebarOpen }) => {
+
   const [expandedItems, setExpandedItems] = useState([0, 6]);
   const { pathname } = useLocation();
   const sideBarRef = useRef(null);
   const dispatch = useDispatch();
+  const { user } = useSelector((state) => state.user);
+
 
   // ===== role detection from pathname =====
   const getRoleFromPath = (pathname) => {
@@ -308,8 +312,8 @@ const Sidebar = ({ isSidebarOpen, setIsSidebarOpen }) => {
                 JP
               </div>
               <div className="flex-1 min-w-0">
-                <div className="text-sm font-medium truncate">Jenny Patron</div>
-                <div className="text-xs text-[#b8d4d0] truncate">jenny@gmail.com</div>
+                <div className="text-sm font-medium truncate">{user?.firstName}</div>
+                <div className="text-xs text-[#b8d4d0] truncate">{user?.email}</div>
               </div>
               <ChevronDown className="w-5 h-5 text-[#b8d4d0]" />
             </div>

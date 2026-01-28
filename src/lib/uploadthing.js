@@ -1,4 +1,8 @@
-import { generateUploadButton, generateUploadDropzone } from "@uploadthing/react";
+import { generateUploadButton, generateUploadDropzone, generateReactHelpers } from "@uploadthing/react";
+
+export const { useUploadThing, uploadFiles } = generateReactHelpers({
+  url: import.meta.env.VITE_PUBLIC_SERVER_URL + "/api/uploadthing",
+});
 
 export const UploadButton = generateUploadButton({
   url: import.meta.env.VITE_PUBLIC_SERVER_URL + "/api/uploadthing",

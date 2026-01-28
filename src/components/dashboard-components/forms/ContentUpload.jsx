@@ -1,10 +1,10 @@
 import { useState, useRef, useEffect } from "react";
 import toast from "react-hot-toast";
-import { Plus, Download, Trash2, Eye, Clock, Menu, Edit, ClipboardListIcon, List } from "lucide-react";
+import { Plus, Download, Trash2, Eye, Clock, Menu, Edit, ClipboardListIcon, List, Loader } from "lucide-react";
 import FileDropzone from "../dropzone";
 import { Button, Image, Select, SelectItem } from "@heroui/react";
 import { PiFile, PiFilePdf } from "react-icons/pi";
-import { UploadDropzone } from "../../../lib/uploadthing";
+import { UploadDropzone, useUploadThing } from "../../../lib/uploadthing";
 
 const LESSONS = [
     {
@@ -20,21 +20,96 @@ const LESSONS = [
     },
 ];
 
-export default function Videos({ videoUrl, setVideoUrl }) {
-    const [lessons, setLessons] = useState(LESSONS);
-    const [lessonsFiles, setLessonsFiles] = useState([]);
+const formatTime = (seconds) => {
+    if (!seconds) return "00:00";
+    const h = Math.floor(seconds / 3600);
+    const m = Math.floor((seconds % 3600) / 60);
+    const s = Math.floor(seconds % 60);
+    if (h > 0) return `${h}h ${m}m ${s}s`;
+    return `${m}m ${s}s`;
+};
 
-    useEffect(() => {
-        if (videoUrl) {
-            setLessons(prev => prev.map(lesson => ({
-                ...lesson,
-                thumbnail: videoUrl
-            })));
+const getVideoDuration = (file) => {
+    return new Promise((resolve) => {
+        try {
+            const video = document.createElement('video');
+            video.preload = 'metadata';
+            video.onloadedmetadata = function () {
+                window.URL.revokeObjectURL(video.src);
+                resolve(video.duration);
+            };
+            video.onerror = function () {
+                resolve(0);
+            };
+            video.src = URL.createObjectURL(file);
+        } catch (e) {
+            resolve(0);
         }
-    }, [videoUrl]);
+    });
+};
+
+export default function Videos({ videos = [], setVideos, onSave, courseId, setLoadingAction, setPendingAction }) {
+    const { startUpload, isUploading } = useUploadThing("videoUploader");
+
+    const handleContentSave = async (field, contentData) => {
+        if (!courseId) return;
+        try {
+            const payload = { [field]: contentData };
+            const response = await fetch(`${import.meta.env.VITE_PUBLIC_SERVER_URL}/api/course/updateCourse/${courseId}`, {
+                method: "PATCH",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(payload)
+            });
+            if (response.ok) {
+                toast.success("Saved to database");
+            } else {
+                console.error("Auto-save failed");
+            }
+        } catch (error) { console.error(error); }
+    };
+
+    // Calculate Total Duration
+    const totalDurationSeconds = videos.reduce((acc, curr) => {
+        const parts = (curr.duration || "").toString().split(" ");
+        let sec = 0;
+        parts.forEach(p => {
+            if (p.endsWith("h")) sec += parseInt(p) * 3600;
+            else if (p.endsWith("m")) sec += parseInt(p) * 60;
+            else if (p.endsWith("s")) sec += parseInt(p);
+        });
+        return acc + sec;
+    }, 0);
+
+    const displayTotalDuration = formatTime(totalDurationSeconds);
+
+    const handleUpload = async (files) => {
+        if (!files || files.length === 0) return;
+
+        const filesWithMeta = await Promise.all(files.map(async (file) => {
+            const d = await getVideoDuration(file);
+            return { file, duration: formatTime(d) };
+        }));
+
+        try {
+            const res = await startUpload(filesWithMeta.map(f => f.file));
+            if (res) {
+                const newItems = res.map((r, i) => ({
+                    id: Date.now() + i + Math.random(),
+                    title: r.name,
+                    thumbnail: r.url,
+                    duration: filesWithMeta[i].duration,
+                    views: 0,
+                    status: "Draft",
+                    releaseDate: "0"
+                }));
+                setVideos([...videos, ...newItems]);
+                toast.success("Videos uploaded");
+            }
+        } catch (e) { toast.error("Upload error"); }
+    };
 
     const deleteLesson = (id) => {
-        setLessons(lessons.filter((lesson) => lesson.id !== id));
+        setVideos(videos.filter((lesson) => lesson.id !== id));
     };
     const Interval = [
         { key: "0", label: "Release Immediately" },
@@ -57,10 +132,10 @@ export default function Videos({ videoUrl, setVideoUrl }) {
                             <div className="mt-2 flex flex-col gap-2 text-md font-semibold text-gray-600 sm:flex-row sm:items-center sm:gap-2">
                                 <span className="flex items-center gap-1">
                                     <Menu />
-                                    Total Lessons: 48
+                                    Total Lessons: {videos.length}
                                 </span>
                                 <span className="hidden sm:inline">•</span>
-                                <span className="flex items-center gap-1">Total Duration: 40h 15m</span>
+                                <span className="flex items-center gap-1">Total Duration: {displayTotalDuration}</span>
                             </div>
                         </div>
 
@@ -70,16 +145,17 @@ export default function Videos({ videoUrl, setVideoUrl }) {
                                 variant="bordered"
                                 className={`border-[#06574C] border-2 text-[#06574C] ${hideBtn}`}
                                 startContent={<Download className="h-4 w-4" />}
+                                onPress={() => {
+                                    if (videos.length === 0) {
+                                        toast.error("No videos to download");
+                                        return;
+                                    }
+                                    videos.forEach((v) => {
+                                        if (v.thumbnail) window.open(v.thumbnail, "_blank");
+                                    });
+                                }}
                             >
                                 Download
-                            </Button>
-                            <Button
-                                radius="sm"
-                                variant="solid"
-                                className="bg-[#06574C] text-white"
-                                startContent={<Plus className="h-4 w-4" />}
-                            >
-                                Upload Video
                             </Button>
                         </div>
                     </div>
@@ -88,7 +164,7 @@ export default function Videos({ videoUrl, setVideoUrl }) {
 
             <div className="mx-auto max-w-7xl px-2 pb-3 sm:px-4">
                 <div className="space-y-4 my-4">
-                    {lessons.map((lesson) => (
+                    {videos.map((lesson) => (
                         <div
                             key={lesson.id}
                             className={`rounded-lg p-4 sm:p-6 transition-all ${lesson.status === "scheduled"
@@ -107,15 +183,15 @@ export default function Videos({ videoUrl, setVideoUrl }) {
                                                 controls
                                                 muted
                                                 loop
-                                                // playsInline
-                                                // onMouseEnter={(e) => e.target.play()}
-                                                // onMouseLeave={(e) => {
-                                                //     e.target.pause();
-                                                //     e.target.currentTime = 0;
-                                                // }}
-                                                // onLoadedData={(e) => {
-                                                //     e.target.play();
-                                                // }}
+                                            // playsInline
+                                            // onMouseEnter={(e) => e.target.play()}
+                                            // onMouseLeave={(e) => {
+                                            //     e.target.pause();
+                                            //     e.target.currentTime = 0;
+                                            // }}
+                                            // onLoadedData={(e) => {
+                                            //     e.target.play();
+                                            // }}
                                             />
                                         ) : (
                                             <img
@@ -203,65 +279,24 @@ export default function Videos({ videoUrl, setVideoUrl }) {
                     uploadBgColor="#ffff"
                     setFiles={setLessonsFiles}
                 /> */}
-                {videoUrl ? (
-                          <div className="relative w-full  overflow-hidden rounded-lg">
-                            <video
-                              removeWrapper
-                              className="w-full h-full aspect-16/7 object-cover"
-                              src={videoUrl}
-                              controls
-                              autoPlay
-                              loop
-                              alt="Video Preview"
-                            />
-                            <Button
-                              size="sm"
-                              className="absolute top-2 right-2 bg-red-500 text-white z-10"
-                              onPress={() => setVideoUrl("")}
-                            >
-                              Remove
-                            </Button>
-                          </div>
-                        ) : (
-                          <UploadDropzone
-                            className="w-full h-[300px] border-2 border-dashed border-gray-300 rounded-lg ut-label:text-lg ut-allowed-content:ut-uploading:text-red-300 relative"
-                            endpoint="videoUploader"
-                            appearance={{
-                              container: {
-                                width: "100%",
-                                height: "300px",
-                                display: "flex",
-                                justifyContent: "center",
-                                alignItems: "center",
-                                backgroundColor: "white",
-                              },
-                              button: {
-                                position: "absolute",
-                                bottom: "3rem",
-                                background: "#06574C",
-                                color: "white",
-                                marginTop: "1rem", // Add spacing if needed
-                              },
-                              label: {
-                                color: "#06574C",
-                              },
-                            }}
-                            onClientUploadComplete={(res) => {
-                              console.log("Files: ", res);
-                              if (res && res.length > 0) {
-                                setVideoUrl(res[0].url);
-                                toast.success("Upload Completed");
-                              }
-                            }}
-                            onUploadError={(error) => {
-                              // Do something with the error.
-                              toast.error("ERROR! " + error.message);
-                            }}
-                          />
-                        )}
+                <div className="mt-4">
+                    <h3 className="text-lg font-semibold text-gray-900 mb-2">Upload New Video</h3>
+                    {isUploading ? (
+                        <div className="w-full h-[300px] flex flex-col items-center justify-center border-2 border-dashed border-gray-300 rounded-lg bg-gray-50">
+                            <Loader className="animate-spin h-8 w-8 text-[#06574C] mb-2" />
+                            <p className="text-gray-600">Uploading videos...</p>
+                        </div>
+                    ) : (
+                        <FileDropzone
+                            files={[]}
+                            setFiles={handleUpload}
+                            label="Drag & Drop Videos"
+                            text="or click to upload. Supports multiple files."
+                            height="300px"
+                        />
+                    )}
+                </div>
             </div>
-
-
         </div>
     );
 }
@@ -294,12 +329,9 @@ const DOCUMENTS = [
     },
 ];
 
-export function PdfAndNotes({ pdfUrl, setPdfUrl }) {
-    const [documents, setDocuments] = useState(DOCUMENTS);
-    const [documentsFiles, setDocumentsFiles] = useState([]);
-
+export function PdfAndNotes({ pdfs = [], setPdfs }) {
     const deleteDocument = (id) => {
-        setDocuments(documents.filter((document) => document.id !== id));
+        setPdfs(pdfs.filter((document) => document.id !== id));
     };
     const Interval = [
         { key: "0", label: "Release Immediately" },
@@ -334,7 +366,7 @@ export function PdfAndNotes({ pdfUrl, setPdfUrl }) {
 
             <div className="mx-auto max-w-7xl px-2 pb-3 sm:px-4">
                 <div className="space-y-4 my-4">
-                    {documents.map((document) => (
+                    {pdfs.map((document) => (
                         <div
                             key={document.id}
                             className={`rounded-lg p-4 sm:p-6 transition-all ${document.status === "scheduled"
@@ -411,59 +443,52 @@ export function PdfAndNotes({ pdfUrl, setPdfUrl }) {
                     uploadBgColor="#ffff"
                     setFiles={setDocumentsFiles}
                 /> */}
-                {pdfUrl ? (
-                          <div className="relative w-full h-[300px] overflow-hidden rounded-lg">
-                            <iframe
-                              removeWrapper
-                              className="w-full h-full object-cover"
-                              src={pdfUrl}
-                              alt="PDF Preview"
-                            />
-                            <Button
-                              size="sm"
-                              className="absolute top-2 right-2 bg-red-500 text-white z-10"
-                              onPress={() => setPdfUrl("")}
-                            >
-                              Remove
-                            </Button>
-                          </div>
-                        ) : (
-                          <UploadDropzone
-                            className="w-full h-[300px] border-2 border-dashed border-gray-300 rounded-lg ut-label:text-lg ut-allowed-content:ut-uploading:text-red-300 relative"
-                            endpoint="pdfUploader"
-                            appearance={{
-                              container: {
+                <div className="mt-4">
+                    <h3 className="text-lg font-semibold text-gray-900 mb-2">Upload PDF/Notes</h3>
+                    <UploadDropzone
+                        className="w-full h-[300px] border-2 border-dashed border-gray-300 rounded-lg ut-label:text-lg ut-allowed-content:ut-uploading:text-red-300 relative"
+                        endpoint="pdfUploader"
+                        appearance={{
+                            container: {
                                 width: "100%",
                                 height: "300px",
                                 display: "flex",
                                 justifyContent: "center",
                                 alignItems: "center",
                                 backgroundColor: "white",
-                              },
-                              button: {
+                            },
+                            button: {
                                 position: "absolute",
                                 bottom: "3rem",
                                 background: "#06574C",
                                 color: "white",
-                                marginTop: "1rem", // Add spacing if needed
-                              },
-                              label: {
+                                marginTop: "1rem",
+                            },
+                            label: {
                                 color: "#06574C",
-                              },
-                            }}
-                            onClientUploadComplete={(res) => {
-                              console.log("Files: ", res);
-                              if (res && res.length > 0) {
-                                setPdfUrl(res[0].url);
-                                toast.success("Upload Completed");
-                              }
-                            }}
-                            onUploadError={(error) => {
-                              // Do something with the error.
-                              toast.error("ERROR! " + error.message);
-                            }}
-                          />
-                        )}
+                            },
+                        }}
+                        onClientUploadComplete={(res) => {
+                            if (res && res.length > 0) {
+                                const newDoc = {
+                                    id: Date.now(),
+                                    title: res[0].name,
+                                    size: (res[0].size / 1024 / 1024).toFixed(2) + " MB",
+                                    pages: 0,
+                                    url: res[0].url,
+                                    status: "Draft",
+                                    releaseDate: "0",
+                                    doc_type: 'pdf'
+                                };
+                                setPdfs([...pdfs, newDoc]);
+                                toast.success("PDF Uploaded");
+                            }
+                        }}
+                        onUploadError={(error) => {
+                            toast.error("ERROR! " + error.message);
+                        }}
+                    />
+                </div>
             </div>
         </div>
     );
@@ -507,7 +532,7 @@ export function Assignments({ assignmentUrl, setAssignmentUrl }) {
         { key: "true", label: "Attach To Lesson" },
         { key: "false", label: "Deattach To Lesson" },
     ];
-    
+
     const changetitle = window.location.pathname === "/teacher/courses/upload-material";
     return (
         <div className=" bg-white rounded-lg my-2 w-full">
@@ -549,10 +574,10 @@ export function Assignments({ assignmentUrl, setAssignmentUrl }) {
                                 <div className="flex flex-1 flex-col justify-between gap-3">
                                     <div className="space-y-2">
                                         <h3 className="text-lg font-semibold text-gray-900 sm:text-xl">{
-                                            changetitle ? 
-                                            <p>{asignment.title2}</p> 
-                                            : <p>{asignment.title} </p> 
-                                            }</h3>
+                                            changetitle ?
+                                                <p>{asignment.title2}</p>
+                                                : <p>{asignment.title} </p>
+                                        }</h3>
                                         <p className="text-sm text-gray-600 sm:text-base">
                                             Due: {asignment.due} After Enrollment
                                         </p>
@@ -605,58 +630,58 @@ export function Assignments({ assignmentUrl, setAssignmentUrl }) {
                     setFiles={setAsignmentsFiles}
                 /> */}
                 {assignmentUrl ? (
-                          <div className="relative w-full h-[300px] overflow-hidden rounded-lg">
-                            <Image
-                              removeWrapper
-                              className="w-full h-full object-cover"
-                              src={assignmentUrl}
-                              alt="Assignment Preview"
-                            />
-                            <Button
-                              size="sm"
-                              className="absolute top-2 right-2 bg-red-500 text-white z-10"
-                              onPress={() => setAssignmentUrl("")}
-                            >
-                              Remove
-                            </Button>
-                          </div>
-                        ) : (
-                          <UploadDropzone
-                            className="w-full h-[300px] border-2 border-dashed border-gray-300 rounded-lg ut-label:text-lg ut-allowed-content:ut-uploading:text-red-300 relative"
-                            endpoint="imageUploader"
-                            appearance={{
-                              container: {
+                    <div className="relative w-full h-[300px] overflow-hidden rounded-lg">
+                        <Image
+                            removeWrapper
+                            className="w-full h-full object-cover"
+                            src={assignmentUrl}
+                            alt="Assignment Preview"
+                        />
+                        <Button
+                            size="sm"
+                            className="absolute top-2 right-2 bg-red-500 text-white z-10"
+                            onPress={() => setAssignmentUrl("")}
+                        >
+                            Remove
+                        </Button>
+                    </div>
+                ) : (
+                    <UploadDropzone
+                        className="w-full h-[300px] border-2 border-dashed border-gray-300 rounded-lg ut-label:text-lg ut-allowed-content:ut-uploading:text-red-300 relative"
+                        endpoint="imageUploader"
+                        appearance={{
+                            container: {
                                 width: "100%",
                                 height: "300px",
                                 display: "flex",
                                 justifyContent: "center",
                                 alignItems: "center",
                                 backgroundColor: "white",
-                              },
-                              button: {
+                            },
+                            button: {
                                 position: "absolute",
                                 bottom: "3rem",
                                 background: "#06574C",
                                 color: "white",
                                 marginTop: "1rem", // Add spacing if needed
-                              },
-                              label: {
+                            },
+                            label: {
                                 color: "#06574C",
-                              },
-                            }}
-                            onClientUploadComplete={(res) => {
-                              console.log("Files: ", res);
-                              if (res && res.length > 0) {
+                            },
+                        }}
+                        onClientUploadComplete={(res) => {
+                            console.log("Files: ", res);
+                            if (res && res.length > 0) {
                                 setAssignmentUrl(res[0].url);
                                 toast.success("Upload Completed");
-                              }
-                            }}
-                            onUploadError={(error) => {
-                              // Do something with the error.
-                              toast.error("ERROR! " + error.message);
-                            }}
-                          />
-                        )}
+                            }
+                        }}
+                        onUploadError={(error) => {
+                            // Do something with the error.
+                            toast.error("ERROR! " + error.message);
+                        }}
+                    />
+                )}
             </div>
 
 
@@ -813,59 +838,59 @@ export function Quizzes({ quizUrl, setQuizUrl }) {
                     uploadBgColor="#ffff"
                     setFiles={setQuizzesFiles}
                 /> */}
-                    {quizUrl ? (
-                          <div className="relative w-full h-[300px] overflow-hidden rounded-lg">
-                            <Image
-                              removeWrapper
-                              className="w-full h-full object-cover"
-                              src={quizUrl}
-                              alt="Quiz Preview"
-                            />
-                            <Button
-                              size="sm"
-                              className="absolute top-2 right-2 bg-red-500 text-white z-10"
-                              onPress={() => setQuizUrl("")}
-                            >
-                              Remove
-                            </Button>
-                          </div>
-                        ) : (
-                          <UploadDropzone
-                            className="w-full h-[300px] border-2 border-dashed border-gray-300 rounded-lg ut-label:text-lg ut-allowed-content:ut-uploading:text-red-300 relative"
-                            endpoint="imageUploader"
-                            appearance={{
-                              container: {
+                {quizUrl ? (
+                    <div className="relative w-full h-[300px] overflow-hidden rounded-lg">
+                        <Image
+                            removeWrapper
+                            className="w-full h-full object-cover"
+                            src={quizUrl}
+                            alt="Quiz Preview"
+                        />
+                        <Button
+                            size="sm"
+                            className="absolute top-2 right-2 bg-red-500 text-white z-10"
+                            onPress={() => setQuizUrl("")}
+                        >
+                            Remove
+                        </Button>
+                    </div>
+                ) : (
+                    <UploadDropzone
+                        className="w-full h-[300px] border-2 border-dashed border-gray-300 rounded-lg ut-label:text-lg ut-allowed-content:ut-uploading:text-red-300 relative"
+                        endpoint="imageUploader"
+                        appearance={{
+                            container: {
                                 width: "100%",
                                 height: "300px",
                                 display: "flex",
                                 justifyContent: "center",
                                 alignItems: "center",
                                 backgroundColor: "white",
-                              },
-                              button: {
+                            },
+                            button: {
                                 position: "absolute",
                                 bottom: "3rem",
                                 background: "#06574C",
                                 color: "white",
                                 marginTop: "1rem", // Add spacing if needed
-                              },
-                              label: {
+                            },
+                            label: {
                                 color: "#06574C",
-                              },
-                            }}
-                            onClientUploadComplete={(res) => {
-                              console.log("Files: ", res);
-                              if (res && res.length > 0) {
+                            },
+                        }}
+                        onClientUploadComplete={(res) => {
+                            console.log("Files: ", res);
+                            if (res && res.length > 0) {
                                 setQuizUrl(res[0].url);
                                 toast.success("Upload Completed");
-                              }
-                            }}
-                            onUploadError={(error) => {
-                              // Do something with the error.
-                              toast.error("ERROR! " + error.message);
-                            }}
-                          />
-                        )}
+                            }
+                        }}
+                        onUploadError={(error) => {
+                            // Do something with the error.
+                            toast.error("ERROR! " + error.message);
+                        }}
+                    />
+                )}
             </div>
 
 

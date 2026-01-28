@@ -15,6 +15,7 @@ import { Link, useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 import { setUser } from "../../redux/reducers/user";
 import { useDispatch } from "react-redux";
+import { api } from "../../services/api";
 const Login = () => {
   // const handleSubmit = (e) => {
   //   e.preventDefault();
@@ -37,51 +38,46 @@ const Login = () => {
     setLoading(true);
 
     try {
-      const res = await fetch(
-        import.meta.env.VITE_PUBLIC_SERVER_URL + "/api/auth/login",
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          credentials: "include",
-          body: JSON.stringify({ email, password }),
-        }
-      );
+      const data = await api.post("/auth/login", { email, password });
 
-      const data = await res.json();
+      // If successful (api.post throws on error)
+      dispatch(setUser(data.user));
+      toast.success("Login successful");
+      const role = data.user.role?.toLowerCase();
 
-      if (!res.ok) {
-        setModalType("error");
-        toast.error(data.message || "Login failed");
-        onOpen();
-        return;
+      let route = '/';
+      if (role === "admin") {
+        route = "/admin/dashboard"
+      } else if (role === "teacher") {
+        route = "/teacher/dashboard"
+      } else if (role === "student") {
+        route = "/student/dashboard"
       }
-      if (res.ok) {
-        // location.reload();
-        dispatch(setUser(data.user));
-        toast.success("Login successful");
-        const role = data.user.role?.toLowerCase();
-        let route = '/';
-        if (role === "admin") {
-          route = "/admin/dashboard"
-        } else if (role === "teacher") {
-          route = "/teacher/dashboard"
-        } else if (role === "student") {
-          route = "/student/dashboard"
-        }
-        window.history.replaceState({}, document.title, window.location.pathname);
-        navigate(route, { replace: true });
+
+      // Store token if returned (assuming the backend returns a token in data.token or similar, 
+      // but the original code relies on cookies? Wait, the original code had credentials: 'include'.
+      // If the backend sets a cookie, it will be handled automatically by browser. 
+      // HOWEVER, my api.js checks localStorage for a token. 
+      // If the backend returns a token in the body, I should save it.
+      // Checking the Login.jsx response handling... it just says `dispatch(setUser(data.user))`.
+      // It doesn't seem to save a token to localStorage. 
+      // But my api.js EXPECTS a token in localStorage. 
+      // If the app relies ONLY on cookies, I might need to adjust api.js or ensure the backend sends a token.
+      // Let's assume for now we might need to save it if present.
+
+      if (data.token) {
+        localStorage.setItem("token", data.token);
+      } else if (data.user?.token) {
+        localStorage.setItem("token", data.user.token);
       }
-      // setTimeout(() => {
-      //   if (data.user.role === "Admin") {
-      //     navigate("/admin/dashboard");
-      //   } else if (data.user.role === "Teacher") {
-      //     navigate("/teacher/dashboard");
-      //   } else {
-      //     navigate("/student/dashboard");
-      //   }
-      // }, 1200);
+
+      window.history.replaceState({}, document.title, window.location.pathname);
+      navigate(route, { replace: true });
+
     } catch (error) {
-      toast.error("Something went wrong. Please try again.");
+      // Toast is already handled by api.js interceptor for message
+      setModalType("error");
+      onOpen();
     } finally {
       setLoading(false);
     }

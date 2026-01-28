@@ -441,7 +441,7 @@ const UserManagement = () => {
       console.error("Error deleting user:", error);
       toast.error("An error occurred while deleting the user.");
     } finally {
-        setIsDeleting(false);
+      setIsDeleting(false);
     }
   };
 
@@ -452,20 +452,20 @@ const UserManagement = () => {
 
   // Bulk delete handler
   const handleBulkDelete = async () => {
-      const { selectedKeys, type, total } = getCurrentTab();
-      let selectedIds = [];
+    const { selectedKeys, type, total } = getCurrentTab();
+    let selectedIds = [];
 
-      if (selectedKeys === "all") {
-          const dataSource = type === 'students' ? students : type === 'teachers' ? teachers : admins;
-          selectedIds = dataSource.map(u => u.id);
-      } else {
-          selectedIds = Array.from(selectedKeys);
-      }
+    if (selectedKeys === "all") {
+      const dataSource = type === 'students' ? students : type === 'teachers' ? teachers : admins;
+      selectedIds = dataSource.map(u => u.id);
+    } else {
+      selectedIds = Array.from(selectedKeys);
+    }
 
-      if (selectedIds.length === 0) {
-          toast.error("No users selected");
-          return;
-      }
+    if (selectedIds.length === 0) {
+      toast.error("No users selected");
+      return;
+    }
 
     try {
       setIsDeleting(true);
@@ -502,32 +502,32 @@ const UserManagement = () => {
       console.error("Error deleting users:", error);
       toast.error("An error occurred while deleting users.");
     } finally {
-        setIsDeleting(false);
+      setIsDeleting(false);
     }
   };
 
   // Helper function to get current tab's selected keys
   const getCurrentTab = () => {
-      if (selectedStudents === "all" || (selectedStudents instanceof Set && selectedStudents.size > 0)) {
-          return { selectedKeys: selectedStudents, type: 'students', total: students.length };
-      }
-      if (selectedTeachers === "all" || (selectedTeachers instanceof Set && selectedTeachers.size > 0)) {
-          return { selectedKeys: selectedTeachers, type: 'teachers', total: teachers.length };
-      }
-      if (selectedAdmins === "all" || (selectedAdmins instanceof Set && selectedAdmins.size > 0)) {
-          return { selectedKeys: selectedAdmins, type: 'admins', total: admins.length };
-      }
-      return { selectedKeys: new Set(), type: null, total: 0 };
+    if (selectedStudents === "all" || (selectedStudents instanceof Set && selectedStudents.size > 0)) {
+      return { selectedKeys: selectedStudents, type: 'students', total: students.length };
+    }
+    if (selectedTeachers === "all" || (selectedTeachers instanceof Set && selectedTeachers.size > 0)) {
+      return { selectedKeys: selectedTeachers, type: 'teachers', total: teachers.length };
+    }
+    if (selectedAdmins === "all" || (selectedAdmins instanceof Set && selectedAdmins.size > 0)) {
+      return { selectedKeys: selectedAdmins, type: 'admins', total: admins.length };
+    }
+    return { selectedKeys: new Set(), type: null, total: 0 };
   };
 
   const isSelectionEmpty = (selection) => {
-      if (selection === "all") return false;
-      return selection.size === 0;
+    if (selection === "all") return false;
+    return selection.size === 0;
   };
 
   const getSelectionCount = (selection, total) => {
-      if (selection === "all") return total;
-      return selection.size;
+    if (selection === "all") return total;
+    return selection.size;
   };
 
 
@@ -583,9 +583,9 @@ const UserManagement = () => {
               onPress={onBulkDeleteOpen}
             >
               Delete Selected ({
-                  getSelectionCount(selectedStudents, students.length) + 
-                  getSelectionCount(selectedTeachers, teachers.length) + 
-                  getSelectionCount(selectedAdmins, admins.length)
+                getSelectionCount(selectedStudents, students.length) +
+                getSelectionCount(selectedTeachers, teachers.length) +
+                getSelectionCount(selectedAdmins, admins.length)
               })
             </Button>
           )}
@@ -660,13 +660,13 @@ const UserManagement = () => {
                       ))}
                     </TableHeader>
 
-                    <TableBody loadingContent={<Spinner color="success"/>} emptyContent={"  No Student Users Found."} loadingState={loading ? 'loading' : 'idle'}>
+                    <TableBody loadingContent={<Spinner color="success" />} emptyContent={"  No Student Users Found."} loadingState={loading ? 'loading' : 'idle'}>
                       {students?.map((classItem) => (
                         <TableRow key={classItem.id}>
                           <TableCell className="px-4">
                             <div>
                               <div className="font-medium text-gray-900">
-                                {classItem.first_name} {classItem.last_name}
+                                {classItem.firstName} {classItem.lastName}
                               </div>
                               <div className="text-xs text-gray-500 mt-0.5">
                                 {classItem.email}
@@ -678,13 +678,13 @@ const UserManagement = () => {
                               {classItem.role}
                             </Button>
                           </TableCell>
-                          <TableCell>{dateFormatter(classItem.created_at)}</TableCell>
+                          <TableCell>{dateFormatter(classItem.createdAt)}</TableCell>
                           <TableCell>
-                            <Button className={`text-sm p-2 rounded-md ${classItem.is_active === true ? "bg-[#95C4BE33] text-[#06574C]" : "bg-[#FBF4EC] text-[#D28E3D]"} `}>
-                              {classItem.is_active == true ? "Active" : "Inactive"}
+                            <Button className={`text-sm p-2 rounded-md ${classItem.isActive === true ? "bg-[#95C4BE33] text-[#06574C]" : "bg-[#FBF4EC] text-[#D28E3D]"} `}>
+                              {classItem.isActive == true ? "Active" : "Inactive"}
                             </Button>
                           </TableCell>
-                          <TableCell>{classItem.last_active ? dateFormatter(classItem.last_active, true) : "N/A"}</TableCell>
+                          <TableCell>{classItem.lastActive ? dateFormatter(classItem.lastActive, true) : "N/A"}</TableCell>
                           <TableCell className="flex gap-2">
                             <Button
                               variant="bordered"
@@ -707,7 +707,7 @@ const UserManagement = () => {
                             </Button>
                           </TableCell>
                         </TableRow>
-                      )) }
+                      ))}
                     </TableBody>
                   </Table>
                 </motion.div>
@@ -763,7 +763,7 @@ const UserManagement = () => {
                             <TableCell className="px-4">
                               <div>
                                 <div className="font-medium text-gray-900">
-                                  {classItem.first_name} {classItem.last_name}
+                                  {classItem.firstName} {classItem.lastName}
                                 </div>
                                 <div className="text-xs text-gray-500 mt-0.5">
                                   {classItem.email}
@@ -775,13 +775,13 @@ const UserManagement = () => {
                                 {classItem.role}
                               </Button>
                             </TableCell>
-                            <TableCell>{dateFormatter(classItem.created_at)}</TableCell>
+                            <TableCell>{dateFormatter(classItem.createdAt)}</TableCell>
                             <TableCell>
-                              <Button className={`text-sm p-2 rounded-md ${classItem.is_active === true ? "bg-[#95C4BE33] text-[#06574C]" : "bg-[#FBF4EC] text-[#D28E3D]"} `}>
-                                {classItem.is_active == true ? "Active" : "Inactive"}
+                              <Button className={`text-sm p-2 rounded-md ${classItem.isActive === true ? "bg-[#95C4BE33] text-[#06574C]" : "bg-[#FBF4EC] text-[#D28E3D]"} `}>
+                                {classItem.isActive == true ? "Active" : "Inactive"}
                               </Button>
                             </TableCell>
-                            <TableCell>{classItem.last_active ? dateFormatter(classItem.last_active, true) : "N/A"}</TableCell>
+                            <TableCell>{classItem.lastActive ? dateFormatter(classItem.lastActive, true) : "N/A"}</TableCell>
                             <TableCell className="flex gap-2">
                               <Button
                                 variant="bordered"
@@ -866,7 +866,7 @@ const UserManagement = () => {
                             <TableCell className="px-4">
                               <div>
                                 <div className="font-medium text-gray-900">
-                                  {classItem.first_name} {classItem.last_name}
+                                  {classItem.firstName} {classItem.lastName}
                                 </div>
                                 <div className="text-xs text-gray-500 mt-0.5">
                                   {classItem.email}
@@ -878,13 +878,13 @@ const UserManagement = () => {
                                 {classItem.role}
                               </Button>
                             </TableCell>
-                            <TableCell>{dateFormatter(classItem.created_at)}</TableCell>
+                            <TableCell>{dateFormatter(classItem.createdAt)}</TableCell>
                             <TableCell>
-                              <Button className={`text-sm p-2 rounded-md ${classItem.is_active === true ? "bg-[#95C4BE33] text-[#06574C]" : "bg-[#FBF4EC] text-[#D28E3D]"} `}>
-                                {classItem.is_active == true ? "Active" : "Inactive"}
+                              <Button className={`text-sm p-2 rounded-md ${classItem.isActive === true ? "bg-[#95C4BE33] text-[#06574C]" : "bg-[#FBF4EC] text-[#D28E3D]"} `}>
+                                {classItem.isActive == true ? "Active" : "Inactive"}
                               </Button>
                             </TableCell>
-                            <TableCell>{classItem.last_active ? dateFormatter(classItem.last_active, true) : "N/A"}</TableCell>
+                            <TableCell>{classItem.lastActive ? dateFormatter(classItem.lastActive, true) : "N/A"}</TableCell>
                             <TableCell className="flex gap-2">
                               <Button
                                 variant="bordered"
@@ -987,9 +987,9 @@ const UserManagement = () => {
           </ModalHeader>
           <ModalBody>
             <p>Are you sure you want to delete {
-                getSelectionCount(selectedStudents, students.length) + 
-                getSelectionCount(selectedTeachers, teachers.length) + 
-                getSelectionCount(selectedAdmins, admins.length)
+              getSelectionCount(selectedStudents, students.length) +
+              getSelectionCount(selectedTeachers, teachers.length) +
+              getSelectionCount(selectedAdmins, admins.length)
             } selected user?</p>
             <p className="text-sm text-gray-500">This action cannot be undone.</p>
           </ModalBody>

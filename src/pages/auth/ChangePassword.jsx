@@ -3,6 +3,7 @@ import { EyeIcon, EyeOffIcon } from "lucide-react";
 import { useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import toast from "react-hot-toast";
+import { api } from "../../services/api";
 
 const ChangePassword = () => {
   const [searchParams] = useSearchParams();
@@ -41,43 +42,41 @@ const ChangePassword = () => {
     try {
       setLoading(true);
 
-      const res = await fetch(
-        import.meta.env.VITE_PUBLIC_SERVER_URL + "/api/admin/change-password",
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ token, email, password }),
-        }
-      );
+      const data = await api.post("/admin/change-password", { token, email, password });
 
-      const data = await res.json();
+      // check for additional success flags if typical structure is { success: true }
+      // api.post returns data directly. If status was not 2xx, it would have thrown.
 
-      if (!res.ok || !data.success) {
-        // Check for specific token errors
-        if (data.message?.toLowerCase().includes('expired') || 
-            data.message?.toLowerCase().includes('invalid') ||
-            data.message?.toLowerCase().includes('token')) {
-          toast.error("Password reset link has expired or is invalid. Please request a new one.");
-          navigate("/forgot-password");
-          return;
-        }
-        
-        toast.error(data.message || "Failed to change password");
-        return;
+      if (data && data.success === false) {
+        // This block might be redundant if the interceptor throws on logic errors, 
+        // but if backend returns { success: false } with 200 OK, we handle it here.
+        throw new Error(data.message || "Failed to change password");
       }
 
       // Success case
       toast.success("Password changed successfully!");
       setPassword("");
       setConfirmPassword("");
-      
+
       // Redirect after a short delay
       setTimeout(() => {
         navigate("/");
       }, 1500);
     } catch (err) {
-      toast.error(err.message || "An error occurred. Please try again.");
-      setError(err.message);
+      // Interceptor shows toast, but we might want to catch specific "expired" messages
+      // confusing implementation in original code manual check.
+      // The interceptor throws, so:
+
+      const msg = err.response?.data?.message || err.message || "";
+
+      if (msg.toLowerCase().includes('expired') ||
+        msg.toLowerCase().includes('invalid') ||
+        msg.toLowerCase().includes('token')) {
+        // Additional navigation for this specific error
+        navigate("/forgot-password");
+      }
+
+      setError(msg);
     } finally {
       setLoading(false);
     }
@@ -101,12 +100,12 @@ const ChangePassword = () => {
           alt="Darul Quran"
           className="w-45 h-45 !self-center md:hidden"
         />
-        
+
         <div className="w-full max-w-xl mx-auto">
           <h1 className="text-3xl font-medium mb-6">
             <strong>Change Password</strong>
           </h1>
-          
+
           {/* Email display */}
           {email && (
             <div className="mb-4 p-3 bg-gray-100 rounded border border-gray-200">
@@ -115,7 +114,7 @@ const ChangePassword = () => {
               </p>
             </div>
           )}
-          
+
           {/* Token missing warning */}
           {(!token || !email) && (
             <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded">
@@ -130,13 +129,13 @@ const ChangePassword = () => {
               </button>
             </div>
           )}
-          
+
           {error && (
             <p className="text-red-600 bg-red-50 p-3 rounded mb-4 border border-red-200">
               {error}
             </p>
           )}
-          
+
           <Form onSubmit={handleSubmit} className="space-y-6 w-full">
             {/* New Password */}
             <div className="space-y-2 w-full">
@@ -164,11 +163,11 @@ const ChangePassword = () => {
                 onChange={(e) => setPassword(e.target.value)}
                 isInvalid={!!error && (!password || password.length < 8)}
                 errorMessage={
-                  !password 
-                    ? "Password is required" 
-                    : password.length < 8 
-                    ? "Password must be at least 8 characters"
-                    : ""
+                  !password
+                    ? "Password is required"
+                    : password.length < 8
+                      ? "Password must be at least 8 characters"
+                      : ""
                 }
                 required
               />
@@ -208,8 +207,8 @@ const ChangePassword = () => {
                 !confirmPassword
                   ? "Confirm password is required"
                   : password !== confirmPassword
-                  ? "Passwords do not match"
-                  : ""
+                    ? "Passwords do not match"
+                    : ""
               }
               required
             />
@@ -219,13 +218,12 @@ const ChangePassword = () => {
               radius="md"
               isLoading={loading}
               disabled={loading || !token || !email}
-              className={`w-full text-white bg-[#06574C] hover:bg-[#05463d] transition-colors ${
-                (!token || !email) ? "opacity-50 cursor-not-allowed" : ""
-              }`}
+              className={`w-full text-white bg-[#06574C] hover:bg-[#05463d] transition-colors ${(!token || !email) ? "opacity-50 cursor-not-allowed" : ""
+                }`}
             >
               {loading ? "Changing Password..." : "Change Password"}
             </Button>
-            
+
             <div className="text-center pt-4">
               <button
                 type="button"

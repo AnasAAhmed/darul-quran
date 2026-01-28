@@ -16,7 +16,6 @@ const FileDropzone = ({
   width = "100%",
 }) => {
   const { getRootProps, getInputProps, open, acceptedFiles } = useDropzone({
-    noClick: true,
     noKeyboard: true,
     onDrop: (acceptedFiles) => {
       setFiles(acceptedFiles);
@@ -37,6 +36,7 @@ const FileDropzone = ({
       console.error("No file provided.");
       return null;
     }
+    if (typeof file === "string") return file;
     const imageUrl = URL.createObjectURL(file);
     return imageUrl;
   };
