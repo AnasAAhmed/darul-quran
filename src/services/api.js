@@ -1,9 +1,9 @@
 import axios from "axios";
-import { server } from "../redux/store";
+import { serverUrl } from "../redux/store";
 import toast from "react-hot-toast";
 
 const axiosInstance = axios.create({
-    baseURL: `${server}/api`, // append /api here
+    baseURL: `${serverUrl}/api`, // append /api here
     headers: {
         "Content-Type": "application/json",
     },
