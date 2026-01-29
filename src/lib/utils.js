@@ -1,4 +1,5 @@
 export const dateFormatter = (date, isTime = false) => {
+  if(!date) return '';
   const formatterUS = new Intl.DateTimeFormat('en-US', {
     year: 'numeric',
     month: 'short',
