@@ -44,13 +44,8 @@ const UserManagement = () => {
 
   const statuses = [
     { key: "all", label: "All Status" },
-    { key: "Active", label: "Active" },
-    { key: "inactive", label: "Inactive" },
-  ];
-  const roles = [
-    { key: "all", label: "All Roles" },
-    { key: "Teachers", label: "Teachers" },
-    { key: "Students", label: "Students" },
+    { key: "true", label: "Active" },
+    { key: "false", label: "Inactive" },
   ];
 
   const filters = [{ key: "all", label: "Filter" }];
@@ -87,37 +82,12 @@ const UserManagement = () => {
   // States for bulk delete
   const [selectedStudents, setSelectedStudents] = useState(new Set());
   const [selectedTeachers, setSelectedTeachers] = useState(new Set());
-  const [selectedAdmins, setSelectedAdmins] = useState(new Set());
+  // const [selectedAdmins, setSelectedAdmins] = useState(new Set());
+  const [selectedUsers, setSelectedUsers] = useState(new Set());
   const [isDeleting, setIsDeleting] = useState(false);
   const { isOpen: isBulkDeleteOpen, onOpen: onBulkDeleteOpen, onClose: onBulkDeleteClose } = useDisclosure();
 
-  // const { data, isError, isLoading } = useGetAllUsersQuery({ page, limit, status, role });
-
-  useEffect(() => {
-    const fetchUsers = async () => {
-      try {
-        setLoading(true);
-        const res = await fetch(import.meta.env.VITE_PUBLIC_SERVER_URL + "/api/user/getAllUsers");
-        const data = await res.json();
-
-        const teacherData = data.users.filter(u => u.role?.toLowerCase() === "teacher");
-        const studentData = data.users.filter(u => u.role?.toLowerCase() === "student");
-        const adminData = data.users.filter(u => u.role?.toLowerCase() === "admin");
-
-        setTeachers(teacherData);
-        setStudents(studentData);
-        setAdmins(adminData);
-
-      } catch (error) {
-        console.log(error);
-        errorMessage(error.message)
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchUsers();
-  }, []);
+  const { data, isError, isFetching } = useGetAllUsersQuery({ page, limit, status, role });
 
   const openDeleteModal = (userId) => {
     setUserToDelete(userId);
@@ -139,12 +109,6 @@ const UserManagement = () => {
         setUserToDelete(null);
         const response = await fetch(import.meta.env.VITE_PUBLIC_SERVER_URL + "/api/user/getAllUsers");
         const data = await response.json();
-        const teacherData = data.users.filter(u => u.role?.toLowerCase() === "teacher");
-        const studentData = data.users.filter(u => u.role?.toLowerCase() === "student");
-        const adminData = data.users.filter(u => u.role?.toLowerCase() === "admin");
-        setTeachers(teacherData);
-        setStudents(studentData);
-        setAdmins(adminData);
       } else {
         toast.error("Failed to delete user.");
       }
@@ -163,18 +127,14 @@ const UserManagement = () => {
 
   // Bulk delete handler
   const handleBulkDelete = async () => {
-    const { selectedKeys, type, total } = getCurrentTab();
     let selectedIds = [];
 
-    if (selectedKeys === "all") {
-      const dataSource = type === 'students' ? students : type === 'teachers' ? teachers : admins;
-      selectedIds = dataSource.map(u => u.id);
-    } else {
-      selectedIds = Array.from(selectedKeys);
+    if (selectedUsers.length) {
+      selectedIds = selectedUsers.map(u => u.id);
     }
 
     if (selectedIds.length === 0) {
-      toast.error("No users selected");
+      errorMessage("No users selected");
       return;
     }
 
@@ -194,21 +154,14 @@ const UserManagement = () => {
       }
 
       // Clear selections
-      setSelectedStudents(new Set());
-      setSelectedTeachers(new Set());
-      setSelectedAdmins(new Set());
+      setSelectedUsers(new Set());
 
       onBulkDeleteClose();
 
       // Refresh user list
       const response = await fetch(import.meta.env.VITE_PUBLIC_SERVER_URL + "/api/user/getAllUsers");
       const data = await response.json();
-      const teacherData = data.users.filter(u => u.role?.toLowerCase() === "teacher");
-      const studentData = data.users.filter(u => u.role?.toLowerCase() === "student");
-      const adminData = data.users.filter(u => u.role?.toLowerCase() === "admin");
-      setTeachers(teacherData);
-      setStudents(studentData);
-      setAdmins(adminData);
+
     } catch (error) {
       console.error("Error deleting users:", error);
       toast.error("An error occurred while deleting users.");
@@ -256,19 +209,15 @@ const UserManagement = () => {
             className="min-w-[120px]"
             radius="sm"
             defaultSelectedKeys={["all"]}
+            onSelectionChange={(keys) => {
+              const keysArray = keys instanceof Set ? Array.from(keys) : Array.isArray(keys) ? keys : [];
+              const selectedKey = keysArray[0];
+
+              setStatus(selectedKey)
+            }}
             placeholder="Select Status"
           >
             {statuses.map((status) => (
-              <SelectItem key={status.key}>{status.label}</SelectItem>
-            ))}
-          </Select>
-          <Select
-            className="min-w-[120px]"
-            radius="sm"
-            defaultSelectedKeys={["all"]}
-            placeholder="Select Role"
-          >
-            {roles.map((status) => (
               <SelectItem key={status.key}>{status.label}</SelectItem>
             ))}
           </Select>
@@ -286,7 +235,7 @@ const UserManagement = () => {
         </div>
         <div className=" flex gap-3 max-md:flex-wrap max-md:w-full">
           {/* Bulk Delete Button - Shows when users are selected */}
-          {(!isSelectionEmpty(selectedStudents) || !isSelectionEmpty(selectedTeachers) || !isSelectionEmpty(selectedAdmins)) && (
+          {(!isSelectionEmpty(selectedUsers)) && (
             <Button
               radius="sm"
               startContent={<Trash2 color="white" size={15} />}
@@ -294,9 +243,7 @@ const UserManagement = () => {
               onPress={onBulkDeleteOpen}
             >
               Delete Selected ({
-                getSelectionCount(selectedStudents, students.length) +
-                getSelectionCount(selectedTeachers, teachers.length) +
-                getSelectionCount(selectedAdmins, admins.length)
+                getSelectionCount(selectedUsers, data?.total)
               })
             </Button>
           )}
@@ -323,12 +270,12 @@ const UserManagement = () => {
       </div>
       <div>
         <div className=" ">
-          {/* <Tabs aria-label="Tabs colors" radius="full"
+          <Tabs aria-label="Tabs colors" radius="full"
             className="flex"
           >
             <Tab
               key="Students"
-              onClick={()=>setRole('student')}
+              onClick={() => { setRole('student'); setSelectedUsers(new Set()); }}
               title={
                 <div className="text-[#06574C] flex gap-2 items-center">
                   <span>Students</span>
@@ -336,7 +283,7 @@ const UserManagement = () => {
                     size="sm"
                     className="text-xs text-[#06574C] bg-white shadow-md"
                   >
-                    {students.length}
+                    {data?.meta?.countsByRole?.find((count) => count.role === 'student')?.count || 0}
                   </Chip>
                 </div>
               }
@@ -344,7 +291,7 @@ const UserManagement = () => {
             </Tab>
             <Tab
               key="Teachers"
-              onClick={()=>setRole('teacher')}
+              onClick={() => { setRole('teacher'); setSelectedUsers(new Set()); }}
               title={
                 <div className="text-[#06574C] flex gap-2 items-center">
                   <span>Teachers</span>
@@ -352,7 +299,7 @@ const UserManagement = () => {
                     size="sm"
                     className="text-xs text-[#06574C] bg-white shadow-md"
                   >
-                    {teachers.length}
+                    {data?.meta?.countsByRole?.find((count) => count.role === 'teacher')?.count || 0}
                   </Chip>
                 </div>
               }
@@ -360,7 +307,7 @@ const UserManagement = () => {
             </Tab>
             <Tab
               key="Supports_Staff"
-              onClick={()=>setRole('admin')}
+              onClick={() => {setRole('admin');setSelectedUsers(new Set());}}
               title={
                 <div className="text-[#06574C] flex gap-2 items-center">
                   <span>Admins </span>
@@ -368,7 +315,7 @@ const UserManagement = () => {
                     size="sm"
                     className="text-xs text-[#06574C] bg-white shadow-md"
                   >
-                    {admins.length}
+                    {data?.meta?.countsByRole?.find((count) => count.role === 'admin')?.count || 0}
                   </Chip>
                 </div>
               }
@@ -386,13 +333,13 @@ const UserManagement = () => {
               <Table
                 //    isHeaderSticky
                 isHeaderSticky
-                selectionMode={admins.length > 0 ? "multiple" : undefined}
-                selectedKeys={selectedAdmins}
-                onSelectionChange={setSelectedAdmins}
+                selectionMode={data?.total > 0 ? "multiple" : undefined}
+                selectedKeys={selectedUsers}
+                onSelectionChange={setSelectedUsers}
                 aria-label="Pending approvals table"
                 removeWrapper
                 classNames={{
-                  base: "w-full bg-white rounded-lg h-[calc(100vh-350px)] overflow-x-scroll w-full no-scrollbar",
+                  base: "w-full bg-white my-3 rounded-lg h-[calc(100vh-350px)] overflow-x-scroll w-full no-scrollbar",
                   th: "font-bold p-4 text-md  text-[#333333] capitalize tracking-widest  bg-white",
                   tbody: "overflow-y-scroll no-scrollbar",
                   td: "py-3 items-center whitespace-nowrap",
@@ -405,385 +352,86 @@ const UserManagement = () => {
                   ))}
                 </TableHeader>
 
-                <TableBody>
-                  {data?.users.length > 0 ?
-                    data?.users.map((classItem) => (
-                      <TableRow key={classItem.id}>
-                        <TableCell className="px-4">
-                          <div>
-                            <div className="font-medium text-gray-900">
-                              {classItem.first_name} {classItem.last_name}
-                            </div>
-                            <div className="text-xs text-gray-500 mt-0.5">
-                              {classItem.email}
-                            </div>
+                <TableBody
+                  emptyContent={<p className="text-center py-4 h-[calc(100vh-350px)]">
+                    No {role} Users Found.
+                  </p>}
+                  items={data?.users || []}
+                  loadingState={isFetching ? 'loading' : 'idle'}
+                  loadingContent={<Spinner color="success" />}>
+                  {(classItem) => (
+                    <TableRow key={classItem.id}>
+                      <TableCell className="px-4">
+                        <div>
+                          <div className="font-medium text-gray-900">
+                            {classItem.firstName} {classItem.lastName}
                           </div>
-                        </TableCell>
-                        <TableCell>
-                          <Button className="text-sm p-2 rounded-md bg-[#FBF4EC] text-[#D28E3D]">
-                            {classItem.role}
-                          </Button>
-                        </TableCell>
-                        <TableCell>{dateFormatter(classItem.created_at)}</TableCell>
-                        <TableCell>
-                          <Button className={`text-sm p-2 rounded-md ${classItem.is_active === true ? "bg-[#95C4BE33] text-[#06574C]" : "bg-[#FBF4EC] text-[#D28E3D]"} `}>
-                            {classItem.is_active == true ? "Active" : "Inactive"}
-                          </Button>
-                        </TableCell>
-                        <TableCell>{classItem.last_active ? dateFormatter(classItem.last_active, true) : "N/A"}</TableCell>
-                        <TableCell className="flex gap-2">
-                          <Button
-                            variant="bordered"
-                            radius="sm"
-                            className="border-[#06574C]"
-                            startContent={
-                              <SquarePen size={18} color="#06574C" />
-                            }
-                            onPress={() => { router(`/admin/user-management/edit-user/${classItem.id}`) }}
-                          >
-                            Edit
-                          </Button>
-                          <Button
-                            radius="sm"
-                            className="bg-[#06574C] text-white"
-                            startContent={<Trash2 size={18} color="white" />}
-                            onPress={() => openDeleteModal(classItem.id)}
-                          >
-                            Delete
-                          </Button>
-                        </TableCell>
-                      </TableRow>
-                    )) : <TableRow>
-                      <TableCell colSpan={6} className="text-center py-4 h-[calc(100vh-350px)]">
-                        No {role} Users Found.
+                          <div className="text-xs text-gray-500 mt-0.5">
+                            {classItem.email}
+                          </div>
+                        </div>
                       </TableCell>
-                    </TableRow>}
+                      <TableCell>
+                        <Button className="text-sm p-2 rounded-md bg-[#FBF4EC] text-[#D28E3D]">
+                          {classItem.role}
+                        </Button>
+                      </TableCell>
+                      <TableCell>{dateFormatter(classItem.createdAt)}</TableCell>
+                      <TableCell>
+                        <Button className={`text-sm p-2 rounded-md ${classItem.isActive === true ? "bg-[#95C4BE33] text-[#06574C]" : "bg-[#FBF4EC] text-[#D28E3D]"} `}>
+                          {classItem.isActive == true ? "Active" : "Inactive"}
+                        </Button>
+                      </TableCell>
+                      <TableCell>{classItem.lastActive ? dateFormatter(classItem.lastActive, true) : "N/A"}</TableCell>
+                      <TableCell className="flex gap-2">
+                        <Button
+                          variant="bordered"
+                          radius="sm"
+                          className="border-[#06574C]"
+                          startContent={
+                            <SquarePen size={18} color="#06574C" />
+                          }
+                          onPress={() => { router(`/admin/user-management/edit-user/${classItem.id}`) }}
+                        >
+                          Edit
+                        </Button>
+                        <Button
+                          radius="sm"
+                          className="bg-[#06574C] text-white"
+                          startContent={<Trash2 size={18} color="white" />}
+                          onPress={() => openDeleteModal(classItem.id)}
+                        >
+                          Delete
+                        </Button>
+                      </TableCell>
+                    </TableRow>
+                  )}
                 </TableBody>
               </Table>
             </motion.div>
-          </AnimatePresence> */}
-          <Tabs aria-label="Tabs colors" radius="full"
-            className="flex"
-          >
-            <Tab
-              key="Students"
-              title={
-                <div className="text-[#06574C] flex gap-2 items-center">
-                  <span>Students</span>
-                  <Chip
-                    size="sm"
-                    className="text-xs text-[#06574C] bg-white shadow-md"
-                  >
-                    {students.length}
-                  </Chip>
-                </div>
-              }
-            >
-              <AnimatePresence mode="wait">
-                <motion.div
-                  key={selectedTab ? selectedTab.label : "empty"}
-                  initial={{ y: 10, opacity: 0 }}
-                  animate={{ y: 0, opacity: 1 }}
-                  exit={{ y: -10, opacity: 0 }}
-                  transition={{ duration: 0.6, ease: "easeInOut" }}
-                >
-                  <Table
-                    isHeaderSticky
-                    selectionMode={students.length > 0 ? "multiple" : undefined}
-                    selectedKeys={selectedStudents}
-
-                    onSelectionChange={setSelectedStudents}
-                    aria-label="Pending approvals table"
-                    removeWrapper
-                    classNames={{
-                      base: "w-full bg-white rounded-lg h-[calc(100vh-350px)] overflow-x-scroll w-full no-scrollbar",
-                      th: "font-bold p-4 text-md  text-[#333333] capitalize tracking-widest  bg-white",
-                      tbody: "overflow-y-scroll no-scrollbar",
-                      td: "py-3 items-center whitespace-nowrap",
-                      tr: "border-b border-default-200 ",
-
-                    }}
-                  >
-                    <TableHeader>
-                      {header.map((item) => (
-                        <TableColumn key={item.key}>{item.label}</TableColumn>
-                      ))}
-                    </TableHeader>
-
-                    <TableBody loadingContent={<Spinner color="success" />} emptyContent={"  No Student Users Found."} loadingState={loading ? 'loading' : 'idle'}>
-                      {students?.map((classItem) => (
-                        <TableRow key={classItem.id}>
-                          <TableCell className="px-4">
-                            <div>
-                              <div className="font-medium text-gray-900">
-                                {classItem.first_name} {classItem.last_name}
-                              </div>
-                              <div className="text-xs text-gray-500 mt-0.5">
-                                {classItem.email}
-                              </div>
-                            </div>
-                          </TableCell>
-                          <TableCell>
-                            <Button className="text-sm p-2 rounded-md bg-[#FBF4EC] text-[#D28E3D]">
-                              {classItem.role}
-                            </Button>
-                          </TableCell>
-                          <TableCell>{dateFormatter(classItem.created_at)}</TableCell>
-                          <TableCell>
-                            <Button className={`text-sm p-2 rounded-md ${classItem.is_active === true ? "bg-[#95C4BE33] text-[#06574C]" : "bg-[#FBF4EC] text-[#D28E3D]"} `}>
-                              {classItem.is_active == true ? "Active" : "Inactive"}
-                            </Button>
-                          </TableCell>
-                          <TableCell>{classItem.last_active ? dateFormatter(classItem.last_active, true) : "N/A"}</TableCell>
-                          <TableCell className="flex gap-2">
-                            <Button
-                              variant="bordered"
-                              radius="sm"
-                              className="border-[#06574C]"
-                              startContent={
-                                <SquarePen size={18} color="#06574C" />
-                              }
-                              onPress={() => { router(`/admin/user-management/edit-user/${classItem.id}`) }}
-                            >
-                              Edit
-                            </Button>
-                            <Button
-                              radius="sm"
-                              className="bg-[#06574C] text-white"
-                              startContent={<Trash2 size={18} color="white" />}
-                              onPress={() => openDeleteModal(classItem.id)}
-                            >
-                              Delete
-                            </Button>
-                          </TableCell>
-                        </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
-                </motion.div>
-              </AnimatePresence>
-            </Tab>
-            <Tab
-              key="Teachers"
-              title={
-                <div className="text-[#06574C] flex gap-2 items-center">
-                  <span>Teachers</span>
-                  <Chip
-                    size="sm"
-                    className="text-xs text-[#06574C] bg-white shadow-md"
-                  >
-                    {teachers.length}
-                  </Chip>
-                </div>
-              }
-            >
-              <AnimatePresence mode="wait">
-                <motion.div
-                  key={selectedTab ? selectedTab.label : "empty"}
-                  initial={{ y: 10, opacity: 0 }}
-                  animate={{ y: 0, opacity: 1 }}
-                  exit={{ y: -10, opacity: 0 }}
-                  transition={{ duration: 0.6, ease: "easeInOut" }}
-                >
-                  <Table
-                    isHeaderSticky
-                    selectionMode={teachers.length > 0 ? "multiple" : undefined}
-                    selectedKeys={selectedTeachers}
-                    onSelectionChange={setSelectedTeachers}
-                    aria-label="Pending approvals table"
-                    removeWrapper
-                    classNames={{
-                      base: "w-full bg-white rounded-lg h-[calc(100vh-350px)] overflow-x-scroll w-full no-scrollbar",
-                      th: "font-bold p-4 text-md  text-[#333333] capitalize tracking-widest  bg-white",
-                      tbody: "overflow-y-scroll no-scrollbar",
-                      td: "py-3 items-center whitespace-nowrap",
-                      tr: "border-b border-default-200 ",
-                    }}
-                  >
-                    <TableHeader>
-                      {header.map((item) => (
-                        <TableColumn key={item.key}>{item.label}</TableColumn>
-                      ))}
-                    </TableHeader>
-
-                    <TableBody>
-                      {teachers.length > 0 ?
-                        teachers.map((classItem) => (
-                          <TableRow key={classItem.id}>
-                            <TableCell className="px-4">
-                              <div>
-                                <div className="font-medium text-gray-900">
-                                  {classItem.first_name} {classItem.last_name}
-                                </div>
-                                <div className="text-xs text-gray-500 mt-0.5">
-                                  {classItem.email}
-                                </div>
-                              </div>
-                            </TableCell>
-                            <TableCell>
-                              <Button className="text-sm p-2 rounded-md bg-[#FBF4EC] text-[#D28E3D]">
-                                {classItem.role}
-                              </Button>
-                            </TableCell>
-                            <TableCell>{dateFormatter(classItem.created_at)}</TableCell>
-                            <TableCell>
-                              <Button className={`text-sm p-2 rounded-md ${classItem.is_active === true ? "bg-[#95C4BE33] text-[#06574C]" : "bg-[#FBF4EC] text-[#D28E3D]"} `}>
-                                {classItem.is_active == true ? "Active" : "Inactive"}
-                              </Button>
-                            </TableCell>
-                            <TableCell>{classItem.last_active ? dateFormatter(classItem.last_active, true) : "N/A"}</TableCell>
-                            <TableCell className="flex gap-2">
-                              <Button
-                                variant="bordered"
-                                radius="sm"
-                                className="border-[#06574C]"
-                                startContent={
-                                  <SquarePen size={18} color="#06574C" />
-                                }
-                                onPress={() => { router(`/admin/user-management/edit-user/${classItem.id}`) }}
-                              >
-                                Edit
-                              </Button>
-                              <Button
-                                radius="sm"
-                                className="bg-[#06574C] text-white"
-                                startContent={<Trash2 size={18} color="white" />}
-                                onPress={() => openDeleteModal(classItem.id)}
-                              >
-                                Delete
-                              </Button>
-                            </TableCell>
-                          </TableRow>
-                        ))
-                        : <TableRow>
-                          <TableCell colSpan={6} className="text-center py-4 h-[calc(100vh-350px)]">
-                            No Teacher Users Found.
-                          </TableCell>
-                        </TableRow>}
-                    </TableBody>
-                  </Table>
-                </motion.div>
-              </AnimatePresence>
-            </Tab>
-            <Tab
-              key="Supports_Staff"
-              title={
-                <div className="text-[#06574C] flex gap-2 items-center">
-                  <span>Admins </span>
-                  <Chip
-                    size="sm"
-                    className="text-xs text-[#06574C] bg-white shadow-md"
-                  >
-                    {admins.length}
-                  </Chip>
-                </div>
-              }
-            >
-              <AnimatePresence mode="wait">
-                <motion.div
-                  key={selectedTab ? selectedTab.label : "empty"}
-                  initial={{ y: 10, opacity: 0 }}
-                  animate={{ y: 0, opacity: 1 }}
-                  exit={{ y: -10, opacity: 0 }}
-                  transition={{ duration: 0.6, ease: "easeInOut" }}
-                >
-                  <Table
-                    //    isHeaderSticky
-                    isHeaderSticky
-                    selectionMode={admins.length > 0 ? "multiple" : undefined}
-                    selectedKeys={selectedAdmins}
-                    onSelectionChange={setSelectedAdmins}
-                    aria-label="Pending approvals table"
-                    removeWrapper
-                    classNames={{
-                      base: "w-full bg-white rounded-lg h-[calc(100vh-350px)] overflow-x-scroll w-full no-scrollbar",
-                      th: "font-bold p-4 text-md  text-[#333333] capitalize tracking-widest  bg-white",
-                      tbody: "overflow-y-scroll no-scrollbar",
-                      td: "py-3 items-center whitespace-nowrap",
-                      tr: "border-b border-default-200 ",
-                    }}
-                  >
-                    <TableHeader>
-                      {header.map((item) => (
-                        <TableColumn key={item.key}>{item.label}</TableColumn>
-                      ))}
-                    </TableHeader>
-
-                    <TableBody>
-                      {admins.length > 0 ?
-                        admins.map((classItem) => (
-                          <TableRow key={classItem.id}>
-                            <TableCell className="px-4">
-                              <div>
-                                <div className="font-medium text-gray-900">
-                                  {classItem.first_name} {classItem.last_name}
-                                </div>
-                                <div className="text-xs text-gray-500 mt-0.5">
-                                  {classItem.email}
-                                </div>
-                              </div>
-                            </TableCell>
-                            <TableCell>
-                              <Button className="text-sm p-2 rounded-md bg-[#FBF4EC] text-[#D28E3D]">
-                                {classItem.role}
-                              </Button>
-                            </TableCell>
-                            <TableCell>{dateFormatter(classItem.created_at)}</TableCell>
-                            <TableCell>
-                              <Button className={`text-sm p-2 rounded-md ${classItem.is_active === true ? "bg-[#95C4BE33] text-[#06574C]" : "bg-[#FBF4EC] text-[#D28E3D]"} `}>
-                                {classItem.is_active == true ? "Active" : "Inactive"}
-                              </Button>
-                            </TableCell>
-                            <TableCell>{classItem.last_active ? dateFormatter(classItem.last_active, true) : "N/A"}</TableCell>
-                            <TableCell className="flex gap-2">
-                              <Button
-                                variant="bordered"
-                                radius="sm"
-                                className="border-[#06574C]"
-                                startContent={
-                                  <SquarePen size={18} color="#06574C" />
-                                }
-                                onPress={() => { router(`/admin/user-management/edit-user/${classItem.id}`) }}
-                              >
-                                Edit
-                              </Button>
-                              <Button
-                                radius="sm"
-                                className="bg-[#06574C] text-white"
-                                startContent={<Trash2 size={18} color="white" />}
-                                onPress={() => openDeleteModal(classItem.id)}
-                              >
-                                Delete
-                              </Button>
-                            </TableCell>
-                          </TableRow>
-                        )) : <TableRow>
-                          <TableCell colSpan={6} className="text-center py-4 h-[calc(100vh-350px)]">
-                            No Admin Users Found.
-                          </TableCell>
-                        </TableRow>}
-                    </TableBody>
-                  </Table>
-                </motion.div>
-              </AnimatePresence>
-            </Tab>
-          </Tabs>
+          </AnimatePresence>
         </div>
       </div>
-      <div className="flex flex-col gap-6  md:flex-row  w-full md:justify-between md:items-center mb-3">
+      <div className="flex flex-col gap-6 md:flex-row  w-full md:justify-between md:items-center mb-3">
         <div className="flex text-sm items-center gap-1">
           <span>Showing</span>
           <Select
             radius="sm"
             className="w-[70px]"
-            defaultSelectedKeys={["10"]}
+            defaultSelectedKeys={[String(data?.limit || 10)]}
             placeholder="1"
+            onSelectionChange={(keys) => {
+              const keysArray = keys instanceof Set ? Array.from(keys) : Array.isArray(keys) ? keys : [];
+              const selectedKey = keysArray[0];
+
+              setLimit(selectedKey)
+            }}
           >
             {limits.map((limit) => (
               <SelectItem key={limit.key}>{limit.label}</SelectItem>
             ))}
           </Select>
-          <span className="min-w-56">Out of 58</span>
+          <span className="min-w-56">Out of {data?.total}</span>
         </div>
 
         <div className="">
@@ -794,7 +442,9 @@ const UserManagement = () => {
               cursor: "bg-[#06574C] text-white",
             }}
             initialPage={1}
-            total={5}
+            page={page}
+            setPage={setPage}
+            total={data?.totalPages}
           />
         </div>
       </div>
@@ -837,10 +487,7 @@ const UserManagement = () => {
           </ModalHeader>
           <ModalBody>
             <p>Are you sure you want to delete {
-              getSelectionCount(selectedStudents, students.length) +
-              getSelectionCount(selectedTeachers, teachers.length) +
-              getSelectionCount(selectedAdmins, admins.length)
-            } selected user?</p>
+              getSelectionCount(selectedUsers, data?.total)} selected user?</p>
             <p className="text-sm text-gray-500">This action cannot be undone.</p>
           </ModalBody>
           <ModalFooter>
