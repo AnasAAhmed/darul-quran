@@ -36,7 +36,7 @@ import Videos, {
 } from "../../../components/dashboard-components/forms/ContentUpload";
 import { useSearchParams } from "react-router-dom";
 import { label } from "framer-motion/client";
-import { UploadButton, UploadDropzone } from "../../../lib/uploadthing";
+import { UploadButton, UploadDropzone, useUploadThing } from "../../../lib/uploadthing";
 import { useNavigate } from "react-router-dom";
 
 const containerVariants = {
@@ -77,48 +77,49 @@ const CourseBuilder = () => {
   const navigate = useNavigate();
   const [thumbnail, setThumbnail] = useState([]); //file
   const [thumbnailUrl, setThumbnailUrl] = useState("");
-  const [videoUrl, setVideoUrl] = useState("");
-  const [pdfUrl, setPdfUrl] = useState("");
-  const [assignmentUrl, setAssignmentUrl] = useState("");
-  const [quizUrl, setQuizUrl] = useState("");
+  const [videos, setVideos] = useState([]);
+  const [pdfs, setPdfs] = useState([]);
+  const [assignments, setAssignments] = useState([]);
+  const [quizzes, setQuizzes] = useState([]);
   const [loadingAction, setLoadingAction] = useState(null);
   const [pendingAction, setPendingAction] = useState(null);
+  const { startUpload } = useUploadThing("imageUploader");
 
-  const category = [
-    { key: "Advance_JavaScript", label: "Advance JavaScript" },
-    { key: "Advance_React", label: "Advance React" },
-    { key: "Advance_Python", label: "Advance Python" },
-  ];
-  const Duration = [
-    { key: "Lifetime_Access", label: "Lifetime Access" },
-    { key: "One_Month", label: "One Month" },
-    { key: "Yearly", label: "Yearly" },
-  ];
+  // const category = [
+  //   { key: "Advance_JavaScript", label: "Advance JavaScript" },
+  //   { key: "Advance_React", label: "Advance React" },
+  //   { key: "Advance_Python", label: "Advance Python" },
+  // ];
+  // const Duration = [
+  //   { key: "Lifetime_Access", label: "Lifetime Access" },
+  //   { key: "One_Month", label: "One Month" },
+  //   { key: "Yearly", label: "Yearly" },
+  // ];
   const Difficulty = [
     { key: "Beginner", label: "Beginner" },
     { key: "Advanced", label: "Advanced" },
     { key: "Expert", label: "Expert" },
   ];
- 
+
   const card = [
     {
       title: "Videos",
-      count: "10",
+      count: videos.length || 0,
       icone: <Video size={20} color="#06574C" />,
     },
-    { title: "PDFs:", count: "10", icone: <File size={20} color="#06574C" /> },
+    { title: "PDFs:", count: pdfs.length || 0, icone: <File size={20} color="#06574C" /> },
     {
       title: "Quizzes",
-      count: "20",
+      count: quizzes.length || 0,
       icone: <Lightbulb size={20} color="#06574C" />,
     },
     {
       title: "Assignments",
-      count: "15",
+      count: assignments.length || 0,
       icone: <ScrollText size={20} color="#06574C" />,
     },
   ];
-  const [isSelected, setIsSelected] = useState(true);
+  // const [isSelected, setIsSelected] = useState(true);
   const [categories, setCategories] = useState([]);
   const accessDuration = [
     { key: "108_days", label: "108 Days" },
@@ -131,7 +132,7 @@ const CourseBuilder = () => {
   const [selected, setSelected] = useState(currentTab || "info");
   const [isAddCategoryOpen, setIsAddCategoryOpen] = useState(false);
   const [newCategory, setNewCategory] = useState("");
-   
+
   useEffect(() => {
     if (currentTab) {
       setSelected(currentTab);
@@ -147,7 +148,7 @@ const CourseBuilder = () => {
       return newParams;
     });
   };
-  
+
   const [formData, setFormData] = useState({
     course_name: "",
     category_id: null,
@@ -163,12 +164,12 @@ const CourseBuilder = () => {
   });
   // console.log(formData);
   const coursepreview = [
-    { title: "Title:", desc: formData?.course_name || "Add Tittle"},
-    { title: "Category:", desc: categories?.find((category) => category.id === formData?.category_id)?.categoryName || formData?.category_name|| "Add Category"},
-    { title: "Difficulty Level:", desc: formData?.difficulty_level || "Add Difficulty Level"},
-    { title: "Price:", desc: formData?.course_price || "Add Price"},
+    { title: "Title:", desc: formData?.course_name || "Add Tittle" },
+    { title: "Category:", desc: categories?.find((category) => category.id === formData?.category_id)?.categoryName || formData?.category_name || "Add Category" },
+    { title: "Difficulty Level:", desc: formData?.difficulty_level || "Add Difficulty Level" },
+    { title: "Price:", desc: formData?.course_price || "Add Price" },
   ];
-// handle change
+  // handle change
   const handleChange = (name, value) => {
     setFormData((prev) => ({
       ...prev,
@@ -176,12 +177,31 @@ const CourseBuilder = () => {
     }));
     console.log(formData);
   };
-// handle submit tab 1
+  // handle submit tab 1
   const handleSubmitTab1 = async (e) => {
     e.preventDefault();
     setLoadingAction(pendingAction);
 
-    if (!thumbnailUrl) {
+    let currentThumbnailUrl = thumbnailUrl;
+
+    if (thumbnail.length > 0) {
+      try {
+        const res = await startUpload(thumbnail);
+        if (res && res[0]) {
+          currentThumbnailUrl = res[0].url;
+          setThumbnailUrl(currentThumbnailUrl);
+          toast.success("Thumbnail uploaded successfully");
+        }
+      } catch (error) {
+        console.error("Upload failed", error);
+        toast.error("Failed to upload thumbnail");
+        setLoadingAction(null);
+        setPendingAction(null);
+        return;
+      }
+    }
+
+    if (!currentThumbnailUrl) {
       toast.error("Please upload a thumbnail image first");
       setLoadingAction(null);
       setPendingAction(null);
@@ -197,14 +217,12 @@ const CourseBuilder = () => {
         ? parseInt(formData.enroll_number)
         : null,
       status: "Draft",
-      thumbnailurl: thumbnailUrl,
-      teacher_id: Number(formData.teacher_id), // ✅ ensure number
-      course_file: {
-        lesson_video: videoUrl,
-        pdf_notes: pdfUrl,
-        assignments: assignmentUrl,
-        quizzes: quizUrl,
-      },
+      thumbnailurl: currentThumbnailUrl,
+      teacher_id: Number(formData.teacher_id),
+      lesson_video: videos,
+      pdf_notes: pdfs,
+      assignments: assignments,
+      quizzes: quizzes,
     };
     console.log("payload", payload);
     try {
@@ -214,8 +232,7 @@ const CourseBuilder = () => {
       if (courseId) {
         // ✅ UPDATE COURSE
         response = await fetch(
-          `${
-            import.meta.env.VITE_PUBLIC_SERVER_URL
+          `${import.meta.env.VITE_PUBLIC_SERVER_URL
           }/api/course/updateCourse/${courseId}`,
           {
             method: "PATCH",
@@ -315,29 +332,54 @@ const CourseBuilder = () => {
   //   }
   // };
 
+  const saveContent = async (updatedList, field) => {
+    if (!courseId) return;
+    const payload = {
+      ...formData,
+      thumbnailurl: thumbnailUrl,
+      lesson_video: field === 'lesson_video' ? updatedList : videos,
+      pdf_notes: field === 'pdf_notes' ? updatedList : pdfs,
+      assignments: field === 'assignments' ? updatedList : assignments,
+      quizzes: field === 'quizzes' ? updatedList : quizzes,
+    };
+    try {
+      await fetch(
+        `${import.meta.env.VITE_PUBLIC_SERVER_URL}/api/course/updateCourse/${courseId}`,
+        {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        }
+      );
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
   const handleUpdate = async (e) => {
     if (e && e.preventDefault) e.preventDefault();
     setLoadingAction(pendingAction);
     if (!courseId) return;
 
+    // Validation: All uploads required
+    if (videos.length === 0 || pdfs.length === 0 || assignments.length === 0 || quizzes.length === 0) {
+      toast.error("All content sections (Videos, PDFs, Assignments, Quizzes) must have at least one upload.");
+      setLoadingAction(null);
+      setPendingAction(null);
+      return;
+    }
+
     try {
       const payload = {
         ...formData,
         thumbnailurl: thumbnailUrl,
-        course_file: {
-          lesson_video: videoUrl,
-          pdf_notes: pdfUrl,
-          assignments: assignmentUrl,
-          quizzes: quizUrl,
-        },
-        lesson_video: videoUrl,
-        pdf_notes: pdfUrl,
-        assignments: assignmentUrl,
-        quizzes: quizUrl,
+        lesson_video: videos,
+        pdf_notes: pdfs,
+        assignments: assignments,
+        quizzes: quizzes,
       };
       const response = await fetch(
-        `${
-          import.meta.env.VITE_PUBLIC_SERVER_URL
+        `${import.meta.env.VITE_PUBLIC_SERVER_URL
         }/api/course/updateCourse/${courseId}`,
         {
           method: "PATCH",
@@ -364,7 +406,7 @@ const CourseBuilder = () => {
       setPendingAction(null);
     }
   };
-// handle submit 3rd tab
+  // handle submit 3rd tab
   const handleSubmit3tab = async (e) => {
     if (e) e.preventDefault();
     setLoadingAction(pendingAction);
@@ -374,20 +416,13 @@ const CourseBuilder = () => {
       const payload = {
         ...formData,
         thumbnailurl: thumbnailUrl,
-        course_file: {
-          lesson_video: videoUrl,
-          pdf_notes: pdfUrl,
-          assignments: assignmentUrl,
-          quizzes: quizUrl,
-        },
-        lesson_video: videoUrl,
-        pdf_notes: pdfUrl,
-        assignments: assignmentUrl,
-        quizzes: quizUrl,
+        lesson_video: videos,
+        pdf_notes: pdfs,
+        assignments: assignments,
+        quizzes: quizzes,
       };
       const response = await fetch(
-        `${
-          import.meta.env.VITE_PUBLIC_SERVER_URL
+        `${import.meta.env.VITE_PUBLIC_SERVER_URL
         }/api/course/updateCourse/${courseId}`,
         {
           method: "PATCH",
@@ -412,7 +447,7 @@ const CourseBuilder = () => {
       setPendingAction(null);
     }
   };
-// fetch course by id and set form data
+  // fetch course by id and set form data
   useEffect(() => {
     const fetchCourseById = async () => {
       const id = searchParams.get("id");
@@ -420,8 +455,7 @@ const CourseBuilder = () => {
 
       try {
         const response = await fetch(
-          `${
-            import.meta.env.VITE_PUBLIC_SERVER_URL
+          `${import.meta.env.VITE_PUBLIC_SERVER_URL
           }/api/course/getCourseById/${id}`,
           {
             method: "GET",
@@ -452,10 +486,10 @@ const CourseBuilder = () => {
         // ✅ 2. Thumbnail
         setThumbnailUrl(course.thumbnailurl || "");
         // ✅ 3. Content files
-        setVideoUrl(course.lesson_video || "");
-        setPdfUrl(course.pdf_notes || "");
-        setAssignmentUrl(course.assignments || "");
-        setQuizUrl(course.quizzes || "");
+        setVideos(course.lesson_video || []);
+        setPdfs(course.pdf_notes || []);
+        setAssignments(course.assignments || []);
+        setQuizzes(course.quizzes || []);
       } catch (error) {
         console.error("Failed to fetch course", error);
         toast.error("Failed to load course data");
@@ -464,7 +498,7 @@ const CourseBuilder = () => {
 
     fetchCourseById();
   }, [searchParams]);
-// add category
+  // add category
   const handleSubmitAddCategory = async () => {
     if (!newCategory.trim()) {
       toast.error("Category name is required");
@@ -487,7 +521,7 @@ const CourseBuilder = () => {
       const data = await response.json();
 
       if (!data.success) {
-        toast.error(data.message || "Failed to add category"); 
+        toast.error(data.message || "Failed to add category");
         return;
       }
       setCategories((prev) => [...prev, data.category]);
@@ -499,7 +533,7 @@ const CourseBuilder = () => {
       toast.error("Server error");
     }
   };
-// fetch categories
+  // fetch categories
   const fetchCategories = async () => {
     try {
       const response = await fetch(
@@ -524,14 +558,14 @@ const CourseBuilder = () => {
       toast.error("Server error");
     }
   };
-// useEffect fetch categories
+  // useEffect fetch categories
   useEffect(() => {
     fetchCategories();
   }, []);
-// delete category
+  // delete category
   const deleteCategory = async (id) => {
     try {
-      console.log("id",id);
+      console.log("id", id);
       const response = await fetch(
         `${import.meta.env.VITE_PUBLIC_SERVER_URL}/api/course/deleteCategory`,
         {
@@ -545,7 +579,7 @@ const CourseBuilder = () => {
       );
 
       const data = await response.json();
-      
+
       if (!data.success) {
 
         toast.error(data.message || "Failed to delete category");
@@ -553,7 +587,7 @@ const CourseBuilder = () => {
       }
 
       setCategories((prev) => prev.filter((category) => category.id !== id));
-      console.log("data",data);
+      console.log("data", data);
       toast.success("Category deleted successfully");
     } catch (error) {
       console.error(error);
@@ -562,7 +596,7 @@ const CourseBuilder = () => {
   };
 
   return (
-    <div className="h-full bg-linear-to-t from-[#F1C2AC]/50 to-[#95C4BE]/50 px-2 sm:px-3 w-full no-scrollbar top-0 bottom-0 overflow-y-auto">
+    <div className="bg-linear-to-t from-[#F1C2AC]/50 to-[#95C4BE]/50 px-2 sm:px-3 w-full pb-10">
       <DashHeading
         title={"Course Builder"}
         desc={"Create a new course step by step"}
@@ -658,7 +692,7 @@ const CourseBuilder = () => {
                           isRequired
                           errorMessage="Category is required"
                           selectedKeys={
-                           formData.category_id ? [String(formData.category_id)] : [] 
+                            formData.category_id ? [String(formData.category_id)] : []
                           }
                           onSelectionChange={(keys) => {
                             const selected = [...keys][0];
@@ -667,21 +701,21 @@ const CourseBuilder = () => {
                               return;
                             }
 
-                            handleChange("category_id",Number(selected));
+                            handleChange("category_id", Number(selected));
                           }}
                         >
                           {categories.map((item) => (
-                            <SelectItem 
-                            endContent={<Button
-                              size="sm"
-                              variant="light"
-                              color="danger"
-                              isIconOnly
-                              onPress={() => {deleteCategory(item.id)}}
-                            >
-                              <Trash2Icon className="text-red-500" size={15}/>
-                            </Button>}
-                            key={String(item.id)} value={String(item.id)}>
+                            <SelectItem
+                              endContent={<Button
+                                size="sm"
+                                variant="light"
+                                color="danger"
+                                isIconOnly
+                                onPress={() => { deleteCategory(item.id) }}
+                              >
+                                <Trash2Icon className="text-red-500" size={15} />
+                              </Button>}
+                              key={String(item.id)} value={String(item.id)}>
                               {item.categoryName}
                             </SelectItem>
                           ))}
@@ -763,7 +797,7 @@ const CourseBuilder = () => {
                           }}
                         >
                           {teachers.map((teacher) => {
-                            const fullName = `${teacher.first_name} ${teacher.last_name}`;
+                            const fullName = `${teacher.firstName} ${teacher.lastName}`;
                             return (
                               <SelectItem
                                 key={String(teacher.id)}
@@ -804,40 +838,11 @@ const CourseBuilder = () => {
                             </Button>
                           </div>
                         ) : (
-                          <UploadDropzone
-                            className="w-full h-[300px] border-2 border-dashed border-gray-300 rounded-lg ut-label:text-lg ut-allowed-content:ut-uploading:text-red-300 relative"
-                            endpoint="imageUploader"
-                            appearance={{
-                              container: {
-                                width: "100%",
-                                height: "300px",
-                                display: "flex",
-                                justifyContent: "center",
-                                alignItems: "center",
-                                backgroundColor: "white",
-                              },
-                              button: {
-                                position: "absolute",
-                                bottom: "3rem",
-                                background: "#06574C",
-                                color: "white",
-                                marginTop: "1rem", // Add spacing if needed
-                              },
-                              label: {
-                                color: "#06574C",
-                              },
-                            }}
-                            onClientUploadComplete={(res) => {
-                              console.log("Files: ", res);
-                              if (res && res.length > 0) {
-                                setThumbnailUrl(res[0].url);
-                                toast.success("Upload Completed");
-                              }
-                            }}
-                            onUploadError={(error) => {
-                              // Do something with the error.
-                              toast.error("ERROR! " + error.message);
-                            }}
+                          <FileDropzone
+                            files={thumbnail}
+                            setFiles={setThumbnail}
+                            label="Upload Course Thumbnail"
+                            text="Recommended: 1280x720 pixels (JPG, PNG, WEBP)"
                           />
                         )}
                       </div>
@@ -965,13 +970,14 @@ const CourseBuilder = () => {
                     </div>
                   ))}
                 </div>
-                <Videos videoUrl={videoUrl} setVideoUrl={setVideoUrl} />
-                <PdfAndNotes pdfUrl={pdfUrl} setPdfUrl={setPdfUrl} />
+                <Videos videos={videos} setVideos={setVideos} onSave={(data) => saveContent(data, 'lesson_video')} />
+                <PdfAndNotes pdfs={pdfs} setPdfs={setPdfs} onSave={(data) => saveContent(data, 'pdf_notes')} />
                 <Assignments
-                  assignmentUrl={assignmentUrl}
-                  setAssignmentUrl={setAssignmentUrl}
+                  assignments={assignments}
+                  setAssignments={setAssignments}
+                  onSave={(data) => saveContent(data, 'assignments')}
                 />
-                <Quizzes quizUrl={quizUrl} setQuizUrl={setQuizUrl} />
+                <Quizzes quizzes={quizzes} setQuizzes={setQuizzes} onSave={(data) => saveContent(data, 'quizzes')} />
                 <div className="p-3 my-5 bg-[#95C4BE33] rounded-md flex justify-between items-center">
                   <div>
                     <h1 className="text-[#06574C] font-medium text-lg">

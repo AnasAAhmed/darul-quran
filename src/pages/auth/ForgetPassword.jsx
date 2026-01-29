@@ -1,6 +1,7 @@
 import { Button, Form, Input } from "@heroui/react";
 import { useState } from "react";
 import toast from "react-hot-toast";
+import { api } from "../../services/api";
 
 const ForgetPassword = () => {
   const [email, setEmail] = useState("");
@@ -22,26 +23,8 @@ const ForgetPassword = () => {
     setError("");
 
     try {
-      const res = await fetch(
-        `${import.meta.env.VITE_PUBLIC_SERVER_URL}/api/admin/forgot-password`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ email }),
-        }
-      );
-      let data;
-      const text = await res.text();
-      try {
-        data = text ? JSON.parse(text) : {};
-      } catch (parseError) {
-        data = {};
-      }
-
-      if (!res.ok) {
-        toast.error(data.message || "Something went wrong");
-        return;
-      }
+      // api.post handles JSON encoding, headers, response.ok check, and error toast
+      await api.post("/admin/forgot-password", { email });
 
       // Success message
       toast.success(
@@ -51,7 +34,8 @@ const ForgetPassword = () => {
       // Do NOT redirect automatically — user must use emailed link
     } catch (err) {
       console.error(err);
-      toast.error("Server error. Please try again later.");
+      // Toast handles error message by default, but if you want specific fallback:
+      // toast.error("Server error. Please try again later."); 
     } finally {
       setLoading(false);
     }

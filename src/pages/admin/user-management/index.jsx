@@ -34,9 +34,304 @@ import { AnimatePresence } from "motion/react";
 import * as motion from "motion/react-client";
 import { dateFormatter } from "../../../lib/utils";
 import { errorMessage, showMessage } from "../../../lib/toast.config";
-import { useGetAllUsersQuery } from "../../../redux/api/user";
 
 const UserManagement = () => {
+  // const [events, setEvents] = useState([
+  //   { title: "iOS Workshop", date: "2025-11-02" },
+  //   { title: "React Basics", date: "2025-11-06", color: "#f0e68c" },
+  //   { title: "Python Basics", date: "2025-11-09", color: "#dcd0ff" },
+  //   { title: "Marketing Research", date: "2025-11-14", color: "#90ee90" },
+  //   { title: "iOS Workshop", date: "2025-11-18", color: "#ffcccc" },
+  //   { title: "JS Workshop", date: "2025-11-18", color: "#ffebcc" },
+  //   { title: "React Basics", date: "2025-11-22", color: "#f0e68c" },
+  //   { title: "iOS Workshop", date: "2025-11-22", color: "#ffcccc" },
+  //   { title: "React Basics", date: "2025-11-28", color: "#f0e68c" },
+  //   { title: "iOS Workshop", date: "2025-11-28", color: "#ffcccc" },
+  //   { title: "JS Workshop", date: "2025-11-28", color: "#ffebcc" },
+  //   { title: "Python Basics", date: "2025-11-28", color: "#dcd0ff" },
+  // ]);
+  // const classes = [
+  //   {
+  //     id: 1,
+  //     name: "John Davis",
+  //     desc: "Advanced JavaScript Course",
+  //     last_active: "2 hourse ago",
+  //     email: "john.davis@email.com",
+  //     roles: "Students",
+  //     status: "Active",
+  //     date: "2025-11-27",
+  //   },
+  //   {
+  //     id: 2,
+  //     name: "John Davis",
+  //     desc: "Advanced JavaScript Course",
+  //     last_active: "2 hourse ago",
+  //     email: "john.davis@email.com",
+  //     roles: "Students",
+  //     status: "Active",
+  //     date: "2025-11-26",
+  //   },
+  //   {
+  //     id: 3,
+  //     name: "John Davis",
+  //     desc: "Advanced JavaScript Course",
+  //     last_active: "2 hourse ago",
+  //     email: "john.davis@email.com",
+  //     roles: "Students",
+  //     status: "Active",
+  //     date: "2025-11-17",
+  //   },
+  //   {
+  //     id: 4,
+  //     name: "John Davis",
+  //     desc: "Advanced JavaScript Course",
+  //     last_active: "2 hourse ago",
+  //     email: "john.davis@email.com",
+  //     roles: "Students",
+  //     status: "Active",
+  //     date: "2025-11-16",
+  //   },
+  //   {
+  //     id: 5,
+  //     name: "John Davis",
+  //     desc: "Advanced JavaScript Course",
+  //     last_active: "2 hourse ago",
+  //     email: "john.davis@email.com",
+  //     roles: "Students",
+  //     status: "Active",
+  //     date: "2025-11-15",
+  //   },
+  //   {
+  //     id: 6,
+  //     name: "John Davis",
+  //     desc: "Advanced JavaScript Course",
+  //     last_active: "2 hourse ago",
+  //     email: "john.davis@email.com",
+  //     roles: "Students",
+  //     status: "Active",
+  //     date: "2025-11-12",
+  //   },
+  //   {
+  //     id: 7,
+  //     name: "John Davis",
+  //     desc: "Advanced JavaScript Course",
+  //     last_active: "2 hourse ago",
+  //     email: "john.davis@email.com",
+  //     roles: "Students",
+  //     status: "Active",
+  //     date: "2025-11-03",
+  //   },
+  //   {
+  //     id: 8,
+  //     name: "John Davis",
+  //     desc: "Advanced JavaScript Course",
+  //     last_active: "2 hourse ago",
+  //     email: "john.davis@email.com",
+  //     roles: "Students",
+  //     status: "Active",
+  //     date: "2025-11-29",
+  //   },
+  //   {
+  //     id: 9,
+  //     name: "John Davis",
+  //     desc: "Advanced JavaScript Course",
+  //     last_active: "2 hourse ago",
+  //     email: "john.davis@email.com",
+  //     roles: "Students",
+  //     status: "Active",
+  //     date: "2025-11-22",
+  //   },
+  // ];
+  // const Teachers = [
+  //   {
+  //     id: 1,
+  //     name: "John Davis",
+  //     desc: "Advanced JavaScript Course",
+  //     last_active: "2 hourse ago",
+  //     email: "john.davis@email.com",
+  //     roles: "Teacher",
+  //     status: "Active",
+  //     date: "2025-11-27",
+  //   },
+  //   {
+  //     id: 2,
+  //     name: "John Davis",
+  //     desc: "Advanced JavaScript Course",
+  //     last_active: "2 hourse ago",
+  //     email: "john.davis@email.com",
+  //     roles: "Teacher",
+  //     status: "Active",
+  //     date: "2025-11-26",
+  //   },
+  //   {
+  //     id: 3,
+  //     name: "John Davis",
+  //     desc: "Advanced JavaScript Course",
+  //     last_active: "2 hourse ago",
+  //     email: "john.davis@email.com",
+  //     roles: "Teacher",
+  //     status: "Active",
+  //     date: "2025-11-17",
+  //   },
+  //   {
+  //     id: 4,
+  //     name: "John Davis",
+  //     desc: "Advanced JavaScript Course",
+  //     last_active: "2 hourse ago",
+  //     email: "john.davis@email.com",
+  //     roles: "Teacher",
+  //     status: "Active",
+  //     date: "2025-11-16",
+  //   },
+  //   {
+  //     id: 5,
+  //     name: "John Davis",
+  //     desc: "Advanced JavaScript Course",
+  //     last_active: "2 hourse ago",
+  //     email: "john.davis@email.com",
+  //     roles: "Teacher",
+  //     status: "Active",
+  //     date: "2025-11-15",
+  //   },
+  //   {
+  //     id: 6,
+  //     name: "John Davis",
+  //     desc: "Advanced JavaScript Course",
+  //     last_active: "2 hourse ago",
+  //     email: "john.davis@email.com",
+  //     roles: "Teacher",
+  //     status: "Active",
+  //     date: "2025-11-12",
+  //   },
+  //   {
+  //     id: 7,
+  //     name: "John Davis",
+  //     desc: "Advanced JavaScript Course",
+  //     last_active: "2 hourse ago",
+  //     email: "john.davis@email.com",
+  //     roles: "Teacher",
+  //     status: "Active",
+  //     date: "2025-11-03",
+  //   },
+  //   {
+  //     id: 8,
+  //     name: "John Davis",
+  //     desc: "Advanced JavaScript Course",
+  //     last_active: "2 hourse ago",
+  //     email: "john.davis@email.com",
+  //     roles: "Teacher",
+  //     status: "Active",
+  //     date: "2025-11-29",
+  //   },
+  //   {
+  //     id: 9,
+  //     name: "John Davis",
+  //     desc: "Advanced JavaScript Course",
+  //     last_active: "2 hourse ago",
+  //     email: "john.davis@email.com",
+  //     roles: "Teacher",
+  //     status: "Active",
+  //     date: "2025-11-22",
+  //   },
+  // ];
+  // const Supports_Staff = [
+  //   {
+  //     id: 1,
+  //     name: "John Davis",
+  //     desc: "Advanced JavaScript Course",
+  //     last_active: "2 hourse ago",
+  //     email: "john.davis@email.com",
+  //     roles: "Support Staff",
+  //     status: "Active",
+  //     date: "2025-11-27",
+  //   },
+  //   {
+  //     id: 2,
+  //     name: "John Davis",
+  //     desc: "Advanced JavaScript Course",
+  //     last_active: "2 hourse ago",
+  //     email: "john.davis@email.com",
+  //     roles: "Support Staff",
+  //     status: "Active",
+  //     date: "2025-11-26",
+  //   },
+  //   {
+  //     id: 3,
+  //     name: "John Davis",
+  //     desc: "Advanced JavaScript Course",
+  //     last_active: "2 hourse ago",
+  //     email: "john.davis@email.com",
+  //     roles: "Support Staff",
+  //     status: "Active",
+  //     date: "2025-11-17",
+  //   },
+  //   {
+  //     id: 4,
+  //     name: "John Davis",
+  //     desc: "Advanced JavaScript Course",
+  //     last_active: "2 hourse ago",
+  //     email: "john.davis@email.com",
+  //     roles: "Support Staff",
+  //     status: "Active",
+  //     date: "2025-11-16",
+  //   },
+  //   {
+  //     id: 5,
+  //     name: "John Davis",
+  //     desc: "Advanced JavaScript Course",
+  //     last_active: "2 hourse ago",
+  //     email: "john.davis@email.com",
+  //     roles: "Support Staff",
+  //     status: "Active",
+  //     date: "2025-11-15",
+  //   },
+  //   {
+  //     id: 6,
+  //     name: "John Davis",
+  //     desc: "Advanced JavaScript Course",
+  //     last_active: "2 hourse ago",
+  //     email: "john.davis@email.com",
+  //     roles: "Support Staff",
+  //     status: "Active",
+  //     date: "2025-11-12",
+  //   },
+  //   {
+  //     id: 7,
+  //     name: "John Davis",
+  //     desc: "Advanced JavaScript Course",
+  //     last_active: "2 hourse ago",
+  //     email: "john.davis@email.com",
+  //     roles: "Support Staff",
+  //     status: "Active",
+  //     date: "2025-11-03",
+  //   },
+  //   {
+  //     id: 8,
+  //     name: "John Davis",
+  //     desc: "Advanced JavaScript Course",
+  //     last_active: "2 hourse ago",
+  //     email: "john.davis@email.com",
+  //     roles: "Support Staff",
+  //     status: "Active",
+  //     date: "2025-11-29",
+  //   },
+  //   {
+  //     id: 9,
+  //     name: "John Davis",
+  //     desc: "Advanced JavaScript Course",
+  //     last_active: "2 hourse ago",
+  //     email: "john.davis@email.com",
+  //     roles: "Students",
+  //     status: "Active",
+  //     date: "2025-11-22",
+  //   },
+  // ];
+
+  // const studentsss = [
+  //   { id: 1, name: "Alex Thompson", course: "React Masterclass", progress: 75 },
+  //   { id: 2, name: "Alex Thompson", course: "React Masterclass", progress: 75 },
+  //   { id: 3, name: "Alex Thompson", course: "React Masterclass", progress: 75 },
+  // ];
 
   const handleDateClick = (info) => {
     alert("Clicked on date: " + info.dateStr);
@@ -44,8 +339,13 @@ const UserManagement = () => {
 
   const statuses = [
     { key: "all", label: "All Status" },
-    { key: "true", label: "Active" },
-    { key: "false", label: "Inactive" },
+    { key: "Active", label: "Active" },
+    { key: "inactive", label: "Inactive" },
+  ];
+  const roles = [
+    { key: "all", label: "All Roles" },
+    { key: "Teachers", label: "Teachers" },
+    { key: "Students", label: "Students" },
   ];
 
   const filters = [{ key: "all", label: "Filter" }];
@@ -72,22 +372,41 @@ const UserManagement = () => {
   const [students, setStudents] = useState([]);
   const [loading, setLoading] = useState(false);
   const [admins, setAdmins] = useState([]);
-  const [role, setRole] = useState('student');
-  const [page, setPage] = useState(1);
-  const [limit, setLimit] = useState(10);
-  const [status, setStatus] = useState('all');
   const [userToDelete, setUserToDelete] = useState(null);
   const { isOpen, onOpen, onClose } = useDisclosure();
 
   // States for bulk delete
   const [selectedStudents, setSelectedStudents] = useState(new Set());
   const [selectedTeachers, setSelectedTeachers] = useState(new Set());
-  // const [selectedAdmins, setSelectedAdmins] = useState(new Set());
-  const [selectedUsers, setSelectedUsers] = useState(new Set());
+  const [selectedAdmins, setSelectedAdmins] = useState(new Set());
   const [isDeleting, setIsDeleting] = useState(false);
   const { isOpen: isBulkDeleteOpen, onOpen: onBulkDeleteOpen, onClose: onBulkDeleteClose } = useDisclosure();
 
-  const { data, isError, isFetching } = useGetAllUsersQuery({ page, limit, status, role });
+  useEffect(() => {
+    const fetchUsers = async () => {
+      try {
+        setLoading(true);
+        const res = await fetch(import.meta.env.VITE_PUBLIC_SERVER_URL + "/api/user/getAllUsers");
+        const data = await res.json();
+
+        const teacherData = data.users.filter(u => u.role?.toLowerCase() === "teacher");
+        const studentData = data.users.filter(u => u.role?.toLowerCase() === "student");
+        const adminData = data.users.filter(u => u.role?.toLowerCase() === "admin");
+
+        setTeachers(teacherData);
+        setStudents(studentData);
+        setAdmins(adminData);
+
+      } catch (error) {
+        console.log(error);
+        errorMessage(error.message)
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchUsers();
+  }, []);
 
   const openDeleteModal = (userId) => {
     setUserToDelete(userId);
@@ -109,6 +428,12 @@ const UserManagement = () => {
         setUserToDelete(null);
         const response = await fetch(import.meta.env.VITE_PUBLIC_SERVER_URL + "/api/user/getAllUsers");
         const data = await response.json();
+        const teacherData = data.users.filter(u => u.role?.toLowerCase() === "teacher");
+        const studentData = data.users.filter(u => u.role?.toLowerCase() === "student");
+        const adminData = data.users.filter(u => u.role?.toLowerCase() === "admin");
+        setTeachers(teacherData);
+        setStudents(studentData);
+        setAdmins(adminData);
       } else {
         toast.error("Failed to delete user.");
       }
@@ -127,14 +452,18 @@ const UserManagement = () => {
 
   // Bulk delete handler
   const handleBulkDelete = async () => {
+    const { selectedKeys, type, total } = getCurrentTab();
     let selectedIds = [];
 
-    if (selectedUsers.length) {
-      selectedIds = selectedUsers.map(u => u.id);
+    if (selectedKeys === "all") {
+      const dataSource = type === 'students' ? students : type === 'teachers' ? teachers : admins;
+      selectedIds = dataSource.map(u => u.id);
+    } else {
+      selectedIds = Array.from(selectedKeys);
     }
 
     if (selectedIds.length === 0) {
-      errorMessage("No users selected");
+      toast.error("No users selected");
       return;
     }
 
@@ -154,14 +483,21 @@ const UserManagement = () => {
       }
 
       // Clear selections
-      setSelectedUsers(new Set());
+      setSelectedStudents(new Set());
+      setSelectedTeachers(new Set());
+      setSelectedAdmins(new Set());
 
       onBulkDeleteClose();
 
       // Refresh user list
       const response = await fetch(import.meta.env.VITE_PUBLIC_SERVER_URL + "/api/user/getAllUsers");
       const data = await response.json();
-
+      const teacherData = data.users.filter(u => u.role?.toLowerCase() === "teacher");
+      const studentData = data.users.filter(u => u.role?.toLowerCase() === "student");
+      const adminData = data.users.filter(u => u.role?.toLowerCase() === "admin");
+      setTeachers(teacherData);
+      setStudents(studentData);
+      setAdmins(adminData);
     } catch (error) {
       console.error("Error deleting users:", error);
       toast.error("An error occurred while deleting users.");
@@ -209,15 +545,19 @@ const UserManagement = () => {
             className="min-w-[120px]"
             radius="sm"
             defaultSelectedKeys={["all"]}
-            onSelectionChange={(keys) => {
-              const keysArray = keys instanceof Set ? Array.from(keys) : Array.isArray(keys) ? keys : [];
-              const selectedKey = keysArray[0];
-
-              setStatus(selectedKey)
-            }}
             placeholder="Select Status"
           >
             {statuses.map((status) => (
+              <SelectItem key={status.key}>{status.label}</SelectItem>
+            ))}
+          </Select>
+          <Select
+            className="min-w-[120px]"
+            radius="sm"
+            defaultSelectedKeys={["all"]}
+            placeholder="Select Role"
+          >
+            {roles.map((status) => (
               <SelectItem key={status.key}>{status.label}</SelectItem>
             ))}
           </Select>
@@ -235,7 +575,7 @@ const UserManagement = () => {
         </div>
         <div className=" flex gap-3 max-md:flex-wrap max-md:w-full">
           {/* Bulk Delete Button - Shows when users are selected */}
-          {(!isSelectionEmpty(selectedUsers)) && (
+          {(!isSelectionEmpty(selectedStudents) || !isSelectionEmpty(selectedTeachers) || !isSelectionEmpty(selectedAdmins)) && (
             <Button
               radius="sm"
               startContent={<Trash2 color="white" size={15} />}
@@ -243,7 +583,9 @@ const UserManagement = () => {
               onPress={onBulkDeleteOpen}
             >
               Delete Selected ({
-                getSelectionCount(selectedUsers, data?.total)
+                getSelectionCount(selectedStudents, students.length) +
+                getSelectionCount(selectedTeachers, teachers.length) +
+                getSelectionCount(selectedAdmins, admins.length)
               })
             </Button>
           )}
@@ -275,7 +617,6 @@ const UserManagement = () => {
           >
             <Tab
               key="Students"
-              onClick={() => { setRole('student'); setSelectedUsers(new Set()); }}
               title={
                 <div className="text-[#06574C] flex gap-2 items-center">
                   <span>Students</span>
@@ -283,15 +624,97 @@ const UserManagement = () => {
                     size="sm"
                     className="text-xs text-[#06574C] bg-white shadow-md"
                   >
-                    {data?.meta?.countsByRole?.find((count) => count.role === 'student')?.count || 0}
+                    {students.length}
                   </Chip>
                 </div>
               }
             >
+              <AnimatePresence mode="wait">
+                <motion.div
+                  key={selectedTab ? selectedTab.label : "empty"}
+                  initial={{ y: 10, opacity: 0 }}
+                  animate={{ y: 0, opacity: 1 }}
+                  exit={{ y: -10, opacity: 0 }}
+                  transition={{ duration: 0.6, ease: "easeInOut" }}
+                >
+                  <Table
+                    isHeaderSticky
+                    selectionMode={students.length > 0 ? "multiple" : undefined}
+                    selectedKeys={selectedStudents}
+
+                    onSelectionChange={setSelectedStudents}
+                    aria-label="Pending approvals table"
+                    removeWrapper
+                    classNames={{
+                      base: "w-full bg-white rounded-lg h-[calc(100vh-350px)] overflow-x-scroll w-full no-scrollbar",
+                      th: "font-bold p-4 text-md  text-[#333333] capitalize tracking-widest  bg-white",
+                      tbody: "overflow-y-scroll no-scrollbar",
+                      td: "py-3 items-center whitespace-nowrap",
+                      tr: "border-b border-default-200 ",
+
+                    }}
+                  >
+                    <TableHeader>
+                      {header.map((item) => (
+                        <TableColumn key={item.key}>{item.label}</TableColumn>
+                      ))}
+                    </TableHeader>
+
+                    <TableBody loadingContent={<Spinner color="success" />} emptyContent={"  No Student Users Found."} loadingState={loading ? 'loading' : 'idle'}>
+                      {students?.map((classItem) => (
+                        <TableRow key={classItem.id}>
+                          <TableCell className="px-4">
+                            <div>
+                              <div className="font-medium text-gray-900">
+                                {classItem.firstName} {classItem.lastName}
+                              </div>
+                              <div className="text-xs text-gray-500 mt-0.5">
+                                {classItem.email}
+                              </div>
+                            </div>
+                          </TableCell>
+                          <TableCell>
+                            <Button className="text-sm p-2 rounded-md bg-[#FBF4EC] text-[#D28E3D]">
+                              {classItem.role}
+                            </Button>
+                          </TableCell>
+                          <TableCell>{dateFormatter(classItem.createdAt)}</TableCell>
+                          <TableCell>
+                            <Button className={`text-sm p-2 rounded-md ${classItem.isActive === true ? "bg-[#95C4BE33] text-[#06574C]" : "bg-[#FBF4EC] text-[#D28E3D]"} `}>
+                              {classItem.isActive == true ? "Active" : "Inactive"}
+                            </Button>
+                          </TableCell>
+                          <TableCell>{classItem.lastActive ? dateFormatter(classItem.lastActive, true) : "N/A"}</TableCell>
+                          <TableCell className="flex gap-2">
+                            <Button
+                              variant="bordered"
+                              radius="sm"
+                              className="border-[#06574C]"
+                              startContent={
+                                <SquarePen size={18} color="#06574C" />
+                              }
+                              onPress={() => { router(`/admin/user-management/edit-user/${classItem.id}`) }}
+                            >
+                              Edit
+                            </Button>
+                            <Button
+                              radius="sm"
+                              className="bg-[#06574C] text-white"
+                              startContent={<Trash2 size={18} color="white" />}
+                              onPress={() => openDeleteModal(classItem.id)}
+                            >
+                              Delete
+                            </Button>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </motion.div>
+              </AnimatePresence>
             </Tab>
             <Tab
               key="Teachers"
-              onClick={() => { setRole('teacher'); setSelectedUsers(new Set()); }}
               title={
                 <div className="text-[#06574C] flex gap-2 items-center">
                   <span>Teachers</span>
@@ -299,15 +722,101 @@ const UserManagement = () => {
                     size="sm"
                     className="text-xs text-[#06574C] bg-white shadow-md"
                   >
-                    {data?.meta?.countsByRole?.find((count) => count.role === 'teacher')?.count || 0}
+                    {teachers.length}
                   </Chip>
                 </div>
               }
             >
+              <AnimatePresence mode="wait">
+                <motion.div
+                  key={selectedTab ? selectedTab.label : "empty"}
+                  initial={{ y: 10, opacity: 0 }}
+                  animate={{ y: 0, opacity: 1 }}
+                  exit={{ y: -10, opacity: 0 }}
+                  transition={{ duration: 0.6, ease: "easeInOut" }}
+                >
+                  <Table
+                    isHeaderSticky
+                    selectionMode={teachers.length > 0 ? "multiple" : undefined}
+                    selectedKeys={selectedTeachers}
+                    onSelectionChange={setSelectedTeachers}
+                    aria-label="Pending approvals table"
+                    removeWrapper
+                    classNames={{
+                      base: "w-full bg-white rounded-lg h-[calc(100vh-350px)] overflow-x-scroll w-full no-scrollbar",
+                      th: "font-bold p-4 text-md  text-[#333333] capitalize tracking-widest  bg-white",
+                      tbody: "overflow-y-scroll no-scrollbar",
+                      td: "py-3 items-center whitespace-nowrap",
+                      tr: "border-b border-default-200 ",
+                    }}
+                  >
+                    <TableHeader>
+                      {header.map((item) => (
+                        <TableColumn key={item.key}>{item.label}</TableColumn>
+                      ))}
+                    </TableHeader>
+
+                    <TableBody>
+                      {teachers.length > 0 ?
+                        teachers.map((classItem) => (
+                          <TableRow key={classItem.id}>
+                            <TableCell className="px-4">
+                              <div>
+                                <div className="font-medium text-gray-900">
+                                  {classItem.firstName} {classItem.lastName}
+                                </div>
+                                <div className="text-xs text-gray-500 mt-0.5">
+                                  {classItem.email}
+                                </div>
+                              </div>
+                            </TableCell>
+                            <TableCell>
+                              <Button className="text-sm p-2 rounded-md bg-[#FBF4EC] text-[#D28E3D]">
+                                {classItem.role}
+                              </Button>
+                            </TableCell>
+                            <TableCell>{dateFormatter(classItem.createdAt)}</TableCell>
+                            <TableCell>
+                              <Button className={`text-sm p-2 rounded-md ${classItem.isActive === true ? "bg-[#95C4BE33] text-[#06574C]" : "bg-[#FBF4EC] text-[#D28E3D]"} `}>
+                                {classItem.isActive == true ? "Active" : "Inactive"}
+                              </Button>
+                            </TableCell>
+                            <TableCell>{classItem.lastActive ? dateFormatter(classItem.lastActive, true) : "N/A"}</TableCell>
+                            <TableCell className="flex gap-2">
+                              <Button
+                                variant="bordered"
+                                radius="sm"
+                                className="border-[#06574C]"
+                                startContent={
+                                  <SquarePen size={18} color="#06574C" />
+                                }
+                                onPress={() => { router(`/admin/user-management/edit-user/${classItem.id}`) }}
+                              >
+                                Edit
+                              </Button>
+                              <Button
+                                radius="sm"
+                                className="bg-[#06574C] text-white"
+                                startContent={<Trash2 size={18} color="white" />}
+                                onPress={() => openDeleteModal(classItem.id)}
+                              >
+                                Delete
+                              </Button>
+                            </TableCell>
+                          </TableRow>
+                        ))
+                        : <TableRow>
+                          <TableCell colSpan={6} className="text-center py-4 h-[calc(100vh-350px)]">
+                            No Teacher Users Found.
+                          </TableCell>
+                        </TableRow>}
+                    </TableBody>
+                  </Table>
+                </motion.div>
+              </AnimatePresence>
             </Tab>
             <Tab
               key="Supports_Staff"
-              onClick={() => {setRole('admin');setSelectedUsers(new Set());}}
               title={
                 <div className="text-[#06574C] flex gap-2 items-center">
                   <span>Admins </span>
@@ -315,123 +824,116 @@ const UserManagement = () => {
                     size="sm"
                     className="text-xs text-[#06574C] bg-white shadow-md"
                   >
-                    {data?.meta?.countsByRole?.find((count) => count.role === 'admin')?.count || 0}
+                    {admins.length}
                   </Chip>
                 </div>
               }
             >
+              <AnimatePresence mode="wait">
+                <motion.div
+                  key={selectedTab ? selectedTab.label : "empty"}
+                  initial={{ y: 10, opacity: 0 }}
+                  animate={{ y: 0, opacity: 1 }}
+                  exit={{ y: -10, opacity: 0 }}
+                  transition={{ duration: 0.6, ease: "easeInOut" }}
+                >
+                  <Table
+                    //    isHeaderSticky
+                    isHeaderSticky
+                    selectionMode={admins.length > 0 ? "multiple" : undefined}
+                    selectedKeys={selectedAdmins}
+                    onSelectionChange={setSelectedAdmins}
+                    aria-label="Pending approvals table"
+                    removeWrapper
+                    classNames={{
+                      base: "w-full bg-white rounded-lg h-[calc(100vh-350px)] overflow-x-scroll w-full no-scrollbar",
+                      th: "font-bold p-4 text-md  text-[#333333] capitalize tracking-widest  bg-white",
+                      tbody: "overflow-y-scroll no-scrollbar",
+                      td: "py-3 items-center whitespace-nowrap",
+                      tr: "border-b border-default-200 ",
+                    }}
+                  >
+                    <TableHeader>
+                      {header.map((item) => (
+                        <TableColumn key={item.key}>{item.label}</TableColumn>
+                      ))}
+                    </TableHeader>
+
+                    <TableBody>
+                      {admins.length > 0 ?
+                        admins.map((classItem) => (
+                          <TableRow key={classItem.id}>
+                            <TableCell className="px-4">
+                              <div>
+                                <div className="font-medium text-gray-900">
+                                  {classItem.firstName} {classItem.lastName}
+                                </div>
+                                <div className="text-xs text-gray-500 mt-0.5">
+                                  {classItem.email}
+                                </div>
+                              </div>
+                            </TableCell>
+                            <TableCell>
+                              <Button className="text-sm p-2 rounded-md bg-[#FBF4EC] text-[#D28E3D]">
+                                {classItem.role}
+                              </Button>
+                            </TableCell>
+                            <TableCell>{dateFormatter(classItem.createdAt)}</TableCell>
+                            <TableCell>
+                              <Button className={`text-sm p-2 rounded-md ${classItem.isActive === true ? "bg-[#95C4BE33] text-[#06574C]" : "bg-[#FBF4EC] text-[#D28E3D]"} `}>
+                                {classItem.isActive == true ? "Active" : "Inactive"}
+                              </Button>
+                            </TableCell>
+                            <TableCell>{classItem.lastActive ? dateFormatter(classItem.lastActive, true) : "N/A"}</TableCell>
+                            <TableCell className="flex gap-2">
+                              <Button
+                                variant="bordered"
+                                radius="sm"
+                                className="border-[#06574C]"
+                                startContent={
+                                  <SquarePen size={18} color="#06574C" />
+                                }
+                                onPress={() => { router(`/admin/user-management/edit-user/${classItem.id}`) }}
+                              >
+                                Edit
+                              </Button>
+                              <Button
+                                radius="sm"
+                                className="bg-[#06574C] text-white"
+                                startContent={<Trash2 size={18} color="white" />}
+                                onPress={() => openDeleteModal(classItem.id)}
+                              >
+                                Delete
+                              </Button>
+                            </TableCell>
+                          </TableRow>
+                        )) : <TableRow>
+                          <TableCell colSpan={6} className="text-center py-4 h-[calc(100vh-350px)]">
+                            No Admin Users Found.
+                          </TableCell>
+                        </TableRow>}
+                    </TableBody>
+                  </Table>
+                </motion.div>
+              </AnimatePresence>
             </Tab>
           </Tabs>
-          <AnimatePresence mode="wait">
-            <motion.div
-              key={selectedTab ? selectedTab.label : "empty"}
-              initial={{ y: 10, opacity: 0 }}
-              animate={{ y: 0, opacity: 1 }}
-              exit={{ y: -10, opacity: 0 }}
-              transition={{ duration: 0.6, ease: "easeInOut" }}
-            >
-              <Table
-                //    isHeaderSticky
-                isHeaderSticky
-                selectionMode={data?.total > 0 ? "multiple" : undefined}
-                selectedKeys={selectedUsers}
-                onSelectionChange={setSelectedUsers}
-                aria-label="Pending approvals table"
-                removeWrapper
-                classNames={{
-                  base: "w-full bg-white my-3 rounded-lg h-[calc(100vh-350px)] overflow-x-scroll w-full no-scrollbar",
-                  th: "font-bold p-4 text-md  text-[#333333] capitalize tracking-widest  bg-white",
-                  tbody: "overflow-y-scroll no-scrollbar",
-                  td: "py-3 items-center whitespace-nowrap",
-                  tr: "border-b border-default-200 ",
-                }}
-              >
-                <TableHeader>
-                  {header.map((item) => (
-                    <TableColumn key={item.key}>{item.label}</TableColumn>
-                  ))}
-                </TableHeader>
-
-                <TableBody
-                  emptyContent={<p className="text-center py-4 h-[calc(100vh-350px)]">
-                    No {role} Users Found.
-                  </p>}
-                  items={data?.users || []}
-                  loadingState={isFetching ? 'loading' : 'idle'}
-                  loadingContent={<Spinner color="success" />}>
-                  {(classItem) => (
-                    <TableRow key={classItem.id}>
-                      <TableCell className="px-4">
-                        <div>
-                          <div className="font-medium text-gray-900">
-                            {classItem.firstName} {classItem.lastName}
-                          </div>
-                          <div className="text-xs text-gray-500 mt-0.5">
-                            {classItem.email}
-                          </div>
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        <Button className="text-sm p-2 rounded-md bg-[#FBF4EC] text-[#D28E3D]">
-                          {classItem.role}
-                        </Button>
-                      </TableCell>
-                      <TableCell>{dateFormatter(classItem.createdAt)}</TableCell>
-                      <TableCell>
-                        <Button className={`text-sm p-2 rounded-md ${classItem.isActive === true ? "bg-[#95C4BE33] text-[#06574C]" : "bg-[#FBF4EC] text-[#D28E3D]"} `}>
-                          {classItem.isActive == true ? "Active" : "Inactive"}
-                        </Button>
-                      </TableCell>
-                      <TableCell>{classItem.lastActive ? dateFormatter(classItem.lastActive, true) : "N/A"}</TableCell>
-                      <TableCell className="flex gap-2">
-                        <Button
-                          variant="bordered"
-                          radius="sm"
-                          className="border-[#06574C]"
-                          startContent={
-                            <SquarePen size={18} color="#06574C" />
-                          }
-                          onPress={() => { router(`/admin/user-management/edit-user/${classItem.id}`) }}
-                        >
-                          Edit
-                        </Button>
-                        <Button
-                          radius="sm"
-                          className="bg-[#06574C] text-white"
-                          startContent={<Trash2 size={18} color="white" />}
-                          onPress={() => openDeleteModal(classItem.id)}
-                        >
-                          Delete
-                        </Button>
-                      </TableCell>
-                    </TableRow>
-                  )}
-                </TableBody>
-              </Table>
-            </motion.div>
-          </AnimatePresence>
         </div>
       </div>
-      <div className="flex flex-col gap-6 md:flex-row  w-full md:justify-between md:items-center mb-3">
+      <div className="flex flex-col gap-6  md:flex-row  w-full md:justify-between md:items-center mb-3">
         <div className="flex text-sm items-center gap-1">
           <span>Showing</span>
           <Select
             radius="sm"
             className="w-[70px]"
-            defaultSelectedKeys={[String(data?.limit || 10)]}
+            defaultSelectedKeys={["10"]}
             placeholder="1"
-            onSelectionChange={(keys) => {
-              const keysArray = keys instanceof Set ? Array.from(keys) : Array.isArray(keys) ? keys : [];
-              const selectedKey = keysArray[0];
-
-              setLimit(selectedKey)
-            }}
           >
             {limits.map((limit) => (
               <SelectItem key={limit.key}>{limit.label}</SelectItem>
             ))}
           </Select>
-          <span className="min-w-56">Out of {data?.total}</span>
+          <span className="min-w-56">Out of 58</span>
         </div>
 
         <div className="">
@@ -442,9 +944,7 @@ const UserManagement = () => {
               cursor: "bg-[#06574C] text-white",
             }}
             initialPage={1}
-            page={page}
-            setPage={setPage}
-            total={data?.totalPages}
+            total={5}
           />
         </div>
       </div>
@@ -487,7 +987,10 @@ const UserManagement = () => {
           </ModalHeader>
           <ModalBody>
             <p>Are you sure you want to delete {
-              getSelectionCount(selectedUsers, data?.total)} selected user?</p>
+              getSelectionCount(selectedStudents, students.length) +
+              getSelectionCount(selectedTeachers, teachers.length) +
+              getSelectionCount(selectedAdmins, admins.length)
+            } selected user?</p>
             <p className="text-sm text-gray-500">This action cannot be undone.</p>
           </ModalBody>
           <ModalFooter>

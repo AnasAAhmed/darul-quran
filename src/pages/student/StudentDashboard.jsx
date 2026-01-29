@@ -24,8 +24,10 @@ import { FaRegAddressCard } from "react-icons/fa";
 import { BiGroup } from "react-icons/bi";
 import { GrAnnounce } from "react-icons/gr";
 import { CiCalendar } from "react-icons/ci";
+import { useSelector } from "react-redux";
 
 const StudentDashboard = () => {
+  const { user } = useSelector((state) => state.user);
   const cardsData = [
     {
       title: "Total Enrollments",
@@ -161,7 +163,7 @@ const StudentDashboard = () => {
       {/* banner */}
       <div className="space-y-4 mt-3 w-full bg-[url('/images/banner.png')] p-4 rounded-lg bg-center bg-no-repeat bg-cover">
         <h1 className="text-xl sm:text-3xl text-white font-semibold mb-0 ">
-          Welcome back, Alex! 👋
+          Welcome back, {user?.firstName}! 👋
         </h1>
         <p className="text-white text-sm">
           Ready to continue your learning journey? Let's make today productive!
@@ -173,7 +175,7 @@ const StudentDashboard = () => {
       <div>
         <div className="grid grid-cols-12 gap-3 py-4">
           {courseCard.map((item, index) => (
-            <div className="col-span-12 md:col-span-6 lg:col-span-4 ">
+            <div key={item.id} className="col-span-12 md:col-span-6 lg:col-span-4 ">
               <div className="w-full bg-white rounded-lg">
                 <div className="">
                   <img
@@ -248,9 +250,9 @@ const StudentDashboard = () => {
         <div className="flex flex-col gap-3">
           {upcomingClasses.map((item, index) => (
             <div
-              className={`${
-                item.location === "Join Zoom" ? "bg-[#EAF3F2]" : "bg-[#F5E3DA]"
-              } `}
+              key={item.id}
+              className={`${item.location === "Join Zoom" ? "bg-[#EAF3F2]" : "bg-[#F5E3DA]"
+                } `}
             >
               <div className="flex flex-col md:flex-row gap-4 md:justify-between p-4 md:items-center">
                 <div className="flex flex-col md:flex-row gap-3 md:items-center justify-center">
@@ -312,11 +314,11 @@ const StudentDashboard = () => {
         <div className="flex flex-col gap-3">
           {Announcements.map((item, index) => (
             <div
-              className={`${
-                item.Title !== "Class Schedule Update"
-                  ? "bg-[#EAF3F2]"
-                  : "bg-[#F5E3DA]"
-              } `}
+              key={item.id}
+              className={`${item.Title !== "Class Schedule Update"
+                ? "bg-[#EAF3F2]"
+                : "bg-[#F5E3DA]"
+                } `}
             >
               <div className="flex flex-col md:flex-row gap-4 md:justify-between p-4 md:items-start">
                 <div className="flex flex-col md:flex-row gap-3 md:items-center justify-center">
@@ -325,11 +327,10 @@ const StudentDashboard = () => {
                   </div>
                   <div>
                     <div
-                      className={`${
-                        item.Title === "Class Schedule Update"
-                          ? "text-[#B7721F]"
-                          : "text-[#06574C]"
-                      } font-semibold`}
+                      className={`${item.Title === "Class Schedule Update"
+                        ? "text-[#B7721F]"
+                        : "text-[#06574C]"
+                        } font-semibold`}
                     >
                       {item.Title}
                     </div>
