@@ -1,3 +1,5 @@
+import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { Button, Progress } from "@heroui/react";
 import {
   BookIcon,
@@ -26,8 +28,33 @@ import { GrAnnounce } from "react-icons/gr";
 import { CiCalendar } from "react-icons/ci";
 import { useSelector } from "react-redux";
 
+import { Spinner } from "@heroui/react";
+
 const StudentDashboard = () => {
   const { user } = useSelector((state) => state.user);
+  const navigate = useNavigate();
+  const [courses, setCourses] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetchEnrolledCourses();
+  }, []);
+
+  const fetchEnrolledCourses = async () => {
+    try {
+      const res = await fetch(`${import.meta.env.VITE_PUBLIC_SERVER_URL}/api/course/my-courses`, {
+        credentials: 'include'
+      });
+      const data = await res.json();
+      if (data.success) {
+        setCourses(data.courses);
+      }
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setLoading(false);
+    }
+  };
   const cardsData = [
     {
       title: "Total Enrollments",
@@ -56,39 +83,6 @@ const StudentDashboard = () => {
       icon: <LuClock4 color="#06574C" size={22} />,
       changeText: " +8.2% from last month",
       changeColor: "text-[#06574C]",
-    },
-  ];
-
-  const courseCard = [
-    {
-      id: 1,
-      Status: "Active",
-      course: "Advanced Web Development",
-      students: "32",
-      name: "John Doe",
-      role: "Student",
-      time: "Nov 11, 10:00 AM",
-      value: 70,
-    },
-    {
-      id: 2,
-      Status: "Active",
-      course: "Advanced Web Development",
-      students: "32",
-      name: "John Doe",
-      role: "Student",
-      time: "Nov 11, 10:00 AM",
-      value: 70,
-    },
-    {
-      id: 3,
-      Status: "Active",
-      course: "Advanced Web Development",
-      students: "32",
-      name: "John Doe",
-      role: "Student",
-      time: "Nov 11, 10:00 AM",
-      value: 70,
     },
   ];
 
@@ -174,72 +168,54 @@ const StudentDashboard = () => {
       </div>
       <div>
         <div className="grid grid-cols-12 gap-3 py-4">
-          {courseCard.map((item, index) => (
-            <div key={item.id} className="col-span-12 md:col-span-6 lg:col-span-4 ">
-              <div className="w-full bg-white rounded-lg">
-                <div className="">
-                  <img
-                    className="h-full"
-                    src="/images/studentcard.png"
-                    alt=""
-                  />
-                </div>
-                <div className="p-3 space-y-3">
-                  <h1 className="text-xl font-semibold">{item.course}</h1>
-                  {/* <div className="flex justify-between items-center ">
-                    <div className="flex items-center gap-3">
-                      <div className="w-12 h-12 rounded-full bg-[#95C4BE33] flex items-center justify-center text-white font-bold text-sm  shrink-0">
-                        <RiGroupLine size={22} color="#06574C" />
-                      </div>
-                      <div>
-                        <p className="font-semibold text-[#06574C] text-lg leading-tight">
-                          {item.students}
-                        </p>
-                        <p className="text-sm text-[#666666]">{item.role}</p>
-                      </div>
-                    </div>
-                    <div className="text-end">
-                      <p className="font-semibold text-black text-sm leading-tight">
-                        Next Class
-                      </p>
-                      <p className="text-sm text-[#666666]">{item.time}</p>
-                    </div>
-                  </div> */}
-                  <div>
+          {loading ? (
+            <div className="col-span-12 flex justify-center py-10"><Spinner size="lg" /></div>
+          ) : courses.length === 0 ? (
+            <div className="col-span-12 text-center py-10 text-gray-500">You haven't enrolled in any courses yet.</div>
+          ) : (
+            courses.map((item) => (
+              <div key={item.id} className="col-span-12 md:col-span-6 lg:col-span-4 ">
+                <div className="w-full bg-white rounded-lg border shadow-sm hover:shadow-md transition-all">
+                  <div className="h-48 overflow-hidden rounded-t-lg bg-gray-100">
+                    <img
+                      className="w-full h-full object-cover"
+                      src="/images/studentcard.png"
+                      alt={item.courseName}
+                    />
+                  </div>
+                  <div className="p-4 space-y-3">
+                    <h1 className="text-lg font-bold text-[#06574C] line-clamp-1">{item.courseName}</h1>
+
                     <div className="flex justify-between items-center text-sm text-[#6B7280]">
                       <div className="flex gap-1 items-center ">
-                        {<FaRegAddressCard size={22} />}
-                        {"  "}
-                        {item.name}
+                        {<FaRegAddressCard size={18} />}
+                        {" "}
+                        {item.teacherName || "Instructor"}
                       </div>
                       <div className="flex gap-1 items-center ">
-                        {<Clock size={22} />}
-                        {"  "}
-                        {item.time}
+                        {<CiCalendar size={18} />}
+                        {" "}
+                        {new Date(item.enrolledAt).toLocaleDateString()}
                       </div>
                     </div>
-                    {/* <Progress
-                      color="success"
-                      value={item.value}
-                      size="sm"
-                    ></Progress> */}
-                  </div>
-                  <div>
-                    <Button
-                      size="md"
-                      radius="sm"
-                      variant="bordered"
-                      color="success"
-                      className="w-full mt-2"
-                      startContent={<AiOutlineEye size={22} />}
-                    >
-                      View Course
-                    </Button>
+
+                    <div>
+                      <Button
+                        size="md"
+                        radius="sm"
+                        variant="bordered"
+                        color="success"
+                        className="w-full mt-2 font-medium"
+                        startContent={<AiOutlineEye size={20} />}
+                        onPress={() => navigate(`/student/course/${item.id}/learn`)}
+                      >
+                        View Course
+                      </Button>
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
-          ))}
+            )))}
         </div>
       </div>
 

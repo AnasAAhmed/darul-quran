@@ -65,6 +65,8 @@ const TeacherAndStudentChat = lazy(() =>
 );
 const Review = lazy(() => import("./pages/admin/help/review"));
 const Faqs = lazy(() => import("./pages/admin/help/faqs"));
+const EnrollSuccess = lazy(() => import("./pages/student/enroll-success"));
+const CoursePlayer = lazy(() => import("./pages/student/course-player"));
 
 function App() {
   const navigate = useNavigate();
@@ -394,6 +396,14 @@ function App() {
             }
           />
           <Route
+            path="/student/course/:id/learn"
+            element={
+              <ProtectedRoute isAuthenticated={isAuthenticated} redirect="/">
+                <CoursePlayer />
+              </ProtectedRoute>
+            }
+          />
+          <Route
             path="/student/help/messages"
             element={
               <ProtectedRoute isAuthenticated={isAuthenticated} redirect="/">
@@ -406,6 +416,14 @@ function App() {
             element={
               <ProtectedRoute isAuthenticated={isAuthenticated} redirect="/">
                 <PaymentsInvoices />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/student/enroll-success"
+            element={
+              <ProtectedRoute isAuthenticated={isAuthenticated} redirect="/">
+                <EnrollSuccess />
               </ProtectedRoute>
             }
           />

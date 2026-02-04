@@ -1,4 +1,5 @@
-import React from "react";
+/* eslint-disable react/prop-types */
+import React, { useState, useEffect } from "react";
 import { DashHeading } from "../../../components/dashboard-components/DashHeading";
 import {
   Button,
@@ -11,153 +12,90 @@ import {
   TableColumn,
   TableHeader,
   TableRow,
+  Spinner,
+  Modal,
+  ModalContent,
+  ModalHeader,
+  ModalBody,
+  ModalFooter,
+  useDisclosure,
+  Textarea
 } from "@heroui/react";
 import {
   Download,
   Eye,
   ListFilterIcon,
-  PlusIcon,
-  SquarePen,
-  Trash2,
 } from "lucide-react";
 import { AnimatePresence } from "framer-motion";
 import * as motion from "motion/react-client";
+import toast from "react-hot-toast";
 
 const PaymentsInvoices = () => {
+  const [payments, setPayments] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  // Refund Modal State
+  const { isOpen, onOpen, onOpenChange } = useDisclosure();
+  const [refundReason, setRefundReason] = useState("");
+  const [selectedEnrollmentId, setSelectedEnrollmentId] = useState(null);
+
+  const fetchPayments = async () => {
+    setLoading(true);
+    try {
+      const res = await fetch(`${import.meta.env.VITE_PUBLIC_SERVER_URL}/api/payment/history`, { credentials: 'include' });
+      const data = await res.json();
+      if (data.success) setPayments(data.history);
+    } catch (e) { console.error(e); }
+    finally { setLoading(false); }
+  };
+
+  useEffect(() => {
+    fetchPayments();
+  }, []);
+
+  const openRefundModal = (id) => {
+    setSelectedEnrollmentId(id);
+    setRefundReason("");
+    onOpen();
+  };
+
+  const submitRefund = async (onClose) => {
+    if (!refundReason.trim()) {
+      toast.error("Please enter a reason");
+      return;
+    }
+
+    const loadingToast = toast.loading("Submitting request...");
+    try {
+      const res = await fetch(`${import.meta.env.VITE_PUBLIC_SERVER_URL}/api/payment/refund-request`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ enrollmentId: selectedEnrollmentId, reason: refundReason })
+      });
+      const data = await res.json();
+      toast.dismiss(loadingToast);
+
+      if (data.success) {
+        toast.success("Refund requested successfully");
+        fetchPayments(); // Refresh list
+        onClose();
+      } else {
+        toast.error(data.message || "Failed to request refund");
+      }
+    } catch (error) {
+      toast.dismiss(loadingToast);
+      toast.error("Network error");
+    }
+  };
+
   const statuses = [
     { key: "all", label: "All Status" },
     { key: "draft", label: "Draft" },
     { key: "published", label: "Published" },
   ];
   const filters = [{ key: "all", label: "Filter" }];
-  const Supports_Staff = [
-    {
-      id: 1,
-      course_name: "React Hooks Deep Dive",
-      course_desc: "Advanced JavaScript Course",
-      price: "$ 199",
-      name: "John Davis",
-      desc: "Advanced JavaScript Course",
-      last_active: "2 hourse ago",
-      email: "john.davis@email.com",
-      payment_method: "•••• 4532",
-      roles: "Support Staff",
-      status: "Complete",
-      date: "Nov 20, 2025",
-    },
-    {
-      id: 2,
-      name: "John Davis",
-      course_name: "React Hooks Deep Dive",
-      course_desc: "Advanced JavaScript Course",
-      price: "$ 199",
-      desc: "Advanced JavaScript Course",
-      last_active: "2 hourse ago",
-      email: "john.davis@email.com",
-      payment_method: "•••• 4532",
-      roles: "Support Staff",
-      status: "Pending",
-      date: "Nov 20, 2025",
-    },
-    {
-      id: 3,
-      name: "John Davis",
-      course_name: "React Hooks Deep Dive",
-      course_desc: "Advanced JavaScript Course",
-      price: "$ 199",
-      desc: "Advanced JavaScript Course",
-      last_active: "2 hourse ago",
-      email: "john.davis@email.com",
-      roles: "Support Staff",
-      status: "Complete",
-      payment_method: "•••• 4532",
-      date: "Nov 20, 2025",
-    },
-    {
-      id: 4,
-      name: "John Davis",
-      course_name: "React Hooks Deep Dive",
-      course_desc: "Advanced JavaScript Course",
-      price: "$ 199",
-      desc: "Advanced JavaScript Course",
-      payment_method: "•••• 4532",
-      last_active: "2 hourse ago",
-      email: "john.davis@email.com",
-      roles: "Support Staff",
-      status: "Pending",
-      date: "Nov 20, 2025",
-    },
-    {
-      id: 5,
-      name: "John Davis",
-      course_name: "React Hooks Deep Dive",
-      course_desc: "Advanced JavaScript Course",
-      price: "$ 199",
-      desc: "Advanced JavaScript Course",
-      payment_method: "•••• 4532",
-      last_active: "2 hourse ago",
-      email: "john.davis@email.com",
-      roles: "Support Staff",
-      status: "Refunded",
-      date: "Nov 20, 2025",
-    },
-    {
-      id: 6,
-      name: "John Davis",
-      course_name: "React Hooks Deep Dive",
-      course_desc: "Advanced JavaScript Course",
-      price: "$ 199",
-      desc: "Advanced JavaScript Course",
-      last_active: "2 hourse ago",
-      email: "john.davis@email.com",
-      payment_method: "•••• 4532",
-      roles: "Support Staff",
-      status: "Pending",
-      date: "2Nov 20, 2025",
-    },
-    {
-      id: 7,
-      name: "John Davis",
-      course_name: "React Hooks Deep Dive",
-      course_desc: "Advanced JavaScript Course",
-      price: "$ 199",
-      desc: "Advanced JavaScript Course",
-      last_active: "2 hourse ago",
-      email: "john.davis@email.com",
-      payment_method: "•••• 4532",
-      roles: "Support Staff",
-      status: "Complete",
-      date: "Nov 20, 2025",
-    },
-    {
-      id: 8,
-      name: "John Davis",
-      course_name: "React Hooks Deep Dive",
-      course_desc: "Advanced JavaScript Course",
-      price: "$ 199",
-      payment_method: "•••• 4532",
-      desc: "Advanced JavaScript Course",
-      last_active: "2 hourse ago",
-      email: "john.davis@email.com",
-      roles: "Support Staff",
-      status: "Pending",
-      date: "Nov 20, 2025",
-    },
-    {
-      id: 9,
-      name: "John Davis",
-      course_name: "React Hooks Deep Dive",
-      course_desc: "Advanced JavaScript Course",
-      price: "$ 199",
-      desc: "Advanced JavaScript Course",
-      last_active: "2 hourse ago",
-      email: "john.davis@email.com",
-      roles: "Students",
-      payment_method: "•••• 4532",
-      status: "Refunded",
-      date: "Nov 20, 2025",
-    },
-  ];
+
   const header = [
     { key: "Course Name", label: "Course Name" },
     { key: "Date", label: "Date" },
@@ -173,8 +111,9 @@ const PaymentsInvoices = () => {
     { key: "40", label: "40" },
     { key: "50", label: "50" },
   ];
+
   return (
-    <div className="bg-white bg-linear-to-t from-[#F1C2AC]/50 to-[#95C4BE]/50 h-scrseen px-2 sm:px-3">
+    <div className="bg-white bg-linear-to-t from-[#F1C2AC]/50 to-[#95C4BE]/50 h-screen px-2 sm:px-3 overflow-y-auto">
       <DashHeading
         title={"Payments & Invoices"}
         desc={"Keep track of all payments with transparency and ease"}
@@ -203,122 +142,162 @@ const PaymentsInvoices = () => {
             ))}
           </Select>
         </div>
-        {/* <CourseForm /> */}
-        <Button
-          startContent={<Download size={16} />}
-          radius="sm"
-          size="lg"
-          className="bg-[#06574C] text-white max-md:w-full"
-        >
-          Export
-        </Button>
       </div>
 
       <AnimatePresence mode="wait">
         <motion.div
-          //   key={selectedTab ? selectedTab.label : "empty"}
           initial={{ y: 10, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
           exit={{ y: -10, opacity: 0 }}
           transition={{ duration: 0.6, ease: "easeInOut" }}
         >
-          <Table
-            isHeaderSticky
-            // selectionMode="multiple"
-            aria-label="Pending approvals table"
-            removeWrapper
-            classNames={{
-              base: "w-full bg-white rounded-lg overflow-x-scroll w-full no-scrollbar mb-3",
-              th: "font-bold p-4 text-md  text-[#333333] capitalize tracking-widest  bg-[#EBD4C936]",
-              td: "py-3 items-center whitespace-nowrap",
-              tr: "border-b border-default-200 ",
-            }}
-          >
-            <TableHeader>
-              {header.map((item) => (
-                <TableColumn key={item.key}>{item.label}</TableColumn>
-              ))}
-            </TableHeader>
-
-            <TableBody>
-              {Supports_Staff.map((classItem) => (
-                <TableRow key={classItem.id}>
-                  <TableCell className="px-4">
-                    <div>
-                      <div className="font-medium text-gray-900">
-                        {classItem.course_name}
-                      </div>
-                      <div className="text-xs text-gray-500 mt-0.5">
-                        {classItem.course_desc}
-                      </div>
-                    </div>
-                  </TableCell>
-                  <TableCell>{classItem.date}</TableCell>
-                  <TableCell>{classItem.price}</TableCell>
-                  <TableCell>
-                    <div className="flex gap-1 items-center">
-                      <img src="/icons/Visa.svg" alt="" />
-                      {classItem.payment_method}
-                    </div>
-                  </TableCell>
-                  <TableCell>
-                    <Button className={`text-sm p-2 rounded-md  ${classItem.status === "Complete" ? "bg-[#95C4BE33] text-[#06574C]" : classItem.status === "Pending" ? "bg-[#F1C2AC33] text-[#D28E3D]" : "bg-[#FFEAEC] text-[#E8505B]"}`}>
-                      {classItem.status}
-                    </Button>
-                  </TableCell>
-                  <TableCell className="flex gap-2">
-                    <Button
-                      variant="bordered"
-                      radius="sm"
-                      className="border-[#06574C]"
-                      startContent={<Eye size={18} color="#06574C" />}
-                    >
-                      View Details
-                    </Button>
-                    <Button
-                      radius="sm"
-                      className="bg-[#06574C] text-white"
-                      startContent={<Download size={18} color="white" />}
-                    >
-                      Download
-                    </Button>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-          <div className="md:flex items-center pb-4 gap-2 justify-between overflow-hidden">
-            <div className="flex text-sm items-center gap-1">
-              <span>Showing</span>
-              <Select
-                radius="sm"
-                className="w-[70px]"
-                defaultSelectedKeys={["10"]}
-                placeholder="1"
-              >
-                {limits.map((limit) => (
-                  <SelectItem key={limit.key}>{limit.label}</SelectItem>
-                ))}
-              </Select>
-              <span className="min-w-56">Out of 58</span>
-            </div>
-            <Pagination
-              className=""
-              showControls
-              variant="ghost"
-              initialPage={1}
-              total={10}
+          {loading ? (
+            <div className="flex justify-center p-10"><Spinner size="lg" /></div>
+          ) : payments.length === 0 ? (
+            <div className="text-center p-10 text-gray-500">No payment history found.</div>
+          ) : (
+            <Table
+              isHeaderSticky
+              aria-label="Payments table"
+              removeWrapper
               classNames={{
-                item: "rounded-sm hover:bg-bg-[#06574C]/50",
-                cursor: "bg-[#06574C] rounded-sm text-white",
-                prev: "rounded-sm bg-white/80",
-                next: "rounded-sm bg-white/80",
+                base: "w-full bg-white rounded-lg overflow-x-scroll w-full no-scrollbar mb-3",
+                th: "font-bold p-4 text-md text-[#333333] capitalize tracking-widest bg-[#EBD4C936]",
+                td: "py-3 items-center whitespace-nowrap",
+                tr: "border-b border-default-200 ",
               }}
-            />
-          </div>
+            >
+              <TableHeader>
+                {header.map((item) => (
+                  <TableColumn key={item.key}>{item.label}</TableColumn>
+                ))}
+              </TableHeader>
+
+              <TableBody>
+                {payments.map((item) => (
+                  <TableRow key={item.id}>
+                    <TableCell className="px-4">
+                      <div>
+                        <div className="font-medium text-gray-900">
+                          {item.courseName}
+                        </div>
+                        <div className="text-xs text-gray-500 mt-0.5 max-w-[200px] truncate">
+                          {item.description || "Course Enrollment"}
+                        </div>
+                      </div>
+                    </TableCell>
+                    <TableCell>{new Date(item.date).toLocaleDateString()}</TableCell>
+                    <TableCell>${item.amount}</TableCell>
+                    <TableCell>
+                      <div className="flex gap-1 items-center">
+                        <img src="/icons/Visa.svg" alt="Card" className="w-8" />
+                        •••• 4242
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      <div className="flex flex-col gap-1">
+                        <Button className={`text-sm p-2 rounded-md capitalize h-8 ${item.status === "completed" || item.status === "Complete" ? "bg-[#95C4BE33] text-[#06574C]" :
+                          item.status === "pending" || item.status === "Pending" ? "bg-[#F1C2AC33] text-[#D28E3D]" :
+                            "bg-[#FFEAEC] text-[#E8505B]"}`
+                        }>
+                          {item.status || "Completed"}
+                        </Button>
+                        {item.refundStatus && item.refundStatus !== 'none' && (
+                          <span className="text-[10px] text-red-500 font-medium">Refund: {item.refundStatus}</span>
+                        )}
+                      </div>
+                    </TableCell>
+                    <TableCell className="flex gap-2">
+                      {item.receiptUrl ? (
+                        <Button
+                          radius="sm"
+                          className="bg-[#06574C] text-white"
+                          onPress={() => window.open(item.receiptUrl, '_blank')}
+                          startContent={<Download size={18} color="white" />}
+                        >
+                          Download Invoice
+                        </Button>
+                      ) : (
+                        <Button radius="sm" isDisabled variant="flat">
+                          No Invoice
+                        </Button>
+                      )}
+
+                      {item.status === 'completed' && (!item.refundStatus || item.refundStatus === 'none') && (
+                        <Button variant="ghost" color="danger" radius="sm" onPress={() => openRefundModal(item.id)}>
+                          Request Refund
+                        </Button>
+                      )}
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          )}
         </motion.div>
+        <div className="md:flex items-center pb-4 gap-2 justify-between overflow-hidden">
+          <div className="flex text-sm items-center gap-1">
+            <span>Showing</span>
+            <Select
+              radius="sm"
+              className="w-[70px]"
+              defaultSelectedKeys={["10"]}
+              placeholder="1"
+            >
+              {limits.map((limit) => (
+                <SelectItem key={limit.key}>{limit.label}</SelectItem>
+              ))}
+            </Select>
+            <span className="min-w-56">Out of {payments.length}</span>
+          </div>
+          <Pagination
+            className=""
+            showControls
+            variant="ghost"
+            initialPage={1}
+            total={Math.ceil(payments.length / 10) || 1}
+            classNames={{
+              item: "rounded-sm hover:bg-bg-[#06574C]/50",
+              cursor: "bg-[#06574C] rounded-sm text-white",
+              prev: "rounded-sm bg-white/80",
+              next: "rounded-sm bg-white/80",
+            }}
+          />
+        </div>
+        <div className="text-center text-xs text-gray-500 mt-4 pb-4 font-style-italic">
+          Note: “Classes will resume after the next successful payment inshaAllah.”
+        </div>
+
       </AnimatePresence>
-    </div>
+
+      <Modal isOpen={isOpen} onOpenChange={onOpenChange}>
+        <ModalContent>
+          {(onClose) => (
+            <>
+              <ModalHeader className="flex flex-col gap-1">Request Refund</ModalHeader>
+              <ModalBody>
+                <p className="text-sm text-gray-500 mb-2">Please provide a reason for your refund request. Our team will review it shortly.</p>
+                <Textarea
+                  label="Reason"
+                  placeholder="Enter your reason here..."
+                  value={refundReason}
+                  onValueChange={setRefundReason}
+                  minRows={3}
+                />
+              </ModalBody>
+              <ModalFooter>
+                <Button color="danger" variant="light" onPress={onClose}>
+                  Cancel
+                </Button>
+                <Button color="primary" onPress={() => submitRefund(onClose)}>
+                  Submit Request
+                </Button>
+              </ModalFooter>
+            </>
+          )}
+        </ModalContent>
+      </Modal>
+    </div >
   );
 };
 

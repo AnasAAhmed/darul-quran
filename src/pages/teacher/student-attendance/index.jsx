@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import {
   Button,
   Progress,
@@ -13,116 +13,29 @@ import { DashHeading } from "../../../components/dashboard-components/DashHeadin
 import { Eye } from "lucide-react";
 
 const StudentAttendance = () => {
-  const Attendance = [
-    {
-      id: 1,
-      name: "React Hooks Deep Dive",
-      desc: "Advanced JavaScript Course",
-      studentname: "John Davis",
-      enrollments: "1,247",
-      email: "john.davis@email.com",
-      attendance_rate: 75,
-      category: "Nov 20, 2025",
-      status: "Active",
-      date: "2025-11-27",
-    },
-    {
-      id: 2,
-      name: "React Hooks Deep Dive",
-      studentname: "John Davis",
-      desc: "Advanced JavaScript Course",
-      enrollments: "1,247",
-      email: "john.davis@email.com",
-      attendance_rate: 75,
-      category: "Nov 20, 2025",
-      status: "Active",
-      date: "2025-11-26",
-    },
-    {
-      id: 3,
-      name: "React Hooks Deep Dive",
-      studentname: "John Davis",
-      desc: "Advanced JavaScript Course",
-      enrollments: "1,247",
-      email: "john.davis@email.com",
-      attendance_rate: 75,
-      category: "Nov 20, 2025",
-      status: "Active",
-      date: "2025-11-17",
-    },
-    {
-      id: 4,
-      name: "React Hooks Deep Dive",
-      studentname: "John Davis",
-      desc: "Advanced JavaScript Course",
-      enrollments: "1,247",
-      email: "john.davis@email.com",
-      attendance_rate: 75,
-      category: "Nov 20, 2025",
-      status: "Active",
-      date: "2025-11-16",
-    },
-    {
-      id: 5,
-      name: "React Hooks Deep Dive",
-      studentname: "John Davis",
-      desc: "Advanced JavaScript Course",
-      enrollments: "1,247",
-      email: "john.davis@email.com",
-      attendance_rate: 75,
-      category: "Nov 20, 2025",
-      status: "Active",
-      date: "2025-11-15",
-    },
-    {
-      id: 6,
-      name: "React Hooks Deep Dive",
-      studentname: "John Davis",
-      desc: "Advanced JavaScript Course",
-      enrollments: "1,247",
-      email: "john.davis@email.com",
-      attendance_rate: 75,
-      category: "Nov 20, 2025",
-      status: "Active",
-      date: "2025-11-12",
-    },
-    {
-      id: 7,
-      name: "React Hooks Deep Dive",
-      studentname: "John Davis",
-      desc: "Advanced JavaScript Course",
-      enrollments: "1,247",
-      email: "john.davis@email.com",
-      attendance_rate: 75,
-      category: "Nov 20, 2025",
-      status: "Active",
-      date: "2025-11-03",
-    },
-    {
-      id: 8,
-      name: "React Hooks Deep Dive",
-      studentname: "John Davis",
-      desc: "Advanced JavaScript Course",
-      enrollments: "1,247",
-      email: "john.davis@email.com",
-      attendance_rate: 75,
-      category: "Nov 20, 2025",
-      status: "Active",
-      date: "2025-11-29",
-    },
-    {
-      id: 9,
-      name: "React Hooks Deep Dive",
-      studentname: "John Davis",
-      desc: "Advanced JavaScript Course",
-      enrollments: "1,247",
-      email: "john.davis@email.com",
-      attendance_rate: 75,
-      category: "Nov 20, 2025",
-      status: "Active",
-      date: "2025-11-22",
-    },
-  ];
+  const [attendanceData, setAttendanceData] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetchAttendance();
+  }, []);
+
+  const fetchAttendance = async () => {
+    try {
+      const user = JSON.parse(localStorage.getItem("user"));
+      if (!user || !user.id) return;
+
+      const res = await fetch(`${import.meta.env.VITE_PUBLIC_SERVER_URL}/api/attendance/teacher-summary?teacherId=${user.id}`);
+      const data = await res.json();
+      if (data.success) {
+        setAttendanceData(data.attendanceData);
+      }
+    } catch (error) {
+      console.error("Failed to fetch attendance", error);
+    } finally {
+      setLoading(false);
+    }
+  };
   return (
     <div className="bg-white bg-linear-to-t from-[#F1C2AC]/50 to-[#95C4BE]/50 h-scrseen px-2 sm:px-3">
       <DashHeading
@@ -151,7 +64,7 @@ const StudentAttendance = () => {
           </TableHeader>
 
           <TableBody>
-            {Attendance.map((classItem) => (
+            {attendanceData.map((classItem) => (
               <TableRow key={classItem.id}>
                 <TableCell className="px-4">
                   <div>
