@@ -4,7 +4,6 @@ import { Plus, Download, Trash2, Eye, Clock, Menu, Edit, ClipboardListIcon, List
 import FileDropzone from "../dropzone";
 import { Button, Image, Select, SelectItem } from "@heroui/react";
 import { PiFile, PiFilePdf } from "react-icons/pi";
-import { UploadDropzone, useUploadThing } from "../../../lib/uploadthing";
 import { errorMessage, successMessage } from "../../../lib/toast.config";
 
 const LESSONS = [
@@ -50,7 +49,6 @@ const getVideoDuration = (file) => {
 };
 
 export default function Videos({ videos = [], setVideos, onSave, courseId, setLoadingAction, setPendingAction, setVideoDuration }) {
-    const { startUpload, isUploading } = useUploadThing("videoUploader");
     const [uploadProgress, setUploadProgress] = useState(0);
 
     const handleContentSave = async (field, contentData) => {
@@ -95,9 +93,17 @@ export default function Videos({ videos = [], setVideos, onSave, courseId, setLo
         if (!files || files.length === 0) return;
         setUploadProgress(0);
 
-        const filesWithMeta = await Promise.all(files.map(async (file) => {
+        // Process files to get duration and prepare for upload
+        const filesWithMeta = await Promise.all(files.map(async (fileObj) => {
+            const file = fileObj.file; // Extract actual File object from metadata
             const d = await getVideoDuration(file);
-            return { file, duration: formatTime(d) };
+            return { 
+                file: file, 
+                duration: formatTime(d),
+                name: fileObj.name,
+                size: fileObj.size,
+                type: fileObj.type
+            };
         }));
 
         // Simulated Progress since native callback is not reliable
@@ -109,28 +115,31 @@ export default function Videos({ videos = [], setVideos, onSave, courseId, setLo
         }, 500);
 
         try {
-            const res = await startUpload(filesWithMeta.map(f => f.file));
-
+            // Add files to the videos state with metadata
+            const newItems = filesWithMeta.map((f, i) => ({
+                id: Date.now() + i + Math.random(),
+                title: f.name,
+                thumbnail: URL.createObjectURL(f.file), // Create object URL for preview
+                duration: f.duration,
+                views: 0,
+                status: "Draft",
+                releaseDate: "0",
+                // Store file metadata for later upload
+                file: f.file,
+                name: f.name,
+                size: f.size,
+                type: f.type
+            }));
+            
             clearInterval(interval);
             setUploadProgress(100);
 
-            if (res) {
-                const newItems = res.map((r, i) => ({
-                    id: Date.now() + i + Math.random(),
-                    title: r.name,
-                    thumbnail: r.url,
-                    duration: filesWithMeta[i].duration,
-                    views: 0,
-                    status: "Draft",
-                    releaseDate: "0"
-                }));
-                const updatedList = [...videos, ...newItems];
-                setVideos(updatedList);
-                if (onSave) onSave(updatedList);
-                successMessage("Videos uploaded");
-            }
+            const updatedList = [...videos, ...newItems];
+            setVideos(updatedList);
+            if (onSave) onSave(updatedList);
+            successMessage("Videos added");
         } catch (e) {
-           errorMessage("Upload error");
+            errorMessage("Upload error");
         } finally {
             clearInterval(interval);
             setTimeout(() => setUploadProgress(0), 1000);
@@ -340,6 +349,7 @@ export default function Videos({ videos = [], setVideos, onSave, courseId, setLo
                             label="Drag & Drop Videos"
                             text="or click to upload. Supports multiple files."
                             height="300px"
+                            fileType="video"
                             isMultiple={true}
                         />
                     )}
@@ -378,7 +388,6 @@ const DOCUMENTS = [
 ];
 
 export function PdfAndNotes({ pdfs = [], setPdfs, onSave }) {
-    const { startUpload } = useUploadThing("pdfUploader");
     const [isUploading, setIsUploading] = useState(false);
     const [uploadProgress, setUploadProgress] = useState(0);
 
@@ -410,27 +419,30 @@ export function PdfAndNotes({ pdfs = [], setPdfs, onSave }) {
         }, 500);
 
         try {
-            const res = await startUpload(files);
+            // Add files to the pdfs state with metadata
+            const newDocs = files.map((fileObj, i) => ({
+                id: Date.now() + i + Math.random(),
+                title: fileObj.name,
+                size: (fileObj.size / 1024 / 1024).toFixed(2) + " MB",
+                pages: 0,
+                url: URL.createObjectURL(fileObj.file), // Create object URL for preview
+                status: "Draft",
+                releaseDate: "0",
+                doc_type: 'pdf',
+                // Store file metadata for later upload
+                file: fileObj.file,
+                name: fileObj.name,
+                sizeBytes: fileObj.size,
+                type: fileObj.type
+            }));
 
             clearInterval(interval);
             setUploadProgress(100);
 
-            if (res) {
-                const newDocs = res.map((r, i) => ({
-                    id: Date.now() + i + Math.random(),
-                    title: r.name,
-                    size: (r.size / 1024 / 1024).toFixed(2) + " MB",
-                    pages: 0,
-                    url: r.url,
-                    status: "Draft",
-                    releaseDate: "0",
-                    doc_type: 'pdf'
-                }));
-                const updatedList = [...pdfs, ...newDocs];
-                setPdfs(updatedList);
-                if (onSave) onSave(updatedList);
-                successMessage("PDF(s) Uploaded");
-            }
+            const updatedList = [...pdfs, ...newDocs];
+            setPdfs(updatedList);
+            if (onSave) onSave(updatedList);
+            successMessage("PDF(s) Added");
         } catch (e) {
             errorMessage("Upload error");
         } finally {
@@ -571,6 +583,7 @@ export function PdfAndNotes({ pdfs = [], setPdfs, onSave }) {
                             label="Drag & Drop PDF/Notes"
                             text="or click to upload. Supports multiple files."
                             height="300px"
+                            fileType="pdf"
                             isMultiple={true}
                         />
                     )}
@@ -603,7 +616,6 @@ const ASSIGNMENTS = [
     },
 ];
 export function Assignments({ assignments = [], setAssignments, onSave }) {
-    const { startUpload } = useUploadThing("pdfUploader");
     const [isUploading, setIsUploading] = useState(false);
     const [uploadProgress, setUploadProgress] = useState(0);
 
@@ -640,22 +652,25 @@ export function Assignments({ assignments = [], setAssignments, onSave }) {
             clearInterval(interval);
             setUploadProgress(100);
 
-            if (res) {
-                const newAssigns = res.map((r, i) => ({
-                    id: Date.now() + i + Math.random(),
-                    title: r.name,
-                    title2: r.name,
-                    description: "Uploaded File",
-                    due: "7 days",
-                    thumbnail: r.url, // storing URL
-                    status: "Draft",
-                    releaseDate: "0"
-                }));
-                const updatedList = [...assignments, ...newAssigns];
-                setAssignments(updatedList);
-                if (onSave) onSave(updatedList);
-                successMessage("Assignment(s) Uploaded");
-            }
+            const newAssigns = files.map((fileObj, i) => ({
+                id: Date.now() + i + Math.random(),
+                title: fileObj.name,
+                title2: fileObj.name,
+                description: "Uploaded File",
+                due: "7 days",
+                thumbnail: URL.createObjectURL(fileObj.file), // Create object URL for preview
+                status: "Draft",
+                releaseDate: "0",
+                // Store file metadata for later upload
+                file: fileObj.file,
+                name: fileObj.name,
+                size: fileObj.size,
+                type: fileObj.type
+            }));
+            const updatedList = [...assignments, ...newAssigns];
+            setAssignments(updatedList);
+            if (onSave) onSave(updatedList);
+            successMessage("Assignment(s) Added");
         } catch (e) {
             errorMessage("Upload error");
         } finally {
@@ -790,6 +805,7 @@ export function Assignments({ assignments = [], setAssignments, onSave }) {
                             label="Drag & Drop Assignment Files"
                             text="or click to upload. Supports multiple files."
                             height="300px"
+                            fileType="assignment"
                             isMultiple={true}
                         />
                     )}
@@ -824,7 +840,6 @@ const QUIZZES = [
     },
 ];
 export function Quizzes({ quizzes = [], setQuizzes, onSave }) {
-    const { startUpload } = useUploadThing("pdfUploader");
     const [isUploading, setIsUploading] = useState(false);
     const [uploadProgress, setUploadProgress] = useState(0);
 
@@ -861,24 +876,27 @@ export function Quizzes({ quizzes = [], setQuizzes, onSave }) {
             clearInterval(interval);
             setUploadProgress(100);
 
-            if (res) {
-                const newQs = res.map((r, i) => ({
-                    id: Date.now() + i + Math.random(),
-                    title: r.name,
-                    description: "Uploaded Quiz File",
-                    duration: "15",
-                    question: 0,
-                    thumbnail: r.url,
-                    status: "Draft",
-                    passing: 70,
-                    is_attached: false,
-                    releaseDate: "0"
-                }));
-                const updatedList = [...quizzes, ...newQs];
-                setQuizzes(updatedList);
-                if (onSave) onSave(updatedList);
-                successMessage("Quiz(s) Uploaded");
-            }
+            const newQs = files.map((fileObj, i) => ({
+                id: Date.now() + i + Math.random(),
+                title: fileObj.name,
+                description: "Uploaded Quiz File",
+                duration: "15",
+                question: 0,
+                thumbnail: URL.createObjectURL(fileObj.file), // Create object URL for preview
+                status: "Draft",
+                passing: 70,
+                is_attached: false,
+                releaseDate: "0",
+                // Store file metadata for later upload
+                file: fileObj.file,
+                name: fileObj.name,
+                size: fileObj.size,
+                type: fileObj.type
+            }));
+            const updatedList = [...quizzes, ...newQs];
+            setQuizzes(updatedList);
+            if (onSave) onSave(updatedList);
+            successMessage("Quiz(s) Added");
         } catch (e) {
             errorMessage("Upload error");
         } finally {
@@ -1006,7 +1024,7 @@ export function Quizzes({ quizzes = [], setQuizzes, onSave }) {
 
                 <div className="mt-4">
                     <h3 className="text-lg font-semibold text-gray-900 mb-2">Upload Quiz</h3>
-                    {isUploading ? (
+                    {/* {isUploading ? (
                         <div className="w-full h-[300px] flex flex-col items-center justify-center border-2 border-dashed border-gray-300 rounded-lg bg-gray-50 px-4">
                             <Loader className="animate-spin h-8 w-8 text-[#06574C] mb-2" />
                             <div className="w-full max-w-md flex justify-between text-gray-600 mb-1 text-sm font-medium">
@@ -1027,7 +1045,7 @@ export function Quizzes({ quizzes = [], setQuizzes, onSave }) {
                             height="300px"
                             isMultiple={true}
                         />
-                    )}
+                    )} */}
                 </div>
             </div>
 

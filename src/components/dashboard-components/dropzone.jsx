@@ -10,6 +10,8 @@ const fileTypeMap = {
   },
   pdf: {
     "application/pdf": [".pdf"],
+    "application/msword": [".doc"],
+    "application/vnd.openxmlformats-officedocument.wordprocessingml.document": [".docx"],
   },
   assignment: {
     "application/pdf": [".pdf"],
@@ -26,7 +28,7 @@ const FileDropzone = ({
   label = "Upload your Course Thumbnail",
   text = ' Recommended: 1280x720 pixels',
   files,
-  fileType = "", // image | video | pdf | assignment
+  fileType = "",// "image" | "video" | "pdf" | "assignment",
   maxSize = 50,
   setFiles,
   height = "280px",
@@ -37,31 +39,54 @@ const FileDropzone = ({
   width = "100%",
 }) => {
   const finalMaxSixe = maxSize * 1024 * 1024;
+  
   const { getRootProps, getInputProps, open, acceptedFiles } = useDropzone({
     noKeyboard: true,
     multiple: isMultiple,
     maxSize: finalMaxSixe,
-    accept: fileTypeMap[fileType],
+    accept: fileTypeMap[fileType] || undefined,
     onDrop: (acceptedFiles) => {
-      setFiles(acceptedFiles);
+      // Convert accepted files to objects with metadata
+      const filesWithMetadata = acceptedFiles.map(file => ({
+        file, // The actual File object
+        name: file.name,
+        size: file.size,
+        type: file.type,
+        lastModified: file.lastModified,
+      }));
+      
+      if (isMultiple) {
+        // Add new files to existing files
+        setFiles(prevFiles => [...prevFiles, ...filesWithMetadata]);
+      } else {
+        // Replace with single file
+        setFiles(filesWithMetadata);
+      }
     },
   });
   const removeFile = (index) => {
     if (index >= 0) {
-
       const newFiles = files.filter((_, i) => i !== index);
-
       setFiles(newFiles);
     } else {
       setFiles([])
     }
   };
-  const getUploadedImageSrc = (file) => {
-    if (!file) {
+  
+  const getUploadedImageSrc = (fileObj) => {
+    if (!fileObj) {
       console.error("No file provided.");
       return null;
     }
+    
+    // If fileObj is a string (already uploaded URL), return it
+    if (typeof fileObj === "string") return fileObj;
+    
+    // If fileObj is the metadata object, get the actual file
+    const file = fileObj.file || fileObj;
+    
     if (typeof file === "string") return file;
+    
     const imageUrl = URL.createObjectURL(file);
     return imageUrl;
   };
@@ -149,9 +174,9 @@ const FileDropzone = ({
         <div className="mt-4">
           <h4 className="font-semibold">Files:</h4>
           <ul className="list-disc ml-6">
-            {acceptedFiles.map((file) => (
-              <li key={file.path}>
-                {file.path} — {file.size} bytes
+            {files.map((file, index) => (
+              <li key={`${file.name}-${index}`}>
+                {file.name} — {(file.size / 1024 / 1024).toFixed(2)} MB ({file.type})
               </li>
             ))}
           </ul>

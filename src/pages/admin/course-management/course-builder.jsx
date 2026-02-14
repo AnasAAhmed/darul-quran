@@ -34,7 +34,6 @@ import Videos, {
   Quizzes,
 } from "../../../components/dashboard-components/forms/ContentUpload";
 import { useSearchParams } from "react-router-dom";
-import { useUploadThing } from "../../../lib/uploadthing";
 import { useNavigate } from "react-router-dom";
 import { useAddCategoryMutation, useDeleteCategoryMutation, useGetAllCategoriesQuery, useGetCourseByIdQuery } from "../../../redux/api/courses";
 import { errorMessage, successMessage } from "../../../lib/toast.config";
@@ -78,9 +77,9 @@ const CourseBuilder = () => {
   }, []);
   const [teachers, setTeachers] = useState([]);
   const navigate = useNavigate();
-  const [thumbnail, setThumbnail] = useState([]); //file
+  const [thumbnail, setThumbnail] = useState([]); //file objects with metadata
   const [thumbnailUrl, setThumbnailUrl] = useState("");
-  const [videoThumbnail, setVideoThumbnail] = useState([]); // Cover image file
+  const [videoThumbnail, setVideoThumbnail] = useState([]); // Cover image file objects with metadata
   const [videoThumbnailUrl, setVideoThumbnailUrl] = useState(""); // Cover image URL
   const [videos, setVideos] = useState([]);
   const [pdfs, setPdfs] = useState([]);
@@ -92,7 +91,6 @@ const CourseBuilder = () => {
   const { data: categoriesData, isError: categoriesError } = useGetAllCategoriesQuery();
   const [deleteCategory] = useDeleteCategoryMutation();
   const [addCategory] = useAddCategoryMutation();
-  const { startUpload } = useUploadThing("introUploader");
   const Difficulty = [
     { key: "Beginner", label: "Beginner" },
     { key: "Advanced", label: "Advanced" },
@@ -180,6 +178,38 @@ const CourseBuilder = () => {
     console.log(formData);
   };
   // handle submit tab 1
+  // Function to upload files to server
+  const uploadFilesToServer = async (filesArray) => {
+    if (!filesArray || filesArray.length === 0) return [];
+    
+    const formData = new FormData();
+    
+    // Append each file to the form data
+    filesArray.forEach((fileObj) => {
+      formData.append('files', fileObj.file); // Use the actual File object
+    });
+    
+    try {
+      const response = await fetch(`${import.meta.env.VITE_PUBLIC_SERVER_URL}/api/upload/direct-upload`, {
+        method: 'POST',
+        body: formData,
+        credentials: 'include',
+      });
+      
+      const result = await response.json();
+      
+      if (result.success && result.files) {
+        return result.files; // Return array of uploaded file objects with URLs
+      } else {
+        throw new Error(result.message || 'Upload failed');
+      }
+    } catch (error) {
+      console.error('Upload error:', error);
+      errorMessage('Failed to upload files: ' + error.message);
+      return [];
+    }
+  };
+
   const handleSubmitTab1 = async (e) => {
     e.preventDefault();
     setLoadingAction(pendingAction);
@@ -187,12 +217,12 @@ const CourseBuilder = () => {
     let currentThumbnailUrl = thumbnailUrl;
     let currentVideoThumbnailUrl = videoThumbnailUrl;
 
-    // Upload Main File (Video or Image)
+    // Upload Main File (Video or Image) if new files exist
     if (thumbnail.length > 0) {
       try {
-        const res = await startUpload(thumbnail);
-        if (res && res[0]) {
-          currentThumbnailUrl = res[0].url;
+        const uploadedFiles = await uploadFilesToServer(thumbnail);
+        if (uploadedFiles.length > 0) {
+          currentThumbnailUrl = uploadedFiles[0].url; // Get the URL of the first uploaded file
           setThumbnailUrl(currentThumbnailUrl);
           successMessage("Main file uploaded successfully");
         }
@@ -205,17 +235,18 @@ const CourseBuilder = () => {
       }
     }
 
-    // Upload Video Cover Image (if exists)
+    // Upload Video Cover Image (if new files exist)
     if (videoThumbnail.length > 0) {
       try {
-        const res = await startUpload(videoThumbnail);
-        if (res && res[0]) {
-          currentVideoThumbnailUrl = res[0].url;
+        const uploadedFiles = await uploadFilesToServer(videoThumbnail);
+        if (uploadedFiles.length > 0) {
+          currentVideoThumbnailUrl = uploadedFiles[0].url; // Get the URL of the first uploaded file
           setVideoThumbnailUrl(currentVideoThumbnailUrl);
           successMessage("Cover image uploaded");
         }
       } catch (error) {
         console.error("Cover upload failed", error);
+        errorMessage("Failed to upload cover image");
       }
     }
 
@@ -300,13 +331,25 @@ const CourseBuilder = () => {
 
   const saveContent = async (updatedList, field) => {
     if (!courseId) return;
+    
+    // Extract actual files from the metadata objects
+    const filesToUpload = updatedList.filter(item => item.file); // Only items with actual file objects
+    
+    let uploadedFiles = [];
+    if (filesToUpload.length > 0) {
+      uploadedFiles = await uploadFilesToServer(filesToUpload);
+    }
+    
+    // Use uploaded files if available, otherwise use existing data
+    const finalList = uploadedFiles.length > 0 ? uploadedFiles : updatedList;
+    
     const payload = {
       ...formData,
       thumbnailurl: thumbnailUrl,
-      lesson_video: field === 'lesson_video' ? updatedList : videos,
-      pdf_notes: field === 'pdf_notes' ? updatedList : pdfs,
-      assignments: field === 'assignments' ? updatedList : assignments,
-      quizzes: field === 'quizzes' ? updatedList : quizzes,
+      lesson_video: field === 'lesson_video' ? finalList : videos,
+      pdf_notes: field === 'pdf_notes' ? finalList : pdfs,
+      assignments: field === 'assignments' ? finalList : assignments,
+      quizzes: field === 'quizzes' ? finalList : quizzes,
     };
     try {
       await fetch(
@@ -327,8 +370,14 @@ const CourseBuilder = () => {
     setLoadingAction(pendingAction);
     if (!courseId) return;
 
+    // Extract actual files from the metadata objects
+    const videoFiles = videos.filter(item => item.file); // Only items with actual file objects
+    const pdfFiles = pdfs.filter(item => item.file); // Only items with actual file objects
+    const assignmentFiles = assignments.filter(item => item.file); // Only items with actual file objects
+    const quizFiles = quizzes.filter(item => item.file); // Only items with actual file objects
+
     // Validation: All uploads required
-    if (videos.length === 0 || pdfs.length === 0 || assignments.length === 0 || quizzes.length === 0) {
+    if (videoFiles.length === 0 || pdfFiles.length === 0 || assignmentFiles.length === 0 || quizFiles.length === 0) {
       errorMessage("All content sections (Videos, PDFs, Assignments, Quizzes) must have at least one upload.");
       setLoadingAction(null);
       setPendingAction(null);
@@ -336,16 +385,42 @@ const CourseBuilder = () => {
     }
 
     try {
+      // Upload video files if they exist
+      let uploadedVideos = [];
+      if (videoFiles.length > 0) {
+        uploadedVideos = await uploadFilesToServer(videoFiles);
+      }
+
+      // Upload PDF files if they exist
+      let uploadedPdfs = [];
+      if (pdfFiles.length > 0) {
+        uploadedPdfs = await uploadFilesToServer(pdfFiles);
+      }
+
+      // Upload assignment files if they exist
+      let uploadedAssignments = [];
+      if (assignmentFiles.length > 0) {
+        uploadedAssignments = await uploadFilesToServer(assignmentFiles);
+      }
+
+      // Upload quiz files if they exist
+      let uploadedQuizzes = [];
+      if (quizFiles.length > 0) {
+        uploadedQuizzes = await uploadFilesToServer(quizFiles);
+      }
+
+      // Prepare the payload with uploaded file URLs
       const payload = {
         ...formData,
         thumbnailurl: thumbnailUrl,
-        lesson_video: videos,
-        pdf_notes: pdfs,
-        assignments: assignments,
-        quizzes: quizzes,
-        video_count: videos.length, // Add video count
+        lesson_video: uploadedVideos.length > 0 ? uploadedVideos : videos, // Use uploaded URLs or existing data
+        pdf_notes: uploadedPdfs.length > 0 ? uploadedPdfs : pdfs, // Use uploaded URLs or existing data
+        assignments: uploadedAssignments.length > 0 ? uploadedAssignments : assignments, // Use uploaded URLs or existing data
+        quizzes: uploadedQuizzes.length > 0 ? uploadedQuizzes : quizzes, // Use uploaded URLs or existing data
+        video_count: uploadedVideos.length, // Update video count based on uploaded videos
         is_free: formData.is_free, // Add free/paid status
       };
+
       const response = await fetch(
         `${import.meta.env.VITE_PUBLIC_SERVER_URL
         }/api/course/updateCourse/${courseId}`,
@@ -381,14 +456,45 @@ const CourseBuilder = () => {
     console.log(formData);
 
     try {
+      // Extract actual files from the metadata objects
+      const videoFiles = videos.filter(item => item.file); // Only items with actual file objects
+      const pdfFiles = pdfs.filter(item => item.file); // Only items with actual file objects
+      const assignmentFiles = assignments.filter(item => item.file); // Only items with actual file objects
+      const quizFiles = quizzes.filter(item => item.file); // Only items with actual file objects
+
+      // Upload video files if they exist
+      let uploadedVideos = [];
+      if (videoFiles.length > 0) {
+        uploadedVideos = await uploadFilesToServer(videoFiles);
+      }
+
+      // Upload PDF files if they exist
+      let uploadedPdfs = [];
+      if (pdfFiles.length > 0) {
+        uploadedPdfs = await uploadFilesToServer(pdfFiles);
+      }
+
+      // Upload assignment files if they exist
+      let uploadedAssignments = [];
+      if (assignmentFiles.length > 0) {
+        uploadedAssignments = await uploadFilesToServer(assignmentFiles);
+      }
+
+      // Upload quiz files if they exist
+      let uploadedQuizzes = [];
+      if (quizFiles.length > 0) {
+        uploadedQuizzes = await uploadFilesToServer(quizFiles);
+      }
+
+      // Prepare the payload with uploaded file URLs
       const payload = {
         ...formData,
         thumbnailurl: thumbnailUrl,
-        lesson_video: videos,
-        pdf_notes: pdfs,
-        assignments: assignments,
-        quizzes: quizzes,
-        video_count: videos.length,
+        lesson_video: uploadedVideos.length > 0 ? uploadedVideos : videos, // Use uploaded URLs or existing data
+        pdf_notes: uploadedPdfs.length > 0 ? uploadedPdfs : pdfs, // Use uploaded URLs or existing data
+        assignments: uploadedAssignments.length > 0 ? uploadedAssignments : assignments, // Use uploaded URLs or existing data
+        quizzes: uploadedQuizzes.length > 0 ? uploadedQuizzes : quizzes, // Use uploaded URLs or existing data
+        video_count: uploadedVideos.length, // Update video count based on uploaded videos
         is_free: formData.is_free,
       };
       const response = await fetch(
@@ -794,6 +900,7 @@ const CourseBuilder = () => {
                                     label="Upload Cover Image"
                                     text="JPG/PNG, 1280x720 recommended"
                                     height="150px"
+                                    fileType="image"
                                   />
                                 )}
                               </div>
@@ -803,6 +910,7 @@ const CourseBuilder = () => {
                           <FileDropzone
                             files={thumbnail}
                             setFiles={setThumbnail}
+                            fileType="video"
                             label="Upload Introduction Video"
                             text="Recommended: MP4 format, 1280x720 pixels. Images also supported."
                           />
