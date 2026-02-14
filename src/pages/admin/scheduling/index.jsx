@@ -26,8 +26,9 @@ import {
   DropdownItem,
 } from "@heroui/react";
 import { Calendar, Copy, Edit, Plus, Trash2, Check, ExternalLink, PlusIcon } from "lucide-react";
-import toast from "react-hot-toast";
+
 import { getStatusColor, getStatusText, formatTime12Hour } from "../../../utils/scheduleHelpers";
+import { errorMessage, successMessage } from "../../../lib/toast.config";
 
 const Scheduling = () => {
   const [schedules, setSchedules] = useState([]);
@@ -66,7 +67,7 @@ const Scheduling = () => {
       }
     } catch (error) {
       console.error("Failed to fetch schedules", error);
-      toast.error("Failed to load schedules");
+      errorMessage("Failed to load schedules");
     }
   };
 
@@ -84,7 +85,7 @@ const Scheduling = () => {
 
   const handleSubmit = async () => {
     if (!formData.title || !formData.date || !formData.startTime || !formData.teacherId) {
-      toast.error("Please fill required fields (Title, Date, Time, Teacher)");
+      errorMessage("Please fill required fields (Title, Date, Time, Teacher)");
       return;
     }
 
@@ -103,16 +104,16 @@ const Scheduling = () => {
       const data = await res.json();
 
       if (data.success) {
-        toast.success(isEdit ? "Session Updated" : "Session Scheduled & Zoom Generated!");
+        successMessage(isEdit ? "Session Updated" : "Session Scheduled & Zoom Generated!");
         fetchSchedules();
         onOpenChange(false);
         resetForm();
       } else {
-        toast.error(data.message || "Operation failed");
+        errorMessage(data.message || "Operation failed");
       }
     } catch (error) {
       console.error(error);
-      toast.error("Error submitting form");
+      errorMessage("Error submitting form");
     } finally {
       setLoading(false);
     }
@@ -126,13 +127,13 @@ const Scheduling = () => {
       });
       const data = await res.json();
       if (data.success) {
-        toast.success("Session Deleted");
+        successMessage("Session Deleted");
         fetchSchedules();
       } else {
-        toast.error("Delete failed");
+        errorMessage("Delete failed");
       }
     } catch (error) {
-      toast.error("Error deleting session");
+      errorMessage("Error deleting session");
     }
   };
 
@@ -174,7 +175,7 @@ const Scheduling = () => {
   const copyToClipboard = (text, id) => {
     navigator.clipboard.writeText(text);
     setCopiedId(id);
-    toast.success("Link Copied!");
+    successMessage("Link Copied!");
     setTimeout(() => setCopiedId(null), 2000);
   };
 

@@ -41,6 +41,7 @@ import { CiCalendar } from "react-icons/ci";
 import { IoAlertCircleOutline } from "react-icons/io5";
 import { Link } from "react-router-dom";
 import { formatTime12Hour, isClassLive, isClassExpired } from "../../utils/scheduleHelpers";
+import NotificationPermission from "../../components/NotificationPermission";
 const TeachersDashboard = () => {
   const cardsData = [
     {
@@ -204,13 +205,20 @@ const TeachersDashboard = () => {
     <div className="bg-white bg-linear-to-t from-[#F1C2AC]/50 to-[#95C4BE]/50 h-scrseen px-2 sm:px-3">
       {/* banner */}
       <div className="space-y-4 mt-3 w-full bg-[url('/images/banner.png')] p-4 rounded-lg bg-center bg-no-repeat bg-cover">
-        <h1 className="text-xl sm:text-3xl text-white font-semibold ">
-          Upload your class materials 24 hours before the <br /> session to give
-          students time to prepare. <br />
-        </h1>
-        <Button size="sm" className="bg-[#06574C] text-white rounded-md">
-          Learn More
-        </Button>
+        <div className="flex max-sm:flex-wrap gap-3 justify-between items-start">
+          <div>
+            <h1 className="text-xl sm:text-3xl text-white font-semibold mb-0 ">
+              Upload your class materials 24 hours before the <br /> session to give
+              students time to prepare. <br />
+            </h1>
+            <Button size="sm" className="bg-[#06574C] text-white rounded-md">
+              Learn More
+            </Button>
+          </div>
+          <div>
+            <NotificationPermission />
+          </div>
+        </div>
       </div>
 
       <OverviewCards data={cardsData} />

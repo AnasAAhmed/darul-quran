@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import toast from "react-hot-toast";
+
 import { DashHeading } from "../../../components/dashboard-components/DashHeading";
 import { Button, Divider, Progress } from "@heroui/react";
 import { FaStar, FaUserGraduate } from "react-icons/fa";
@@ -24,6 +24,7 @@ import { HiDevicePhoneMobile } from "react-icons/hi2";
 import { LiaCertificateSolid } from "react-icons/lia";
 import { MdMenuBook } from "react-icons/md";
 import { useLocation, useParams, useNavigate } from "react-router-dom";
+import { errorMessage, successMessage } from "../../../lib/toast.config";
 
 const CourseDetails = () => {
   const navigate = useNavigate();
@@ -76,7 +77,7 @@ const CourseDetails = () => {
       });
       const data = await res.json();
       if (data.success) {
-        toast.success("Successfully enrolled!");
+        successMessage("Successfully enrolled!");
         setIsEnrolled(true);
         navigate("/student/dashboard");
       } else if (data.requiresPayment) {
@@ -92,19 +93,19 @@ const CourseDetails = () => {
           window.location.href = paymentData.url;
         } else {
           toast.dismiss();
-          toast.error("Payment setup failed: " + paymentData.message);
+          errorMessage("Payment setup failed: " + paymentData.message);
         }
       } else {
         if (data.message === "Already enrolled") {
           setIsEnrolled(true);
-          toast.success("You are already enrolled!");
+          successMessage("You are already enrolled!");
         } else {
-          toast.error(data.message || "Enrollment failed");
+          errorMessage(data.message || "Enrollment failed");
         }
       }
     } catch (error) {
       console.error(error);
-      toast.error("Something went wrong");
+      errorMessage("Something went wrong");
     } finally {
       setEnrolling(false);
     }

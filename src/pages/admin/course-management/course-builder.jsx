@@ -28,18 +28,17 @@ import {
   Video,
 } from "lucide-react";
 import { useEffect, useState } from "react";
-import toast from "react-hot-toast";
 import Videos, {
   Assignments,
   PdfAndNotes,
   Quizzes,
 } from "../../../components/dashboard-components/forms/ContentUpload";
 import { useSearchParams } from "react-router-dom";
-import { label } from "framer-motion/client";
-import { UploadButton, UploadDropzone, useUploadThing } from "../../../lib/uploadthing";
+import { useUploadThing } from "../../../lib/uploadthing";
 import { useNavigate } from "react-router-dom";
 import { useAddCategoryMutation, useDeleteCategoryMutation, useGetAllCategoriesQuery, useGetCourseByIdQuery } from "../../../redux/api/courses";
-
+import { errorMessage, successMessage } from "../../../lib/toast.config";
+import { FormOverlayLoader } from "../../../components/Loader";
 const containerVariants = {
   hidden: { opacity: 0, y: 10, scale: 0.98 },
 
@@ -128,7 +127,7 @@ const CourseBuilder = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const currentTab = searchParams.get("tab");
   const courseId = searchParams.get("id");
-  const { data, isLoading, isError } = useGetCourseByIdQuery(courseId, { skip: !courseId })
+  const { data = {}, isLoading, isError } = useGetCourseByIdQuery(courseId, { skip: !courseId });
   const [selected, setSelected] = useState(currentTab || "info");
   const [isAddCategoryOpen, setIsAddCategoryOpen] = useState(false);
   const [newCategory, setNewCategory] = useState("");
@@ -195,11 +194,11 @@ const CourseBuilder = () => {
         if (res && res[0]) {
           currentThumbnailUrl = res[0].url;
           setThumbnailUrl(currentThumbnailUrl);
-          toast.success("Main file uploaded successfully");
+          successMessage("Main file uploaded successfully");
         }
       } catch (error) {
         console.error("Upload failed", error);
-        toast.error("Failed to upload file");
+        errorMessage("Failed to upload file");
         setLoadingAction(null);
         setPendingAction(null);
         return;
@@ -213,7 +212,7 @@ const CourseBuilder = () => {
         if (res && res[0]) {
           currentVideoThumbnailUrl = res[0].url;
           setVideoThumbnailUrl(currentVideoThumbnailUrl);
-          toast.success("Cover image uploaded");
+          successMessage("Cover image uploaded");
         }
       } catch (error) {
         console.error("Cover upload failed", error);
@@ -221,7 +220,7 @@ const CourseBuilder = () => {
     }
 
     if (!currentThumbnailUrl) {
-      toast.error("Please upload an introduction video or thumbnail");
+      errorMessage("Please upload an introduction video or thumbnail");
       setLoadingAction(null);
       setPendingAction(null);
       return;
@@ -280,7 +279,7 @@ const CourseBuilder = () => {
       const data = await response.json(); // ✅ ab safe hai
 
       if (data.success) {
-        toast.success(courseId ? "Course Updated!" : "Course Created!");
+        successMessage(courseId ? "Course Updated!" : "Course Created!");
 
         if (!courseId && data.courseId) {
           setSearchParams({ tab: "content", id: data.courseId });
@@ -288,11 +287,11 @@ const CourseBuilder = () => {
           handleSelected("content");
         }
       } else {
-        toast.error(data.message || "Something went wrong");
+        errorMessage(data.message || "Something went wrong");
       }
     } catch (error) {
       console.error(error);
-      toast.error("An error occurred");
+      errorMessage("An error occurred");
     } finally {
       setLoadingAction(null);
       setPendingAction(null);
@@ -330,7 +329,7 @@ const CourseBuilder = () => {
 
     // Validation: All uploads required
     if (videos.length === 0 || pdfs.length === 0 || assignments.length === 0 || quizzes.length === 0) {
-      toast.error("All content sections (Videos, PDFs, Assignments, Quizzes) must have at least one upload.");
+      errorMessage("All content sections (Videos, PDFs, Assignments, Quizzes) must have at least one upload.");
       setLoadingAction(null);
       setPendingAction(null);
       return;
@@ -360,16 +359,16 @@ const CourseBuilder = () => {
       const data = await response.json();
       console.log(data);
       if (data.success) {
-        toast.success("Course details updated!");
+        successMessage("Course details updated!");
         handleSelected("pricing");
       } else {
-        toast.error("Failed to update course");
+        errorMessage("Failed to update course");
         setLoadingAction(null);
         setPendingAction(null);
       }
     } catch (error) {
       console.error(error);
-      toast.error("An error occurred");
+      errorMessage("An error occurred");
     } finally {
       setLoadingAction(null);
       setPendingAction(null);
@@ -405,14 +404,14 @@ const CourseBuilder = () => {
       const data = await response.json();
       console.log(data);
       if (data.success) {
-        toast.success("Course Updated Successfully");
+        successMessage("Course Updated Successfully");
         navigate("/admin/courses-management");
       } else {
-        toast.error("Failed to update course");
+        errorMessage("Failed to update course");
       }
     } catch (error) {
       console.error(error);
-      toast.error("Error updating course");
+      errorMessage("Error updating course");
     } finally {
       setLoadingAction(null);
       setPendingAction(null);
@@ -421,13 +420,11 @@ const CourseBuilder = () => {
   // fetch course by id and set form data
   useEffect(() => {
     const fetchCourseById = async () => {
-      const id = searchParams.get("id");
-      if (!id) return;
+      if (!courseId) return;
       try {
-        if (!data.success) return;
+        if (!data?.course) return;
 
         const course = data.course;
-
         // ✅ 1. Form data
         setFormData({
           course_name: course.courseName || "",
@@ -455,16 +452,16 @@ const CourseBuilder = () => {
         setQuizzes(course.quizzes || []);
       } catch (error) {
         console.error("Failed to fetch course", error);
-        toast.error("Failed to load course data");
+        errorMessage("Failed to load course data: " + error?.message);
       }
     };
 
     fetchCourseById();
-  }, [searchParams]);
+  }, [data, courseId]);
 
   const handleSubmitAddCategory = async () => {
     if (!newCategory.trim()) {
-      toast.error("Category name is required");
+      errorMessage("Category name is required");
       return;
     }
 
@@ -484,16 +481,16 @@ const CourseBuilder = () => {
       const data = res.data;
 
       if (!data.success) {
-        toast.error(data.message || "Failed to add category");
+        errorMessage(data.message || "Failed to add category");
         return;
       }
       setCategories((prev) => [...prev, data.category]);
-      toast.success("Category added successfully");
+      successMessage("Category added successfully");
       setIsAddCategoryOpen(false);
       setNewCategory("");
     } catch (error) {
       console.error(error);
-      toast.error("Server error");
+      errorMessage("Server error");
     }
   };
 
@@ -501,18 +498,19 @@ const CourseBuilder = () => {
     try {
       const res = await deleteCategory(id);
       if (res.data.success) {
-        toast.success(res.data.message || "Category deleted successfully");
+        successMessage(res.data.message || "Category deleted successfully");
         return;
       }
       setCategories((prev) => prev.filter((category) => category.id !== id));
     } catch (error) {
       console.error(error);
-      toast.error("Server error");
+      errorMessage("Server error");
     }
   };
 
   return (
     <div className="h-full bg-linear-to-t from-[#F1C2AC]/50 to-[#95C4BE]/50 px-2 sm:px-3 w-full no-scrollbar top-0 bottom-0 overflow-y-auto">
+      <FormOverlayLoader loading={isLoading||!!loadingAction} loadingText={loadingAction?'Saving...':"Fetching Data..."}/>
       <DashHeading
         title={"Course Builder"}
         desc={"Create a new course step by step"}
@@ -520,7 +518,7 @@ const CourseBuilder = () => {
       <div className="flex w-full flex-col my-3">
         <Tabs
           isDisabled
-          className="w-full md:inline-block py-2 !opacity-100"
+          className="w-full md:inline-block py-2 opacity-100!"
           aria-label="Disabled Options"
           // disabledKeys={["info" , "pricing" , "content"]}
           selectedKey={selected}
@@ -918,8 +916,8 @@ const CourseBuilder = () => {
             >
               <Form onSubmit={handleUpdate}>
                 <div className="w-full grid grid-cols-2 md:grid-cols-4 py-4 gap-2">
-                  {card.map((item) => (
-                    <div className="w-full sm:flex-1 max-sm:border border-gray-300 p-3 bg-white rounded-lg">
+                  {card.map((item, i) => (
+                    <div key={i} className="w-full sm:flex-1 max-sm:border border-gray-300 p-3 bg-white rounded-lg">
                       <h1 className="text-[#333333] text-md font-semibold">
                         {item.title}
                       </h1>

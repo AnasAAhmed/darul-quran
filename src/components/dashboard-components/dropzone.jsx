@@ -1,12 +1,33 @@
-import { Button } from "@heroui/react";
 import { PlusCircle } from "lucide-react";
-import React, { useState } from "react";
 import { useDropzone } from "react-dropzone";
+
+const fileTypeMap = {
+  image: {
+    "image/*": [".png", ".jpg", ".jpeg", ".webp"],
+  },
+  video: {
+    "video/*": [".mp4", ".mov", ".avi", ".mkv"],
+  },
+  pdf: {
+    "application/pdf": [".pdf"],
+  },
+  assignment: {
+    "application/pdf": [".pdf"],
+    "application/msword": [".doc"],
+    "application/vnd.openxmlformats-officedocument.wordprocessingml.document": [".docx"],
+    "application/vnd.ms-excel": [".xls"],
+    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet": [".xlsx"],
+    "text/plain": [".txt"],
+  },
+};
+
 
 const FileDropzone = ({
   label = "Upload your Course Thumbnail",
   text = ' Recommended: 1280x720 pixels',
   files,
+  fileType = "", // image | video | pdf | assignment
+  maxSize = 50,
   setFiles,
   height = "280px",
   className = "w-full",
@@ -15,9 +36,12 @@ const FileDropzone = ({
   showFilesThere = true,
   width = "100%",
 }) => {
+  const finalMaxSixe = maxSize * 1024 * 1024;
   const { getRootProps, getInputProps, open, acceptedFiles } = useDropzone({
     noKeyboard: true,
     multiple: isMultiple,
+    maxSize: finalMaxSixe,
+    accept: fileTypeMap[fileType],
     onDrop: (acceptedFiles) => {
       setFiles(acceptedFiles);
     },

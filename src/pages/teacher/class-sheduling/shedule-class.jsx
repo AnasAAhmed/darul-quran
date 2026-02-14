@@ -7,8 +7,9 @@ import { FaRegAddressCard } from "react-icons/fa";
 import { LuSquareArrowOutUpRight } from "react-icons/lu";
 import { RangeCalendar } from "@heroui/react";
 import { useNavigate } from "react-router-dom";
-import toast from "react-hot-toast";
+
 import { formatTime12Hour, isClassLive, isClassExpired } from "../../../utils/scheduleHelpers";
+import { errorMessage, successMessage } from "../../../lib/toast.config";
 
 const SheduleClass = () => {
   const navigate = useNavigate();
@@ -49,7 +50,7 @@ const SheduleClass = () => {
       }
     } catch (error) {
       console.error("Failed to fetch schedules", error);
-      toast.error("Failed to load schedules");
+      errorMessage("Failed to load schedules");
     } finally {
       setLoading(false);
     }
@@ -65,13 +66,13 @@ const SheduleClass = () => {
       const data = await res.json();
 
       if (data.success) {
-        toast.success("Class cancelled successfully");
+        successMessage("Class cancelled successfully");
         fetchData();
       } else {
-        toast.error("Failed to cancel class");
+        errorMessage("Failed to cancel class");
       }
     } catch (error) {
-      toast.error("Error cancelling class");
+      errorMessage("Error cancelling class");
     }
   };
 

@@ -3,7 +3,8 @@ import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { Button, Spinner } from "@heroui/react";
 import { ArrowLeft, PlayCircle, CheckCircle } from "lucide-react";
-import toast from "react-hot-toast";
+
+import { successMessage } from "../../../lib/toast.config";
 
 const CoursePlayer = () => {
     const { id } = useParams();
@@ -74,7 +75,7 @@ const CoursePlayer = () => {
             if (data.success) {
                 setCompletedLessons(data.completedLessons);
                 setProgress(data.progress || 0);
-                toast.success("Lesson Completed!");
+                successMessage("Lesson Completed!");
             }
         } catch (e) { console.error(e); }
     };

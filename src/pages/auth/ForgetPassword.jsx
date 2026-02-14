@@ -1,7 +1,8 @@
 import { Button, Form, Input } from "@heroui/react";
 import { useState } from "react";
-import toast from "react-hot-toast";
+
 import { api } from "../../services/api";
+import { successMessage } from "../../lib/toast.config";
 
 const ForgetPassword = () => {
   const [email, setEmail] = useState("");
@@ -27,7 +28,7 @@ const ForgetPassword = () => {
       await api.post("/admin/forgot-password", { email });
 
       // Success message
-      toast.success(
+      successMessage(
         "If the email exists, a password reset link has been sent. Please check your inbox."
       );
 

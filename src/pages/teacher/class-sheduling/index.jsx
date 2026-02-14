@@ -17,7 +17,8 @@ import { FaWandMagicSparkles } from "react-icons/fa6";
 import { MdContentCopy } from "react-icons/md";
 import { IoIosSave } from "react-icons/io";
 import { useNavigate } from "react-router-dom";
-import toast from "react-hot-toast";
+
+import { errorMessage, successMessage } from "../../../lib/toast.config";
 
 const ClassSheduling = () => {
   const navigate = useNavigate();
@@ -84,7 +85,7 @@ const ClassSheduling = () => {
 
   const handleGenerateZoomLink = async () => {
     if (!formData.title || !formData.date || !formData.startTime) {
-      toast.error("Please fill in Title, Date, and Start Time first");
+      errorMessage("Please fill in Title, Date, and Start Time first");
       return;
     }
 
@@ -112,13 +113,13 @@ const ClassSheduling = () => {
       const data = await res.json();
       if (data.success) {
         setFormData(prev => ({ ...prev, meetingLink: data.meetingLink }));
-        toast.success("Zoom link generated successfully!");
+        successMessage("Zoom link generated successfully!");
       } else {
-        toast.error(data.message || "Failed to generate Zoom link");
+        errorMessage(data.message || "Failed to generate Zoom link");
       }
     } catch (error) {
       console.error(error);
-      toast.error("Error generating Zoom link");
+      errorMessage("Error generating Zoom link");
     } finally {
       setLoading(false);
     }
@@ -126,12 +127,12 @@ const ClassSheduling = () => {
 
   const handleScheduleClass = async () => {
     if (!formData.title || !formData.date || !formData.startTime) {
-      toast.error("Please fill in all required fields");
+      errorMessage("Please fill in all required fields");
       return;
     }
 
     if (!currentTeacher) {
-      toast.error("Teacher information not found");
+      errorMessage("Teacher information not found");
       return;
     }
 
@@ -169,7 +170,7 @@ const ClassSheduling = () => {
 
       const data = await res.json();
       if (data.success) {
-        toast.success("Class scheduled successfully!");
+        successMessage("Class scheduled successfully!");
         setFormData({
           courseId: "",
           title: "",
@@ -182,11 +183,11 @@ const ClassSheduling = () => {
         });
         setTimeout(() => navigate("/teacher/class-scheduling/sheduled-class"), 1000);
       } else {
-        toast.error(data.message || "Failed to schedule class");
+        errorMessage(data.message || "Failed to schedule class");
       }
     } catch (error) {
       console.error(error);
-      toast.error("Error scheduling class");
+      errorMessage("Error scheduling class");
     } finally {
       setLoading(false);
     }
@@ -195,7 +196,7 @@ const ClassSheduling = () => {
   const copyToClipboard = () => {
     if (formData.meetingLink) {
       navigator.clipboard.writeText(formData.meetingLink);
-      toast.success("Link copied to clipboard!");
+      successMessage("Link copied to clipboard!");
     }
   };
 
@@ -421,7 +422,7 @@ const ClassSheduling = () => {
           radius="sm"
           color="success"
           startContent={<IoIosSave size={20} />}
-          onPress={() => toast.success("Draft saved!")}
+          onPress={() => successMessage("Draft saved!")}
         >
           Save Draft
         </Button>

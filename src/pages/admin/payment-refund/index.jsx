@@ -16,7 +16,8 @@ import {
   Pagination,
   Chip
 } from "@heroui/react";
-import toast from "react-hot-toast";
+
+import { errorMessage, successMessage } from "../../../lib/toast.config";
 
 const PaymentsRefunds = () => {
   const [refundRequests, setRefundRequests] = useState([]);
@@ -62,13 +63,13 @@ const PaymentsRefunds = () => {
       const data = await res.json();
       toast.dismiss(load);
       if (data.success) {
-        toast.success(data.message);
+        successMessage(data.message);
         fetchRefunds(); // Refresh requests
         fetchAllHistory(); // Refresh history too
       } else {
-        toast.error(data.message);
+        errorMessage(data.message);
       }
-    } catch (e) { toast.dismiss(load); toast.error("Error"); }
+    } catch (e) { toast.dismiss(load); errorMessage("Error"); }
   };
 
   const refundHeader = [

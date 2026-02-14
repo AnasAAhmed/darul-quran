@@ -14,8 +14,9 @@ import {
 import { DashHeading } from "../DashHeading";
 import { EyeIcon, EyeOffIcon, SearchCheck } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
-import toast from "react-hot-toast";
+
 import { Country, City } from "country-state-city";
+import { successMessage } from "../../../lib/toast.config";
 
 const AddUserForm = ({ id, title, desc, userData, isEdit }) => {
   const [selectedRole, setSelectedRole] = useState(new Set());
@@ -254,9 +255,9 @@ const AddUserForm = ({ id, title, desc, userData, isEdit }) => {
       }
 
       if (userData?.id) {
-        toast.success("User updated successfully!");
+        successMessage("User updated successfully!");
       } else {
-        toast.success("User created successfully!");
+        successMessage("User created successfully!");
       }
 
       navigate("/admin/user-management");

@@ -8,8 +8,7 @@ import {
   HeroUIProvider,
   ToastProvider,
 } from "@heroui/react";
-import { lazy, useEffect, useState } from "react";
-import { Toaster } from "react-hot-toast";
+import { lazy, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import TeachersLayout from "./components/layouts/Teacherslayout";
 import TeachersDashboard from "./pages/teacher/TeachersDashboard";
@@ -158,7 +157,6 @@ function App() {
   if (loading) return <Loader />;
   return (
     <HeroUIProvider>
-      <Toaster position="top-right" />
       <ToastProvider position="top-bottom" />
       <DownloadModal />
 

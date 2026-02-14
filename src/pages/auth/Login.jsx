@@ -12,10 +12,11 @@ import {
 import { EyeIcon, EyeOffIcon } from "lucide-react";
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import toast from "react-hot-toast";
+
 import { setUser } from "../../redux/reducers/user";
 import { useDispatch } from "react-redux";
 import { api } from "../../services/api";
+import { successMessage } from "../../lib/toast.config";
 const Login = () => {
   // const handleSubmit = (e) => {
   //   e.preventDefault();
@@ -42,7 +43,7 @@ const Login = () => {
 
       // If successful (api.post throws on error)
       dispatch(setUser(data.user));
-      toast.success("Login successful");
+      successMessage("Login successful");
       const role = data.user.role?.toLowerCase();
 
       let route = '/';

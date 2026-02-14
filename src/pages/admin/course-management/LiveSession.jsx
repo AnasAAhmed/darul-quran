@@ -6,6 +6,7 @@ import FullCalendar from "@fullcalendar/react";
 import dayGridPlugin from "@fullcalendar/daygrid";
 import interactionPlugin from "@fullcalendar/interaction";
 import toast from 'react-hot-toast';
+import { errorMessage, successMessage } from '../../../lib/toast.config';
 
 const LiveSession = () => {
     // Schedule Modal
@@ -63,13 +64,13 @@ const LiveSession = () => {
             }
         } catch (error) {
             console.error("Failed to fetch sessions", error);
-            toast.error("Failed to load schedule");
+            errorMessage("Failed to load schedule");
         }
     };
 
     const handleCreate = async () => {
         if (!formData.title || !formData.date || !formData.startTime) {
-            toast.error("Please fill required fields");
+            errorMessage("Please fill required fields");
             return;
         }
 
@@ -83,16 +84,16 @@ const LiveSession = () => {
             const data = await res.json();
 
             if (data.success) {
-                toast.success("Scheduled & Zoom Link Generated!");
+                successMessage("Scheduled & Zoom Link Generated!");
                 fetchSessions();
                 onOpenChange(false);
                 setFormData({ title: '', date: '', startTime: '', endTime: '', description: '' });
             } else {
-                toast.error(data.message || "Failed to schedule");
+                errorMessage(data.message || "Failed to schedule");
             }
         } catch (error) {
             console.error(error);
-            toast.error("Error scheduling session");
+            errorMessage("Error scheduling session");
         } finally {
             setLoading(false);
         }
@@ -108,14 +109,14 @@ const LiveSession = () => {
             });
             const data = await res.json();
             if (data.success) {
-                toast.success("Session Rescheduled Successfully");
+                successMessage("Session Rescheduled Successfully");
                 fetchSessions();
                 onEditOpenChange(false);
             } else {
-                toast.error("Update failed");
+                errorMessage("Update failed");
             }
         } catch (error) {
-            toast.error("Error updating session");
+            errorMessage("Error updating session");
         } finally {
             setLoading(false);
         }
@@ -129,20 +130,20 @@ const LiveSession = () => {
             });
             const data = await res.json();
             if (data.success) {
-                toast.success("Session Deleted");
+                successMessage("Session Deleted");
                 fetchSessions();
             } else {
-                toast.error("Delete failed");
+                errorMessage("Delete failed");
             }
         } catch (error) {
-            toast.error("Error deleting session");
+            errorMessage("Error deleting session");
         }
     };
 
     const copyToClipboard = (text, id) => {
         navigator.clipboard.writeText(text);
         setCopiedId(id);
-        toast.success("Link Copied!");
+        successMessage("Link Copied!");
         setTimeout(() => setCopiedId(null), 2000);
     };
 

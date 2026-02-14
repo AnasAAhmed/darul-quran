@@ -1,8 +1,9 @@
 import { useEffect, useState } from "react";
 import { Calendar } from "lucide-react";
-import toast from "react-hot-toast";
+
 import { DashHeading } from "../../components/dashboard-components/DashHeading";
 import { ScheduleCard } from "../../components/schedule/ScheduleCard";
+import { errorMessage, successMessage } from "../../lib/toast.config";
 
 const StudentClassSchedule = () => {
     const [schedules, setSchedules] = useState([]);
@@ -42,7 +43,7 @@ const StudentClassSchedule = () => {
             }
         } catch (error) {
             console.error("Failed to fetch schedules", error);
-            toast.error("Failed to load class schedule");
+            errorMessage("Failed to load class schedule");
         } finally {
             setLoading(false);
         }
@@ -50,7 +51,7 @@ const StudentClassSchedule = () => {
 
     const handleJoinClass = async (schedule) => {
         if (!currentUser) {
-            toast.error("Please login first");
+            errorMessage("Please login first");
             return;
         }
 
@@ -65,7 +66,7 @@ const StudentClassSchedule = () => {
             });
 
             window.open(schedule.meetingLink, '_blank');
-            toast.success("Joined class! Attendance marked.");
+            successMessage("Joined class! Attendance marked.");
         } catch (error) {
             console.error("Failed to mark attendance", error);
             window.open(schedule.meetingLink, '_blank');

@@ -1,10 +1,11 @@
 import { useState, useRef, useEffect } from "react";
-import toast from "react-hot-toast";
+
 import { Plus, Download, Trash2, Eye, Clock, Menu, Edit, ClipboardListIcon, List, Loader } from "lucide-react";
 import FileDropzone from "../dropzone";
 import { Button, Image, Select, SelectItem } from "@heroui/react";
 import { PiFile, PiFilePdf } from "react-icons/pi";
 import { UploadDropzone, useUploadThing } from "../../../lib/uploadthing";
+import { errorMessage, successMessage } from "../../../lib/toast.config";
 
 const LESSONS = [
     {
@@ -62,7 +63,7 @@ export default function Videos({ videos = [], setVideos, onSave, courseId, setLo
                 body: JSON.stringify(payload)
             });
             if (response.ok) {
-                toast.success("Saved to database");
+                successMessage("Saved to database");
             } else {
                 console.error("Auto-save failed");
             }
@@ -126,10 +127,10 @@ export default function Videos({ videos = [], setVideos, onSave, courseId, setLo
                 const updatedList = [...videos, ...newItems];
                 setVideos(updatedList);
                 if (onSave) onSave(updatedList);
-                toast.success("Videos uploaded");
+                successMessage("Videos uploaded");
             }
         } catch (e) {
-            toast.error("Upload error");
+           errorMessage("Upload error");
         } finally {
             clearInterval(interval);
             setTimeout(() => setUploadProgress(0), 1000);
@@ -183,7 +184,7 @@ export default function Videos({ videos = [], setVideos, onSave, courseId, setLo
                                 startContent={<Download className="h-4 w-4" />}
                                 onPress={() => {
                                     if (videos.length === 0) {
-                                        toast.error("No videos to download");
+                                        errorMessage("No videos to download");
                                         return;
                                     }
                                     videos.forEach((v) => {
@@ -428,10 +429,10 @@ export function PdfAndNotes({ pdfs = [], setPdfs, onSave }) {
                 const updatedList = [...pdfs, ...newDocs];
                 setPdfs(updatedList);
                 if (onSave) onSave(updatedList);
-                toast.success("PDF(s) Uploaded");
+                successMessage("PDF(s) Uploaded");
             }
         } catch (e) {
-            toast.error("Upload error");
+            errorMessage("Upload error");
         } finally {
             clearInterval(interval);
             setTimeout(() => {
@@ -653,10 +654,10 @@ export function Assignments({ assignments = [], setAssignments, onSave }) {
                 const updatedList = [...assignments, ...newAssigns];
                 setAssignments(updatedList);
                 if (onSave) onSave(updatedList);
-                toast.success("Assignment(s) Uploaded");
+                successMessage("Assignment(s) Uploaded");
             }
         } catch (e) {
-            toast.error("Upload error");
+            errorMessage("Upload error");
         } finally {
             clearInterval(interval);
             setTimeout(() => {
@@ -876,10 +877,10 @@ export function Quizzes({ quizzes = [], setQuizzes, onSave }) {
                 const updatedList = [...quizzes, ...newQs];
                 setQuizzes(updatedList);
                 if (onSave) onSave(updatedList);
-                toast.success("Quiz(s) Uploaded");
+                successMessage("Quiz(s) Uploaded");
             }
         } catch (e) {
-            toast.error("Upload error");
+            errorMessage("Upload error");
         } finally {
             clearInterval(interval);
             setTimeout(() => {

@@ -28,7 +28,8 @@ import {
 } from "lucide-react";
 import { AnimatePresence } from "framer-motion";
 import * as motion from "motion/react-client";
-import toast from "react-hot-toast";
+
+import { errorMessage, successMessage } from "../../../lib/toast.config";
 
 const PaymentsInvoices = () => {
   const [payments, setPayments] = useState([]);
@@ -61,7 +62,7 @@ const PaymentsInvoices = () => {
 
   const submitRefund = async (onClose) => {
     if (!refundReason.trim()) {
-      toast.error("Please enter a reason");
+      errorMessage("Please enter a reason");
       return;
     }
 
@@ -77,15 +78,15 @@ const PaymentsInvoices = () => {
       toast.dismiss(loadingToast);
 
       if (data.success) {
-        toast.success("Refund requested successfully");
+        successMessage("Refund requested successfully");
         fetchPayments(); // Refresh list
         onClose();
       } else {
-        toast.error(data.message || "Failed to request refund");
+        errorMessage(data.message || "Failed to request refund");
       }
     } catch (error) {
       toast.dismiss(loadingToast);
-      toast.error("Network error");
+      errorMessage("Network error");
     }
   };
 

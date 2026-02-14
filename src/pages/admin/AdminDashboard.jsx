@@ -95,7 +95,7 @@ const AdminDashboard = () => {
 
       {/* banner */}
       <div className="space-y-4 mt-3 w-full bg-[url('/images/banner.png')] p-4 rounded-lg bg-center bg-no-repeat bg-cover">
-        <div className="flex justify-between items-start">
+        <div className="flex max-sm:flex-wrap gap-3 justify-between items-start">
           <div>
             <h1 className='text-xl sm:text-3xl text-white font-semibold '>
               Sharpen Your Skills <br />

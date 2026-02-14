@@ -16,7 +16,7 @@ import {
 import { Link, useLocation } from 'react-router-dom';
 import { b } from 'framer-motion/client';
 import { FaChalkboardTeacher } from 'react-icons/fa';
-import { Button, Dropdown, DropdownItem, DropdownMenu, DropdownTrigger, Spinner } from '@heroui/react';
+import { Button, Dropdown, DropdownItem, DropdownMenu, DropdownTrigger, Spinner, User } from '@heroui/react';
 import { MdLogout } from 'react-icons/md';
 import { errorMessage, successMessage } from '../../lib/toast.config';
 import { useDispatch } from 'react-redux';
@@ -307,15 +307,21 @@ const Sidebar = ({ isSidebarOpen, setIsSidebarOpen }) => {
       >
         <DropdownTrigger>
           <div className="p-4 cursor-pointer border-t border-white/10">
-            <div className="flex items-center gap-3 px-2">
+            <div className="flex items-center gap-3 px-2"> <User
+              avatarProps={{ src: user?.avatar, alt: "user", size: "md", className: "shrink-0" }}
+              name={user?.firstName + " " + user?.lastName}
+              classNames={{description:"text-gray-300 wrap-break-word"}}
+              description={user?.email + (user?.role === 'admin' ? (" - " + user?.role) : "")}
+            />
+              {/*
               <div className="w-10 h-10 rounded-full bg-linear-to-br from-pink-400 to-orange-300 flex items-center justify-center text-white font-bold">
                 JP
               </div>
               <div className="flex-1 min-w-0">
                 <div className="text-sm font-medium truncate">{user?.firstName}</div>
                 <div className="text-xs text-[#b8d4d0] truncate">{user?.email}</div>
-              </div>
-              <ChevronDown className="w-5 h-5 text-[#b8d4d0]" />
+              </div> */}
+              <ChevronDown className="w-5 h-5 text-[#b8d4d0] shrink-0" />
             </div>
           </div>
         </DropdownTrigger>

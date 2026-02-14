@@ -61,7 +61,7 @@ const NotificationPermission = () => {
     // Don't show if already granted and subscribed
     if (permission === "granted" && isSubscribed) {
         return (
-            <div className="flex items-center gap-2">
+            <div className="flex max-sm:flex-wrap items-center gap-2">
                 <Button
                     size="sm"
                     variant="flat"

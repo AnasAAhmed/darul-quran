@@ -20,7 +20,7 @@ import {
   Spinner,
 } from "@heroui/react";
 import { Chip } from "@heroui/react";
-import toast from "react-hot-toast";
+
 import { DashHeading } from "../../../components/dashboard-components/DashHeading";
 import {
   ListFilterPlusIcon,
@@ -33,7 +33,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { AnimatePresence } from "motion/react";
 import * as motion from "motion/react-client";
 import { dateFormatter } from "../../../lib/utils";
-import { errorMessage, showMessage } from "../../../lib/toast.config";
+import { errorMessage, showMessage, successMessage } from "../../../lib/toast.config";
 import { useGetAllUsersQuery } from "../../../redux/api/user";
 
 const UserManagement = () => {
@@ -104,17 +104,17 @@ const UserManagement = () => {
       });
 
       if (res.ok) {
-        toast.success("User deleted successfully!");
+        successMessage("User deleted successfully!");
         onClose();
         setUserToDelete(null);
         const response = await fetch(import.meta.env.VITE_PUBLIC_SERVER_URL + "/api/user/getAllUsers");
         const data = await response.json();
       } else {
-        toast.error("Failed to delete user.");
+        errorMessage("Failed to delete user.");
       }
     } catch (error) {
       console.error("Error deleting user:", error);
-      toast.error("An error occurred while deleting the user.");
+      errorMessage("An error occurred while deleting the user.");
     } finally {
       setIsDeleting(false);
     }
@@ -148,9 +148,9 @@ const UserManagement = () => {
       });
 
       if (res.ok) {
-        toast.success(`Users deleted successfully!`);
+        successMessage(`Users deleted successfully!`);
       } else {
-        toast.error(`Failed to delete users`);
+        errorMessage(`Failed to delete users`);
       }
 
       // Clear selections
@@ -164,7 +164,7 @@ const UserManagement = () => {
 
     } catch (error) {
       console.error("Error deleting users:", error);
-      toast.error("An error occurred while deleting users.");
+      errorMessage("An error occurred while deleting users.");
     } finally {
       setIsDeleting(false);
     }

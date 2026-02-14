@@ -2,8 +2,9 @@ import { Button, Form, Input } from "@heroui/react";
 import { EyeIcon, EyeOffIcon } from "lucide-react";
 import { useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import toast from "react-hot-toast";
+
 import { api } from "../../services/api";
+import { successMessage } from "../../lib/toast.config";
 
 const ChangePassword = () => {
   const [searchParams] = useSearchParams();
@@ -54,7 +55,7 @@ const ChangePassword = () => {
       }
 
       // Success case
-      toast.success("Password changed successfully!");
+      successMessage("Password changed successfully!");
       setPassword("");
       setConfirmPassword("");
 

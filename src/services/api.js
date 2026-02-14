@@ -1,6 +1,7 @@
 import axios from "axios";
 import { serverUrl } from "../redux/store";
-import toast from "react-hot-toast";
+
+import { errorMessage } from "../lib/toast.config";
 
 const axiosInstance = axios.create({
     baseURL: `${serverUrl}/api`, // append /api here
@@ -29,7 +30,7 @@ axiosInstance.interceptors.response.use(
     (response) => response.data,
     (error) => {
         const message = error.response?.data?.message || "An error occurred";
-        toast.error(message);
+        errorMessage(message);
         return Promise.reject(error);
     }
 );
