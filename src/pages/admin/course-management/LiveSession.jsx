@@ -1,11 +1,10 @@
-import { Button, Link, Select, SelectItem, Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, Input, Textarea, useDisclosure, Chip } from '@heroui/react'
+import { Button, Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, Input, Textarea, useDisclosure, Chip } from '@heroui/react'
 import { DashHeading } from '../../../components/dashboard-components/DashHeading'
-import { Edit, ExternalLink, Plus, Trash2, Video, Copy, Check, Calendar } from 'lucide-react';
+import { Plus, Calendar } from 'lucide-react';
 import { useState, useEffect } from "react";
 import FullCalendar from "@fullcalendar/react";
 import dayGridPlugin from "@fullcalendar/daygrid";
 import interactionPlugin from "@fullcalendar/interaction";
-import toast from 'react-hot-toast';
 import { errorMessage, successMessage } from '../../../lib/toast.config';
 
 const LiveSession = () => {
