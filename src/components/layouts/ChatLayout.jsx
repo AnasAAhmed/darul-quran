@@ -1,9 +1,9 @@
-import { Link, Outlet } from "react-router-dom";
+import {  Outlet } from "react-router-dom";
 import Sidebar from "../dashboard-components/sidebar";
 import { Suspense, useEffect, useState } from "react";
 import { AnimatePresence, motion } from 'framer-motion'
-import { Spinner } from "@heroui/react";
 import { SidebarClose, SidebarOpen } from "lucide-react";
+import Loader from "../Loader";
 
 export default function ChatLayout() {
    const [isSidebarOpen, setIsSidebarOpen] = useState(() => {
@@ -69,11 +69,7 @@ export default function ChatLayout() {
                     >
                         {isSidebarOpen ? <SidebarClose size={14} /> : <SidebarOpen size={14} />}
                     </button>
-                    <Suspense fallback={
-                        <div className="h-screen flex items-center justify-center">
-                            <Spinner size="lg" label="Loading..." labelColor="success" color="success" />
-                        </div>
-                    }>
+                    <Suspense fallback={<Loader /> }>
                         <Outlet />
                     </Suspense>
                 </div>

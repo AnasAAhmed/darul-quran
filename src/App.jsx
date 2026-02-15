@@ -6,6 +6,7 @@ import AdminLayout from "./components/layouts/AdminLayout";
 import { Route, Routes, useLocation, useNavigate } from "react-router-dom";
 import {
   HeroUIProvider,
+  Spinner,
   ToastProvider,
 } from "@heroui/react";
 import { lazy, useEffect } from "react";
@@ -154,7 +155,16 @@ function App() {
       loadUser();
     }
   }, [shouldFetch, user]);
-  if (loading) return <Loader />;
+  if (loading) return (
+    <div className="h-screen flex flex-col items-center justify-center">
+      <img
+        src="/icons/darul-quran-logo.png"
+        alt="Darul Quran"
+        className=" w-36 h-36"
+      />
+      <Spinner size="lg" variant="dots" labelColor="success" color="success" />
+    </div>
+  );
   return (
     <HeroUIProvider>
       <ToastProvider position="top-bottom" />

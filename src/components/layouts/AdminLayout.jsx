@@ -2,8 +2,8 @@ import { Link, Navigate, Outlet, useLocation } from "react-router-dom";
 import Sidebar from "../dashboard-components/sidebar";
 import { Suspense, useEffect, useState } from "react";
 import { AnimatePresence, motion } from 'framer-motion'
-import { Button, Chip, Input, Popover, PopoverContent, PopoverTrigger, Spinner } from "@heroui/react";
-import { Bell, MenuIcon, Plus, Search, SidebarClose, SidebarOpen } from "lucide-react";
+import { Button, Chip, Input, Popover, PopoverContent, PopoverTrigger } from "@heroui/react";
+import {  MenuIcon, Plus, Search, SidebarClose, SidebarOpen } from "lucide-react";
 import { TbBell } from "react-icons/tb";
 import { useSelector } from "react-redux";
 import Loader from "../Loader";
@@ -210,11 +210,7 @@ export default function AdminLayout() {
 
                             </div>
                         </header>}
-                    <Suspense fallback={
-                        <div className="h-screen flex items-center justify-center">
-                            <Spinner size="lg" label="Loading..." labelColor="success" color="success" />
-                        </div>
-                    }>
+                    <Suspense fallback={<Loader />}>
                         <Outlet />
                     </Suspense>
                 </div>
