@@ -81,7 +81,7 @@ const CourseDetails = () => {
         setIsEnrolled(true);
         navigate("/student/dashboard");
       } else if (data.requiresPayment) {
-        toast.loading("Redirecting to payment...");
+        successMessage("Redirecting to payment...");
         const paymentRes = await fetch(`${import.meta.env.VITE_PUBLIC_SERVER_URL}/api/payment/create-checkout-session`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -92,7 +92,7 @@ const CourseDetails = () => {
         if (paymentData.success && paymentData.url) {
           window.location.href = paymentData.url;
         } else {
-          toast.dismiss();
+          // toast.dismiss();
           errorMessage("Payment setup failed: " + paymentData.message);
         }
       } else {

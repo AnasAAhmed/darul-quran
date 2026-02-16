@@ -25,8 +25,9 @@ const LiveSession = () => {
         startTime: '',
         endTime: '',
         description: '',
+        price: '',
     });
-
+    console.log(formData);
     const [editData, setEditData] = useState({});
 
     useEffect(() => {
@@ -230,6 +231,17 @@ const LiveSession = () => {
                                         variant="bordered"
                                         value={formData.endTime}
                                         onChange={(e) => setFormData({ ...formData, endTime: e.target.value })}
+                                    />
+                                </div>
+                                <div>
+                                    <Input
+                                        label="Price"
+                                        variant="bordered"
+                                        type="number"
+                                        placeholder="Enter Session Price"
+                                        step="0.01"
+                                        value={formData.price}
+                                        onChange={(e) => setFormData({ ...formData, price: e.target.value })}
                                     />
                                 </div>
                                 <Textarea

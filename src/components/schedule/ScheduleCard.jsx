@@ -4,11 +4,9 @@ import { LuClock4 } from "react-icons/lu";
 import { CiVideoOn } from "react-icons/ci";
 import { AiOutlineLock, AiOutlineUser } from "react-icons/ai";
 import { formatTime12Hour, getStatusColor, getStatusText, isClassLive, isClassExpired } from "../../utils/scheduleHelpers";
+import { useSelector } from "react-redux";
 
-/**
- * Reusable Schedule Card Component - matches theme styling
- * Uses @heroui/react components and react-icons for consistency
- */
+
 export const ScheduleCard = ({
     schedule,
     onJoin,
@@ -16,9 +14,28 @@ export const ScheduleCard = ({
     showTeacherName = true,
     actionButtons = null
 }) => {
+    // console.log(schedule, "schedule");
     const live = isClassLive(schedule);
     const expired = isClassExpired(schedule);
 
+
+    const user = useSelector((state) => state.user);
+    // console.log(user, "user");
+    const handleSubscribe = async (schedule) => {
+        const res = await fetch(import.meta.env.VITE_PUBLIC_SERVER_URL + "/api/payment/live-subscriptions", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            credentials: 'include',
+            body: JSON.stringify({ liveScheduleId: schedule.id })
+        });
+        const data = await res.json();
+        console.log(data, "res");
+        if (data.success && data.url) {
+            window.location.href = data.url;
+        }
+    }
     return (
         <div className="bg-white rounded-lg border border-gray-100 hover:shadow-md transition-shadow p-5">
             <div className="flex justify-between items-start mb-3">
@@ -32,7 +49,8 @@ export const ScheduleCard = ({
                     {getStatusText(schedule)}
                 </Chip>
             </div>
-
+            {/* {user.user?.scheduleId?.toString() + ""}
+            {schedule.id?.toString()} */}
             {schedule.description && (
                 <p className="text-sm text-gray-600 mb-3 line-clamp-2">
                     {schedule.description}
@@ -44,6 +62,7 @@ export const ScheduleCard = ({
                     <div className="flex items-center gap-2 text-sm text-[#666666]">
                         <AiOutlineUser size={16} />
                         <span className="font-medium">{schedule.teacherName}</span>
+
                     </div>
                 )}
                 <div className="flex items-center gap-2 text-sm text-[#666666]">
@@ -77,14 +96,25 @@ export const ScheduleCard = ({
                         Class Ended
                     </Button>
                 ) : live && schedule.meetingLink ? (
-                    <Button
-                        className="w-full bg-[#06574C] text-white"
-                        startContent={<CiVideoOn size={20} />}
-                        onPress={() => onJoin && onJoin(schedule)}
-                        radius="sm"
-                    >
-                        Join Class
-                    </Button>
+                    user?.user?.scheduleId === schedule?.id ? (
+                        < Button
+                            className="w-full bg-[#06574C] text-white"
+                            startContent={< CiVideoOn size={20} />}
+                            onPress={() => onJoin && onJoin(schedule)}
+                            radius="sm"
+                        >
+                            Join Class
+                        </Button>
+                    ) : (
+                        <Button
+                            className="w-full bg-gray-400 text-white"
+                            startContent={<AiOutlineLock size={18} />}
+                            radius="sm"
+                            onPress={() => handleSubscribe(schedule, user.user?.email)}
+                        >
+                            Subscribe to join this class
+                        </Button>
+                    )
                 ) : schedule.meetingLink ? (
                     <Button
                         className="w-full bg-gray-400 text-white"
@@ -104,6 +134,6 @@ export const ScheduleCard = ({
                     </Button>
                 )
             ) : null}
-        </div>
+        </div >
     );
 };
