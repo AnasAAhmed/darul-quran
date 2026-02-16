@@ -6,7 +6,7 @@ const fileTypeMap = {
     "image/*": [".png", ".jpg", ".jpeg", ".webp"],
   },
   video: {
-    "video/*": [".mp4", ".mov", ".avi", ".mkv"],
+    "video/*": [".mp4", ".mov", ".avi", ".mkv","webm"],
   },
   pdf: {
     "application/pdf": [".pdf"],

@@ -1,24 +1,10 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
 
 import { Plus, Download, Trash2, Eye, Clock, Menu, Edit, ClipboardListIcon, List, Loader } from "lucide-react";
 import FileDropzone from "../dropzone";
 import { Button, Image, Select, SelectItem } from "@heroui/react";
 import { PiFile, PiFilePdf } from "react-icons/pi";
 import { errorMessage, successMessage } from "../../../lib/toast.config";
-
-const LESSONS = [
-    {
-        id: 1,
-        title: "1. Introduction to HTML Basics",
-        title2: "Build Your First Webpage",
-        description: "Learn the fundamentals of HTML structure and semantic elements",
-        duration: "45:30",
-        views: 12234,
-        thumbnail: "/images/lesson-example.png",
-        status: "immediate",
-        releaseDate: "0",
-    },
-];
 
 const formatTime = (seconds) => {
     if (!seconds) return "00:00";
@@ -50,6 +36,7 @@ const getVideoDuration = (file) => {
 
 export default function Videos({ videos = [], setVideos, onSave, courseId, setLoadingAction, setPendingAction, setVideoDuration }) {
     const [uploadProgress, setUploadProgress] = useState(0);
+    const [isUploading, setIsUploading] = useState(false);
 
     const handleContentSave = async (field, contentData) => {
         if (!courseId) return;
@@ -89,16 +76,16 @@ export default function Videos({ videos = [], setVideos, onSave, courseId, setLo
         }
     }, [totalDurationSeconds, setVideoDuration]);
 
-    const handleUpload = async (files) => {
+    const handleUpload = useCallback( async (files) => {
+        
         if (!files || files.length === 0) return;
         setUploadProgress(0);
-
         // Process files to get duration and prepare for upload
-        const filesWithMeta = await Promise.all(files.map(async (fileObj) => {
+        const filesWithMeta = await Promise.all(files?.map(async (fileObj) => {
             const file = fileObj.file; // Extract actual File object from metadata
             const d = await getVideoDuration(file);
-            return { 
-                file: file, 
+            return {
+                file: file,
                 duration: formatTime(d),
                 name: fileObj.name,
                 size: fileObj.size,
@@ -115,6 +102,7 @@ export default function Videos({ videos = [], setVideos, onSave, courseId, setLo
         }, 500);
 
         try {
+            setIsUploading(true);
             // Add files to the videos state with metadata
             const newItems = filesWithMeta.map((f, i) => ({
                 id: Date.now() + i + Math.random(),
@@ -130,7 +118,7 @@ export default function Videos({ videos = [], setVideos, onSave, courseId, setLo
                 size: f.size,
                 type: f.type
             }));
-            
+
             clearInterval(interval);
             setUploadProgress(100);
 
@@ -143,8 +131,9 @@ export default function Videos({ videos = [], setVideos, onSave, courseId, setLo
         } finally {
             clearInterval(interval);
             setTimeout(() => setUploadProgress(0), 1000);
+            setIsUploading(false)
         }
-    };
+    }, [videos]);
 
     const updateLesson = (id, field, value) => {
         const updatedList = videos.map((lesson) =>

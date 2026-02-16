@@ -38,6 +38,7 @@ import { useNavigate } from "react-router-dom";
 import { useAddCategoryMutation, useDeleteCategoryMutation, useGetAllCategoriesQuery, useGetCourseByIdQuery } from "../../../redux/api/courses";
 import { errorMessage, successMessage } from "../../../lib/toast.config";
 import { FormOverlayLoader } from "../../../components/Loader";
+import { uploadFilesToServer } from "../../../lib/utils";
 const containerVariants = {
   hidden: { opacity: 0, y: 10, scale: 0.98 },
 
@@ -77,10 +78,11 @@ const CourseBuilder = () => {
   }, []);
   const [teachers, setTeachers] = useState([]);
   const navigate = useNavigate();
-  const [thumbnail, setThumbnail] = useState([]); //file objects with metadata
-  const [thumbnailUrl, setThumbnailUrl] = useState("");
-  const [videoThumbnail, setVideoThumbnail] = useState([]); // Cover image file objects with metadata
-  const [videoThumbnailUrl, setVideoThumbnailUrl] = useState(""); // Cover image URL
+  const [video, setVideo] = useState([]); //file objects with metadata
+  const [videoUrl, setVideoUrl] = useState("");
+  const [thumbnail, setThumbnail] = useState([]); // Cover image file objects with metadata
+  const [thumbnailUrl, setThumbnailUrl] = useState(""); // Cover image URL
+  const [removedUrls, setRemovedUrls] = useState([""]); // Cover image URL
   const [videos, setVideos] = useState([]);
   const [pdfs, setPdfs] = useState([]);
   const [assignments, setAssignments] = useState([]);
@@ -179,53 +181,26 @@ const CourseBuilder = () => {
   };
   // handle submit tab 1
   // Function to upload files to server
-  const uploadFilesToServer = async (filesArray) => {
-    if (!filesArray || filesArray.length === 0) return [];
-    
-    const formData = new FormData();
-    
-    // Append each file to the form data
-    filesArray.forEach((fileObj) => {
-      formData.append('files', fileObj.file); // Use the actual File object
-    });
-    
-    try {
-      const response = await fetch(`${import.meta.env.VITE_PUBLIC_SERVER_URL}/api/upload/direct-upload`, {
-        method: 'POST',
-        body: formData,
-        credentials: 'include',
-      });
-      
-      const result = await response.json();
-      
-      if (result.success && result.files) {
-        return result.files; // Return array of uploaded file objects with URLs
-      } else {
-        throw new Error(result.message || 'Upload failed');
-      }
-    } catch (error) {
-      console.error('Upload error:', error);
-      errorMessage('Failed to upload files: ' + error.message);
-      return [];
-    }
-  };
 
   const handleSubmitTab1 = async (e) => {
     e.preventDefault();
     setLoadingAction(pendingAction);
 
-    let currentThumbnailUrl = thumbnailUrl;
-    let currentVideoThumbnailUrl = videoThumbnailUrl;
+    if (video.length > 0) {
+      const filesToUpload = [];
+      if (video.length > 0) filesToUpload.push({ file: video[0], type: "video" });
+      if (thumbnail.length > 0) filesToUpload.push({ file: thumbnail[0], type: "thumbnail" });
 
-    // Upload Main File (Video or Image) if new files exist
-    if (thumbnail.length > 0) {
       try {
-        const uploadedFiles = await uploadFilesToServer(thumbnail);
-        if (uploadedFiles.length > 0) {
-          currentThumbnailUrl = uploadedFiles[0].url; // Get the URL of the first uploaded file
-          setThumbnailUrl(currentThumbnailUrl);
-          successMessage("Main file uploaded successfully");
-        }
+        const uploadedUrls = await uploadFilesToServer(filesToUpload.map(f => f.file));
+        const urlMap = {};
+        uploadedUrls.forEach((url, index) => {
+          const type = filesToUpload[index].type;
+          urlMap[type] = url;
+        });
+
+        if (urlMap.video) setVideoUrl(urlMap.video);
+        if (urlMap.thumbnail) setThumbnailUrl(urlMap.thumbnail);
       } catch (error) {
         console.error("Upload failed", error);
         errorMessage("Failed to upload file");
@@ -233,28 +208,6 @@ const CourseBuilder = () => {
         setPendingAction(null);
         return;
       }
-    }
-
-    // Upload Video Cover Image (if new files exist)
-    if (videoThumbnail.length > 0) {
-      try {
-        const uploadedFiles = await uploadFilesToServer(videoThumbnail);
-        if (uploadedFiles.length > 0) {
-          currentVideoThumbnailUrl = uploadedFiles[0].url; // Get the URL of the first uploaded file
-          setVideoThumbnailUrl(currentVideoThumbnailUrl);
-          successMessage("Cover image uploaded");
-        }
-      } catch (error) {
-        console.error("Cover upload failed", error);
-        errorMessage("Failed to upload cover image");
-      }
-    }
-
-    if (!currentThumbnailUrl) {
-      errorMessage("Please upload an introduction video or thumbnail");
-      setLoadingAction(null);
-      setPendingAction(null);
-      return;
     }
 
     const payload = {
@@ -266,24 +219,16 @@ const CourseBuilder = () => {
         ? parseInt(formData.enroll_number)
         : null,
       status: "Draft",
-      thumbnailurl: currentThumbnailUrl,
-      videoThumbnail: currentVideoThumbnailUrl,
+      videoUrl: videoUrl,
+      thumbnailurl: thumbnailUrl,
       teacher_id: Number(formData.teacher_id),
-      lesson_video: videos,
-      videoDuration: videoDuration,
-      pdf_notes: pdfs,
-      assignments: assignments,
-      quizzes: quizzes,
-      video_count: videos.length, // Calculate video count
-      is_free: formData.is_free, // Include free/paid flag
+      is_free: formData.is_free,
     };
-    console.log("payload", payload);
     try {
       const courseId = searchParams.get("id");
-      let response; // ✅ yahan declare karo
+      let response;
 
       if (courseId) {
-        // ✅ UPDATE COURSE
         response = await fetch(
           `${import.meta.env.VITE_PUBLIC_SERVER_URL
           }/api/course/updateCourse/${courseId}`,
@@ -295,7 +240,6 @@ const CourseBuilder = () => {
           }
         );
       } else {
-        // ✅ ADD COURSE
         response = await fetch(
           `${import.meta.env.VITE_PUBLIC_SERVER_URL}/api/course/addCourse`,
           {
@@ -307,7 +251,7 @@ const CourseBuilder = () => {
         );
       }
 
-      const data = await response.json(); // ✅ ab safe hai
+      const data = await response.json();
 
       if (data.success) {
         successMessage(courseId ? "Course Updated!" : "Course Created!");
@@ -331,21 +275,21 @@ const CourseBuilder = () => {
 
   const saveContent = async (updatedList, field) => {
     if (!courseId) return;
-    
+
     // Extract actual files from the metadata objects
     const filesToUpload = updatedList.filter(item => item.file); // Only items with actual file objects
-    
+
     let uploadedFiles = [];
     if (filesToUpload.length > 0) {
       uploadedFiles = await uploadFilesToServer(filesToUpload);
     }
-    
+
     // Use uploaded files if available, otherwise use existing data
     const finalList = uploadedFiles.length > 0 ? uploadedFiles : updatedList;
-    
+
     const payload = {
       ...formData,
-      thumbnailurl: thumbnailUrl,
+      videoUrl: videoUrl,
       lesson_video: field === 'lesson_video' ? finalList : videos,
       pdf_notes: field === 'pdf_notes' ? finalList : pdfs,
       assignments: field === 'assignments' ? finalList : assignments,
@@ -412,7 +356,7 @@ const CourseBuilder = () => {
       // Prepare the payload with uploaded file URLs
       const payload = {
         ...formData,
-        thumbnailurl: thumbnailUrl,
+        videoUrl: videoUrl,
         lesson_video: uploadedVideos.length > 0 ? uploadedVideos : videos, // Use uploaded URLs or existing data
         pdf_notes: uploadedPdfs.length > 0 ? uploadedPdfs : pdfs, // Use uploaded URLs or existing data
         assignments: uploadedAssignments.length > 0 ? uploadedAssignments : assignments, // Use uploaded URLs or existing data
@@ -489,7 +433,7 @@ const CourseBuilder = () => {
       // Prepare the payload with uploaded file URLs
       const payload = {
         ...formData,
-        thumbnailurl: thumbnailUrl,
+        videoUrl: videoUrl,
         lesson_video: uploadedVideos.length > 0 ? uploadedVideos : videos, // Use uploaded URLs or existing data
         pdf_notes: uploadedPdfs.length > 0 ? uploadedPdfs : pdfs, // Use uploaded URLs or existing data
         assignments: uploadedAssignments.length > 0 ? uploadedAssignments : assignments, // Use uploaded URLs or existing data
@@ -547,9 +491,9 @@ const CourseBuilder = () => {
           is_free: course.isFree || false,
           video_count: course.videoCount || 0,
         });
-        // ✅ 2. Thumbnail & Metadata
-        setThumbnailUrl(course.thumbnailurl || "");
-        setVideoThumbnailUrl(course.videoThumbnail || "");
+        // ✅ 2. video & Metadata
+        setVideoUrl(course.video || "");
+        setThumbnailUrl(course.thumbnail || "");
         setVideoDuration(course.videoDuration || "");
         // ✅ 3. Content files
         setVideos(course.lesson_video || []);
@@ -615,8 +559,8 @@ const CourseBuilder = () => {
   };
 
   return (
-    <div className="h-full bg-linear-to-t from-[#F1C2AC]/50 to-[#95C4BE]/50 px-2 sm:px-3 w-full no-scrollbar top-0 bottom-0 overflow-y-auto">
-      <FormOverlayLoader loading={isLoading||!!loadingAction} loadingText={loadingAction?'Saving...':"Fetching Data..."}/>
+    <div className="h-full relative bg-linear-to-t from-[#F1C2AC]/50 to-[#95C4BE]/50 px-2 sm:px-3 w-full no-scrollbar top-0 bottom-0 overflow-">
+      <FormOverlayLoader loading={isLoading || !!loadingAction} loadingText={loadingAction ? 'Saving...' : "Fetching Data..."} />
       <DashHeading
         title={"Course Builder"}
         desc={"Create a new course step by step"}
@@ -624,7 +568,7 @@ const CourseBuilder = () => {
       <div className="flex w-full flex-col my-3">
         <Tabs
           isDisabled
-          className="w-full md:inline-block py-2 opacity-100!"
+          className="w-full  md:inline-block py-2 opacity-100!"
           aria-label="Disabled Options"
           // disabledKeys={["info" , "pricing" , "content"]}
           selectedKey={selected}
@@ -840,81 +784,70 @@ const CourseBuilder = () => {
                         Upload a preview video to showcase your course
                       </p>
                       <div className="py-6">
-                        {thumbnailUrl ? (
-                          <div className="flex flex-col gap-4">
+                        <div className="flex flex-col gap-4">
+                          {videoUrl ? (
                             <div className="relative w-full h-[300px] overflow-hidden rounded-lg bg-black">
-                              {thumbnailUrl.match(/\.(mp4|webm|ogg)$/i) || thumbnailUrl.includes('utfs.io') ? (
-                                <video
-                                  className="w-full h-full object-contain"
-                                  src={thumbnailUrl}
-                                  controls
-                                  preload="metadata"
-                                >
-                                  Your browser does not support the video tag.
-                                </video>
-                              ) : (
-                                <Image
-                                  removeWrapper
-                                  className="w-full h-full object-cover"
-                                  src={thumbnailUrl}
-                                  alt="Course Thumbnail"
-                                />
-                              )}
+                              <video
+                                className="w-full h-full object-contain"
+                                src={videoUrl}
+                                controls
+                                preload="metadata"
+                              >
+                                Your browser does not support the video tag.
+                              </video>
                               <Button
                                 size="sm"
                                 className="absolute top-2 right-2 bg-red-500 text-white z-10"
                                 onPress={() => {
+                                  setRemovedUrls([...removedUrls, videoUrl]);
+                                  setVideoUrl("");
                                   setThumbnailUrl("");
-                                  setVideoThumbnailUrl(""); // Reset cover if video removed
                                 }}
                               >
                                 Remove
                               </Button>
                             </div>
-
-                            {/* Video Cover Image Uploader */}
-                            {(thumbnailUrl.match(/\.(mp4|webm|ogg)$/i) || thumbnailUrl.includes('utfs.io')) && (
-                              <div className="bg-gray-50 p-3 rounded-lg border border-gray-200">
-                                <h4 className="font-medium text-sm mb-2 text-gray-700">Video Cover Image (Thumbnail)</h4>
-                                {videoThumbnailUrl ? (
-                                  <div className="relative w-full h-40 rounded-lg overflow-hidden group border border-gray-300">
-                                    <Image
-                                      removeWrapper
-                                      src={videoThumbnailUrl}
-                                      className="w-full h-full object-cover"
-                                      alt="Video Poster"
-                                    />
-                                    <Button
-                                      size="sm"
-                                      color="danger"
-                                      className="absolute top-2 right-2 z-10"
-                                      onPress={() => setVideoThumbnailUrl("")}
-                                    >
-                                      Remove
-                                    </Button>
-                                  </div>
-                                ) : (
-                                  <FileDropzone
-                                    files={videoThumbnail}
-                                    setFiles={setVideoThumbnail}
-                                    label="Upload Cover Image"
-                                    text="JPG/PNG, 1280x720 recommended"
-                                    height="150px"
-                                    fileType="image"
-                                  />
-                                )}
+                          ) : (
+                            <FileDropzone
+                              files={video}
+                              setFiles={setVideo}
+                              fileType="video"
+                              label="Upload Introduction Video"
+                              text="Recommended: MP4, Webm format, 1280x720 pixels."
+                            />
+                          )}
+                          {/* Video Cover Image Uploader */}
+                          <div className="bg-gray-50 p-3 rounded-lg border border-gray-200">
+                            <h4 className="font-medium text-sm mb-2 text-gray-700">Video Cover Image (thumbnail)</h4>
+                            {thumbnailUrl ? (
+                              <div className="relative w-full h-40 rounded-lg overflow-hidden group border border-gray-300">
+                                <Image
+                                  removeWrapper
+                                  src={thumbnailUrl}
+                                  className="w-full h-full object-cover"
+                                  alt="Video Poster"
+                                />
+                                <Button
+                                  size="sm"
+                                  color="danger"
+                                  className="absolute top-2 right-2 z-10"
+                                  onPress={() => { setRemovedUrls([...removedUrls, thumbnailUrl]); setThumbnailUrl(""); }}
+                                >
+                                  Remove
+                                </Button>
                               </div>
+                            ) : (
+                              <FileDropzone
+                                files={thumbnail}
+                                setFiles={setThumbnail}
+                                label="Upload Cover Image"
+                                text="JPG/PNG, 1280x720 recommended"
+                                height="150px"
+                                fileType="image"
+                              />
                             )}
                           </div>
-                        ) : (
-                          <FileDropzone
-                            files={thumbnail}
-                            setFiles={setThumbnail}
-                            fileType="video"
-                            label="Upload Introduction Video"
-                            text="Recommended: MP4 format, 1280x720 pixels. Images also supported."
-                          />
-                        )}
+                        </div>
                       </div>
                     </div>
                     <div className="bg-white rounded-lg p-3 shadow-xl mt-3">
