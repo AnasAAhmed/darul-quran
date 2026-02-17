@@ -105,7 +105,7 @@ const CourseBuilder = () => {
     { title: "PDFs:", count: (files?.filter((f) => f.fileType === "pdf_notes")).length || 0, icone: <File size={20} color="#06574C" /> },
     {
       title: "Quizzes",
-      count:  0,
+      count: 0,
       icone: <Lightbulb size={20} color="#06574C" />,
     },
     {
@@ -1116,10 +1116,11 @@ const CourseBuilder = () => {
                         </div>
                         <div>
                           <Button
-                            variant="bordered"
-                            className="border-[#06574C] text-[#06574C]"
+                            variant={formData.status === "publish" ? "solid" : "bordered"}
+                            color="success"
+                            onPress={() => handleChange("status", formData.status === "publish" ? "draft" : "publish")}
                           >
-                            Change To Public
+                            {formData.status === "publish" ? "Unpublish" : "Public"}
                           </Button>
                         </div>
                       </div>
