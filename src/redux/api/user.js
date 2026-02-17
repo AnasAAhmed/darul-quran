@@ -15,10 +15,27 @@ export const userAPI = createApi({
             }),
             providesTags: ["user"],
         }),
+        getAllTeachers: builder.query({
+            query: ({ page, limit ,search}) => ({
+                url: "/getTeachers",
+                method: "GET",
+                params: { page, limit,search }
+            }),
+            providesTags: ["user"],
+        }),
         deleteUser: builder.mutation({
             query: (id) => ({
                 url: `/deleteUser/${id}`,
                 method: "DELETE",
+            }),
+            invalidatesTags: ["user"],
+        }),
+        bulkDeleteUser: builder.mutation({
+            query: (ids) => ({
+                url: `/bulkDelete`,
+                method: "DELETE",
+                headers: { "Content-Type": "application/json" },
+                body: { ids },
             }),
             invalidatesTags: ["user"],
         })
@@ -27,5 +44,7 @@ export const userAPI = createApi({
 
 export const {
     useGetAllUsersQuery,
-    useDeleteUserMutation
+    useGetAllTeachersQuery,
+    useDeleteUserMutation,
+    useBulkDeleteUserMutation
 } = userAPI;

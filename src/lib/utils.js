@@ -18,7 +18,7 @@ export const uploadFilesToServer = async (filesArray, removeUrls) => {
   const formData = new FormData();
 
   filesArray?.forEach((fileObj) => {
-    formData.append('files', fileObj.file); 
+    formData.append('files', fileObj.file);
   });
   removeUrls?.forEach((i) => {
     formData.append('removeImageUrls', i);
@@ -33,7 +33,7 @@ export const uploadFilesToServer = async (filesArray, removeUrls) => {
     const result = await response.json();
 
     if (result.success && result.uploaded) {
-      return result.uploaded; 
+      return result.uploaded;
     } else {
       throw new Error(result.message || 'Upload failed');
     }
@@ -57,3 +57,10 @@ export const formatForInput = (dateString) => {
 
   return `${year}-${month}-${day}T${hours}:${minutes}`;
 };
+
+let debounceTimer;
+
+export function debounce(callback, delay) {
+  clearTimeout(debounceTimer);
+  debounceTimer = setTimeout(callback, delay);
+}

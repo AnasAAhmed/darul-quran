@@ -1,11 +1,10 @@
-import { useState, useRef, useEffect, useCallback } from "react";
+import { useState, useEffect } from "react";
 
-import { Plus, Download, Trash2, Eye, Clock, Menu, Edit, ClipboardListIcon, List, Loader } from "lucide-react";
+import { Download, Trash2, Eye, Clock, Menu, Edit, List, Loader, File, Play } from "lucide-react";
 import FileDropzone from "../dropzone";
-import { Button, Image, Select, SelectItem, Input, Textarea, DatePicker } from "@heroui/react";
+import { Button, Select, SelectItem, Input, addToast } from "@heroui/react";
 import { PiFile, PiFilePdf } from "react-icons/pi";
 import { errorMessage, successMessage } from "../../../lib/toast.config";
-import { parseDate } from "@internationalized/date";
 import { formatForInput } from "../../../lib/utils";
 
 const formatTime = (seconds) => {
@@ -26,7 +25,9 @@ const getVideoDuration = (file) => {
                 window.URL.revokeObjectURL(video.src);
                 resolve(video.duration);
             };
-            video.onerror = function () {
+            video.onerror = function (e) {
+                console.log(e);
+
                 resolve(0);
             };
             video.src = URL.createObjectURL(file);
@@ -35,6 +36,18 @@ const getVideoDuration = (file) => {
         }
     });
 };
+
+export const countPdfPagesLight = async (file) => {
+    if (file.type !== "application/pdf") return;
+    const arrayBuffer = await file.arrayBuffer();
+    const text = new TextDecoder("utf-8").decode(arrayBuffer);
+
+    // Count /Type /Page occurrences
+    const matches = text.match(/\/Type\s*\/Page\b/g);
+    return matches ? matches.length : 0;
+};
+
+
 
 export default function Videos({ files, setFiles, courseId, handleUploadFile, onUpdateFile }) {
     const [isUploading, setIsUploading] = useState(false);
@@ -46,7 +59,6 @@ export default function Videos({ files, setFiles, courseId, handleUploadFile, on
             prev.map((doc) => (doc.id === id ? { ...doc, [field]: value } : doc))
         );
 
-        // Call API to update
         if (onUpdateFile && courseId) {
             try {
                 await onUpdateFile(id, { [field]: value });
@@ -90,12 +102,13 @@ export default function Videos({ files, setFiles, courseId, handleUploadFile, on
                     return prev + 5;
                 });
             }, 500);
-
+            const duration = await getVideoDuration(newFile?.file);
             const fileRes = await handleUploadFile({
                 title: newFile.name,
-                file: newFile,
+                file: newFile?.file,
                 fileType: "lesson_video",
                 courseId,
+                duration
             });
 
             clearInterval(interval);
@@ -145,27 +158,41 @@ export default function Videos({ files, setFiles, courseId, handleUploadFile, on
                                 }`}
                         >
                             <div className="flex flex-col sm:flex-row sm:gap-6">
-                                {document.doc_type === "pdf" ? (
-                                    <PiFilePdf color="#06574C" className="bg-[#F5F5F5] p-3 rounded-full size-16" />
-                                ) : (
-                                    <PiFile color="#06574C" className="bg-[#F5F5F5] p-3 rounded-full size-16" />
-                                )}
+                                <video className="h-22 w-44 rounded-xl" controls>
+                                    <source src={document.url} />
+                                </video>
+                                {/* <Play color="#06574C" className="bg-[#F5F5F5] p-3 rounded-full size-16" /> */}
 
                                 <div className="flex flex-1 flex-col justify-between gap-3">
-                                    <h3 className="text-lg font-semibold text-gray-900 sm:text-xl">{document.title}</h3>
-                                    {document?.description &&
-                                        <Input
-                                            variant="light"
-                                            type="text"
-                                            defaultValue={document?.description}
-                                            onBlur={(e) => updateDocument(document.id, "description", e.target.value)}
-                                        />
-                                    }
+                                    <input
+                                        variant="light"
+                                        type="text"
+                                        defaultValue={document.title}
+                                        className="text-lg outline-none font-semibold sm:text-xl"
+                                        onBlur={(e) => {
+                                            if (document.title === e.target.value) return;
+                                            updateDocument(document.id, "title", e.target.value)
+                                        }}
+                                    />
+                                    <input
+                                        variant="light"
+                                        type="text"
+                                        defaultValue={document?.description}
+                                        className="outline-none"
+                                        placeholder="Add a description"
+                                        onBlur={(e) => {
+                                            if (document.description === e.target.value) return;
+                                            updateDocument(document.id, "description", e.target.value)
+                                        }}
+                                    />
                                     <div className="flex flex-wrap items-center gap-4 text-sm text-gray-600">
-                                        <span className="inline-flex items-center gap-1">{document.size}</span>
-                                        <span className="inline-flex items-center gap-1">
-                                            <Eye className="h-4 w-4" /> {document.pages?.toLocaleString() || 0} Pages
-                                        </span>
+                                        {document?.file?.size && <span className="inline-flex items-center gap-1">{((document.file.size / 1024) / 1024).toLocaleString()} MB</span>}
+                                        {document.file?.duration && <span className="inline-flex items-center gap-1">
+                                            <Clock className="size-3.5" /> {document.file.duration.toLocaleString() || 0}ms duration
+                                        </span>}
+                                        {document?.views && <span className="inline-flex items-center gap-1">
+                                            <Eye className="h-4 w-4" /> {document?.views.toLocaleString() || 0} views
+                                        </span>}
                                         <span className="inline-flex items-center gap-1">{document.status}</span>
                                     </div>
                                 </div>
@@ -186,9 +213,8 @@ export default function Videos({ files, setFiles, courseId, handleUploadFile, on
                                             updateDocument(document.id, "releasedAt", value);
                                         }} />
                                     <div className="flex items-center gap-2">
-                                        <Button radius="sm" variant="flat" color="default" isIconOnly onPress={() => openEditModal(document)}>
-                                            <Edit color="#06574C" className="h-4 w-4" />
-                                        </Button>
+                                        {/* <Button radius="sm" variant="flat" color="default" isIconOnly onPress={() => openEditModal(document)}>
+*/}
                                         <Button
                                             radius="sm"
                                             variant="flat"
@@ -293,12 +319,14 @@ export function PdfAndNotes({ files, setFiles, courseId, handleUploadFile, onUpd
                     return prev + 5;
                 });
             }, 500);
+            const pages = await countPdfPagesLight(newFile?.file);
 
             const fileRes = await handleUploadFile({
                 title: newFile.name,
-                file: newFile,
+                file: newFile?.file,
                 fileType: "pdf_notes",
                 courseId,
+                pages
             });
 
             clearInterval(interval);
@@ -346,27 +374,42 @@ export function PdfAndNotes({ files, setFiles, courseId, handleUploadFile, onUpd
                                 }`}
                         >
                             <div className="flex flex-col sm:flex-row sm:gap-6">
-                                {document.doc_type === "pdf" ? (
+                                {document.fileType === "pdf" ? (
                                     <PiFilePdf color="#06574C" className="bg-[#F5F5F5] p-3 rounded-full size-16" />
                                 ) : (
                                     <PiFile color="#06574C" className="bg-[#F5F5F5] p-3 rounded-full size-16" />
                                 )}
 
                                 <div className="flex flex-1 flex-col justify-between gap-3">
-                                    <h3 className="text-lg font-semibold text-gray-900 sm:text-xl">{document.title}</h3>
-                                    {document?.description &&
-                                        <Input
-                                            variant="light"
-                                            type="text"
-                                            defaultValue={document?.description}
-                                            onBlur={(e) => updateDocument(document.id, "description", e.target.value)}
-                                        />
-                                    }
+                                    <input
+                                        variant="light"
+                                        type="text"
+                                        defaultValue={document.title}
+                                        className="text-lg outline-none font-semibold sm:text-xl"
+                                        onBlur={(e) => {
+                                            if (document.title === e.target.value) return;
+                                            updateDocument(document.id, "title", e.target.value)
+                                        }}
+                                    />
+                                    <input
+                                        variant="light"
+                                        type="text"
+                                        defaultValue={document?.description}
+                                        className="outline-none"
+                                        placeholder="Add a description"
+                                        onBlur={(e) => {
+                                            if (document.description === e.target.value) return;
+                                            updateDocument(document.id, "description", e.target.value)
+                                        }}
+                                    />
                                     <div className="flex flex-wrap items-center gap-4 text-sm text-gray-600">
-                                        <span className="inline-flex items-center gap-1">{document.size}</span>
-                                        <span className="inline-flex items-center gap-1">
-                                            <Eye className="h-4 w-4" /> {document.pages?.toLocaleString() || 0} Pages
-                                        </span>
+                                        {document?.file?.size && <span className="inline-flex items-center gap-1">{((document.file.size / 1024) / 1024).toLocaleString()} MB</span>}
+                                        {document.file?.pages && <span className="inline-flex items-center gap-1">
+                                            <File className="size-3.5" /> {document.file.pages.toLocaleString() || 0} pages
+                                        </span>}
+                                        {document?.views && <span className="inline-flex items-center gap-1">
+                                            <Eye className="h-4 w-4" /> {document?.views.toLocaleString() || 0} views
+                                        </span>}
                                         <span className="inline-flex items-center gap-1">{document.status}</span>
                                     </div>
                                 </div>
@@ -387,9 +430,8 @@ export function PdfAndNotes({ files, setFiles, courseId, handleUploadFile, onUpd
                                             updateDocument(document.id, "releasedAt", value);
                                         }} />
                                     <div className="flex items-center gap-2">
-                                        <Button radius="sm" variant="flat" color="default" isIconOnly onPress={() => openEditModal(document)}>
-                                            <Edit color="#06574C" className="h-4 w-4" />
-                                        </Button>
+                                        {/* <Button radius="sm" variant="flat" color="default" isIconOnly onPress={() => openEditModal(document)}>
+*/}
                                         <Button
                                             radius="sm"
                                             variant="flat"
@@ -493,12 +535,13 @@ export function Assignments({ files, setFiles, courseId, handleUploadFile, onUpd
                     return prev + 5;
                 });
             }, 500);
-
+            const pages = await countPdfPagesLight(newFile?.file);
             const fileRes = await handleUploadFile({
                 title: newFile.name,
-                file: newFile,
+                file: newFile?.file,
                 fileType: "assignments",
                 courseId,
+                pages
             });
 
             clearInterval(interval);
@@ -552,27 +595,42 @@ export function Assignments({ files, setFiles, courseId, handleUploadFile, onUpd
                                 }`}
                         >
                             <div className="flex flex-col sm:flex-row sm:gap-6">
-                                {document.doc_type === "pdf" ? (
+                                {document.fileType === "pdf" ? (
                                     <PiFilePdf color="#06574C" className="bg-[#F5F5F5] p-3 rounded-full size-16" />
                                 ) : (
                                     <PiFile color="#06574C" className="bg-[#F5F5F5] p-3 rounded-full size-16" />
                                 )}
 
                                 <div className="flex flex-1 flex-col justify-between gap-3">
-                                    <h3 className="text-lg font-semibold text-gray-900 sm:text-xl">{document.title}</h3>
-                                    {document?.description &&
-                                        <Input
-                                            variant="light"
-                                            type="text"
-                                            defaultValue={document?.description}
-                                            onBlur={(e) => updateDocument(document.id, "description", e.target.value)}
-                                        />
-                                    }
+                                    <input
+                                        variant="light"
+                                        type="text"
+                                        defaultValue={document.title}
+                                        className="text-lg outline-none font-semibold sm:text-xl"
+                                        onBlur={(e) => {
+                                            if (document.title === e.target.value) return;
+                                            updateDocument(document.id, "title", e.target.value)
+                                        }}
+                                    />
+                                    <input
+                                        variant="light"
+                                        type="text"
+                                        defaultValue={document?.description}
+                                        className="outline-none"
+                                        placeholder="Add a description"
+                                        onBlur={(e) => {
+                                            if (document.description === e.target.value) return;
+                                            updateDocument(document.id, "description", e.target.value)
+                                        }}
+                                    />
                                     <div className="flex flex-wrap items-center gap-4 text-sm text-gray-600">
-                                        <span className="inline-flex items-center gap-1">{document.size}</span>
-                                        <span className="inline-flex items-center gap-1">
-                                            <Eye className="h-4 w-4" /> {document.pages?.toLocaleString() || 0} Pages
-                                        </span>
+                                        {document?.file?.size && <span className="inline-flex items-center gap-1">{((document.file.size / 1024) / 1024).toLocaleString()} MB</span>}
+                                        {document.file?.pages && <span className="inline-flex items-center gap-1">
+                                            <File className="size-3.5" /> {document.file.pages.toLocaleString() || 0} pages
+                                        </span>}
+                                        {document?.views && <span className="inline-flex items-center gap-1">
+                                            <Eye className="h-4 w-4" /> {document?.views.toLocaleString() || 0} views
+                                        </span>}
                                         <span className="inline-flex items-center gap-1">{document.status}</span>
                                     </div>
                                 </div>
@@ -593,9 +651,8 @@ export function Assignments({ files, setFiles, courseId, handleUploadFile, onUpd
                                             updateDocument(document.id, "releasedAt", value);
                                         }} />
                                     <div className="flex items-center gap-2">
-                                        <Button radius="sm" variant="flat" color="default" isIconOnly onPress={() => openEditModal(document)}>
-                                            <Edit color="#06574C" className="h-4 w-4" />
-                                        </Button>
+                                        {/* <Button radius="sm" variant="flat" color="default" isIconOnly onPress={() => openEditModal(document)}>
+*/}
                                         <Button
                                             radius="sm"
                                             variant="flat"

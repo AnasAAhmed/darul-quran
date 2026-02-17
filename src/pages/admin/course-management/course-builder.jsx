@@ -273,13 +273,15 @@ const CourseBuilder = () => {
     }
   };
 
-  const handleUploadFile = async ({ title, file, fileType, courseId }) => {
+  const handleUploadFile = async ({ title, file, fileType, courseId, duration, pages }) => {
     try {
       const formData = new FormData();
-      formData.append("file", file.file);
+      formData.append("file", file);
       formData.append("title", title || file.name);
       formData.append("fileType", fileType);
       formData.append("courseId", courseId);
+      formData.append("duration", duration);
+      formData.append("pages", pages);
 
       const res = await fetch(`${import.meta.env.VITE_PUBLIC_SERVER_URL}/api/course/course-files`, {
         method: "PATCH",
@@ -320,49 +322,15 @@ const CourseBuilder = () => {
     }
   };
 
-  const handleUpdate = async (e) => {
-    if (e && e.preventDefault) e.preventDefault();
-    setLoadingAction(pendingAction);
-    if (!courseId) return;
 
-    try {
-      const payload = {
-        ...formData,
-        is_free: formData.is_free,
-      };
-
-      const response = await fetch(
-        `${import.meta.env.VITE_PUBLIC_SERVER_URL
-        }/api/course/updateCourse/${courseId}`,
-        {
-          method: "PATCH",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(payload), // Use full payload including URLs
-        }
-      );
-
-      const data = await response.json();
-      if (data.success) {
-        successMessage("Course details updated!");
-        handleSelected("pricing");
-      } else {
-        errorMessage("Failed to update course");
-        setLoadingAction(null);
-        setPendingAction(null);
-      }
-    } catch (error) {
-      console.error(error);
-      errorMessage("An error occurred");
-    } finally {
-      setLoadingAction(null);
-      setPendingAction(null);
-    }
-  };
   // handle submit 3rd tab
   const handleSubmit3tab = async (e) => {
     if (e) e.preventDefault();
     setLoadingAction(pendingAction);
-    console.log(formData);
+    if (formData?.status === 'published' && files.length === 0) {
+      errorMessage("Please add at least one file to publish the course.");
+      return;
+    };
 
     try {
 
@@ -381,7 +349,6 @@ const CourseBuilder = () => {
       );
 
       const data = await response.json();
-      console.log(data);
       if (data.success) {
         successMessage("Course Updated Successfully");
         navigate("/admin/courses-management");
@@ -866,98 +833,87 @@ const CourseBuilder = () => {
               animate="show"
               transition={{ when: "beforeChildren" }}
             >
-              <Form onSubmit={handleUpdate}>
-                <div className="w-full grid grid-cols-2 md:grid-cols-4 py-4 gap-2">
-                  {card.map((item, i) => (
-                    <div key={i} className="w-full sm:flex-1 max-sm:border border-gray-300 p-3 bg-white rounded-lg">
-                      <h1 className="text-[#333333] text-md font-semibold">
-                        {item.title}
-                      </h1>
-                      <div className="mt-3 flex gap-2 items-center">
-                        <div className="h-12 w-12 rounded-full bg-[#95C4BE33] p-1 items-center flex justify-center">
-                          {item.icone}
-                        </div>
-                        <h1 className="text-2xl text-[#333333] font-bold">
-                          {item.count}
-                        </h1>
+              <div className="w-full grid grid-cols-2 md:grid-cols-4 py-4 gap-2">
+                {card.map((item, i) => (
+                  <div key={i} className="w-full sm:flex-1 max-sm:border border-gray-300 p-3 bg-white rounded-lg">
+                    <h1 className="text-[#333333] text-md font-semibold">
+                      {item.title}
+                    </h1>
+                    <div className="mt-3 flex gap-2 items-center">
+                      <div className="h-12 w-12 rounded-full bg-[#95C4BE33] p-1 items-center flex justify-center">
+                        {item.icone}
                       </div>
+                      <h1 className="text-2xl text-[#333333] font-bold">
+                        {item.count}
+                      </h1>
                     </div>
-                  ))}
-                </div>
-                {/* <Videos setVideoDuration={setVideoDuration} videos={videos} setVideos={setVideos} onSave={(data) => saveContent(data, 'lesson_video')} /> */}
-                <Videos
-                  courseId={courseId}
-                  files={files}
-                  setFiles={setFiles}
-                  handleUploadFile={handleUploadFile}
-                  onUpdateFile={handleUpdateFile}
-                />
-                <PdfAndNotes
-                  courseId={courseId}
-                  files={files}
-                  setFiles={setFiles}
-                  handleUploadFile={handleUploadFile}
-                  onUpdateFile={handleUpdateFile}
-                />
-                <Assignments
-                  courseId={courseId}
-                  files={files}
-                  setFiles={setFiles}
-                  handleUploadFile={handleUploadFile}
-                  onUpdateFile={handleUpdateFile}
-                />
-                {/* <Quizzes
+                  </div>
+                ))}
+              </div>
+              <Videos
+                courseId={courseId}
+                files={files}
+                setFiles={setFiles}
+                handleUploadFile={handleUploadFile}
+                onUpdateFile={handleUpdateFile}
+              />
+              <PdfAndNotes
+                courseId={courseId}
+                files={files}
+                setFiles={setFiles}
+                handleUploadFile={handleUploadFile}
+                onUpdateFile={handleUpdateFile}
+              />
+              <Assignments
+                courseId={courseId}
+                files={files}
+                setFiles={setFiles}
+                handleUploadFile={handleUploadFile}
+                onUpdateFile={handleUpdateFile}
+              />
+              {/* <Quizzes
                   quizzes={quizzes}
                   setQuizzes={setQuizzes}
                   onSave={(data) => setQuizzes(data)}
                 /> */}
-                <div className="p-3 my-5 bg-[#95C4BE33] rounded-md flex justify-between items-center">
-                  <div>
-                    <h1 className="text-[#06574C] font-medium text-lg">
-                      Content Drip Schedule
-                    </h1>
-                    <h1 className="text-[#06574C] font-medium text-sm">
-                      Control when students can access each lesson. Content will
-                      be released automatically based on their enrollment date.
-                      This helps create a structured learning experience and
-                      prevents overwhelming students with too much content at
-                      once.
-                    </h1>
-                  </div>
+              <div className="p-3 my-5 bg-[#95C4BE33] rounded-md flex justify-between items-center">
+                <div>
+                  <h1 className="text-[#06574C] font-medium text-lg">
+                    Content Drip Schedule
+                  </h1>
+                  <h1 className="text-[#06574C] font-medium text-sm">
+                    Control when students can access each lesson. Content will
+                    be released automatically based on their enrollment date.
+                    This helps create a structured learning experience and
+                    prevents overwhelming students with too much content at
+                    once.
+                  </h1>
                 </div>
-                <div className="flex gap-3 flex-wrap justify-center sm:justify-between items-center w-full ">
+              </div>
+              <div className="flex gap-3 flex-wrap justify-center sm:justify-between items-center w-full ">
+                <Button
+                  size="lg"
+                  startContent={<FolderDot color="#06574C" size={16} />}
+                  variant="bordered"
+                  className="border-[#06574C] w-78 sm:w-40 text-[#06574C]"
+                  onPress={() => handleSelected("info")}
+                >
+                  Previous Step
+                </Button>
+                <div className="flex flex-wrap my-5 gap-3">
                   <Button
                     size="lg"
-                    startContent={<FolderDot color="#06574C" size={16} />}
-                    variant="bordered"
-                    className="border-[#06574C] w-78 sm:w-40 text-[#06574C]"
-                    onPress={() => handleSelected("info")}
+                    className="bg-[#06574C] w-full text-white sm:w-35"
+                    type="submit"
+                    onPress={() => {
+                      if (files.length === 0) { errorMessage("Please upload at least one file"); return; };
+                      handleSelected("pricing");
+                    }}
                   >
-                    Previous Step
+                    Next Step
                   </Button>
-                  <div className="flex flex-wrap my-5 gap-3">
-                    {/* <Button
-                      size="lg"
-                      startContent={<Rocket color="white" size={16} />}
-                      className="bg-[#B1A7A7] w-full text-white sm:w-60"
-                      type="submit"
-                      onPress={() => setPendingAction("publish-2")}
-                      isLoading={loadingAction === "publish-2"}
-                    >
-                      Publish Course
-                    </Button> */}
-                    <Button
-                      size="lg"
-                      className="bg-[#06574C] w-full text-white sm:w-35"
-                      type="submit"
-                      onPress={() => setPendingAction("next-2")}
-                      isLoading={loadingAction === "next-2"}
-                    >
-                      Next Step
-                    </Button>
-                  </div>
                 </div>
-              </Form>
+              </div>
             </motion.div>
           </Tab>
           <Tab
@@ -971,11 +927,11 @@ const CourseBuilder = () => {
                 <div className="text-start">
                   <h1 className="text-[#06574C] text-lg font-bold">
                     {" "}
-                    Pricing & Access
+                    Access
                   </h1>
                   <h1 className="text-xs wrap-break-word">
                     {" "}
-                    Configure pricing & access rules
+                    Configure access rules
                   </h1>
                 </div>
               </div>
@@ -993,7 +949,7 @@ const CourseBuilder = () => {
                   <div className="bg-white rounded-lg p-4 col-span-12 shadow-xl">
                     <div>
                       <h1 className="text-xl font-medium text-[#333333]">
-                        Pricing & Access Settings
+                        Access Settings
                       </h1>
                     </div>
                     <div className="py-4">
@@ -1024,34 +980,6 @@ const CourseBuilder = () => {
                           />
                         </div>
                       </div>
-                      {/* <div className="flex gap-3 items-center pt-4">
-                        <Input
-                          size="lg"
-                          variant="bordered"
-                          label="Course Price"
-                          labelPlacement="outside"
-                          placeholder="$  9.99"
-                          className="w-full"
-                        />
-                        <Select
-                          size="lg"
-                          variant="bordered"
-                          label="Access Duration"
-                          labelPlacement="outside"
-                          placeholder="Select Difficulty Level"
-                          className="w-full"
-                        >
-                          {Duration.map((item) => (
-                            <SelectItem key={item.id} value={item.id}>
-                              {item.label}
-                            </SelectItem>
-                          ))}
-                        </Select>
-                      </div> */}
-
-                      <h1 className="pt-4 text-xl text-[#333333] font-bold">
-                        Access Settings
-                      </h1>
 
                       <div className="flex gap-3 items-center py-4">
                         <Select
@@ -1114,14 +1042,23 @@ const CourseBuilder = () => {
                             Your course is not visible to students yet
                           </h1>
                         </div>
-                        <div>
-                          <Button
-                            variant={formData.status === "publish" ? "solid" : "bordered"}
+
+                        <div className="flex items-center gap-3">
+                          <p className="text-md text-[#06574C]">
+                            {formData.status === "published" ? "Public" : "Draft"}
+                          </p>
+                          <Switch
                             color="success"
-                            onPress={() => handleChange("status", formData.status === "publish" ? "draft" : "publish")}
-                          >
-                            {formData.status === "publish" ? "Unpublish" : "Public"}
-                          </Button>
+                            aria-label="set active status of course"
+                            isSelected={formData.status === "published"}
+                            onValueChange={(val) => {
+                              handleChange("status", "published")
+
+                              if (val === false) {
+                                handleChange("status", "draft")
+                              }
+                            }}
+                          />
                         </div>
                       </div>
                     </div>
@@ -1144,7 +1081,7 @@ const CourseBuilder = () => {
                       variant="bordered"
                       className="border-[#06574C] text-[#06574C] w-80 sm:w-40"
                       type="submit"
-                      onPress={() =>{ setPendingAction("save-3");handleChange("status", "publish");}}
+                      onPress={() => { setPendingAction("save-3"); handleChange("status", "draft"); }}
                       isLoading={loadingAction === "save-3"}
                     >
                       Save Draft
@@ -1156,7 +1093,8 @@ const CourseBuilder = () => {
                       startContent={<Rocket color="white" size={16} />}
                       className="bg-[#06574C] text-white w-80 sm:w-60"
                       type="submit"
-                      onPress={() =>{ setPendingAction("publish-3");handleChange("status", "publish");}}
+                      isDisabled={formData?.status !== "published"}
+                      onPress={() => setPendingAction("publish-3")}
                       isLoading={loadingAction === "publish-3"}
                     >
                       Publish Course

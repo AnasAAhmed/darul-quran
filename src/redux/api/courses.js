@@ -9,7 +9,11 @@ export const courseApi = createApi({
     tagTypes: ["course"],
     endpoints: (builder) => ({
         getAllCourses: builder.query({
-            query: () => "/getAllCourses",
+            query: ({ page, limit,categoryId, search, status }) => ({
+                url: "/getAllCourses",
+                method: "GET",
+                params: { page, limit,categoryId, search, status }
+            }),
             providesTags: ["course"],
         }),
         getCourseById: builder.query({

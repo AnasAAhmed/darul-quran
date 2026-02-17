@@ -18,6 +18,7 @@ import {
   ModalFooter,
   useDisclosure,
   Spinner,
+  Input,
 } from "@heroui/react";
 import { Chip } from "@heroui/react";
 
@@ -32,15 +33,11 @@ import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { AnimatePresence } from "motion/react";
 import * as motion from "motion/react-client";
-import { dateFormatter } from "../../../lib/utils";
+import { dateFormatter, debounce } from "../../../lib/utils";
 import { errorMessage, showMessage, successMessage } from "../../../lib/toast.config";
-import { useGetAllUsersQuery } from "../../../redux/api/user";
+import { useBulkDeleteUserMutation, useDeleteUserMutation, useGetAllUsersQuery } from "../../../redux/api/user";
 
 const UserManagement = () => {
-
-  const handleDateClick = (info) => {
-    alert("Clicked on date: " + info.dateStr);
-  };
 
   const statuses = [
     { key: "all", label: "All Status" },
@@ -68,53 +65,48 @@ const UserManagement = () => {
 
   const [selectedTab, setSelectedTab] = useState("");
   const router = useNavigate();
-  const [teachers, setTeachers] = useState([]);
-  const [students, setStudents] = useState([]);
-  const [loading, setLoading] = useState(false);
-  const [admins, setAdmins] = useState([]);
   const [role, setRole] = useState('student');
   const [page, setPage] = useState(1);
   const [limit, setLimit] = useState(10);
   const [status, setStatus] = useState('all');
+  const [search, setSearch] = useState('');
   const [userToDelete, setUserToDelete] = useState(null);
   const { isOpen, onOpen, onClose } = useDisclosure();
-
-  // States for bulk delete
-  const [selectedStudents, setSelectedStudents] = useState(new Set());
-  const [selectedTeachers, setSelectedTeachers] = useState(new Set());
-  // const [selectedAdmins, setSelectedAdmins] = useState(new Set());
   const [selectedUsers, setSelectedUsers] = useState(new Set());
   const [isDeleting, setIsDeleting] = useState(false);
   const { isOpen: isBulkDeleteOpen, onOpen: onBulkDeleteOpen, onClose: onBulkDeleteClose } = useDisclosure();
 
-  const { data, isError, isFetching } = useGetAllUsersQuery({ page, limit, status, role });
+  const { data, isError, error, isFetching } = useGetAllUsersQuery({ page, limit, status, role,search });
+  const [deleteUser] = useDeleteUserMutation()
+  const [bulkDeleteUser] = useBulkDeleteUserMutation()
+
+  useEffect(() => {
+    if (isError) {
+      errorMessage(error.data.error, error.status);
+    }
+  }, [isError]);
 
   const openDeleteModal = (userId) => {
     setUserToDelete(userId);
     onOpen();
   };
-
   const handleDelete = async () => {
     if (!userToDelete) return;
 
     try {
       setIsDeleting(true);
-      const res = await fetch(import.meta.env.VITE_PUBLIC_SERVER_URL + `/api/user/deleteUser/${userToDelete}`, {
-        method: "DELETE",
-      });
+      const res = await deleteUser(userToDelete);
 
-      if (res.ok) {
+      if (res.error) {
+        throw new Error("Failed to delete user: " + res.error.message);
+      } else {
         successMessage("User deleted successfully!");
         onClose();
         setUserToDelete(null);
-        const response = await fetch(import.meta.env.VITE_PUBLIC_SERVER_URL + "/api/user/getAllUsers");
-        const data = await response.json();
-      } else {
-        errorMessage("Failed to delete user.");
       }
     } catch (error) {
       console.error("Error deleting user:", error);
-      errorMessage("An error occurred while deleting the user.");
+      errorMessage(error.message);
     } finally {
       setIsDeleting(false);
     }
@@ -127,61 +119,26 @@ const UserManagement = () => {
 
   // Bulk delete handler
   const handleBulkDelete = async () => {
-    let selectedIds = [];
-
-    if (selectedUsers.length) {
-      selectedIds = selectedUsers.map(u => u.id);
-    }
-
+    let selectedIds = [...selectedUsers];
     if (selectedIds.length === 0) {
       errorMessage("No users selected");
       return;
     }
-
     try {
       setIsDeleting(true);
-      // Delete all selected users via bulk API
-      const res = await fetch(import.meta.env.VITE_PUBLIC_SERVER_URL + `/api/user/bulkDelete`, {
-        method: "DELETE",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ids: selectedIds }),
-      });
-
-      if (res.ok) {
-        successMessage(`Users deleted successfully!`);
-      } else {
-        errorMessage(`Failed to delete users`);
+      const res = await bulkDeleteUser(selectedIds);
+      if (res.error) {
+        throw new Error("Failed to bulk delete users: " + res.error.message);
       }
-
-      // Clear selections
+      successMessage(`Users deleted successfully!`);
       setSelectedUsers(new Set());
-
       onBulkDeleteClose();
-
-      // Refresh user list
-      const response = await fetch(import.meta.env.VITE_PUBLIC_SERVER_URL + "/api/user/getAllUsers");
-      const data = await response.json();
-
     } catch (error) {
-      console.error("Error deleting users:", error);
-      errorMessage("An error occurred while deleting users.");
+      console.error("Error bbulk deleting users:", error);
+      errorMessage(error?.message);
     } finally {
       setIsDeleting(false);
     }
-  };
-
-  // Helper function to get current tab's selected keys
-  const getCurrentTab = () => {
-    if (selectedStudents === "all" || (selectedStudents instanceof Set && selectedStudents.size > 0)) {
-      return { selectedKeys: selectedStudents, type: 'students', total: students.length };
-    }
-    if (selectedTeachers === "all" || (selectedTeachers instanceof Set && selectedTeachers.size > 0)) {
-      return { selectedKeys: selectedTeachers, type: 'teachers', total: teachers.length };
-    }
-    if (selectedAdmins === "all" || (selectedAdmins instanceof Set && selectedAdmins.size > 0)) {
-      return { selectedKeys: selectedAdmins, type: 'admins', total: admins.length };
-    }
-    return { selectedKeys: new Set(), type: null, total: 0 };
   };
 
   const isSelectionEmpty = (selection) => {
@@ -232,6 +189,17 @@ const UserManagement = () => {
               <SelectItem key={filter.key}>{filter.label}</SelectItem>
             ))}
           </Select>
+          <Input
+            type="search"
+            placeholder="Search..."
+            radius="sm"
+            defaultValue={search}
+            onChange={(e) =>
+              debounce(() => {
+                setSearch(e.target.value);
+              }, 400)
+            }
+          />
         </div>
         <div className=" flex gap-3 max-md:flex-wrap max-md:w-full">
           {/* Bulk Delete Button - Shows when users are selected */}
@@ -443,7 +411,7 @@ const UserManagement = () => {
             }}
             initialPage={1}
             page={page}
-            setPage={setPage}
+            onChange={setPage}
             total={data?.totalPages}
           />
         </div>

@@ -1,6 +1,7 @@
 import { DashHeading } from "../../../components/dashboard-components/DashHeading";
 import {
   Button,
+  Input,
   Pagination,
   Select,
   SelectItem,
@@ -14,41 +15,34 @@ import {
 } from "@heroui/react";
 import { ListFilterIcon, Trash2 } from "lucide-react";
 import CourseForm from "../../../components/dashboard-components/forms/CourseForm";
-import { useEffect, useState } from "react";
+import { use, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useDeleteCourseMutation, useGetAllCoursesQuery } from "../../../redux/api/courses";
+import { useDeleteCourseMutation, useGetAllCategoriesQuery, useGetAllCoursesQuery } from "../../../redux/api/courses";
+import { errorMessage } from "../../../lib/toast.config";
+import { debounce } from "../../../lib/utils";
 
 const CourseManagement = () => {
 
-  const { data, isLoading, error, refetch } = useGetAllCoursesQuery();
 
-  console.log("data", data);
-  console.log("isLoading", isLoading);
-  console.log("error", error);
+  const [page, setPage] = useState(1);
+  const [limit, setLimit] = useState(10);
+  const [status, setStatus] = useState('all');
+  const [search, setSearch] = useState('');
+  const [categoryId, setCategoryId] = useState(null);
 
-  // useEffect(() => {
-  //   const fetchCourses = async () => {
-  //     setLoading(true);
-  //     const response = await fetch(
-  //       `${import.meta.env.VITE_PUBLIC_SERVER_URL}/api/course/getAllCourses`,
-  //       {
-  //         method: "GET",
-  //         credentials: "include",
-  //         headers: {
-  //           "Content-Type": "application/json",
-  //         },
-  //       }
-  //     );
-  //     const data = await response.json();
-  //     console.log(data);
-  //     setCourses(data.courses || []);
-  //     setLoading(false);
-  //   };
-  //   fetchCourses();
-  // }, []);
-  const [courses, setCourses] = useState([]);
-  const [loading, setLoading] = useState(false);
-  console.log("courses", courses);
+  // Query/Fetch
+  const { data, isFetching: isLoading, isError, error } = useGetAllCoursesQuery({ page, categoryId, limit, status, search });
+  const { data: categoriesData, isError: categoriesError, error: categoriesErrorData } = useGetAllCategoriesQuery();
+  // Mutation/Action
+  const [deleteProduct] = useDeleteCourseMutation();
+
+  useEffect(() => {
+    if (isError) {
+      errorMessage(error.data.error, error.status);
+    } else if (categoriesError) {
+      errorMessage(categoriesErrorData.data.error, categoriesErrorData.status);
+    }
+  }, [isError, categoriesError]);
 
   const statuses = [
     { key: "all", label: "All Status" },
@@ -57,6 +51,7 @@ const CourseManagement = () => {
   ];
   const filters = [{ key: "all", label: "Filter" }];
   const limits = [
+    { key: "6", label: "6" },
     { key: "10", label: "10" },
     { key: "20", label: "20" },
     { key: "30", label: "30" },
@@ -73,44 +68,19 @@ const CourseManagement = () => {
     setDeletingId(id);
 
     try {
-      // const response = await fetch(
-      //   `${import.meta.env.VITE_PUBLIC_SERVER_URL}/api/course/deleteCourse`,
-      //   {
-      //     method: "DELETE",
-      //     headers: { "Content-Type": "application/json" },
-      //     body: JSON.stringify({ id }),
-      //   }
-      // );
-
-      // const data = await response.json();
       const res = await deleteProduct(id);
-      console.log("res", res);
-      if (data.success) {
-        // const res = await fetch(
-        //   `${import.meta.env.VITE_PUBLIC_SERVER_URL}/api/course/getAllCourses`,
-        //   {
-        //     method: "GET",
-        //     headers: { "Content-Type": "application/json" },
-        //     credentials: "include",
-        //   }
-        // );
-
-        // const coursesData = await res.json();
-        // setCourses(coursesData.courses || []);
-        setOpen(false);
-      } else {
-        alert(data.message || "Failed to delete course");
+      if (res.error) {
+        throw new Error(res.error.message || "Failed to delete course");
       }
+      setOpen(false);
     } catch (error) {
       console.error("Delete error:", error);
-      alert("An error occurred while deleting the course");
+      errorMessage(error?.message);
     } finally {
       setDeleteLoading(false);
       setDeletingId(null);
     }
   };
-  // const [updateProduct] = useUpdateProductMutation();
-  const [deleteProduct] = useDeleteCourseMutation();
 
   const handleEdit = (id) => {
     navigate(`/admin/courses-management/builder?tab=info&id=${id}`);
@@ -125,6 +95,10 @@ const CourseManagement = () => {
             className=" min-w-[120px]"
             radius="sm"
             defaultSelectedKeys={["all"]}
+            onSelectionChange={(k) => {
+              const keys = [...k];
+              setStatus(keys[0]);
+            }}
             placeholder="Select an status"
           >
             {statuses.map((status) => (
@@ -132,27 +106,32 @@ const CourseManagement = () => {
             ))}
           </Select>
           <Select
-            className="min-w-[120px]"
+            className="min-w-40"
             radius="sm"
             defaultSelectedKeys={["all"]}
+            onSelectionChange={(k) => {
+              const keys = [...k];
+              setCategoryId(keys[0]); // can be string can be number it is going through searchParams anyway
+            }}
             placeholder="Select a category"
           >
             <SelectItem key="all">All Category</SelectItem>
-            {courses.map((cat) => (
-              <SelectItem key={cat.category}>{cat.category_name}</SelectItem>
+            {categoriesData?.categories?.map((item) => (
+              <SelectItem title={item.categoryName} key={String(item.id)} value={String(item.id)}>
+                {item.categoryName}</SelectItem>
             ))}
           </Select>
-          <Select
+          <Input
+            type="search"
+            placeholder="Search..."
             radius="sm"
-            className="min-w-[120px]"
-            defaultSelectedKeys={["all"]}
-            selectorIcon={<ListFilterIcon />}
-            placeholder="Filter"
-          >
-            {filters.map((filter) => (
-              <SelectItem key={filter.key}>{filter.label}</SelectItem>
-            ))}
-          </Select>
+            defaultValue={search}
+            onChange={(e) =>
+              debounce(() => {
+                setSearch(e.target.value);
+              }, 400)
+            }
+          />
         </div>
         <CourseForm />
       </div>
@@ -162,7 +141,7 @@ const CourseManagement = () => {
             aria-label="Pending approvals table"
             removeWrapper
             classNames={{
-              base: "table-fixed w-full bg-white rounded-lg h-[calc(100vh-300px)] overflow-y-auto",
+              base: "table-fixed w-full bg-white rounded-lg s(100vh-300px)] overflow-y-auto",
               th: "font-bold p-4 text-sm text-[#333333] capitalize tracking-widest bg-[#EBD4C936] cursor-default",
               td: "py-3 align-center",
               tr: "border-b border-default-200 last:border-b-0 hover:bg-[#EBD4C936]",
@@ -267,25 +246,30 @@ const CourseManagement = () => {
 
       <div className="flex flex-wrap items-center p-4 gap-2 justify-between overflow-hidden">
         <div className="flex text-sm items-center gap-1">
-          <span>Showing</span>
+          <span>Limit</span>
           <Select
             radius="sm"
             className="w-[70px]"
             defaultSelectedKeys={["10"]}
+            onSelectionChange={(k) => {
+              const keys = [...k];
+              setLimit(Number(keys[0]))
+            }}
             placeholder="1"
           >
             {limits.map((limit) => (
               <SelectItem key={limit.key}>{limit.label}</SelectItem>
             ))}
           </Select>
-          <span className="min-w-56">Out of 58</span>
+          <span className="min-w-56">Out of {data?.total}</span>
         </div>
         <Pagination
           className=""
           showControls
           variant="ghost"
           initialPage={1}
-          total={10}
+          total={data?.totalPages}
+          onChange={setPage}
           classNames={{
             item: "rounded-sm hover:bg-bg-[#06574C]/50",
             cursor: "bg-[#06574C] rounded-sm text-white",
