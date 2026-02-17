@@ -6,21 +6,14 @@ const fileTypeMap = {
     "image/*": [".png", ".jpg", ".jpeg", ".webp"],
   },
   video: {
-    "video/*": [".mp4", ".mov", ".avi", ".mkv","webm"],
+    "video/*": [".mp4", ".mov", ".avi", ".mkv", "webm"],
   },
   pdf: {
     "application/pdf": [".pdf"],
     "application/msword": [".doc"],
     "application/vnd.openxmlformats-officedocument.wordprocessingml.document": [".docx"],
   },
-  assignment: {
-    "application/pdf": [".pdf"],
-    "application/msword": [".doc"],
-    "application/vnd.openxmlformats-officedocument.wordprocessingml.document": [".docx"],
-    "application/vnd.ms-excel": [".xls"],
-    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet": [".xlsx"],
-    "text/plain": [".txt"],
-  },
+  assignment:{"application": [".pdf", ".doc", ".docx", ".xls", ".xlsx", ".txt"]}
 };
 
 
@@ -40,7 +33,7 @@ const FileDropzone = ({
   width = "100%",
 }) => {
   const finalMaxSixe = maxSize * 1024 * 1024;
-  
+
   const { getRootProps, getInputProps, open, acceptedFiles } = useDropzone({
     noKeyboard: true,
     multiple: isMultiple,
@@ -55,7 +48,7 @@ const FileDropzone = ({
         type: file.type,
         lastModified: file.lastModified,
       }));
-      
+
       if (isMultiple) {
         // Add new files to existing files
         setFiles(prevFiles => [...prevFiles, ...filesWithMetadata]);
@@ -73,21 +66,21 @@ const FileDropzone = ({
       setFiles([])
     }
   };
-  
+
   const getUploadedImageSrc = (fileObj) => {
     if (!fileObj) {
       console.error("No file provided.");
       return null;
     }
-    
+
     // If fileObj is a string (already uploaded URL), return it
     if (typeof fileObj === "string") return fileObj;
-    
+
     // If fileObj is the metadata object, get the actual file
     const file = fileObj.file || fileObj;
-    
+
     if (typeof file === "string") return file;
-    
+
     const imageUrl = URL.createObjectURL(file);
     return imageUrl;
   };
@@ -107,7 +100,7 @@ const FileDropzone = ({
             fill="red"
           />
 
-          {files.length === 1&&(fileType) ? (
+          {files.length === 1 && (fileType) ? (
             files[0].type?.startsWith("video") || files[0].name?.match(/\.(mp4|webm|ogg)$/i) ? (
               <video
                 src={getUploadedImageSrc(files[0])}

@@ -82,12 +82,8 @@ const CourseBuilder = () => {
   const [videoUrl, setVideoUrl] = useState("");
   const [thumbnail, setThumbnail] = useState([]); // Cover image file objects with metadata
   const [thumbnailUrl, setThumbnailUrl] = useState(""); // Cover image URL
-  const [removedUrls, setRemovedUrls] = useState([""]); // Cover image URL
-  const [videos, setVideos] = useState([]);
-  const [pdfs, setPdfs] = useState([]);
+  const [removedUrls, setRemovedUrls] = useState([""]);
   const [files, setFiles] = useState([]);
-  const [assignments, setAssignments] = useState([]);
-  const [quizzes, setQuizzes] = useState([]);
   const [loadingAction, setLoadingAction] = useState(null);
   const [pendingAction, setPendingAction] = useState(null);
   const [videoDuration, setVideoDuration] = useState(0);
@@ -103,18 +99,18 @@ const CourseBuilder = () => {
   const card = [
     {
       title: "Videos",
-      count: videos.length || 0,
+      count: (files?.filter((f) => f.fileType === "lesson_video")).length || 0,
       icone: <Video size={20} color="#06574C" />,
     },
-    { title: "PDFs:", count: pdfs.length || 0, icone: <File size={20} color="#06574C" /> },
+    { title: "PDFs:", count: (files?.filter((f) => f.fileType === "pdf_notes")).length || 0, icone: <File size={20} color="#06574C" /> },
     {
       title: "Quizzes",
-      count: quizzes.length || 0,
+      count:  0,
       icone: <Lightbulb size={20} color="#06574C" />,
     },
     {
       title: "Assignments",
-      count: assignments.length || 0,
+      count: (files?.filter((f) => f.fileType === "assignments")).length || 0,
       icone: <ScrollText size={20} color="#06574C" />,
     },
   ];
@@ -332,7 +328,7 @@ const CourseBuilder = () => {
     try {
       const payload = {
         ...formData,
-        is_free: formData.is_free, 
+        is_free: formData.is_free,
       };
 
       const response = await fetch(
@@ -346,7 +342,6 @@ const CourseBuilder = () => {
       );
 
       const data = await response.json();
-      console.log(data);
       if (data.success) {
         successMessage("Course details updated!");
         handleSelected("pricing");
@@ -370,7 +365,7 @@ const CourseBuilder = () => {
     console.log(formData);
 
     try {
-   
+
       const payload = {
         ...formData,
         is_free: formData.is_free,
@@ -426,7 +421,6 @@ const CourseBuilder = () => {
 
         setVideoUrl(course.video || "");
         setThumbnailUrl(course.thumbnail || "");
-        setVideoDuration(course.videoDuration || "");
         setFiles(course.files || []);
       } catch (error) {
         console.error("Failed to fetch course", error);
@@ -892,15 +886,11 @@ const CourseBuilder = () => {
                 </div>
                 {/* <Videos setVideoDuration={setVideoDuration} videos={videos} setVideos={setVideos} onSave={(data) => saveContent(data, 'lesson_video')} /> */}
                 <Videos
-                  videos={videos}
-                  setVideos={setVideos}
                   courseId={courseId}
+                  files={files}
+                  setFiles={setFiles}
                   handleUploadFile={handleUploadFile}
                   onUpdateFile={handleUpdateFile}
-                  setVideoDuration={setVideoDuration}
-                  setLoadingAction={setLoadingAction}
-                  setPendingAction={setPendingAction}
-                  onSave={(data) => setVideos(data)}
                 />
                 <PdfAndNotes
                   courseId={courseId}
@@ -910,18 +900,17 @@ const CourseBuilder = () => {
                   onUpdateFile={handleUpdateFile}
                 />
                 <Assignments
-                  assignments={assignments}
-                  setAssignments={setAssignments}
                   courseId={courseId}
+                  files={files}
+                  setFiles={setFiles}
                   handleUploadFile={handleUploadFile}
                   onUpdateFile={handleUpdateFile}
-                  onSave={(data) => setAssignments(data)}
                 />
-                <Quizzes
+                {/* <Quizzes
                   quizzes={quizzes}
                   setQuizzes={setQuizzes}
                   onSave={(data) => setQuizzes(data)}
-                />
+                /> */}
                 <div className="p-3 my-5 bg-[#95C4BE33] rounded-md flex justify-between items-center">
                   <div>
                     <h1 className="text-[#06574C] font-medium text-lg">
