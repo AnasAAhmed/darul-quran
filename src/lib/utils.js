@@ -32,8 +32,8 @@ export const uploadFilesToServer = async (filesArray, removeUrls) => {
 
     const result = await response.json();
 
-    if (result.success && result.files) {
-      return result.files; 
+    if (result.success && result.uploaded) {
+      return result.uploaded; 
     } else {
       throw new Error(result.message || 'Upload failed');
     }

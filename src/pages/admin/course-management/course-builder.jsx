@@ -39,7 +39,6 @@ import { useAddCategoryMutation, useDeleteCategoryMutation, useGetAllCategoriesQ
 import { errorMessage, successMessage } from "../../../lib/toast.config";
 import { FormOverlayLoader } from "../../../components/Loader";
 import { uploadFilesToServer } from "../../../lib/utils";
-import { uploadFilesToServer } from "../../../lib/utils";
 const containerVariants = {
   hidden: { opacity: 0, y: 10, scale: 0.98 },
 
@@ -86,6 +85,7 @@ const CourseBuilder = () => {
   const [removedUrls, setRemovedUrls] = useState([""]); // Cover image URL
   const [videos, setVideos] = useState([]);
   const [pdfs, setPdfs] = useState([]);
+  const [files, setFiles] = useState([]);
   const [assignments, setAssignments] = useState([]);
   const [quizzes, setQuizzes] = useState([]);
   const [loadingAction, setLoadingAction] = useState(null);
@@ -187,21 +187,24 @@ const CourseBuilder = () => {
     e.preventDefault();
     setLoadingAction(pendingAction);
 
-    if (video.length > 0) {
+    const urlMap = {};
+    if (video.length > 0 || thumbnail.length > 0) {
       const filesToUpload = [];
       if (video.length > 0) filesToUpload.push({ file: video[0], type: "video" });
       if (thumbnail.length > 0) filesToUpload.push({ file: thumbnail[0], type: "thumbnail" });
+      console.log(thumbnail);
 
       try {
         const uploadedUrls = await uploadFilesToServer(filesToUpload.map(f => f.file));
-        const urlMap = {};
         uploadedUrls.forEach((url, index) => {
           const type = filesToUpload[index].type;
           urlMap[type] = url;
         });
+        console.log(urlMap);
+        console.log(uploadedUrls);
 
-        if (urlMap.video) setVideoUrl(urlMap.video);
-        if (urlMap.thumbnail) setThumbnailUrl(urlMap.thumbnail);
+        if (urlMap.video) { setVideoUrl(urlMap.video); setVideo([]) };
+        if (urlMap.thumbnail) { setThumbnailUrl(urlMap.thumbnail); setThumbnail([]) };
       } catch (error) {
         console.error("Upload failed", error);
         errorMessage("Failed to upload files");
@@ -220,8 +223,8 @@ const CourseBuilder = () => {
         ? parseInt(formData.enroll_number)
         : null,
       status: "Draft",
-      videoUrl: videoUrl,
-      thumbnailurl: thumbnailUrl,
+      videoUrl: urlMap.video,
+      thumbnailurl: urlMap.thumbnail,
       teacher_id: Number(formData.teacher_id),
       is_free: formData.is_free,
     };
@@ -274,43 +277,50 @@ const CourseBuilder = () => {
     }
   };
 
-  const saveContent = async (updatedList, field) => {
-    if (!courseId) return;
-
-
-    // Extract actual files from the metadata objects
-    const filesToUpload = updatedList.filter(item => item.file); // Only items with actual file objects
-
-
-    let uploadedFiles = [];
-    if (filesToUpload.length > 0) {
-      uploadedFiles = await uploadFilesToServer(filesToUpload);
-    }
-
-
-    // Use uploaded files if available, otherwise use existing data
-    const finalList = uploadedFiles.length > 0 ? uploadedFiles : updatedList;
-
-
-    const payload = {
-      ...formData,
-      videoUrl: videoUrl,
-      lesson_video: field === 'lesson_video' ? finalList : videos,
-      pdf_notes: field === 'pdf_notes' ? finalList : pdfs,
-      assignments: field === 'assignments' ? finalList : assignments,
-      quizzes: field === 'quizzes' ? finalList : quizzes,
-    };
+  const handleUploadFile = async ({ title, file, fileType, courseId }) => {
     try {
-      await fetch(
-        `${import.meta.env.VITE_PUBLIC_SERVER_URL}/api/course/updateCourse/${courseId}`,
+      const formData = new FormData();
+      formData.append("file", file.file);
+      formData.append("title", title || file.name);
+      formData.append("fileType", fileType);
+      formData.append("courseId", courseId);
+
+      const res = await fetch(`${import.meta.env.VITE_PUBLIC_SERVER_URL}/api/course/course-files`, {
+        method: "PATCH",
+        body: formData,
+        credentials: "include",
+      });
+      const data = await res.json();
+
+      if (!data.success) {
+        throw new Error(data.message || "Upload failed");
+      }
+      return data.file;
+    } catch (err) {
+      console.error("Upload failed", err);
+      throw new Error("Failed to upload files: " + err?.message);
+    }
+  };
+
+  const handleUpdateFile = async (fileId, updates) => {
+    try {
+      const res = await fetch(
+        `${import.meta.env.VITE_PUBLIC_SERVER_URL}/api/course/course-files/${fileId}`,
         {
           method: "PATCH",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(payload),
+          credentials: "include",
+          body: JSON.stringify(updates),
         }
       );
-    } catch (e) {
-      console.error(e);
+      const data = await res.json();
+      if (!data.success) {
+        throw new Error(data.message || "Update failed");
+      }
+      return data.file;
+    } catch (err) {
+      console.error("Update failed", err);
+      throw new Error("Failed to update file: " + err?.message);
     }
   };
 
@@ -319,55 +329,10 @@ const CourseBuilder = () => {
     setLoadingAction(pendingAction);
     if (!courseId) return;
 
-    // Extract actual files from the metadata objects
-    const videoFiles = videos.filter(item => item.file); // Only items with actual file objects
-    const pdfFiles = pdfs.filter(item => item.file); // Only items with actual file objects
-    const assignmentFiles = assignments.filter(item => item.file); // Only items with actual file objects
-    const quizFiles = quizzes.filter(item => item.file); // Only items with actual file objects
-
-    // Validation: All uploads required
-    if (videoFiles.length === 0 || pdfFiles.length === 0 || assignmentFiles.length === 0 || quizFiles.length === 0) {
-      errorMessage("All content sections (Videos, PDFs, Assignments, Quizzes) must have at least one upload.");
-      setLoadingAction(null);
-      setPendingAction(null);
-      return;
-    }
-
     try {
-      // Upload video files if they exist
-      let uploadedVideos = [];
-      if (videoFiles.length > 0) {
-        uploadedVideos = await uploadFilesToServer(videoFiles);
-      }
-
-      // Upload PDF files if they exist
-      let uploadedPdfs = [];
-      if (pdfFiles.length > 0) {
-        uploadedPdfs = await uploadFilesToServer(pdfFiles);
-      }
-
-      // Upload assignment files if they exist
-      let uploadedAssignments = [];
-      if (assignmentFiles.length > 0) {
-        uploadedAssignments = await uploadFilesToServer(assignmentFiles);
-      }
-
-      // Upload quiz files if they exist
-      let uploadedQuizzes = [];
-      if (quizFiles.length > 0) {
-        uploadedQuizzes = await uploadFilesToServer(quizFiles);
-      }
-
-      // Prepare the payload with uploaded file URLs
       const payload = {
         ...formData,
-        videoUrl: videoUrl,
-        lesson_video: uploadedVideos.length > 0 ? uploadedVideos : videos, // Use uploaded URLs or existing data
-        pdf_notes: uploadedPdfs.length > 0 ? uploadedPdfs : pdfs, // Use uploaded URLs or existing data
-        assignments: uploadedAssignments.length > 0 ? uploadedAssignments : assignments, // Use uploaded URLs or existing data
-        quizzes: uploadedQuizzes.length > 0 ? uploadedQuizzes : quizzes, // Use uploaded URLs or existing data
-        video_count: uploadedVideos.length, // Update video count based on uploaded videos
-        is_free: formData.is_free, // Add free/paid status
+        is_free: formData.is_free, 
       };
 
       const response = await fetch(
@@ -405,45 +370,9 @@ const CourseBuilder = () => {
     console.log(formData);
 
     try {
-      // Extract actual files from the metadata objects
-      const videoFiles = videos.filter(item => item.file); // Only items with actual file objects
-      const pdfFiles = pdfs.filter(item => item.file); // Only items with actual file objects
-      const assignmentFiles = assignments.filter(item => item.file); // Only items with actual file objects
-      const quizFiles = quizzes.filter(item => item.file); // Only items with actual file objects
-
-      // Upload video files if they exist
-      let uploadedVideos = [];
-      if (videoFiles.length > 0) {
-        uploadedVideos = await uploadFilesToServer(videoFiles);
-      }
-
-      // Upload PDF files if they exist
-      let uploadedPdfs = [];
-      if (pdfFiles.length > 0) {
-        uploadedPdfs = await uploadFilesToServer(pdfFiles);
-      }
-
-      // Upload assignment files if they exist
-      let uploadedAssignments = [];
-      if (assignmentFiles.length > 0) {
-        uploadedAssignments = await uploadFilesToServer(assignmentFiles);
-      }
-
-      // Upload quiz files if they exist
-      let uploadedQuizzes = [];
-      if (quizFiles.length > 0) {
-        uploadedQuizzes = await uploadFilesToServer(quizFiles);
-      }
-
-      // Prepare the payload with uploaded file URLs
+   
       const payload = {
         ...formData,
-        videoUrl: videoUrl,
-        lesson_video: uploadedVideos.length > 0 ? uploadedVideos : videos, // Use uploaded URLs or existing data
-        pdf_notes: uploadedPdfs.length > 0 ? uploadedPdfs : pdfs, // Use uploaded URLs or existing data
-        assignments: uploadedAssignments.length > 0 ? uploadedAssignments : assignments, // Use uploaded URLs or existing data
-        quizzes: uploadedQuizzes.length > 0 ? uploadedQuizzes : quizzes, // Use uploaded URLs or existing data
-        video_count: uploadedVideos.length, // Update video count based on uploaded videos
         is_free: formData.is_free,
       };
       const response = await fetch(
@@ -472,7 +401,6 @@ const CourseBuilder = () => {
       setPendingAction(null);
     }
   };
-  // fetch course by id and set form data
   useEffect(() => {
     const fetchCourseById = async () => {
       if (!courseId) return;
@@ -480,7 +408,6 @@ const CourseBuilder = () => {
         if (!data?.course) return;
 
         const course = data.course;
-        // ✅ 1. Form data
         setFormData({
           course_name: course.courseName || "",
           category_id: Number(course.category) || "",
@@ -496,15 +423,11 @@ const CourseBuilder = () => {
           is_free: course.isFree || false,
           video_count: course.videoCount || 0,
         });
-        // ✅ 2. video & Metadata
+
         setVideoUrl(course.video || "");
         setThumbnailUrl(course.thumbnail || "");
         setVideoDuration(course.videoDuration || "");
-        // ✅ 3. Content files
-        setVideos(course.lesson_video || []);
-        setPdfs(course.pdf_notes || []);
-        setAssignments(course.assignments || []);
-        setQuizzes(course.quizzes || []);
+        setFiles(course.files || []);
       } catch (error) {
         console.error("Failed to fetch course", error);
         errorMessage("Failed to load course data: " + error?.message);
@@ -521,17 +444,6 @@ const CourseBuilder = () => {
     }
 
     try {
-      // const response = await fetch(
-      //   `${import.meta.env.VITE_PUBLIC_SERVER_URL}/api/course/addCategory`,
-      //   {
-      //     method: "POST",
-      //     headers: { "Content-Type": "application/json" },
-      //     credentials: "include",
-      //     body: JSON.stringify({
-      //       category_name: newCategory,
-      //     }),
-      //   }
-      // );
       const res = await addCategory(newCategory);
       const data = res.data;
 
@@ -860,8 +772,8 @@ const CourseBuilder = () => {
                         Course Preview
                       </h1>
                       <div className="py-2">
-                        {coursepreview.map((item) => (
-                          <div className="py-1 flex justify-between items-center">
+                        {coursepreview.map((item, i) => (
+                          <div key={i} className="py-1 flex justify-between items-center">
                             <h1 className="text-md font-medium text-[#666666]">
                               {item.title}
                             </h1>
@@ -978,14 +890,38 @@ const CourseBuilder = () => {
                     </div>
                   ))}
                 </div>
-                <Videos setVideoDuration={setVideoDuration} videos={videos} setVideos={setVideos} onSave={(data) => saveContent(data, 'lesson_video')} />
-                <PdfAndNotes pdfs={pdfs} setPdfs={setPdfs} onSave={(data) => saveContent(data, 'pdf_notes')} />
+                {/* <Videos setVideoDuration={setVideoDuration} videos={videos} setVideos={setVideos} onSave={(data) => saveContent(data, 'lesson_video')} /> */}
+                <Videos
+                  videos={videos}
+                  setVideos={setVideos}
+                  courseId={courseId}
+                  handleUploadFile={handleUploadFile}
+                  onUpdateFile={handleUpdateFile}
+                  setVideoDuration={setVideoDuration}
+                  setLoadingAction={setLoadingAction}
+                  setPendingAction={setPendingAction}
+                  onSave={(data) => setVideos(data)}
+                />
+                <PdfAndNotes
+                  courseId={courseId}
+                  files={files}
+                  setFiles={setFiles}
+                  handleUploadFile={handleUploadFile}
+                  onUpdateFile={handleUpdateFile}
+                />
                 <Assignments
                   assignments={assignments}
                   setAssignments={setAssignments}
-                  onSave={(data) => saveContent(data, 'assignments')}
+                  courseId={courseId}
+                  handleUploadFile={handleUploadFile}
+                  onUpdateFile={handleUpdateFile}
+                  onSave={(data) => setAssignments(data)}
                 />
-                <Quizzes quizzes={quizzes} setQuizzes={setQuizzes} onSave={(data) => saveContent(data, 'quizzes')} />
+                <Quizzes
+                  quizzes={quizzes}
+                  setQuizzes={setQuizzes}
+                  onSave={(data) => setQuizzes(data)}
+                />
                 <div className="p-3 my-5 bg-[#95C4BE33] rounded-md flex justify-between items-center">
                   <div>
                     <h1 className="text-[#06574C] font-medium text-lg">

@@ -36,6 +36,7 @@ const FileDropzone = ({
   uploadBgColor = "#95c4be44",
   isMultiple = false,
   showFilesThere = true,
+  showFilesNamesThere = true,
   width = "100%",
 }) => {
   const finalMaxSixe = maxSize * 1024 * 1024;
@@ -106,7 +107,7 @@ const FileDropzone = ({
             fill="red"
           />
 
-          {files.length === 1 ? (
+          {files.length === 1&&(fileType) ? (
             files[0].type?.startsWith("video") || files[0].name?.match(/\.(mp4|webm|ogg)$/i) ? (
               <video
                 src={getUploadedImageSrc(files[0])}
@@ -170,7 +171,7 @@ const FileDropzone = ({
 
         </div>
       }
-      {showFilesThere && files.length > 0 && (
+      {showFilesNamesThere && files.length > 0 && (
         <div className="mt-4">
           <h4 className="font-semibold">Files:</h4>
           <ul className="list-disc ml-6">

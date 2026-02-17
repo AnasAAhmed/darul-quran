@@ -2,7 +2,7 @@ import { useState, useRef, useEffect, useCallback } from "react";
 
 import { Plus, Download, Trash2, Eye, Clock, Menu, Edit, ClipboardListIcon, List, Loader } from "lucide-react";
 import FileDropzone from "../dropzone";
-import { Button, Image, Select, SelectItem } from "@heroui/react";
+import { Button, Image, Select, SelectItem, Input, Textarea } from "@heroui/react";
 import { PiFile, PiFilePdf } from "react-icons/pi";
 import { errorMessage, successMessage } from "../../../lib/toast.config";
 
@@ -34,9 +34,11 @@ const getVideoDuration = (file) => {
     });
 };
 
-export default function Videos({ videos = [], setVideos, onSave, courseId, setLoadingAction, setPendingAction, setVideoDuration }) {
+export default function Videos({ videos = [], setVideos, onSave, courseId, setLoadingAction, setPendingAction, setVideoDuration, handleUploadFile, onUpdateFile }) {
     const [uploadProgress, setUploadProgress] = useState(0);
     const [isUploading, setIsUploading] = useState(false);
+    const [editingVideo, setEditingVideo] = useState(null);
+    const [editModalOpen, setEditModalOpen] = useState(false);
 
     const handleContentSave = async (field, contentData) => {
         if (!courseId) return;
@@ -53,6 +55,46 @@ export default function Videos({ videos = [], setVideos, onSave, courseId, setLo
                 console.error("Auto-save failed");
             }
         } catch (error) { console.error(error); }
+    };
+
+    const updateLesson = async (id, field, value) => {
+        const prevList = [...videos];
+        const updatedList = videos.map((lesson) =>
+            lesson.id === id ? { ...lesson, [field]: value } : lesson
+        );
+        setVideos(updatedList);
+        if (onSave) onSave(updatedList);
+        
+        // Call API to update
+        if (onUpdateFile && courseId) {
+            try {
+                await onUpdateFile(id, { [field]: value });
+            } catch (err) {
+                errorMessage("Failed to update video");
+                setVideos(prevList); // Revert on error
+            }
+        }
+    };
+
+    const deleteLesson = async (id) => {
+        try {
+            const response = await fetch(
+                `${import.meta.env.VITE_PUBLIC_SERVER_URL}/api/course/course-files/${id}`,
+                { method: "DELETE", credentials: "include" }
+            );
+            const data = await response.json();
+            
+            if (data.success) {
+                const updatedList = videos.filter((lesson) => lesson.id !== id);
+                setVideos(updatedList);
+                if (onSave) onSave(updatedList);
+                successMessage("Video deleted successfully");
+            } else {
+                errorMessage("Failed to delete video");
+            }
+        } catch (err) {
+            errorMessage("Error deleting video: " + err?.message);
+        }
     };
 
     // Calculate Total Duration
@@ -76,13 +118,14 @@ export default function Videos({ videos = [], setVideos, onSave, courseId, setLo
         }
     }, [totalDurationSeconds, setVideoDuration]);
 
-    const handleUpload = useCallback( async (files) => {
-        
+    const handleUpload = useCallback(async (files) => {
+
         if (!files || files.length === 0) return;
         setUploadProgress(0);
+        
         // Process files to get duration and prepare for upload
         const filesWithMeta = await Promise.all(files?.map(async (fileObj) => {
-            const file = fileObj.file; // Extract actual File object from metadata
+            const file = fileObj.file;
             const d = await getVideoDuration(file);
             return {
                 file: file,
@@ -93,7 +136,7 @@ export default function Videos({ videos = [], setVideos, onSave, courseId, setLo
             };
         }));
 
-        // Simulated Progress since native callback is not reliable
+        // Simulated Progress
         const interval = setInterval(() => {
             setUploadProgress((prev) => {
                 if (prev >= 95) return prev;
@@ -103,49 +146,74 @@ export default function Videos({ videos = [], setVideos, onSave, courseId, setLo
 
         try {
             setIsUploading(true);
-            // Add files to the videos state with metadata
+            
+            // Upload each file via API
+            for (const f of filesWithMeta) {
+                await handleUploadFile({
+                    title: f.name,
+                    file: f.file,
+                    fileType: "video",
+                    courseId,
+                });
+            }
+
+            clearInterval(interval);
+            setUploadProgress(100);
+
+            // Add to local state for display
             const newItems = filesWithMeta.map((f, i) => ({
                 id: Date.now() + i + Math.random(),
                 title: f.name,
-                thumbnail: URL.createObjectURL(f.file), // Create object URL for preview
+                thumbnail: URL.createObjectURL(f.file),
                 duration: f.duration,
                 views: 0,
                 status: "Draft",
                 releaseDate: "0",
-                // Store file metadata for later upload
                 file: f.file,
                 name: f.name,
                 size: f.size,
                 type: f.type
             }));
 
-            clearInterval(interval);
-            setUploadProgress(100);
-
             const updatedList = [...videos, ...newItems];
             setVideos(updatedList);
             if (onSave) onSave(updatedList);
             successMessage("Videos added");
         } catch (e) {
-            errorMessage("Upload error");
+            errorMessage("Upload error: " + e?.message);
         } finally {
             clearInterval(interval);
             setTimeout(() => setUploadProgress(0), 1000);
             setIsUploading(false)
         }
-    }, [videos]);
+    }, [videos, handleUploadFile, courseId, onSave]);
 
-    const updateLesson = (id, field, value) => {
-        const updatedList = videos.map((lesson) =>
-            lesson.id === id ? { ...lesson, [field]: value } : lesson
-        );
-        setVideos(updatedList);
-        if (onSave) onSave(updatedList);
+    const openEditModal = (lesson) => {
+        setEditingVideo({ ...lesson });
+        setEditModalOpen(true);
     };
 
-    const deleteLesson = (id) => {
-        setVideos(videos.filter((lesson) => lesson.id !== id));
+    const saveEdit = async () => {
+        if (!editingVideo) return;
+        try {
+            await onUpdateFile(editingVideo.id, {
+                title: editingVideo.title,
+                description: editingVideo.description,
+                releaseDate: editingVideo.releaseDate,
+            });
+            const updatedList = videos.map((v) =>
+                v.id === editingVideo.id ? { ...v, ...editingVideo } : v
+            );
+            setVideos(updatedList);
+            if (onSave) onSave(updatedList);
+            setEditModalOpen(false);
+            setEditingVideo(null);
+            successMessage("Video updated successfully");
+        } catch (err) {
+            errorMessage("Failed to update video");
+        }
     };
+
     const Interval = [
         { key: "0", label: "Release Immediately" },
         { key: "1", label: "After 1 Days" },
@@ -290,6 +358,7 @@ export default function Videos({ videos = [], setVideos, onSave, courseId, setLo
                                             color="default"
                                             isIconOnly
                                             className="bg-white"
+                                            onPress={() => openEditModal(lesson)}
                                         >
                                             <Edit color="#06574C" className="h-4 w-4" />
                                         </Button>
@@ -308,6 +377,47 @@ export default function Videos({ videos = [], setVideos, onSave, courseId, setLo
                         </div>
                     ))}
                 </div>
+
+                {/* Edit Modal */}
+                {editModalOpen && (
+                    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+                        <div className="bg-white rounded-lg p-6 w-full max-w-md">
+                            <h3 className="text-xl font-semibold mb-4">Edit Video</h3>
+                            <div className="space-y-4">
+                                <Input
+                                    label="Title"
+                                    variant="bordered"
+                                    value={editingVideo?.title || ""}
+                                    onChange={(e) => setEditingVideo({ ...editingVideo, title: e.target.value })}
+                                />
+                                <Textarea
+                                    label="Description"
+                                    variant="bordered"
+                                    value={editingVideo?.description || ""}
+                                    onChange={(e) => setEditingVideo({ ...editingVideo, description: e.target.value })}
+                                />
+                                <Select
+                                    label="Release Schedule"
+                                    variant="bordered"
+                                    selectedKeys={[editingVideo?.releaseDate || "0"]}
+                                    onSelectionChange={(keys) => setEditingVideo({ ...editingVideo, releaseDate: Array.from(keys)[0] })}
+                                >
+                                    {Interval.map((filter) => (
+                                        <SelectItem key={filter.key}>{filter.label}</SelectItem>
+                                    ))}
+                                </Select>
+                            </div>
+                            <div className="flex justify-end gap-2 mt-6">
+                                <Button variant="flat" onPress={() => { setEditModalOpen(false); setEditingVideo(null); }}>
+                                    Cancel
+                                </Button>
+                                <Button variant="solid" className="bg-[#06574C] text-white" onPress={saveEdit}>
+                                    Save Changes
+                                </Button>
+                            </div>
+                        </div>
+                    </div>
+                )}
                 {/* <FileDropzone
                     label="Drag & Drop Your Files Here"
                     text="or click to browse and select files"
@@ -332,15 +442,15 @@ export default function Videos({ videos = [], setVideos, onSave, courseId, setLo
                             </div>
                         </div>
                     ) : ( */}
-                        <FileDropzone
-                            files={[]}
-                            setFiles={handleUpload}
-                            label="Drag & Drop Videos"
-                            text="or click to upload. Supports multiple files."
-                            height="300px"
-                            fileType="video"
-                            isMultiple={true}
-                        />
+                    <FileDropzone
+                        files={[]}
+                        setFiles={handleUpload}
+                        label="Drag & Drop Videos"
+                        text="or click to upload. Supports multiple files."
+                        height="300px"
+                        fileType="video"
+                        isMultiple={true}
+                    />
                     {/* )} */}
                 </div>
             </div>
@@ -376,136 +486,159 @@ const DOCUMENTS = [
     },
 ];
 
-export function PdfAndNotes({ pdfs = [], setPdfs, onSave }) {
+
+export function PdfAndNotes({ files, setFiles, courseId, handleUploadFile, onUpdateFile }) {
     const [isUploading, setIsUploading] = useState(false);
     const [uploadProgress, setUploadProgress] = useState(0);
-
-    const updateDocument = (id, field, value) => {
-        const updatedList = pdfs.map((doc) =>
-            doc.id === id ? { ...doc, [field]: value } : doc
-        );
-        setPdfs(updatedList);
-        if (onSave) onSave(updatedList);
-    };
-
-    const deleteDocument = (id) => {
-        const updatedList = pdfs.filter((document) => document.id !== id);
-        setPdfs(updatedList);
-        if (onSave) onSave(updatedList);
-    };
-
-    const handleUpload = async (files) => {
-        if (!files || files.length === 0) return;
-        setIsUploading(true);
-        setUploadProgress(0);
-
-        // Simulated Progress
-        const interval = setInterval(() => {
-            setUploadProgress((prev) => {
-                if (prev >= 95) return prev;
-                return prev + 5;
-            });
-        }, 500);
-
-        try {
-            // Add files to the pdfs state with metadata
-            const newDocs = files.map((fileObj, i) => ({
-                id: Date.now() + i + Math.random(),
-                title: fileObj.name,
-                size: (fileObj.size / 1024 / 1024).toFixed(2) + " MB",
-                pages: 0,
-                url: URL.createObjectURL(fileObj.file), // Create object URL for preview
-                status: "Draft",
-                releaseDate: "0",
-                doc_type: 'pdf',
-                // Store file metadata for later upload
-                file: fileObj.file,
-                name: fileObj.name,
-                sizeBytes: fileObj.size,
-                type: fileObj.type
-            }));
-
-            clearInterval(interval);
-            setUploadProgress(100);
-
-            const updatedList = [...pdfs, ...newDocs];
-            setPdfs(updatedList);
-            if (onSave) onSave(updatedList);
-            successMessage("PDF(s) Added");
-        } catch (e) {
-            errorMessage("Upload error");
-        } finally {
-            clearInterval(interval);
-            setTimeout(() => {
-                setUploadProgress(0);
-                setIsUploading(false);
-            }, 1000);
-        }
-    };
+    const [newFiles, setNewFiles] = useState([]);
+    const [editingDoc, setEditingDoc] = useState(null);
+    const [editModalOpen, setEditModalOpen] = useState(false);
 
     const Interval = [
         { key: "0", label: "Release Immediately" },
-        { key: "1", label: "After 1 Days" },
+        { key: "1", label: "After 1 Day" },
         { key: "3", label: "After 3 Days" },
     ];
-    // const AtachOrNot = [
-    //     { key: "true", label: "Attach To Lesson" },
-    //     { key: "false", label: "Deattach To Lesson" },
-    // ];
+
+    const updateDocument = async (id, field, value) => {
+        const prevFiles = [...files];
+        setFiles((prev) =>
+            prev.map((doc) => (doc.id === id ? { ...doc, [field]: value } : doc))
+        );
+        
+        // Call API to update
+        if (onUpdateFile && courseId) {
+            try {
+                await onUpdateFile(id, { [field]: value });
+            } catch (err) {
+                errorMessage("Failed to update document");
+                setFiles(prevFiles); // Revert on error
+            }
+        }
+    };
+
+    const deleteDocument = async (id) => {
+        try {
+            const response = await fetch(
+                `${import.meta.env.VITE_PUBLIC_SERVER_URL}/api/course/course-files/${id}`,
+                { method: "DELETE", credentials: "include" }
+            );
+            const data = await response.json();
+            
+            if (data.success) {
+                setFiles((prev) => prev.filter((doc) => doc.id !== id));
+                successMessage("Document deleted successfully");
+            } else {
+                errorMessage("Failed to delete document");
+            }
+        } catch (err) {
+            errorMessage("Error deleting document: " + err?.message);
+        }
+    };
+
+    const handleUpload = async () => {
+        const newFile = newFiles[0];
+        if (!newFile) return;
+
+        setIsUploading(true);
+        setUploadProgress(0);
+
+        try {
+            const interval = setInterval(() => {
+                setUploadProgress((prev) => {
+                    if (prev >= 95) return prev;
+                    return prev + 5;
+                });
+            }, 500);
+            
+            await handleUploadFile({
+                title: newFile.name,
+                file: newFile,
+                fileType: "pdf_notes",
+                courseId,
+            });
+            
+            clearInterval(interval);
+            setUploadProgress(100);
+            successMessage("PDF/Note uploaded successfully");
+        } catch (err) {
+            console.error("Upload failed", newFile.name);
+            errorMessage("Upload failed: " + err?.message);
+        } finally {
+            setIsUploading(false);
+            setUploadProgress(0);
+            setNewFiles([]);
+        }
+    };
+
+    useEffect(() => {
+        if (newFiles.length > 0) {
+            handleUpload();
+        }
+    }, [newFiles]);
+
+    const openEditModal = (doc) => {
+        setEditingDoc({ ...doc });
+        setEditModalOpen(true);
+    };
+
+    const saveEdit = async () => {
+        if (!editingDoc) return;
+        try {
+            await onUpdateFile(editingDoc.id, {
+                title: editingDoc.title,
+                description: editingDoc.description,
+                releaseDate: editingDoc.releaseDate,
+            });
+            setFiles((prev) =>
+                prev.map((doc) => (doc.id === editingDoc.id ? { ...doc, ...editingDoc } : doc))
+            );
+            setEditModalOpen(false);
+            setEditingDoc(null);
+            successMessage("Document updated successfully");
+        } catch (err) {
+            errorMessage("Failed to update document");
+        }
+    };
+
+    const pdfFiles = files?.filter((f) => f.fileType === "pdf_notes");
 
     return (
-        <div className=" bg-white rounded-lg my-2 w-full">
-            <div className="">
-                <div className="mx-auto max-w-7xl px-4 py-3 sm:px-6 lg:px-8">
-                    <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-                        <div>
-                            <h1 className="text-2xl font-semibold text-gray-900 sm:text-3xl">PDFs & Notes</h1>
-
-                        </div>
-
-                        <Button
-                            radius="sm"
-                            variant="solid"
-                            className="bg-white text-[#06574C] border border-[#06574C]"
-                            startContent={<Download className="h-4 w-4" />}
-                        >
-                            Download
-                        </Button>
-                    </div>
-                </div>
+        <div className="bg-white rounded-lg my-2 w-full">
+            <div className="mx-auto max-w-7xl px-4 py-3 sm:px-6 lg:px-8 flex justify-between items-center">
+                <h1 className="text-2xl font-semibold text-gray-900 sm:text-3xl">
+                    PDFs & Notes
+                </h1>
+                <Button radius="sm" variant="solid" className="bg-white text-[#06574C] border border-[#06574C]">
+                    Download
+                </Button>
             </div>
 
-            <div className="mx-auto max-w-7xl px-2 pb-3 sm:px-4">
+            <div className="mx-auto max-w-7xl px-4 pb-3 sm:px-6">
                 <div className="space-y-4 my-4">
-                    {pdfs.map((document) => (
+                    {pdfFiles?.map((document) => (
                         <div
                             key={document.id}
                             className={`rounded-lg p-4 sm:p-6 transition-all ${document.status === "scheduled"
                                 ? "bg-[#F5E3DA]"
-                                : "bg-[#95C4BE33] "
+                                : "bg-[#95C4BE33]"
                                 }`}
                         >
-                            <div className="flex flex-col gap-4 sm:flex-row sm:gap-6">
-                                {document.doc_type === 'pdf' ?
+                            <div className="flex flex-col sm:flex-row sm:gap-6">
+                                {document.doc_type === "pdf" ? (
                                     <PiFilePdf color="#06574C" className="bg-[#F5F5F5] p-3 rounded-full size-16" />
-                                    :
+                                ) : (
                                     <PiFile color="#06574C" className="bg-[#F5F5F5] p-3 rounded-full size-16" />
-                                }
+                                )}
 
-                                <div className="flex flex-1 flex-col justify-betwesen gap-3">
-                                    <div className="space-y-2">
-                                        <h3 className="text-lg font-semibold text-gray-900 sm:text-xl">{document.title}</h3>
-                                    </div>
-
+                                <div className="flex flex-1 flex-col justify-between gap-3">
+                                    <h3 className="text-lg font-semibold text-gray-900 sm:text-xl">{document.title}</h3>
                                     <div className="flex flex-wrap items-center gap-4 text-sm text-gray-600">
+                                        <span className="inline-flex items-center gap-1">{document.size}</span>
                                         <span className="inline-flex items-center gap-1">
-                                            {/* <Clock className="h-4 w-4" /> */}
-                                            {document.size}
+                                            <Eye className="h-4 w-4" /> {document.pages?.toLocaleString() || 0} Pages
                                         </span>
-                                        <span className="inline-flex items-center gap-1">
-                                            <Eye className="h-4 w-4" />
-                                            {document.pages.toLocaleString()} Pages
-                                        </span>
+                                        <span className="inline-flex items-center gap-1">{document.status}</span>
                                     </div>
                                 </div>
 
@@ -515,7 +648,9 @@ export function PdfAndNotes({ pdfs = [], setPdfs, onSave }) {
                                         className="w-50"
                                         variant="bordered"
                                         selectedKeys={[document.releaseDate]}
-                                        onSelectionChange={(keys) => updateDocument(document.id, "releaseDate", Array.from(keys)[0])}
+                                        onSelectionChange={(keys) =>
+                                            updateDocument(document.id, "releaseDate", Array.from(keys)[0])
+                                        }
                                         placeholder="Select Schedule"
                                     >
                                         {Interval.map((filter) => (
@@ -524,13 +659,7 @@ export function PdfAndNotes({ pdfs = [], setPdfs, onSave }) {
                                     </Select>
 
                                     <div className="flex items-center gap-2">
-                                        <Button
-                                            radius="sm"
-                                            variant="flat"
-                                            color="default"
-                                            isIconOnly
-                                            className="bg-white"
-                                        >
+                                        <Button radius="sm" variant="flat" color="default" isIconOnly onPress={() => openEditModal(document)}>
                                             <Edit color="#06574C" className="h-4 w-4" />
                                         </Button>
                                         <Button
@@ -548,6 +677,47 @@ export function PdfAndNotes({ pdfs = [], setPdfs, onSave }) {
                         </div>
                     ))}
                 </div>
+
+                {/* Edit Modal */}
+                {editModalOpen && (
+                    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+                        <div className="bg-white rounded-lg p-6 w-full max-w-md">
+                            <h3 className="text-xl font-semibold mb-4">Edit Document</h3>
+                            <div className="space-y-4">
+                                <Input
+                                    label="Title"
+                                    variant="bordered"
+                                    value={editingDoc?.title || ""}
+                                    onChange={(e) => setEditingDoc({ ...editingDoc, title: e.target.value })}
+                                />
+                                <Textarea
+                                    label="Description"
+                                    variant="bordered"
+                                    value={editingDoc?.description || ""}
+                                    onChange={(e) => setEditingDoc({ ...editingDoc, description: e.target.value })}
+                                />
+                                <Select
+                                    label="Release Schedule"
+                                    variant="bordered"
+                                    selectedKeys={[editingDoc?.releaseDate || "0"]}
+                                    onSelectionChange={(keys) => setEditingDoc({ ...editingDoc, releaseDate: Array.from(keys)[0] })}
+                                >
+                                    {Interval.map((filter) => (
+                                        <SelectItem key={filter.key}>{filter.label}</SelectItem>
+                                    ))}
+                                </Select>
+                            </div>
+                            <div className="flex justify-end gap-2 mt-6">
+                                <Button variant="flat" onPress={() => { setEditModalOpen(false); setEditingDoc(null); }}>
+                                    Cancel
+                                </Button>
+                                <Button variant="solid" className="bg-[#06574C] text-white" onPress={saveEdit}>
+                                    Save Changes
+                                </Button>
+                            </div>
+                        </div>
+                    </div>
+                )}
 
                 <div className="mt-4">
                     <h3 className="text-lg font-semibold text-gray-900 mb-2">Upload PDF/Notes</h3>
@@ -567,8 +737,9 @@ export function PdfAndNotes({ pdfs = [], setPdfs, onSave }) {
                         </div>
                     ) : (
                         <FileDropzone
-                            files={[]}
-                            setFiles={handleUpload}
+                            files={newFiles}
+                            setFiles={setNewFiles}
+                            showFilesThere={false}
                             label="Drag & Drop PDF/Notes"
                             text="or click to upload. Supports multiple files."
                             height="300px"
@@ -581,6 +752,7 @@ export function PdfAndNotes({ pdfs = [], setPdfs, onSave }) {
         </div>
     );
 }
+
 
 const ASSIGNMENTS = [
     {
@@ -604,22 +776,50 @@ const ASSIGNMENTS = [
         releaseDate: "3",
     },
 ];
-export function Assignments({ assignments = [], setAssignments, onSave }) {
+export function Assignments({ assignments = [], setAssignments, onSave, courseId, handleUploadFile, onUpdateFile }) {
     const [isUploading, setIsUploading] = useState(false);
     const [uploadProgress, setUploadProgress] = useState(0);
+    const [editingAssignment, setEditingAssignment] = useState(null);
+    const [editModalOpen, setEditModalOpen] = useState(false);
 
-    const updateAssignment = (id, field, value) => {
+    const updateAssignment = async (id, field, value) => {
+        const prevList = [...assignments];
         const updatedList = assignments.map((assign) =>
             assign.id === id ? { ...assign, [field]: value } : assign
         );
         setAssignments(updatedList);
         if (onSave) onSave(updatedList);
+        
+        // Call API to update
+        if (onUpdateFile && courseId) {
+            try {
+                await onUpdateFile(id, { [field]: value });
+            } catch (err) {
+                errorMessage("Failed to update assignment");
+                setAssignments(prevList); // Revert on error
+            }
+        }
     };
 
-    const deleteAssignment = (id) => {
-        const updatedList = assignments.filter((assign) => assign.id !== id);
-        setAssignments(updatedList);
-        if (onSave) onSave(updatedList);
+    const deleteAssignment = async (id) => {
+        try {
+            const response = await fetch(
+                `${import.meta.env.VITE_PUBLIC_SERVER_URL}/api/course/course-files/${id}`,
+                { method: "DELETE", credentials: "include" }
+            );
+            const data = await response.json();
+            
+            if (data.success) {
+                const updatedList = assignments.filter((assign) => assign.id !== id);
+                setAssignments(updatedList);
+                if (onSave) onSave(updatedList);
+                successMessage("Assignment deleted successfully");
+            } else {
+                errorMessage("Failed to delete assignment");
+            }
+        } catch (err) {
+            errorMessage("Error deleting assignment: " + err?.message);
+        }
     };
 
     const handleUpload = async (files) => {
@@ -636,7 +836,15 @@ export function Assignments({ assignments = [], setAssignments, onSave }) {
         }, 500);
 
         try {
-            const res = await startUpload(files);
+            // Upload each file
+            for (const fileObj of files) {
+                await handleUploadFile({
+                    title: fileObj.name,
+                    file: fileObj.file,
+                    fileType: "assignment",
+                    courseId,
+                });
+            }
 
             clearInterval(interval);
             setUploadProgress(100);
@@ -645,12 +853,11 @@ export function Assignments({ assignments = [], setAssignments, onSave }) {
                 id: Date.now() + i + Math.random(),
                 title: fileObj.name,
                 title2: fileObj.name,
-                description: "Uploaded File",
+                description: "Assignment File",
                 due: "7 days",
-                thumbnail: URL.createObjectURL(fileObj.file), // Create object URL for preview
+                thumbnail: URL.createObjectURL(fileObj.file),
                 status: "Draft",
                 releaseDate: "0",
-                // Store file metadata for later upload
                 file: fileObj.file,
                 name: fileObj.name,
                 size: fileObj.size,
@@ -661,13 +868,39 @@ export function Assignments({ assignments = [], setAssignments, onSave }) {
             if (onSave) onSave(updatedList);
             successMessage("Assignment(s) Added");
         } catch (e) {
-            errorMessage("Upload error");
+            errorMessage("Upload error: " + e?.message);
         } finally {
             clearInterval(interval);
             setTimeout(() => {
                 setUploadProgress(0);
                 setIsUploading(false);
             }, 1000);
+        }
+    };
+
+    const openEditModal = (assignment) => {
+        setEditingAssignment({ ...assignment });
+        setEditModalOpen(true);
+    };
+
+    const saveEdit = async () => {
+        if (!editingAssignment) return;
+        try {
+            await onUpdateFile(editingAssignment.id, {
+                title: editingAssignment.title,
+                description: editingAssignment.description,
+                releaseDate: editingAssignment.releaseDate,
+            });
+            const updatedList = assignments.map((a) =>
+                a.id === editingAssignment.id ? { ...a, ...editingAssignment } : a
+            );
+            setAssignments(updatedList);
+            if (onSave) onSave(updatedList);
+            setEditModalOpen(false);
+            setEditingAssignment(null);
+            successMessage("Assignment updated successfully");
+        } catch (err) {
+            errorMessage("Failed to update assignment");
         }
     };
 
@@ -752,6 +985,7 @@ export function Assignments({ assignments = [], setAssignments, onSave }) {
                                             color="default"
                                             isIconOnly
                                             className="bg-white"
+                                            onPress={() => openEditModal(asignment)}
                                         >
                                             <Edit color="#06574C" className="h-4 w-4" />
                                         </Button>
@@ -770,6 +1004,47 @@ export function Assignments({ assignments = [], setAssignments, onSave }) {
                         </div>
                     ))}
                 </div>
+
+                {/* Edit Modal */}
+                {editModalOpen && (
+                    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+                        <div className="bg-white rounded-lg p-6 w-full max-w-md">
+                            <h3 className="text-xl font-semibold mb-4">Edit Assignment</h3>
+                            <div className="space-y-4">
+                                <Input
+                                    label="Title"
+                                    variant="bordered"
+                                    value={editingAssignment?.title || ""}
+                                    onChange={(e) => setEditingAssignment({ ...editingAssignment, title: e.target.value })}
+                                />
+                                <Textarea
+                                    label="Description"
+                                    variant="bordered"
+                                    value={editingAssignment?.description || ""}
+                                    onChange={(e) => setEditingAssignment({ ...editingAssignment, description: e.target.value })}
+                                />
+                                <Select
+                                    label="Release Schedule"
+                                    variant="bordered"
+                                    selectedKeys={[editingAssignment?.releaseDate || "0"]}
+                                    onSelectionChange={(keys) => setEditingAssignment({ ...editingAssignment, releaseDate: Array.from(keys)[0] })}
+                                >
+                                    {Interval.map((filter) => (
+                                        <SelectItem key={filter.key}>{filter.label}</SelectItem>
+                                    ))}
+                                </Select>
+                            </div>
+                            <div className="flex justify-end gap-2 mt-6">
+                                <Button variant="flat" onPress={() => { setEditModalOpen(false); setEditingAssignment(null); }}>
+                                    Cancel
+                                </Button>
+                                <Button variant="solid" className="bg-[#06574C] text-white" onPress={saveEdit}>
+                                    Save Changes
+                                </Button>
+                            </div>
+                        </div>
+                    </div>
+                )}
 
                 <div className="mt-4">
                     <h3 className="text-lg font-semibold text-gray-900 mb-2">Upload Assignment</h3>
