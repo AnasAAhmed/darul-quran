@@ -1144,7 +1144,7 @@ const CourseBuilder = () => {
                       variant="bordered"
                       className="border-[#06574C] text-[#06574C] w-80 sm:w-40"
                       type="submit"
-                      onPress={() => setPendingAction("save-3")}
+                      onPress={() => handleChange("status", "publish")}
                       isLoading={loadingAction === "save-3"}
                     >
                       Save Draft
@@ -1156,7 +1156,7 @@ const CourseBuilder = () => {
                       startContent={<Rocket color="white" size={16} />}
                       className="bg-[#06574C] text-white w-80 sm:w-60"
                       type="submit"
-                      onPress={() => setPendingAction("publish-3")}
+                      onPress={() => handleChange("status", "publish")}
                       isLoading={loadingAction === "publish-3"}
                     >
                       Publish Course
