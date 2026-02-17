@@ -1,3 +1,5 @@
+import { errorMessage } from "./toast.config";
+
 export const dateFormatter = (date, isTime = false) => {
   if (!date) return '';
   const formatterUS = new Intl.DateTimeFormat('en-US', {
@@ -15,9 +17,8 @@ export const uploadFilesToServer = async (filesArray, removeUrls) => {
 
   const formData = new FormData();
 
-  // Append each file to the form data
   filesArray?.forEach((fileObj) => {
-    formData.append('files', fileObj.file); // Use the actual File object
+    formData.append('files', fileObj.file); 
   });
   removeUrls?.forEach((i) => {
     formData.append('removeImageUrls', i);
@@ -32,7 +33,7 @@ export const uploadFilesToServer = async (filesArray, removeUrls) => {
     const result = await response.json();
 
     if (result.success && result.files) {
-      return result.files; // Return array of uploaded file objects with URLs
+      return result.files; 
     } else {
       throw new Error(result.message || 'Upload failed');
     }

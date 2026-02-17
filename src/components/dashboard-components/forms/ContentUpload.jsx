@@ -317,7 +317,7 @@ export default function Videos({ videos = [], setVideos, onSave, courseId, setLo
                 /> */}
                 <div className="mt-4">
                     <h3 className="text-lg font-semibold text-gray-900 mb-2">Upload New Video</h3>
-                    {isUploading ? (
+                    {/* {true ? (
                         <div className="w-full h-[300px] flex flex-col items-center justify-center border-2 border-dashed border-gray-300 rounded-lg bg-gray-50 px-4">
                             <Loader className="animate-spin h-8 w-8 text-[#06574C] mb-2" />
                             <div className="w-full max-w-md flex justify-between text-gray-600 mb-1 text-sm font-medium">
@@ -331,7 +331,7 @@ export default function Videos({ videos = [], setVideos, onSave, courseId, setLo
                                 />
                             </div>
                         </div>
-                    ) : (
+                    ) : ( */}
                         <FileDropzone
                             files={[]}
                             setFiles={handleUpload}
@@ -341,7 +341,7 @@ export default function Videos({ videos = [], setVideos, onSave, courseId, setLo
                             fileType="video"
                             isMultiple={true}
                         />
-                    )}
+                    {/* )} */}
                 </div>
             </div>
         </div>

@@ -155,16 +155,7 @@ function App() {
       loadUser();
     }
   }, [shouldFetch, user]);
-  if (loading) return (
-    <div className="h-screen flex flex-col items-center justify-center">
-      <img
-        src="/icons/darul-quran-logo.png"
-        alt="Darul Quran"
-        className=" w-36 h-36"
-      />
-      <Spinner size="lg" variant="dots" labelColor="success" color="success" />
-    </div>
-  );
+  if (loading) return (<Loader/>);
   return (
     <HeroUIProvider>
       <ToastProvider position="top-bottom" />

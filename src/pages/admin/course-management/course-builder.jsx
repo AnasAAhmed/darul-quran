@@ -39,6 +39,7 @@ import { useAddCategoryMutation, useDeleteCategoryMutation, useGetAllCategoriesQ
 import { errorMessage, successMessage } from "../../../lib/toast.config";
 import { FormOverlayLoader } from "../../../components/Loader";
 import { uploadFilesToServer } from "../../../lib/utils";
+import { uploadFilesToServer } from "../../../lib/utils";
 const containerVariants = {
   hidden: { opacity: 0, y: 10, scale: 0.98 },
 
@@ -203,7 +204,7 @@ const CourseBuilder = () => {
         if (urlMap.thumbnail) setThumbnailUrl(urlMap.thumbnail);
       } catch (error) {
         console.error("Upload failed", error);
-        errorMessage("Failed to upload file");
+        errorMessage("Failed to upload files");
         setLoadingAction(null);
         setPendingAction(null);
         return;
@@ -276,16 +277,20 @@ const CourseBuilder = () => {
   const saveContent = async (updatedList, field) => {
     if (!courseId) return;
 
+
     // Extract actual files from the metadata objects
     const filesToUpload = updatedList.filter(item => item.file); // Only items with actual file objects
+
 
     let uploadedFiles = [];
     if (filesToUpload.length > 0) {
       uploadedFiles = await uploadFilesToServer(filesToUpload);
     }
 
+
     // Use uploaded files if available, otherwise use existing data
     const finalList = uploadedFiles.length > 0 ? uploadedFiles : updatedList;
+
 
     const payload = {
       ...formData,
