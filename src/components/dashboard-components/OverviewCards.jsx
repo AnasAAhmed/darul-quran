@@ -1,3 +1,5 @@
+import { Skeleton } from "@heroui/react";
+
 /**
  * OverviewCards Component
  *
@@ -26,10 +28,17 @@
  *
  * <OverviewCards data={cardsData} />
  */
-const OverviewCards = ({ data = [] }) => {
+const OverviewCards = ({ data = [], isLoading }) => {
     return (
         <div className="py-4 gap-5  overflow-x-auto grid grid-cols-1 sm:grid-cols-4">
-            {data.map((item, index) => (
+            {isLoading ? [...Array(4)].map((_, index) => (
+                <div className="flex items-center justify-center">
+                    <Skeleton
+                        className="w-full h-40 min-w-[15em] bg-white sm:min-w-0 flex-1 space-y-4 rounded-lg p-4 shadow-lg"
+                        count={4}
+                    />
+                </div>
+            )) : data.map((item, index) => (
                 <div
                     key={index}
                     className="bg-[#F1E0D9] sm:bg-white min-w-[15em] sm:min-w-0 flex-1 space-y-4 rounded-lg p-4"

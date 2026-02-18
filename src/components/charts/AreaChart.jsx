@@ -1,12 +1,11 @@
 import React from "react";
 import Chart from "react-apexcharts";
 
-const AreaChart = () => {
+const AreaChart = ({ data = [] }) => {
   const series = [
     {
       name: "Revenue",
-      // scaled values (numbers in chart) — using 4 points for 4 weeks like the image
-      data: [30000, 20000, 32000, 36000],
+      data: data.map(item => Number(item.revenue)),
     },
   ];
 
@@ -29,21 +28,20 @@ const AreaChart = () => {
         type: "vertical",
         shadeIntensity: 1,
         inverseColors: false,
-        opacityFrom: 0.48, // top opacity -> matches rgba(149,196,190,0.48)
-        opacityTo: 0,      // bottom opacity -> transparent
+        opacityFrom: 0.48,
+        opacityTo: 0,
         stops: [0, 100],
-        // gradientToColors could be set to white to ensure fade-to-white
         gradientToColors: ["#ffffff"],
       },
     },
     dataLabels: {
-enabled: false,
-},
+      enabled: false,
+    },
 
     grid: {
       show: true,
       strokeDashArray: 0,
-      borderColor: "#E6E6E6", // light gray horizontal lines like image
+      borderColor: "#E6E6E6",
       yaxis: {
         lines: {
           show: true,
@@ -56,7 +54,7 @@ enabled: false,
       },
     },
     xaxis: {
-      categories: ["Week 1", "Week 2", "week 3", "Week 4"],
+      categories: data.map(item => item.week_start),
       labels: {
         style: {
           colors: "#9CA3AF",
@@ -70,8 +68,8 @@ enabled: false,
       show: true,
       labels: {
         formatter: function (val) {
-          // show 10k, 20k etc
-          return (val / 1000).toFixed(0) + "k";
+          if (val >= 1000) return (val / 1000).toFixed(0) + "k";
+          return val;
         },
         style: {
           colors: "#9CA3AF",
@@ -90,7 +88,6 @@ enabled: false,
     tooltip: {
       y: {
         formatter: function (val) {
-          // show with comma and suffix
           return "$" + val.toLocaleString();
         },
       },
@@ -111,16 +108,6 @@ enabled: false,
           />
         </div>
       </div>
-      <style jsx>{`
-        /* outer page-like background to approximate the beige area in the screenshot */
-        :global(body) {
-          background-color: #f7f3ef;
-        }
-        /* optional: exact custom shadow using your earlier shadow value */
-        .rounded-lg {
-          box-shadow: 3px 4px 20.9px 6px #00000012;
-        }
-      `}</style>
     </div>
   );
 };

@@ -1,4 +1,4 @@
-import { Button, Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, Input, Textarea, useDisclosure } from '@heroui/react'
+import { Button, Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, Input, Textarea, useDisclosure, Select, SelectItem } from '@heroui/react'
 import { DashHeading } from '../../../components/dashboard-components/DashHeading'
 import { Plus, Calendar } from 'lucide-react';
 import { useState, useEffect } from "react";
@@ -6,6 +6,7 @@ import FullCalendar from "@fullcalendar/react";
 import dayGridPlugin from "@fullcalendar/daygrid";
 import interactionPlugin from "@fullcalendar/interaction";
 import { errorMessage, successMessage } from '../../../lib/toast.config';
+import { useGetAllTeachersQuery } from '../../../redux/api/user';
 
 const LiveSession = () => {
     // Schedule Modal
@@ -26,6 +27,7 @@ const LiveSession = () => {
         endTime: '',
         description: '',
         price: '',
+        teacherId: '',
     });
     console.log(formData);
     const [editData, setEditData] = useState({});
@@ -158,7 +160,12 @@ const LiveSession = () => {
     };
 
     const sortedDetails = [...rawSchedules].sort((a, b) => new Date(a.date) - new Date(b.date));
-
+    const { data: teachers, isLoading } = useGetAllTeachersQuery({
+        page: 1,
+        limit: 100,
+        search: ""
+    });
+    // console.log(teachers?.user.map((teacher) => Number(teacher.id)), "teachers");
     return (
         <div className='bg-white sm:bg-linear-to-t from-[#F1C2AC]/50 to-[#95C4BE]/50 px-2 sm:px-5 '>
             <div className="flex justify-between items-center py-4">
@@ -208,6 +215,20 @@ const LiveSession = () => {
                                     value={formData.title}
                                     onChange={(e) => setFormData({ ...formData, title: e.target.value })}
                                 />
+                                <Select
+                                    label="Assign Teacher"
+                                    placeholder="Select Teacher"
+                                    variant="bordered"
+                                    className="!text-black"
+                                    value={formData.teacherId}
+                                    onChange={(e) => setFormData({ ...formData, teacherId: e.target.value })}
+                                >
+                                    {teachers?.user?.map((teacher) => (
+                                        <SelectItem key={teacher.id} value={teacher.id}>
+                                            {teacher.firstName + " " + teacher.lastName}
+                                        </SelectItem>
+                                    ))}
+                                </Select>
                                 <div className='flex gap-2'>
                                     <Input
                                         type="date"
