@@ -3,7 +3,6 @@ import { Navigate } from 'react-router-dom'
 
 const Home = ({ redirect }) => {
    return  <Navigate to={redirect?redirect:'/login'} />
-
 }
 
 export default Home
