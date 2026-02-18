@@ -16,8 +16,8 @@ const CoursePlayer = () => {
     const [search, setSearch] = useState('');
     const { data, error, isLoading } = useGetCourseFilesQuery({ courseId: id, page, search });
 
-    const course = data?.result?.course;
-    const courseFile = data?.result;
+    const course = data?.results?.[0]?.course;
+    const courseFile = data?.results?.[0];
 
     useEffect(() => {
         if (courseFile) {
