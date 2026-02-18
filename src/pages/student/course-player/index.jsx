@@ -1,26 +1,34 @@
-/* eslint-disable react/prop-types */
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { Button, Spinner } from "@heroui/react";
 import { ArrowLeft, PlayCircle, CheckCircle } from "lucide-react";
 
 import { successMessage } from "../../../lib/toast.config";
+import { useGetCourseFilesQuery } from "../../../redux/api/courses";
 
 const CoursePlayer = () => {
     const { id } = useParams();
     const navigate = useNavigate();
-    const [course, setCourse] = useState(null);
-    const [loading, setLoading] = useState(true);
     const [currentLesson, setCurrentLesson] = useState(null);
     const [completedLessons, setCompletedLessons] = useState([]);
     const [progress, setProgress] = useState(0);
+    const [page, setPage] = useState(0);
+    const [search, setSearch] = useState('');
+    const { data, error, isLoading } = useGetCourseFilesQuery({ courseId: id, page, search });
+
+    const course = data?.result?.course;
+    const courseFile = data?.result;
 
     useEffect(() => {
-        fetchCourse();
+        if (courseFile) {
+            setCurrentLesson(courseFile);
+        }
+    }, [courseFile]);
+
+    useEffect(() => {
         fetchEnrollment();
     }, [id]);
-
-    const fetchEnrollment = async () => {
+const fetchEnrollment = async () => {
         try {
             const res = await fetch(`${import.meta.env.VITE_PUBLIC_SERVER_URL}/api/course/check-enrollment/${id}`, { credentials: 'include' });
             const data = await res.json();
@@ -37,27 +45,6 @@ const CoursePlayer = () => {
             }
         } catch (e) { console.error(e); }
     };
-
-    const fetchCourse = async () => {
-        try {
-            const res = await fetch(`${import.meta.env.VITE_PUBLIC_SERVER_URL}/api/course/getCourseById/${id}`, {
-                headers: { 'Accept': 'application/json' },
-                credentials: 'include'
-            });
-            const data = await res.json();
-            if (data.success && data.course) {
-                setCourse(data.course);
-                if (data.course.lesson_video && data.course.lesson_video.length > 0) {
-                    setCurrentLesson(data.course.lesson_video[0]);
-                }
-            }
-        } catch (error) {
-            console.error(error);
-        } finally {
-            setLoading(false);
-        }
-    };
-
     const handleVideoEnd = async () => {
         if (!currentLesson) return;
         const lid = currentLesson.id;
@@ -80,10 +67,11 @@ const CoursePlayer = () => {
         } catch (e) { console.error(e); }
     };
 
-    if (loading) return <div className="h-screen flex items-center justify-center"><Spinner size="lg" /></div>;
-    if (!course) return <div className="p-10 text-center">Course not found</div>;
+    if (isLoading) return <div className="h-screen flex items-center justify-center"><Spinner size="lg" /></div>;
+    if (error) return <div className="p-10 text-center text-red-500">Failed to load course content</div>;
+    if (!courseFile) return <div className="p-10 text-center">Course content not found</div>;
 
-    const lessons = course.lesson_video || [];
+    const lessons = course?.lesson_video || [courseFile];
 
     return (
         <div className="flex flex-col h-screen bg-gray-50 overflow-hidden">
@@ -94,7 +82,7 @@ const CoursePlayer = () => {
                         <ArrowLeft size={20} />
                     </Button>
                     <div className="flex flex-col">
-                        <h1 className="text-lg font-bold truncate max-w-xl text-[#06574C]">{course.courseName}</h1>
+                        <h1 className="text-lg font-bold truncate max-w-xl text-[#06574C]">{course?.courseName || 'Course'}</h1>
                         <span className="text-xs text-gray-500">Back to Dashboard</span>
                     </div>
                 </div>
@@ -110,7 +98,7 @@ const CoursePlayer = () => {
             <div className="flex flex-1 overflow-hidden">
                 {/* Left: Main Player */}
                 <div className="flex-1 flex flex-col overflow-y-auto bg-black/5">
-                    <div className="bg-black w-full aspect-video flex-shrink-0 relative shadow-lg">
+                    <div className="bg-black w-full aspect-video shrink-0 relative shadow-lg">
                         {currentLesson ? (
                             <video
                                 key={currentLesson.url || currentLesson.src || currentLesson.thumbnail}
@@ -129,10 +117,10 @@ const CoursePlayer = () => {
                     </div>
 
                     <div className="p-6 max-w-4xl mx-auto w-full">
-                        <h2 className="text-2xl font-bold mb-2 text-gray-800">{currentLesson?.title || course.courseName}</h2>
+                        <h2 className="text-2xl font-bold mb-2 text-gray-800">{courseFile?.title || course?.courseName || 'Course Lesson'}</h2>
                         <div className="prose max-w-none text-gray-600 mb-8 p-4 bg-white rounded-lg shadow-sm">
                             <h3 className="text-lg font-semibold mb-2">About this lesson</h3>
-                            <p className="whitespace-pre-wrap">{course.description}</p>
+                            <p className="whitespace-pre-wrap">{courseFile?.description || course?.description || 'No description available'}</p>
                         </div>
                     </div>
                 </div>
@@ -143,16 +131,17 @@ const CoursePlayer = () => {
                     <div className="flex-1 overflow-y-auto p-2 space-y-2">
                         {lessons.length > 0 ? (
                             lessons.map((lesson, idx) => {
-                                const isCompleted = completedLessons.includes(lesson.id);
-                                const isCurrentById = currentLesson && currentLesson.id === lesson.id;
+                                const lessonId = lesson.id || lesson.lessonId;
+                                const isCompleted = completedLessons.includes(lessonId);
+                                const isCurrentById = currentLesson && currentLesson.id === lessonId;
 
                                 return (
                                     <div
-                                        key={idx}
+                                        key={lessonId || idx}
                                         onClick={() => setCurrentLesson(lesson)}
                                         className={`p-3 rounded-lg cursor-pointer flex items-start gap-3 transition-all duration-200 border ${isCurrentById
-                                                ? "bg-[#06574C]/10 border-[#06574C] shadow-sm transform scale-[1.02]"
-                                                : "hover:bg-gray-50 border-transparent hover:border-gray-200"
+                                            ? "bg-[#06574C]/10 border-[#06574C] shadow-sm transform scale-[1.02]"
+                                            : "hover:bg-gray-50 border-transparent hover:border-gray-200"
                                             }`}
                                     >
                                         <div className="mt-1 shrink-0">
@@ -169,7 +158,7 @@ const CoursePlayer = () => {
                                                 {lesson.name || lesson.title || `Lesson ${idx + 1}`}
                                             </div>
                                             <div className="text-xs text-gray-400 mt-1">
-                                                {lesson.duration ? `${lesson.duration} min` : "Video Lesson"}
+                                                {lesson.duration ? `${lesson.duration} min` : (lesson.fileType ? lesson.fileType.replace('_', ' ') : "Video Lesson")}
                                             </div>
                                         </div>
                                     </div>

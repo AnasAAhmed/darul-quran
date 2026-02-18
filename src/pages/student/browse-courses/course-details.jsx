@@ -228,24 +228,16 @@ const CourseDetails = () => {
               </div>
             </div>
             <div className="col-span-12 md:col-span-4  rounded-lg bg-white ">
-              {course?.thumbnailurl ? (
+              {(course?.thumbnail || course?.video) ? (
                 <div className="w-full h-48 rounded-t-lg overflow-hidden bg-black relative">
-                  {course.thumbnailurl.match(/\.(mp4|webm|ogg)$/i) || course.thumbnailurl.includes('utfs.io') ? (
-                    <video
-                      src={course.thumbnailurl}
-                      className="w-full h-full object-contain bg-black"
-                      controls
-                      poster={course.videoThumbnail || course.thumbnailurl.replace(/\.(mp4|webm|ogg)$/i, '.jpg')}
-                    >
-                      Your browser does not support the video tag.
-                    </video>
-                  ) : (
-                    <img
-                      src={course.thumbnailurl}
-                      alt={course.courseName}
-                      className="w-full h-full object-cover"
-                    />
-                  )}
+                  <video
+                    src={course.video}
+                    className="w-full h-full object-contain bg-black"
+                    controls
+                    poster={course.thumbnail}
+                  >
+                    Your browser does not support the video tag.
+                  </video>
                 </div>
               ) : (
                 <div className="bg-[linear-gradient(110.57deg,rgba(241,194,172,0.25)_0.4%,rgba(149,196,190,0.25)_93.82%)] h-30 p-3 flex items-center relative rounded-t-lg">

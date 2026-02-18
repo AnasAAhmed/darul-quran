@@ -13,10 +13,10 @@ import {
   TableHeader,
   TableRow,
 } from "@heroui/react";
-import { ListFilterIcon, Trash2 } from "lucide-react";
+import { ListFilterIcon, Plus, Trash2 } from "lucide-react";
 import CourseForm from "../../../components/dashboard-components/forms/CourseForm";
 import { use, useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useDeleteCourseMutation, useGetAllCategoriesQuery, useGetAllCoursesQuery } from "../../../redux/api/courses";
 import { errorMessage } from "../../../lib/toast.config";
 import { debounce } from "../../../lib/utils";
@@ -133,7 +133,10 @@ const CourseManagement = () => {
             }
           />
         </div>
-        <CourseForm />
+        {/* <CourseForm /> */}
+        <Button as={Link} to={'/admin/courses-management/builder'} radius="md" size="md" startContent={<Plus color="white" size={15} />} className="bg-[#06574C] max-sm:w-full text-white py-4 px-3 sm:px-8">
+          Create Course
+        </Button>
       </div>
       <div className="">
         <div className="overflow-x-auto no-scrollbar bg-white rounded-lg">
@@ -141,7 +144,7 @@ const CourseManagement = () => {
             aria-label="Pending approvals table"
             removeWrapper
             classNames={{
-              base: "table-fixed w-full bg-white rounded-lg s(100vh-300px)] overflow-y-auto",
+              base: "table-fixed w-full bg-white rounded-lg min-h-[500px] overflow-y-auto",
               th: "font-bold p-4 text-sm text-[#333333] capitalize tracking-widest bg-[#EBD4C936] cursor-default",
               td: "py-3 align-center",
               tr: "border-b border-default-200 last:border-b-0 hover:bg-[#EBD4C936]",
@@ -205,7 +208,7 @@ const CourseManagement = () => {
                   </TableCell>
 
                   <TableCell className="text-center">
-                    <p className="p-2 w-full text-xs text-center rounded-md text-[#06574C] bg-[#95C4BE]/20">
+                    <p className="p-2 capitalize w-full text-xs text-center rounded-md text-[#06574C] bg-[#95C4BE]/20">
                       {classItem.status}
                     </p>
                   </TableCell>
@@ -230,8 +233,8 @@ const CourseManagement = () => {
                     </Button>
                     <Button
                       color="success"
-                      isLoading={deleteLoading && deletingId === classItem.id}
-                      isDisabled={deleteLoading}
+                      isLoading={deletingId === classItem.id}
+                      isDisabled={deletingId === classItem.id}
                       onPress={() => handleDelete(classItem.id)}
                     >
                       Delete

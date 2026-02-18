@@ -47,9 +47,56 @@ export const countPdfPagesLight = async (file) => {
     return matches ? matches.length : 0;
 };
 
+const handleUploadFile = async ({ title, file, fileType, courseId, duration, pages }) => {
+    try {
+        const formData = new FormData();
+        formData.append("file", file);
+        formData.append("title", title || file.name);
+        formData.append("fileType", fileType);
+        formData.append("courseId", courseId);
+        formData.append("duration", duration);
+        formData.append("pages", pages);
 
+        const res = await fetch(`${import.meta.env.VITE_PUBLIC_SERVER_URL}/api/course/course-files`, {
+            method: "PATCH",
+            body: formData,
+            credentials: "include",
+        });
+        const data = await res.json();
 
-export default function Videos({ files, setFiles, courseId, handleUploadFile, onUpdateFile }) {
+        if (!data.success) {
+            throw new Error(data.message || "Upload failed");
+        }
+        return data.file;
+    } catch (err) {
+        console.error("Upload failed", err);
+        throw new Error("Failed to upload files: " + err?.message);
+    }
+};
+
+const handleUpdateFile = async (fileId, updates) => {
+    try {
+        const res = await fetch(
+            `${import.meta.env.VITE_PUBLIC_SERVER_URL}/api/course/course-files/${fileId}`,
+            {
+                method: "PATCH",
+                headers: { "Content-Type": "application/json" },
+                credentials: "include",
+                body: JSON.stringify(updates),
+            }
+        );
+        const data = await res.json();
+        if (!data.success) {
+            throw new Error(data.message || "Update failed");
+        }
+        return data.file;
+    } catch (err) {
+        console.error("Update failed", err);
+        throw new Error("Failed to update file: " + err?.message);
+    }
+};
+
+export default function Videos({ files, setFiles, courseId }) {
     const [isUploading, setIsUploading] = useState(false);
     const [uploadProgress, setUploadProgress] = useState(0);
     const [newFiles, setNewFiles] = useState([]);
@@ -61,7 +108,7 @@ export default function Videos({ files, setFiles, courseId, handleUploadFile, on
 
         if (onUpdateFile && courseId) {
             try {
-                await onUpdateFile(id, { [field]: value });
+                await handleUpdateFile(id, { [field]: value });
             } catch (err) {
                 errorMessage("Failed to update document");
                 setFiles(prevFiles);
@@ -140,7 +187,7 @@ export default function Videos({ files, setFiles, courseId, handleUploadFile, on
                     Lesson Videos
                     <span className="flex items-center text-sm text-gray-600 gap-1">
                         <Menu />
-                        Total Lessons: {lessonVideos.length}
+                        Total Lessons: {lessonVideos?.length}
                     </span>
                 </h1>
                 <Button radius="sm" variant="solid" className="bg-white text-[#06574C] border border-[#06574C]">
@@ -254,7 +301,7 @@ export default function Videos({ files, setFiles, courseId, handleUploadFile, on
                             text="or click to upload. Supports multiple files."
                             height="300px"
                             fileType="video"
-                            isMultiple={true}
+                            
                         />
                     )}
                 </div>
@@ -265,7 +312,7 @@ export default function Videos({ files, setFiles, courseId, handleUploadFile, on
 
 
 
-export function PdfAndNotes({ files, setFiles, courseId, handleUploadFile, onUpdateFile }) {
+export function PdfAndNotes({ files, setFiles, courseId }) {
     const [isUploading, setIsUploading] = useState(false);
     const [uploadProgress, setUploadProgress] = useState(0);
     const [newFiles, setNewFiles] = useState([]);
@@ -278,7 +325,7 @@ export function PdfAndNotes({ files, setFiles, courseId, handleUploadFile, onUpd
         // Call API to update
         if (onUpdateFile && courseId) {
             try {
-                await onUpdateFile(id, { [field]: value });
+                await handleUpdateFile(id, { [field]: value });
             } catch (err) {
                 errorMessage("Failed to update document");
                 setFiles(prevFiles);
@@ -472,7 +519,6 @@ export function PdfAndNotes({ files, setFiles, courseId, handleUploadFile, onUpd
                             text="or click to upload. Supports multiple files."
                             height="300px"
                             fileType="pdf"
-                            isMultiple={true}
                         />
                     )}
                 </div>
@@ -481,7 +527,7 @@ export function PdfAndNotes({ files, setFiles, courseId, handleUploadFile, onUpd
     );
 }
 
-export function Assignments({ files, setFiles, courseId, handleUploadFile, onUpdateFile }) {
+export function Assignments({ files, setFiles, courseId }) {
     const [isUploading, setIsUploading] = useState(false);
     const [uploadProgress, setUploadProgress] = useState(0);
     const [newFiles, setNewFiles] = useState([]);
@@ -494,7 +540,7 @@ export function Assignments({ files, setFiles, courseId, handleUploadFile, onUpd
         // Call API to update
         if (onUpdateFile && courseId) {
             try {
-                await onUpdateFile(id, { [field]: value });
+                await handleUpdateFile(id, { [field]: value });
             } catch (err) {
                 errorMessage("Failed to update document");
                 setFiles(prevFiles);
@@ -693,7 +739,6 @@ export function Assignments({ files, setFiles, courseId, handleUploadFile, onUpd
                             text="or click to upload. Supports multiple files."
                             height="300px"
                             fileType="assignment"
-                            isMultiple={true}
                         />
                     )}
                 </div>
@@ -907,7 +952,7 @@ export function Quizzes({ quizzes = [], setQuizzes, onSave }) {
                             label="Drag & Drop Quiz Files"
                             text="or click to upload. Supports multiple files."
                             height="300px"
-                            isMultiple={true}
+                            
                         />
                     )} */}
                 </div>

@@ -7,6 +7,8 @@ import {
   ModalContent,
   ModalFooter,
   ModalHeader,
+  Select,
+  SelectItem,
   useDisclosure,
 } from "@heroui/react";
 import { EyeIcon, EyeOffIcon } from "lucide-react";
@@ -32,6 +34,13 @@ const Login = () => {
 
   const [loading, setLoading] = useState(false);
   const [modalType, setModalType] = useState("success");
+
+  const rolesWithEmail = [
+    { label: "Admin", key: "syedmazzh@gmail.com" },
+    { label: "Teacher", key: "legenddevelop@gmail.com" },
+    { label: "Student", key: "ahmedarslan599@gmail.com" }
+  ];
+
   const handleLogin = async (e) => {
     e.preventDefault();
     if (loading) return;
@@ -93,15 +102,6 @@ const Login = () => {
           alt="Darul Quran"
           className=" w-56 h-56 top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 absolute"
         />
-        {/* <img src="/icons/side-shadow.png" alt="Darul Quran" className=' h-full  left-0 bottom-0 absolute' />
-                <img src="/icons/bottom-shadow.png" alt="Darul Quran" className=' h-100  left-0 bottom-0 absolute' /> */}
-
-        {/* <div className='space-y-4 lg:space-y-6 text-white text-center lg:text-left'>
-                    <p className='text-sm lg:text-base'>Join 10,000+ other teachers & Students Here</p>
-                    <img src="/icons/teachers.png" alt="teachers" className='h-12' />
-                    <h1 className='text-2xl lg:text-3xl font-semibold'>Don't Forget to Check Your Statistics</h1>
-                    <p className='text-sm lg:text-base leading-relaxed'>Keep an eye on your teaching insights to improve student learning experiences.</p>
-                </div> */}
       </div>
       <div className="flex-1 flex flex-col max-sm:items-center items-start md:justify-center bg-[#E9E0D6] !ml-0 px-6 sm:px-12 md:px-16 lg:px-24 py-8 lg:py-0 m-0 lg:m-6 lg:rounded-r-lg ">
         <img
@@ -122,6 +122,23 @@ const Login = () => {
             onSubmit={handleLogin}
             className="w-full space-y-5 lg:space-y-6 items-center justify-center"
           >
+            <div className="w-full space-y-2">
+              <p className="text-sm lg:text-base text-[#3F3F44]">
+                Choose Account Role
+              </p>
+              <Select
+                defaultSelectedKeys={new Set([rolesWithEmail[0].key])}
+                onSelectionChange={(k) => {
+                  const keys = [...k];
+                  setEmail(keys[0]);
+                }}
+                items={rolesWithEmail}
+              >
+                {(item) => (
+                  <SelectItem key={item.key} value={item.key} textValue={item.label}>{item.label}</SelectItem>
+                )}
+              </Select>
+            </div>
             <div className="w-full space-y-2">
               <p className="text-sm lg:text-base text-[#3F3F44]">
                 Your email or phone number
@@ -164,31 +181,6 @@ const Login = () => {
             </div>
             {/* <Link to=""> */}
             <div className="flex max-sm:flex-wrap gap-3 w-full  ">
-              {/* <Button
-                type="submit"
-                as={Link}
-                to="/admin/dashboard"
-                className="w-full text-center text-white rounded-md py-3 bg-[#06574C]"
-              >
-                Login as admin
-              </Button>
-
-              <Button
-                type="submit"
-                as={Link}
-                to="/teacher/dashboard"
-                className="w-full text-center text-white rounded-md py-3 bg-[#06574C]"
-              >
-                Login as teacher
-              </Button>
-              <Button
-                type="submit"
-                as={Link}
-                to="/student/dashboard"
-                className="w-full text-center text-white rounded-md py-3 bg-[#06574C]"
-              >
-                Login as student
-              </Button> */}
               <Button
                 type="submit"
                 className="w-full text-center text-white rounded-md py-3 bg-[#06574C]"

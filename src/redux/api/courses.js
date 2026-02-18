@@ -9,27 +9,39 @@ export const courseApi = createApi({
     tagTypes: ["course"],
     endpoints: (builder) => ({
         getAllCourses: builder.query({
-            query: ({ page, limit,categoryId, search, status }) => ({
+            query: ({ page, limit, categoryId, search, status }) => ({
                 url: "/getAllCourses",
                 method: "GET",
-                params: { page, limit,categoryId, search, status }
+                params: { page, limit, categoryId, search, status }
+            }),
+            providesTags: ["course"],
+        }),
+        getCourseFiles: builder.query({
+            query: ({ courseId, page, limit, search }) => ({
+                url: "/course-files/" + courseId,
+                method: "GET",
+                params: { page, limit, search }
             }),
             providesTags: ["course"],
         }),
         getCourseById: builder.query({
             query: (id) => `/getCourseById/${id}`,
+            providesTags: ["course"],
         }),
         addCourse: builder.mutation({
             query: (data) => ({
-                url: "/createCourse",
+                url: "/addCourse",
                 method: "POST",
+                headers: { "Content-Type": "application/json" },
                 body: data,
             }),
+            invalidatesTags: ["course"],
+
         }),
         updateCourse: builder.mutation({
             query: ({ id, data }) => ({
                 url: `/updateCourse/${id}`,
-                method: "PUT",
+                method: "PATCH",
                 body: data,
             }),
             invalidatesTags: ["course"],
@@ -69,6 +81,7 @@ export const courseApi = createApi({
 
 export const {
     useGetAllCoursesQuery,
+    useGetCourseFilesQuery,
     useGetCourseByIdQuery,
     useAddCourseMutation,
     useUpdateCourseMutation,

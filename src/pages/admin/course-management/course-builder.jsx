@@ -35,7 +35,7 @@ import Videos, {
 } from "../../../components/dashboard-components/forms/ContentUpload";
 import { useSearchParams } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
-import { useAddCategoryMutation, useDeleteCategoryMutation, useGetAllCategoriesQuery, useGetCourseByIdQuery } from "../../../redux/api/courses";
+import { useAddCategoryMutation, useAddCourseMutation, useDeleteCategoryMutation, useGetAllCategoriesQuery, useGetCourseByIdQuery, useUpdateCourseMutation } from "../../../redux/api/courses";
 import { errorMessage, successMessage } from "../../../lib/toast.config";
 import { FormOverlayLoader } from "../../../components/Loader";
 import { uploadFilesToServer } from "../../../lib/utils";
@@ -55,7 +55,9 @@ const containerVariants = {
 };
 const CourseBuilder = () => {
 
-
+  const [searchParams, setSearchParams] = useSearchParams();
+  const currentTab = searchParams.get("tab");
+  const courseId = searchParams.get("id");
 
   useEffect(() => {
     const fetchTeachers = async () => {
@@ -86,10 +88,58 @@ const CourseBuilder = () => {
   const [files, setFiles] = useState([]);
   const [loadingAction, setLoadingAction] = useState(null);
   const [pendingAction, setPendingAction] = useState(null);
-  const [videoDuration, setVideoDuration] = useState(0);
-  const { data: categoriesData, isError: categoriesError } = useGetAllCategoriesQuery();
+  //query/fetch
+  const { data = {}, isLoading, isError, error } = useGetCourseByIdQuery(courseId, { skip: !courseId });
+  const { data: categoriesData, isError: categoriesError, error: categoriesErrorData } = useGetAllCategoriesQuery();
+  //mutations/actions
+  const [addCourse] = useAddCourseMutation();
+  const [updateCourse] = useUpdateCourseMutation();
   const [deleteCategory] = useDeleteCategoryMutation();
   const [addCategory] = useAddCategoryMutation();
+
+  useEffect(() => {
+    if (isError) {
+      errorMessage(error.data.error, error.status);
+    } else if (categoriesError) {
+      errorMessage(categoriesErrorData.data.error, categoriesErrorData.status);
+    }
+  }, [isError, categoriesError]);
+
+  useEffect(() => {
+    const fetchCourseById = async () => {
+      if (!courseId) return;
+      try {
+        if (!data?.course) return;
+
+        const course = data.course;
+        setFormData({
+          course_name: course.courseName || "",
+          category_id: Number(course.category) || "",
+          difficulty_level: course.difficultyLevel || "",
+          description: course.description || "",
+          course_price: course.coursePrice || "",
+          teacher_id: Number(course.teacherId) || "",
+          access_duration: course.accessDuration || "",
+          previous_lesson: course.previousLesson || "",
+          enroll_number: course.enrollNumber || "",
+          status: course.status || "draft",
+          videoDuration: course.videoDuration || "",
+          is_free: course.isFree || false,
+          video_count: course.videoCount || 0,
+        });
+
+        setVideoUrl(course.video || "");
+        setThumbnailUrl(course.thumbnail || "");
+        setFiles(course.files || []);
+      } catch (error) {
+        console.error("Failed to fetch course", error);
+        errorMessage("Failed to load course data: " + error?.message);
+      }
+    };
+
+    fetchCourseById();
+  }, [data, courseId]);
+
   const Difficulty = [
     { key: "Beginner", label: "Beginner" },
     { key: "Advanced", label: "Advanced" },
@@ -114,17 +164,13 @@ const CourseBuilder = () => {
       icone: <ScrollText size={20} color="#06574C" />,
     },
   ];
-  // const [isSelected, setIsSelected] = useState(true);
   const [categories, setCategories] = useState([]);
   const accessDuration = [
     { key: "108_days", label: "108 Days" },
     { key: "Lifetime_Access", label: "Lifetime Access" },
     { key: "360_days", label: "360 Days" },
   ];
-  const [searchParams, setSearchParams] = useSearchParams();
-  const currentTab = searchParams.get("tab");
-  const courseId = searchParams.get("id");
-  const { data = {}, isLoading, isError } = useGetCourseByIdQuery(courseId, { skip: !courseId });
+
   const [selected, setSelected] = useState(currentTab || "info");
   const [isAddCategoryOpen, setIsAddCategoryOpen] = useState(false);
   const [newCategory, setNewCategory] = useState("");
@@ -156,7 +202,7 @@ const CourseBuilder = () => {
     access_duration: "",
     previous_lesson: "",
     enroll_number: "",
-    status: "Draft", // Default
+    status: "draft", // Default
     videoDuration: "",
     is_free: false, // Free/Paid toggle
     video_count: 0, // Number of videos
@@ -196,8 +242,6 @@ const CourseBuilder = () => {
           const type = filesToUpload[index].type;
           urlMap[type] = url;
         });
-        console.log(urlMap);
-        console.log(uploadedUrls);
 
         if (urlMap.video) { setVideoUrl(urlMap.video); setVideo([]) };
         if (urlMap.thumbnail) { setThumbnailUrl(urlMap.thumbnail); setThumbnail([]) };
@@ -218,7 +262,7 @@ const CourseBuilder = () => {
       enroll_number: formData.enroll_number
         ? parseInt(formData.enroll_number)
         : null,
-      status: "Draft",
+      status: formData.status,
       videoUrl: urlMap.video,
       thumbnailurl: urlMap.thumbnail,
       teacher_id: Number(formData.teacher_id),
@@ -229,29 +273,12 @@ const CourseBuilder = () => {
       let response;
 
       if (courseId) {
-        response = await fetch(
-          `${import.meta.env.VITE_PUBLIC_SERVER_URL
-          }/api/course/updateCourse/${courseId}`,
-          {
-            method: "PATCH",
-            headers: { "Content-Type": "application/json" },
-            credentials: "include",
-            body: JSON.stringify(payload),
-          }
-        );
+        response = await updateCourse({ id: courseId, data: payload });;
       } else {
-        response = await fetch(
-          `${import.meta.env.VITE_PUBLIC_SERVER_URL}/api/course/addCourse`,
-          {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            credentials: "include",
-            body: JSON.stringify(payload),
-          }
-        );
+        response = await addCourse(payload);
       }
 
-      const data = await response.json();
+      const data = response.data;
 
       if (data.success) {
         successMessage(courseId ? "Course Updated!" : "Course Created!");
@@ -273,56 +300,6 @@ const CourseBuilder = () => {
     }
   };
 
-  const handleUploadFile = async ({ title, file, fileType, courseId, duration, pages }) => {
-    try {
-      const formData = new FormData();
-      formData.append("file", file);
-      formData.append("title", title || file.name);
-      formData.append("fileType", fileType);
-      formData.append("courseId", courseId);
-      formData.append("duration", duration);
-      formData.append("pages", pages);
-
-      const res = await fetch(`${import.meta.env.VITE_PUBLIC_SERVER_URL}/api/course/course-files`, {
-        method: "PATCH",
-        body: formData,
-        credentials: "include",
-      });
-      const data = await res.json();
-
-      if (!data.success) {
-        throw new Error(data.message || "Upload failed");
-      }
-      return data.file;
-    } catch (err) {
-      console.error("Upload failed", err);
-      throw new Error("Failed to upload files: " + err?.message);
-    }
-  };
-
-  const handleUpdateFile = async (fileId, updates) => {
-    try {
-      const res = await fetch(
-        `${import.meta.env.VITE_PUBLIC_SERVER_URL}/api/course/course-files/${fileId}`,
-        {
-          method: "PATCH",
-          headers: { "Content-Type": "application/json" },
-          credentials: "include",
-          body: JSON.stringify(updates),
-        }
-      );
-      const data = await res.json();
-      if (!data.success) {
-        throw new Error(data.message || "Update failed");
-      }
-      return data.file;
-    } catch (err) {
-      console.error("Update failed", err);
-      throw new Error("Failed to update file: " + err?.message);
-    }
-  };
-
-
   // handle submit 3rd tab
   const handleSubmit3tab = async (e) => {
     if (e) e.preventDefault();
@@ -334,69 +311,29 @@ const CourseBuilder = () => {
 
     try {
 
-      const payload = {
+       const payload = {
         ...formData,
         is_free: formData.is_free,
       };
-      const response = await fetch(
-        `${import.meta.env.VITE_PUBLIC_SERVER_URL
-        }/api/course/updateCourse/${courseId}`,
-        {
-          method: "PATCH",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(payload),
-        }
-      );
 
-      const data = await response.json();
+      const response = await updateCourse({ id: courseId, data: payload });
+
+      const data = response.data;
       if (data.success) {
         successMessage("Course Updated Successfully");
         navigate("/admin/courses-management");
       } else {
-        errorMessage("Failed to update course");
+        errorMessage(data.message || "Failed to update course");
       }
     } catch (error) {
       console.error(error);
-      errorMessage("Error updating course");
+      errorMessage(error?.message || "Failed to update course");
     } finally {
       setLoadingAction(null);
       setPendingAction(null);
     }
   };
-  useEffect(() => {
-    const fetchCourseById = async () => {
-      if (!courseId) return;
-      try {
-        if (!data?.course) return;
 
-        const course = data.course;
-        setFormData({
-          course_name: course.courseName || "",
-          category_id: Number(course.category) || "",
-          difficulty_level: course.difficultyLevel || "",
-          description: course.description || "",
-          course_price: course.coursePrice || "",
-          teacher_id: Number(course.teacherId) || "",
-          access_duration: course.accessDuration || "",
-          previous_lesson: course.previousLesson || "",
-          enroll_number: course.enrollNumber || "",
-          status: course.status || "Draft",
-          videoDuration: course.videoDuration || "",
-          is_free: course.isFree || false,
-          video_count: course.videoCount || 0,
-        });
-
-        setVideoUrl(course.video || "");
-        setThumbnailUrl(course.thumbnail || "");
-        setFiles(course.files || []);
-      } catch (error) {
-        console.error("Failed to fetch course", error);
-        errorMessage("Failed to load course data: " + error?.message);
-      }
-    };
-
-    fetchCourseById();
-  }, [data, courseId]);
 
   const handleSubmitAddCategory = async () => {
     if (!newCategory.trim()) {
@@ -445,7 +382,7 @@ const CourseBuilder = () => {
       />
       <div className="flex w-full flex-col my-3">
         <Tabs
-          isDisabled
+          isDisabled={data?.course?.status !== "published"}
           className="w-full  md:inline-block py-2 opacity-100!"
           aria-label="Disabled Options"
           // disabledKeys={["info" , "pricing" , "content"]}
@@ -854,22 +791,16 @@ const CourseBuilder = () => {
                 courseId={courseId}
                 files={files}
                 setFiles={setFiles}
-                handleUploadFile={handleUploadFile}
-                onUpdateFile={handleUpdateFile}
               />
               <PdfAndNotes
                 courseId={courseId}
                 files={files}
                 setFiles={setFiles}
-                handleUploadFile={handleUploadFile}
-                onUpdateFile={handleUpdateFile}
               />
               <Assignments
                 courseId={courseId}
                 files={files}
                 setFiles={setFiles}
-                handleUploadFile={handleUploadFile}
-                onUpdateFile={handleUpdateFile}
               />
               {/* <Quizzes
                   quizzes={quizzes}

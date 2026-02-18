@@ -1,20 +1,11 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { Button, Progress } from "@heroui/react";
+import { Button } from "@heroui/react";
 import {
-  BookIcon,
-  ChartPie,
   Clock,
-  Edit,
-  MapPin,
-  MegaphoneIcon,
-  PlusIcon,
-  UsersIcon,
   UsersRound,
-  UserStar,
-  Video,
+  VideoIcon,
 } from "lucide-react";
-import OverviewCards from "../../components/dashboard-components/OverviewCards";
 import {
   AiOutlineBook,
   AiOutlineEye,
@@ -30,12 +21,16 @@ import { useSelector } from "react-redux";
 import NotificationPermission from "../../components/NotificationPermission";
 
 import { Spinner } from "@heroui/react";
+import VideoPlayer from "../../components/dashboard-components/Video";
+import { useGetAllTeachersQuery } from "../../redux/api/user";
 
 const StudentDashboard = () => {
   const { user } = useSelector((state) => state.user);
   const navigate = useNavigate();
   const [courses, setCourses] = useState([]);
   const [loading, setLoading] = useState(true);
+const {data}=useGetAllTeachersQuery()
+console.log(data);
 
   useEffect(() => {
     fetchEnrolledCourses();
@@ -177,7 +172,7 @@ const StudentDashboard = () => {
       <div>
         <div className="grid grid-cols-12 gap-3 py-4">
           {loading ? (
-            <div className="col-span-12 flex justify-center py-10"><Spinner size="lg" /></div>
+            <div className="col-span-12 flex justify-center py-10"><Spinner color="success" size="lg" /></div>
           ) : courses.length === 0 ? (
             <div className="col-span-12 text-center py-10 text-gray-500">You haven't enrolled in any courses yet.</div>
           ) : (
@@ -185,10 +180,10 @@ const StudentDashboard = () => {
               <div key={item.id} className="col-span-12 md:col-span-6 lg:col-span-4 ">
                 <div className="w-full bg-white rounded-lg border shadow-sm hover:shadow-md transition-all">
                   <div className="h-48 overflow-hidden rounded-t-lg bg-gray-100">
-                    <img
-                      className="w-full h-full object-cover"
-                      src="/images/studentcard.png"
-                      alt={item.courseName}
+                    <VideoPlayer
+                      src={item.video}
+                      className="w-full h-full object-contain bg-black"
+                      poster={item.thumbnail}
                     />
                   </div>
                   <div className="p-4 space-y-3">
@@ -262,7 +257,7 @@ const StudentDashboard = () => {
                         </div>
                       )}
                       <div className="flex items-center gap-1 ">
-                        <Video size={20} />
+                        <VideoIcon size={20} />
                         {item.status}
                       </div>
                     </div>
