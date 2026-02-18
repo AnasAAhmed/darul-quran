@@ -1,11 +1,12 @@
 import { useState, useEffect } from "react";
 
-import { Download, Trash2, Eye, Clock, Menu, Edit, List, Loader, File, Play } from "lucide-react";
+import { Download, Trash2, Eye, Clock, Menu, Edit, List, Loader, File, Play, ExternalLink } from "lucide-react";
 import FileDropzone from "../dropzone";
 import { Button, Select, SelectItem, Input, addToast } from "@heroui/react";
 import { PiFile, PiFilePdf } from "react-icons/pi";
 import { errorMessage, successMessage } from "../../../lib/toast.config";
 import { formatForInput } from "../../../lib/utils";
+import { Link } from "react-router-dom";
 
 const formatTime = (seconds) => {
     if (!seconds) return "00:00";
@@ -15,63 +16,90 @@ const formatTime = (seconds) => {
     if (h > 0) return `${h}h ${m}m ${s}s`;
     return `${m}m ${s}s`;
 };
-const periodNumberOptionPlural = [
-    { value: "days", label: 'Days' },
-    { value: "hours", label: 'Hours' },
-    { value: "months", label: 'Months' },
-]
-const periodNumberOptionSingle = [
-    { value: "day", label: "Day" },
-    { value: "hour", label: "Hour" },
-    { value: "month", label: 'Month' },
-]
-
 
 const IntervalInput = ({
-    initialNumber = 1,
-    initialType = "days",
+    initialNumber = 0,
+    initialType,
     onUpdate,
-    units = ["hour", "day", "week", "month"],
+    units = ["hour", "day", "week", "month", "released_immediately"],
 }) => {
     const [numberValue, setNumberValue] = useState(initialNumber);
-    const [unitValue, setUnitValue] = useState(initialType);
+    const [unitValue, setUnitValue] = useState(initialType || 'released_immediately');
 
     const handleUpdate = () => {
+        if (unitValue === "released_immediately") {
+            onUpdate("released_immediately");
+            return;
+        }
         if (!numberValue || !unitValue) return;
+        if ((numberValue === initialNumber) || (unitValue === initialType)) return;
         const interval = `${numberValue} ${numberValue > 1 ? unitValue + "s" : unitValue}`;
         onUpdate(interval);
     };
 
     return (
-        <div className="flex gap-2">
-            <input
-                type="number"
-                className="p-1 border-medium border-default-200 data-[hover=true]:border-default-400 group-data-[focus=true]:border-default-foreground outline-none rounded w-20"
-                value={numberValue}
-                min={1}
-                max={unitValue === "hours" ? 24 : 31}
-                onChange={(e) => setNumberValue(Number(e.target.value))}
-                onBlur={handleUpdate}
-            />
-            <select
-                className="outline-none border-medium border-default-200 data-[hover=true]:border-default-400 group-data-[focus=true]:border-default-foreground p-1 rounded"
-                value={unitValue}
-                onChange={(e) => {
-                    setUnitValue(e.target.value);
-                }}
-                onBlur={handleUpdate}
-            >
-                {units.map((unit) => (
-                    <option key={unit} value={unit}>
-                        {unit}
-                    </option>
-                ))}
-            </select>
+        <div className="flex flex-col sm:flex-row sm:items-center gap-2 ">
+            {/* Label */}
+            <span className="text-sm font-medium text-gray-700 sms-36">
+                Released Interval
+            </span>
+
+            {/* Inputs */}
+            <div className="flex flex-wrap sm:flex-nowrap items-center gap-2 flex-1">
+                <input
+                    type="number"
+                    className="w-20 p-2 border disabled:opacity-45 cursor-not-allowed border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-[#406c65] focus:border-[#406c65] transition-colors text-sm"
+                    value={numberValue}
+                    min={1}
+                    placeholder="Period Number"
+                    disabled={!unitValue || unitValue === "released_immediately"}
+                    title="Period Number"
+                    max={unitValue === "hours" ? 24 : 31}
+                    onChange={(e) => setNumberValue(Number(e.target.value))}
+                    onBlur={handleUpdate}
+                />
+
+                <select
+                    className="p-2 capitalize border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-1 focus:ring-[#406c65] focus:border-[#406c65] transition-colors"
+                    value={unitValue}
+                    placeholder="Period Unit Type"
+                    title="Period Unit Type"
+                    onChange={(e) => setUnitValue(e.target.value)}
+                    onBlur={handleUpdate}
+                >
+                    {units.map((unit) => (
+                        <option className="capitalize" key={unit} value={unit}>
+                            {unit?.replace("_", " ")}
+                        </option>
+                    ))}
+                </select>
+            </div>
         </div>
+
     );
 };
 
+const deleteDocument = async (id, setFiles, setIsDeleting) => {
+    try {
+        setIsDeleting(id);
+        const response = await fetch(
+            `${import.meta.env.VITE_PUBLIC_SERVER_URL}/api/course/course-files/${id}`,
+            { method: "DELETE", credentials: "include" }
+        );
+        const data = await response.json();
 
+        if (data.success) {
+            setFiles((prev) => prev.filter((doc) => doc.id !== id));
+            successMessage("Document deleted successfully");
+        } else {
+            errorMessage("Failed to delete document");
+        }
+    } catch (err) {
+        errorMessage("Error deleting document: " + err?.message);
+    } finally {
+        setIsDeleting(null);
+    }
+};
 const getVideoDuration = (file) => {
     return new Promise((resolve) => {
         try {
@@ -103,7 +131,7 @@ export const countPdfPagesLight = async (file) => {
     return matches ? matches.length : 0;
 };
 
-const handleUploadFile = async ({ title, file, fileType, courseId, duration, pages }) => {
+const handleUploadFile = async ({ title, file, fileType, courseId, duration = 0, pages = 0 }) => {
     try {
         const formData = new FormData();
         formData.append("file", file);
@@ -156,6 +184,7 @@ export default function Videos({ files, setFiles, courseId }) {
     const [isUploading, setIsUploading] = useState(false);
     const [uploadProgress, setUploadProgress] = useState(0);
     const [newFiles, setNewFiles] = useState([]);
+    const [isDeleting, setIsDeleting] = useState(null);
     const updateDocument = async (id, field, value) => {
         const prevFiles = [...files];
         setFiles((prev) =>
@@ -169,25 +198,6 @@ export default function Videos({ files, setFiles, courseId }) {
                 errorMessage("Failed to update document");
                 setFiles(prevFiles);
             }
-        }
-    };
-
-    const deleteDocument = async (id) => {
-        try {
-            const response = await fetch(
-                `${import.meta.env.VITE_PUBLIC_SERVER_URL}/api/course/course-files/${id}`,
-                { method: "DELETE", credentials: "include" }
-            );
-            const data = await response.json();
-
-            if (data.success) {
-                setFiles((prev) => prev.filter((doc) => doc.id !== id));
-                successMessage("Document deleted successfully");
-            } else {
-                errorMessage("Failed to delete document");
-            }
-        } catch (err) {
-            errorMessage("Error deleting document: " + err?.message);
         }
     };
 
@@ -246,9 +256,7 @@ export default function Videos({ files, setFiles, courseId }) {
                         Total Lessons: {lessonVideos?.length}
                     </span>
                 </h1>
-                <Button radius="sm" variant="solid" className="bg-white text-[#06574C] border border-[#06574C]">
-                    Download
-                </Button>
+
             </div>
             <div className="mx-auto max-w-7xl px-4 pb-3 sm:px-6">
                 <div className="space-y-4 my-4">
@@ -266,7 +274,7 @@ export default function Videos({ files, setFiles, courseId }) {
                                 </video>
                                 {/* <Play color="#06574C" className="bg-[#F5F5F5] p-3 rounded-full size-16" /> */}
 
-                                <div className="flex flex-1 flex-col justify-between gap-3">
+                                <div className="flex flex-1 flex-col justify-between gap-1">
                                     <input
                                         variant="light"
                                         type="text"
@@ -300,21 +308,24 @@ export default function Videos({ files, setFiles, courseId }) {
                                     </div>
                                 </div>
 
-                                <div className="flex flex-wrap gap-3 items-center">
+                                <div className="flex flex-wrap gap-3 items-end sm:items-center">
                                     <IntervalInput
-                                        initialNumber={document?.releasedAt?.split(" ")[0] || 1}
-                                        initialType={document?.releasedAt?.split(" ")[1] || "days"}
+                                        initialNumber={document?.releasedAt?.split(" ")[0]}
+                                        initialType={document?.releasedAt?.split(" ")[1]}
                                         onUpdate={(interval) => updateDocument(document.id, "releasedAt", interval)}
                                     />
                                     <div className="flex items-center gap-2">
-                                        {/* <Button radius="sm" variant="flat" color="default" isIconOnly onPress={() => openEditModal(document)}>
-*/}
+                                        <Button as={Link} target="_blank" to={document.url} radius="sm" variant="flat" color="default" isIconOnly>
+                                            <ExternalLink className="h-4 w-4" />
+                                        </Button>
                                         <Button
                                             radius="sm"
                                             variant="flat"
                                             isIconOnly
                                             color="danger"
-                                            onPress={() => deleteDocument(document.id)}
+                                            isLoading={isDeleting === document.id}
+                                            isDisabled={isDeleting === document.id}
+                                            onPress={() => deleteDocument(document.id, setFiles, setIsDeleting)}
                                         >
                                             <Trash2 color="#fb2c36" className="h-4 w-4" />
                                         </Button>
@@ -363,6 +374,7 @@ export function PdfAndNotes({ files, setFiles, courseId }) {
     const [isUploading, setIsUploading] = useState(false);
     const [uploadProgress, setUploadProgress] = useState(0);
     const [newFiles, setNewFiles] = useState([]);
+    const [isDeleting, setIsDeleting] = useState(null);
     const updateDocument = async (id, field, value) => {
         const prevFiles = [...files];
         setFiles((prev) =>
@@ -377,25 +389,6 @@ export function PdfAndNotes({ files, setFiles, courseId }) {
                 errorMessage("Failed to update document");
                 setFiles(prevFiles);
             }
-        }
-    };
-
-    const deleteDocument = async (id) => {
-        try {
-            const response = await fetch(
-                `${import.meta.env.VITE_PUBLIC_SERVER_URL}/api/course/course-files/${id}`,
-                { method: "DELETE", credentials: "include" }
-            );
-            const data = await response.json();
-
-            if (data.success) {
-                setFiles((prev) => prev.filter((doc) => doc.id !== id));
-                successMessage("Document deleted successfully");
-            } else {
-                errorMessage("Failed to delete document");
-            }
-        } catch (err) {
-            errorMessage("Error deleting document: " + err?.message);
         }
     };
 
@@ -452,9 +445,7 @@ export function PdfAndNotes({ files, setFiles, courseId }) {
                 <h1 className="text-2xl font-semibold text-gray-900 sm:text-3xl">
                     PDFs & Notes
                 </h1>
-                <Button radius="sm" variant="solid" className="bg-white text-[#06574C] border border-[#06574C]">
-                    Download
-                </Button>
+
             </div>
 
             <div className="mx-auto max-w-7xl px-4 pb-3 sm:px-6">
@@ -468,13 +459,13 @@ export function PdfAndNotes({ files, setFiles, courseId }) {
                                 }`}
                         >
                             <div className="flex flex-col sm:flex-row sm:gap-6">
-                                {document.fileType === "pdf" ? (
+                                {document?.file?.mimetype?.includes("pdf") ? (
                                     <PiFilePdf color="#06574C" className="bg-[#F5F5F5] p-3 rounded-full size-16" />
                                 ) : (
                                     <PiFile color="#06574C" className="bg-[#F5F5F5] p-3 rounded-full size-16" />
                                 )}
 
-                                <div className="flex flex-1 flex-col justify-between gap-3">
+                                <div className="flex flex-1 flex-col justify-between gap-1">
                                     <input
                                         variant="light"
                                         type="text"
@@ -507,22 +498,25 @@ export function PdfAndNotes({ files, setFiles, courseId }) {
                                         <span className="inline-flex items-center gap-1">{document.status}</span>
                                     </div>
                                 </div>
-                                <div className="flex flex-wrap gap-3 items-center">
+                                <div className="flex flex-wrap gap-3 items-end sm:items-center">
                                     <IntervalInput
-                                        initialNumber={document?.releasedAt?.split(" ")[0] || 1}
-                                        initialType={document?.releasedAt?.split(" ")[1] || "days"}
+                                        initialNumber={document?.releasedAt?.split(" ")[0]}
+                                        initialType={document?.releasedAt?.split(" ")[1]}
                                         onUpdate={(interval) => updateDocument(document.id, "releasedAt", interval)}
                                     />
 
                                     <div className="flex items-center gap-2">
-                                        {/* <Button radius="sm" variant="flat" color="default" isIconOnly onPress={() => openEditModal(document)}>
-*/}
+                                        <Button as={Link} target="_blank" to={document.url} radius="sm" variant="flat" color="default" isIconOnly>
+                                            <ExternalLink className="h-4 w-4" />
+                                        </Button>
                                         <Button
                                             radius="sm"
                                             variant="flat"
                                             isIconOnly
                                             color="danger"
-                                            onPress={() => deleteDocument(document.id)}
+                                            isLoading={isDeleting === document.id}
+                                            isDisabled={isDeleting === document.id}
+                                            onPress={() => deleteDocument(document.id, setFiles, setIsDeleting)}
                                         >
                                             <Trash2 color="#fb2c36" className="h-4 w-4" />
                                         </Button>
@@ -569,6 +563,7 @@ export function Assignments({ files, setFiles, courseId }) {
     const [isUploading, setIsUploading] = useState(false);
     const [uploadProgress, setUploadProgress] = useState(0);
     const [newFiles, setNewFiles] = useState([]);
+    const [isDeleting, setIsDeleting] = useState(null);
     const updateDocument = async (id, field, value) => {
         const prevFiles = [...files];
         setFiles((prev) =>
@@ -586,24 +581,6 @@ export function Assignments({ files, setFiles, courseId }) {
         }
     };
 
-    const deleteDocument = async (id) => {
-        try {
-            const response = await fetch(
-                `${import.meta.env.VITE_PUBLIC_SERVER_URL}/api/course/course-files/${id}`,
-                { method: "DELETE", credentials: "include" }
-            );
-            const data = await response.json();
-
-            if (data.success) {
-                setFiles((prev) => prev.filter((doc) => doc.id !== id));
-                successMessage("Document deleted successfully");
-            } else {
-                errorMessage("Failed to delete document");
-            }
-        } catch (err) {
-            errorMessage("Error deleting document: " + err?.message);
-        }
-    };
 
     const handleUpload = async () => {
         const newFile = newFiles[0];
@@ -657,14 +634,7 @@ export function Assignments({ files, setFiles, courseId }) {
                         <h1 className="text-2xl font-semibold text-gray-900 sm:text-3xl">Assignments</h1>
                     </div>
 
-                    <Button
-                        radius="sm"
-                        variant="solid"
-                        className="bg-white text-[#06574C] border border-[#06574C]"
-                        startContent={<Download className="h-4 w-4" />}
-                    >
-                        Download
-                    </Button>
+
                 </div>
             </div>
 
@@ -679,13 +649,13 @@ export function Assignments({ files, setFiles, courseId }) {
                                 }`}
                         >
                             <div className="flex flex-col sm:flex-row sm:gap-6">
-                                {document.fileType === "pdf" ? (
+                                {document?.file?.mimetype?.includes("pdf") ? (
                                     <PiFilePdf color="#06574C" className="bg-[#F5F5F5] p-3 rounded-full size-16" />
                                 ) : (
                                     <PiFile color="#06574C" className="bg-[#F5F5F5] p-3 rounded-full size-16" />
                                 )}
 
-                                <div className="flex flex-1 flex-col justify-between gap-3">
+                                <div className="flex flex-1 flex-col justify-between gap-1">
                                     <input
                                         variant="light"
                                         type="text"
@@ -719,21 +689,24 @@ export function Assignments({ files, setFiles, courseId }) {
                                     </div>
                                 </div>
 
-                                <div className="flex flex-wrap gap-3 items-center">
+                                <div className="flex flex-wrap gap-3 items-end sm:items-center">
                                     <IntervalInput
-                                        initialNumber={document?.releasedAt?.split(" ")[0] || 1}
-                                        initialType={document?.releasedAt?.split(" ")[1] || "days"}
+                                        initialNumber={document?.releasedAt?.split(" ")[0]}
+                                        initialType={document?.releasedAt?.split(" ")[1]}
                                         onUpdate={(interval) => updateDocument(document.id, "releasedAt", interval)}
                                     />
                                     <div className="flex items-center gap-2">
-                                        {/* <Button radius="sm" variant="flat" color="default" isIconOnly onPress={() => openEditModal(document)}>
-*/}
+                                        <Button as={Link} target="_blank" to={document.url} radius="sm" variant="flat" color="default" isIconOnly>
+                                            <ExternalLink className="h-4 w-4" />
+                                        </Button>
                                         <Button
                                             radius="sm"
                                             variant="flat"
                                             isIconOnly
                                             color="danger"
-                                            onPress={() => deleteDocument(document.id)}
+                                            isLoading={isDeleting === document.id}
+                                            isDisabled={isDeleting === document.id}
+                                            onPress={() => deleteDocument(document.id, setFiles, setIsDeleting)}
                                         >
                                             <Trash2 color="#fb2c36" className="h-4 w-4" />
                                         </Button>
@@ -893,7 +866,7 @@ export function Quizzes({ quizzes = [], setQuizzes, onSave }) {
                                     <img src="/icons/quiz-buld.png" title="quiz bulb" alt="quiz bulb" />
                                 </span>
 
-                                <div className="flex flex-1 flex-col justify-between gap-3">
+                                <div className="flex flex-1 flex-col justify-between gap-1">
                                     <div className="space-y-2">
                                         <h3 className="text-lg font-semibold text-gray-900 sm:text-xl">{quiz.title}</h3>
                                         <p className="text-sm text-gray-600 sm:text-base">{quiz.description}</p>
@@ -920,7 +893,7 @@ export function Quizzes({ quizzes = [], setQuizzes, onSave }) {
                                     </div>
                                 </div>
 
-                                <div className="flex flex-wrap gap-3 items-center">
+                                <div className="flex flex-wrap gap-3 items-end sm:items-center">
                                     <Select
                                         radius="sm"
                                         className="w-50"
