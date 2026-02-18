@@ -15,6 +15,62 @@ const formatTime = (seconds) => {
     if (h > 0) return `${h}h ${m}m ${s}s`;
     return `${m}m ${s}s`;
 };
+const periodNumberOptionPlural = [
+    { value: "days", label: 'Days' },
+    { value: "hours", label: 'Hours' },
+    { value: "months", label: 'Months' },
+]
+const periodNumberOptionSingle = [
+    { value: "day", label: "Day" },
+    { value: "hour", label: "Hour" },
+    { value: "month", label: 'Month' },
+]
+
+
+const IntervalInput = ({
+    initialNumber = 1,
+    initialType = "days",
+    onUpdate,
+    units = ["hour", "day", "week", "month"],
+}) => {
+    const [numberValue, setNumberValue] = useState(initialNumber);
+    const [unitValue, setUnitValue] = useState(initialType);
+
+    const handleUpdate = () => {
+        if (!numberValue || !unitValue) return;
+        const interval = `${numberValue} ${numberValue > 1 ? unitValue + "s" : unitValue}`;
+        onUpdate(interval);
+    };
+
+    return (
+        <div className="flex gap-2">
+            <input
+                type="number"
+                className="p-1 border-medium border-default-200 data-[hover=true]:border-default-400 group-data-[focus=true]:border-default-foreground outline-none rounded w-20"
+                value={numberValue}
+                min={1}
+                max={unitValue === "hours" ? 24 : 31}
+                onChange={(e) => setNumberValue(Number(e.target.value))}
+                onBlur={handleUpdate}
+            />
+            <select
+                className="outline-none border-medium border-default-200 data-[hover=true]:border-default-400 group-data-[focus=true]:border-default-foreground p-1 rounded"
+                value={unitValue}
+                onChange={(e) => {
+                    setUnitValue(e.target.value);
+                }}
+                onBlur={handleUpdate}
+            >
+                {units.map((unit) => (
+                    <option key={unit} value={unit}>
+                        {unit}
+                    </option>
+                ))}
+            </select>
+        </div>
+    );
+};
+
 
 const getVideoDuration = (file) => {
     return new Promise((resolve) => {
@@ -106,7 +162,7 @@ export default function Videos({ files, setFiles, courseId }) {
             prev.map((doc) => (doc.id === id ? { ...doc, [field]: value } : doc))
         );
 
-        if (onUpdateFile && courseId) {
+        if (courseId) {
             try {
                 await handleUpdateFile(id, { [field]: value });
             } catch (err) {
@@ -245,20 +301,11 @@ export default function Videos({ files, setFiles, courseId }) {
                                 </div>
 
                                 <div className="flex flex-wrap gap-3 items-center">
-                                    <Input
-                                        label="Released At"
-                                        placeholder="Released At"
-                                        variant="bordered"
-                                        // labelPlacement="outside"
-                                        size="sm"
-                                        className="flex-1"
-                                        type="datetime-local"
-                                        defaultValue={formatForInput(document?.releasedAt)}
-                                        onChange={(e) => {
-                                            const value = e.target.value;
-
-                                            updateDocument(document.id, "releasedAt", value);
-                                        }} />
+                                    <IntervalInput
+                                        initialNumber={document?.releasedAt?.split(" ")[0] || 1}
+                                        initialType={document?.releasedAt?.split(" ")[1] || "days"}
+                                        onUpdate={(interval) => updateDocument(document.id, "releasedAt", interval)}
+                                    />
                                     <div className="flex items-center gap-2">
                                         {/* <Button radius="sm" variant="flat" color="default" isIconOnly onPress={() => openEditModal(document)}>
 */}
@@ -301,7 +348,7 @@ export default function Videos({ files, setFiles, courseId }) {
                             text="or click to upload. Supports multiple files."
                             height="300px"
                             fileType="video"
-                            
+
                         />
                     )}
                 </div>
@@ -323,7 +370,7 @@ export function PdfAndNotes({ files, setFiles, courseId }) {
         );
 
         // Call API to update
-        if (onUpdateFile && courseId) {
+        if (courseId) {
             try {
                 await handleUpdateFile(id, { [field]: value });
             } catch (err) {
@@ -460,22 +507,13 @@ export function PdfAndNotes({ files, setFiles, courseId }) {
                                         <span className="inline-flex items-center gap-1">{document.status}</span>
                                     </div>
                                 </div>
-
                                 <div className="flex flex-wrap gap-3 items-center">
-                                    <Input
-                                        label="Released At"
-                                        placeholder="Released At"
-                                        variant="bordered"
-                                        // labelPlacement="outside"
-                                        size="sm"
-                                        className="flex-1"
-                                        type="datetime-local"
-                                        defaultValue={formatForInput(document?.releasedAt)}
-                                        onChange={(e) => {
-                                            const value = e.target.value;
+                                    <IntervalInput
+                                        initialNumber={document?.releasedAt?.split(" ")[0] || 1}
+                                        initialType={document?.releasedAt?.split(" ")[1] || "days"}
+                                        onUpdate={(interval) => updateDocument(document.id, "releasedAt", interval)}
+                                    />
 
-                                            updateDocument(document.id, "releasedAt", value);
-                                        }} />
                                     <div className="flex items-center gap-2">
                                         {/* <Button radius="sm" variant="flat" color="default" isIconOnly onPress={() => openEditModal(document)}>
 */}
@@ -523,7 +561,7 @@ export function PdfAndNotes({ files, setFiles, courseId }) {
                     )}
                 </div>
             </div>
-        </div>
+        </div >
     );
 }
 
@@ -538,7 +576,7 @@ export function Assignments({ files, setFiles, courseId }) {
         );
 
         // Call API to update
-        if (onUpdateFile && courseId) {
+        if (courseId) {
             try {
                 await handleUpdateFile(id, { [field]: value });
             } catch (err) {
@@ -682,20 +720,11 @@ export function Assignments({ files, setFiles, courseId }) {
                                 </div>
 
                                 <div className="flex flex-wrap gap-3 items-center">
-                                    <Input
-                                        label="Released At"
-                                        placeholder="Released At"
-                                        variant="bordered"
-                                        // labelPlacement="outside"
-                                        size="sm"
-                                        className="flex-1"
-                                        type="datetime-local"
-                                        defaultValue={formatForInput(document?.releasedAt)}
-                                        onChange={(e) => {
-                                            const value = e.target.value;
-
-                                            updateDocument(document.id, "releasedAt", value);
-                                        }} />
+                                    <IntervalInput
+                                        initialNumber={document?.releasedAt?.split(" ")[0] || 1}
+                                        initialType={document?.releasedAt?.split(" ")[1] || "days"}
+                                        onUpdate={(interval) => updateDocument(document.id, "releasedAt", interval)}
+                                    />
                                     <div className="flex items-center gap-2">
                                         {/* <Button radius="sm" variant="flat" color="default" isIconOnly onPress={() => openEditModal(document)}>
 */}

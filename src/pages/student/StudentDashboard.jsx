@@ -210,7 +210,7 @@ console.log(data);
                         color="success"
                         className="w-full mt-2 font-medium"
                         startContent={<AiOutlineEye size={20} />}
-                        onPress={() => navigate(`/student/course/${item.id}/learn`)}
+                        onPress={() => navigate(`/student/course/${item.id}/learn`,{state:item})}
                       >
                         View Course
                       </Button>
