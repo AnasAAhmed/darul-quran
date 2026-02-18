@@ -37,9 +37,8 @@ const CoursePlayer = () => {
                         ? JSON.parse(data.enrollment.completedLessons)
                         : data.enrollment.completedLessons || [];
                 } catch (e) { cl = []; }
-
                 setCompletedLessons(cl);
-                setProgress(Number(data.enrollment.progressStatus) || 0);
+                setProgress(data.enrollment.progressStatus !== "not_started" ? Number(data.enrollment.progressStatus) : 0);
             }
         } catch (e) { console.error(e); }
     };
@@ -47,7 +46,7 @@ const CoursePlayer = () => {
         if (!currentLesson) return;
         const lid = currentLesson.id;
         // Don't mark if already completed
-        if (completedLessons.includes(lid)) return;
+        // if (completedLessons.includes(lid)) return;
 
         try {
             const res = await fetch(`${import.meta.env.VITE_PUBLIC_SERVER_URL}/api/course/mark-complete`, {
@@ -104,7 +103,7 @@ const CoursePlayer = () => {
                                     thumbnailUrl: course?.thumbnail,
                                     fileType: "video/mp4",
                                 }}
-                                onEnded={handleVideoEnd}
+                            // onEnded={handleVideoEnd}
                             />
                         )}
 
@@ -116,6 +115,9 @@ const CoursePlayer = () => {
                             <h3 className="text-lg font-semibold mb-2">About this {currentLesson?.id ? "lesson" : "course"}</h3>
                             <p className="whitespace-pre-wrap">
                                 {currentLesson && currentLesson?.description ? currentLesson?.description : !currentLesson?.id ? course?.description : 'No description available for this lesson.'}</p>
+                            <Button className="my-3" size="sm" color="success" onPress={handleVideoEnd}>
+                                {completedLessons.includes(currentLesson?.id) ? "Mark Uncomplete" : " Mark Complete"}
+                            </Button>
                         </div>
                     </div>
                 </div>
@@ -154,7 +156,7 @@ const CoursePlayer = () => {
                                             </div>
                                             <div className="flex max-sm:flex-wrap items-center gap-2 text-xs text-gray-400 mt-1">
                                                 <span className="capitalize">
-                                                   Type: {(lesson?.fileType?.replace('_', ' ') || "Video Lesson")}
+                                                    Type: {(lesson?.fileType?.replace('_', ' ') || "Video Lesson")}
                                                 </span>
                                                 {lesson?.file?.pages &&
                                                     <span>
@@ -163,7 +165,7 @@ const CoursePlayer = () => {
                                                 }
                                                 {lesson?.file?.duration && lesson?.file?.duration !== "undefined" &&
                                                     <span>
-                                                       duration: {lesson?.file?.duration} mins
+                                                        duration: {lesson?.file?.duration} mins
                                                     </span>
                                                 }
                                             </div>
