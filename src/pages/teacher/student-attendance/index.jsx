@@ -49,7 +49,7 @@ const StudentAttendance = () => {
           aria-label="Pending approvals table"
           removeWrapper
           classNames={{
-            base: "bg-white rounded-lg overflow-x-scroll w-full no-scrollbar",
+            base: "bg-white rounded-lg overflow-x-scroll w-full no-scrollbar min-h-[80vh]",
             th: "font-bold p-4 text-md text-[#333333] capitalize tracking-widest bg-[#EBD4C936]",
             td: "py-3 items-center whitespace-nowrap",
             tr: "border-b border-default-200",
@@ -63,7 +63,7 @@ const StudentAttendance = () => {
             <TableColumn>Action</TableColumn>
           </TableHeader>
 
-          <TableBody>
+          <TableBody emptyContent={<div className="text-center text-gray-700 text-lg items-center flex items-center justify-center italic">No attendance data</div>}>
             {attendanceData.map((classItem) => (
               <TableRow key={classItem.id}>
                 <TableCell className="px-4">

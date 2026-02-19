@@ -24,6 +24,7 @@ import {
 import {
   Download,
   Eye,
+  EyeIcon,
   ListFilterIcon,
 } from "lucide-react";
 import { AnimatePresence } from "framer-motion";
@@ -33,8 +34,9 @@ import { errorMessage, successMessage } from "../../../lib/toast.config";
 
 const PaymentsInvoices = () => {
   const [payments, setPayments] = useState([]);
+  const [liveInvoices, setLiveInvoices] = useState([]);
   const [loading, setLoading] = useState(true);
-
+  const [liveLoading, setLiveLoading] = useState(true);
   // Refund Modal State
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
   const [refundReason, setRefundReason] = useState("");
@@ -49,9 +51,20 @@ const PaymentsInvoices = () => {
     } catch (e) { console.error(e); }
     finally { setLoading(false); }
   };
+  const livePayments = async () => {
+    setLiveLoading(true);
+    try {
+      const res = await fetch(`${import.meta.env.VITE_PUBLIC_SERVER_URL}/api/course/get-subscription-invoices`, { credentials: 'include' });
+      const data = await res.json();
+      console.log(data);
+      if (data.success) setLiveInvoices(data.invoices);
+    } catch (e) { console.error(e); }
+    finally { setLiveLoading(false); }
+  };
 
   useEffect(() => {
     fetchPayments();
+    livePayments();
   }, []);
 
   const openRefundModal = (id) => {
@@ -152,14 +165,97 @@ const PaymentsInvoices = () => {
           exit={{ y: -10, opacity: 0 }}
           transition={{ duration: 0.6, ease: "easeInOut" }}
         >
-          {loading ? (
-            <div className="flex justify-center p-10"><Spinner size="lg" /></div>
-          ) : payments.length === 0 ? (
-            <div className="text-center p-10 text-gray-500">No payment history found.</div>
-          ) : (
+
+          <Table
+            isHeaderSticky
+
+            aria-label="Payments table"
+            removeWrapper
+            classNames={{
+              base: "w-full bg-white rounded-lg overflow-x-scroll w-full no-scrollbar mb-3",
+              th: "font-bold p-4 text-md text-[#333333] capitalize tracking-widest bg-[#EBD4C936]",
+              td: "py-3 items-center whitespace-nowrap",
+              tr: "border-b border-default-200 ",
+            }}
+          >
+            <TableHeader>
+              {header.map((item) => (
+                <TableColumn key={item.key}>{item.label}</TableColumn>
+              ))}
+            </TableHeader>
+
+            <TableBody
+              emptyContent="No payments found"
+              loadingState={loading ? "loading" : "idle"}
+              loadingContent={<Spinner color="primary" />}
+            >
+              {payments.map((item) => (
+                <TableRow key={item.id}>
+                  <TableCell className="px-4">
+                    <div>
+                      <div className="font-medium text-gray-900">
+                        {item.courseName}
+                      </div>
+                      <div className="text-xs text-gray-500 mt-0.5 max-w-[200px] truncate">
+                        {item.description || "Course Enrollment"}
+                      </div>
+                    </div>
+                  </TableCell>
+                  <TableCell>{new Date(item.date).toLocaleDateString()}</TableCell>
+                  <TableCell>${item.amount}</TableCell>
+                  <TableCell>
+                    <div className="flex gap-1 items-center">
+                      <img src="/icons/Visa.svg" alt="Card" className="w-8" />
+                      •••• 4242
+                    </div>
+                  </TableCell>
+                  <TableCell>
+                    <div className="flex flex-col gap-1">
+                      <Button className={`text-sm p-2 rounded-md capitalize h-8 ${item.status === "completed" || item.status === "Complete" ? "bg-[#95C4BE33] text-[#06574C]" :
+                        item.status === "pending" || item.status === "Pending" ? "bg-[#F1C2AC33] text-[#D28E3D]" :
+                          "bg-[#FFEAEC] text-[#E8505B]"}`
+                      }>
+                        {item.status || "Completed"}
+                      </Button>
+                      {item.refundStatus && item.refundStatus !== 'none' && (
+                        <span className="text-[10px] text-red-500 font-medium">Refund: {item.refundStatus}</span>
+                      )}
+                    </div>
+                  </TableCell>
+                  <TableCell className="flex gap-2">
+                    {item.receiptUrl ? (
+                      <Button
+                        radius="sm"
+                        className="bg-[#06574C] text-white"
+                        onPress={() => window.open(item.receiptUrl, '_blank')}
+                        startContent={<Download size={18} color="white" />}
+                      >
+                        Download Invoice
+                      </Button>
+                    ) : (
+                      <Button radius="sm" isDisabled variant="flat">
+                        No Invoice
+                      </Button>
+                    )}
+
+                    {item.status === 'completed' && (!item.refundStatus || item.refundStatus === 'none') && (
+                      <Button variant="ghost" color="danger" radius="sm" onPress={() => openRefundModal(item.id)}>
+                        Request Refund
+                      </Button>
+                    )}
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+
+          <div className=" text-3xl text-[#06574C] py-4  font-bold">
+            live Classes
+          </div>
+          <div className=" ">
             <Table
               isHeaderSticky
-              aria-label="Payments table"
+              aria-label="Live Sessions Invoices Table"
               removeWrapper
               classNames={{
                 base: "w-full bg-white rounded-lg overflow-x-scroll w-full no-scrollbar mb-3",
@@ -174,21 +270,21 @@ const PaymentsInvoices = () => {
                 ))}
               </TableHeader>
 
-              <TableBody>
-                {payments.map((item) => (
+              <TableBody emptyContent={liveLoading ? <Spinner size="lg" /> : "No live class invoices found."}>
+                {liveInvoices.map((item) => (
                   <TableRow key={item.id}>
                     <TableCell className="px-4">
                       <div>
                         <div className="font-medium text-gray-900">
-                          {item.courseName}
+                          {item.courseName || item.title || "Live Session"}
                         </div>
                         <div className="text-xs text-gray-500 mt-0.5 max-w-[200px] truncate">
-                          {item.description || "Course Enrollment"}
+                          {item.description || "Live Class Subscription"}
                         </div>
                       </div>
                     </TableCell>
                     <TableCell>{new Date(item.date).toLocaleDateString()}</TableCell>
-                    <TableCell>${item.amount}</TableCell>
+                    <TableCell>${(item.amount).toFixed(2)}</TableCell>
                     <TableCell>
                       <div className="flex gap-1 items-center">
                         <img src="/icons/Visa.svg" alt="Card" className="w-8" />
@@ -197,15 +293,12 @@ const PaymentsInvoices = () => {
                     </TableCell>
                     <TableCell>
                       <div className="flex flex-col gap-1">
-                        <Button className={`text-sm p-2 rounded-md capitalize h-8 ${item.status === "completed" || item.status === "Complete" ? "bg-[#95C4BE33] text-[#06574C]" :
-                          item.status === "pending" || item.status === "Pending" ? "bg-[#F1C2AC33] text-[#D28E3D]" :
+                        <Button className={`text-sm p-2 rounded-md capitalize h-8 ${item.status === "paid" || item.status === "completed" ? "bg-[#95C4BE33] text-[#06574C]" :
+                          item.status === "open" || item.status === "pending" ? "bg-[#F1C2AC33] text-[#D28E3D]" :
                             "bg-[#FFEAEC] text-[#E8505B]"}`
                         }>
                           {item.status || "Completed"}
                         </Button>
-                        {item.refundStatus && item.refundStatus !== 'none' && (
-                          <span className="text-[10px] text-red-500 font-medium">Refund: {item.refundStatus}</span>
-                        )}
                       </div>
                     </TableCell>
                     <TableCell className="flex gap-2">
@@ -214,9 +307,9 @@ const PaymentsInvoices = () => {
                           radius="sm"
                           className="bg-[#06574C] text-white"
                           onPress={() => window.open(item.receiptUrl, '_blank')}
-                          startContent={<Download size={18} color="white" />}
+                          startContent={<EyeIcon size={18} color="white" />}
                         >
-                          Download Invoice
+                          View Invoice
                         </Button>
                       ) : (
                         <Button radius="sm" isDisabled variant="flat">
@@ -224,17 +317,16 @@ const PaymentsInvoices = () => {
                         </Button>
                       )}
 
-                      {item.status === 'completed' && (!item.refundStatus || item.refundStatus === 'none') && (
-                        <Button variant="ghost" color="danger" radius="sm" onPress={() => openRefundModal(item.id)}>
-                          Request Refund
-                        </Button>
-                      )}
+                      <Button variant="ghost" color="danger" radius="sm" onPress={() => openRefundModal(item.id)}>
+                        Request Refund
+                      </Button>
+
                     </TableCell>
                   </TableRow>
                 ))}
               </TableBody>
             </Table>
-          )}
+          </div>
         </motion.div>
         <div className="md:flex items-center pb-4 gap-2 justify-between overflow-hidden">
           <div className="flex text-sm items-center gap-1">
