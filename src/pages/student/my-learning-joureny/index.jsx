@@ -144,7 +144,8 @@ const MyLearning = () => {
                           value={Number(item.progress) || 0}
                         />
                       </div>
-                      <Button size="sm" className="w-full mt-3 bg-white text-[#06574C] border border-[#06574C]/20" onPress={() => navigate(`/student/course/${item.id}/learn`)}>
+                      
+                      <Button   onPress={() => navigate(`/student/course/${item.id}/learn`, { state: item })} size="sm" className="w-full mt-3 bg-white text-[#06574C] border border-[#06574C]/20">
                         Continue
                       </Button>
                     </div>

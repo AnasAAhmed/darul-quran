@@ -23,64 +23,16 @@ import NotificationPermission from "../../components/NotificationPermission";
 import { Spinner } from "@heroui/react";
 import VideoPlayer from "../../components/dashboard-components/Video";
 import { useGetAllTeachersQuery } from "../../redux/api/user";
+import { useGetEnrolledCoursesQuery } from "../../redux/api/courses";
 
 const StudentDashboard = () => {
   const { user } = useSelector((state) => state.user);
   const navigate = useNavigate();
   const [courses, setCourses] = useState([]);
+  const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(true);
-const {data}=useGetAllTeachersQuery()
-console.log(data);
+  const { data, isError, error, isLoading } = useGetEnrolledCoursesQuery({ page })
 
-  useEffect(() => {
-    fetchEnrolledCourses();
-  }, []);
-
-  const fetchEnrolledCourses = async () => {
-    try {
-      const res = await fetch(`${import.meta.env.VITE_PUBLIC_SERVER_URL}/api/course/my-courses`, {
-        credentials: 'include'
-      });
-      const data = await res.json();
-      if (data.success) {
-        setCourses(data.courses);
-      }
-    } catch (e) {
-      console.error(e);
-    } finally {
-      setLoading(false);
-    }
-  };
-  const cardsData = [
-    {
-      title: "Total Enrollments",
-      value: "12,847",
-      icon: <AiOutlineBook color="#06574C" size={22} />,
-      changeText: "Active",
-      changeColor: "text-[#38A100]",
-    },
-    {
-      title: "Attendance Rate",
-      value: "$89,432",
-      icon: <AiOutlineLineChart color="#06574C" size={22} />,
-      changeText: "+8.2% from last month",
-      changeColor: "text-[#38A100]",
-    },
-    {
-      title: "Total Students",
-      value: "3,847",
-      icon: <UsersRound color="#06574C" size={22} />,
-      changeText: "-2.1% from last week",
-      changeColor: "text-[#E8505B]",
-    },
-    {
-      title: "Total Hours",
-      value: "24",
-      icon: <LuClock4 color="#06574C" size={22} />,
-      changeText: " +8.2% from last month",
-      changeColor: "text-[#06574C]",
-    },
-  ];
 
   const upcomingClasses = [
     {
@@ -171,12 +123,12 @@ console.log(data);
       </div>
       <div>
         <div className="grid grid-cols-12 gap-3 py-4">
-          {loading ? (
+          {isLoading ? (
             <div className="col-span-12 flex justify-center py-10"><Spinner color="success" size="lg" /></div>
-          ) : courses.length === 0 ? (
+          ) : data?.courses?.length === 0 ? (
             <div className="col-span-12 text-center py-10 text-gray-500">You haven't enrolled in any courses yet.</div>
           ) : (
-            courses.map((item) => (
+            data?.courses?.map((item) => (
               <div key={item.id} className="col-span-12 md:col-span-6 lg:col-span-4 ">
                 <div className="w-full bg-white rounded-lg border shadow-sm hover:shadow-md transition-all">
                   <div className="h-48 overflow-hidden rounded-t-lg bg-gray-100">
@@ -210,7 +162,7 @@ console.log(data);
                         color="success"
                         className="w-full mt-2 font-medium"
                         startContent={<AiOutlineEye size={20} />}
-                        onPress={() => navigate(`/student/course/${item.id}/learn`,{state:item})}
+                        onPress={() => navigate(`/student/course/${item.id}/learn`, { state: item })}
                       >
                         View Course
                       </Button>

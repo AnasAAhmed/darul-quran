@@ -4,6 +4,7 @@ export const userAPI = createApi({
     reducerPath: "userApi",
     baseQuery: fetchBaseQuery({
         baseUrl: `${import.meta.env.VITE_PUBLIC_SERVER_URL}/api/user`,
+        credentials: "include",
     }),
     tagTypes: ["userApi"],
     endpoints: (builder) => ({

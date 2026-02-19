@@ -4,6 +4,7 @@ import { useRef, useState } from "react";
 
 export default function LessonFileViewer({
   file,
+  autoPlay,
   onEnded,
 }) {
   const containerRef = useRef(null);
@@ -30,7 +31,7 @@ export default function LessonFileViewer({
         <video
           src={fileUrl}
           controls
-          autoPlay
+          autoPlay={autoPlay}
           className="w-full h-full"
           controlsList="nodownload"
           poster={file.thumbnailUrl || undefined}

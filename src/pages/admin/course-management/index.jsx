@@ -157,7 +157,7 @@ const CourseManagement = () => {
               <TableColumn className="w-1/12 text-center">Price</TableColumn>
               <TableColumn className="w-1/12 text-center">Enrolled</TableColumn>
               <TableColumn className="w-1/12 text-center">Status</TableColumn>
-              <TableColumn className="w-1/6">Reviews</TableColumn>
+              <TableColumn className="w-1/6">Rating</TableColumn>
               <TableColumn className="w-24">Actions</TableColumn>
             </TableHeader>
 
@@ -203,7 +203,7 @@ const CourseManagement = () => {
 
                   <TableCell className="text-center">
                     <span className="font-medium">
-                      {classItem?.enrollNumber}
+                      {classItem?.enrolledCount}
                     </span>
                   </TableCell>
 
@@ -215,9 +215,9 @@ const CourseManagement = () => {
 
                   <TableCell>
                     <div className="min-w-0 flex items-center">
-                      <span className="font-medium truncate max-w-[220px] block">
-                        {classItem?.reviews || "No reviews"}
-                      </span>
+                      <Link to={'/admin/help/reviews?id='+classItem?.id} className="font-medium truncate max-w-[220px] block">
+                        {classItem?.rating || "No ratings"}
+                      </Link>
                     </div>
                   </TableCell>
 

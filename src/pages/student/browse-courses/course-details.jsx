@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 
 import { DashHeading } from "../../../components/dashboard-components/DashHeading";
 import { Button, Divider, Progress } from "@heroui/react";
@@ -25,21 +25,31 @@ import { LiaCertificateSolid } from "react-icons/lia";
 import { MdMenuBook } from "react-icons/md";
 import { useLocation, useParams, useNavigate } from "react-router-dom";
 import { errorMessage, successMessage } from "../../../lib/toast.config";
+import { dateFormatter } from "../../../lib/utils";
+import { useGetCourseFilesQuery } from "../../../redux/api/courses";
 
 const CourseDetails = () => {
+  const { id } = useParams();
   const navigate = useNavigate();
   const location = useLocation();
-  const { course } = location.state || {};
+  const courseFromState = location.state || {};
 
-  console.log("course....................", course)
-  if (!course) {
-    navigate("/student/browse-courses");
-    return null;
-  }
+  // if (!course) {
+  //   navigate("/student/browse-courses");
+  //   return null;
+  // }
 
   const [isEnrolled, setIsEnrolled] = useState(false);
   const [enrolling, setEnrolling] = useState(false);
+  const { data, error, isLoading, isError } = useGetCourseFilesQuery({ courseId: id, includeCourse: !courseFromState?.id }, { skip: !id });
 
+  const course = useMemo(() => {
+    if (courseFromState?.id) return courseFromState;
+    if (data?.course) return data.course;
+    return null;
+  }, [courseFromState, data]);
+  const courseFiles = data?.results;
+  const totalLessons = data?.results?.length || 0;
   useEffect(() => {
     if (course?.id) {
       checkEnrollmentStatus();
@@ -204,25 +214,25 @@ const CourseDetails = () => {
                   <div>
                     <div className="flex items-center gap-1">
                       <IoStarSharp size={18} color="#FACC15" />
-                      <span className="font-medium text-[#111827]">4.8</span>
-                      <span>(3,245 ratings)</span>
+                      <span className="font-medium text-[#111827]">{course?.rating}</span>
+                      <span>({course?.numOfReviews} ratings)</span>
                     </div>
                     <div className="flex items-center gap-1">
                       <Calendar size={16} />
-                      <span>Last updated: November 2025</span>
+                      <span>Last updated: {dateFormatter(course?.updatedAt)}</span>
                     </div>
                   </div>
 
                   <div>
                     <div className="flex items-center gap-1">
                       <FiUsers size={16} />
-                      <span>15,432 students enrolled</span>
+                      <span>{course?.enrollNumber} students enrolled</span>
                     </div>
 
-                    <div className="flex items-center gap-1">
+                    {/* <div className="flex items-center gap-1">
                       <Clock size={16} />
                       <span>12 hours 30 minutes</span>
-                    </div>
+                    </div> */}
                   </div>
                 </div>
               </div>
@@ -307,9 +317,7 @@ const CourseDetails = () => {
             <div className=" rounded-xl h-full">
               {/* Description */}
               <h2 className="text-xl font-semibold mb-2">Description</h2>
-              <p className="text-sm text-gray-600 leading-relaxed mb-4">
-                {course.description}
-              </p>
+              <p dangerouslySetInnerHTML={{ __html: course?.description }} className="text-sm text-gray-600 leading-relaxed mb-4" />
             </div>
           </div>
           <div className="bg-white p-3 rounded-xl col-span-12 md:col-span-4">

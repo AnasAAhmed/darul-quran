@@ -6,13 +6,21 @@ export const courseApi = createApi({
         baseUrl: import.meta.env.VITE_PUBLIC_SERVER_URL + "/api/course",
         credentials: "include",
     }),
-    tagTypes: ["course"],
+    tagTypes: ["course", "reviews", "categories"],
     endpoints: (builder) => ({
         getAllCourses: builder.query({
             query: ({ page, limit, categoryId, search, status }) => ({
                 url: "/getAllCourses",
                 method: "GET",
                 params: { page, limit, categoryId, search, status }
+            }),
+            providesTags: ["course"],
+        }),
+        getEnrolledCourses: builder.query({
+            query: ({ page = 1, limit, categoryId, search = '' }) => ({
+                url: "/my-courses",
+                method: "GET",
+                params: { page, limit, categoryId, search }
             }),
             providesTags: ["course"],
         }),
@@ -75,12 +83,37 @@ export const courseApi = createApi({
             }),
             invalidatesTags: ["categories"],
         }),
+        getReviews: builder.query({
+            query: ({ courseId, page, limit, search }) => ({
+                url: "/get-reviews/" + courseId,
+                method: "GET",
+                params: { page, limit, search },
+            }),
+            providesTags: ["reviews"],
+        }),
+        addRevieworUpdate: builder.mutation({
+            query: ({ courseId, data }) => ({
+                url: "/add-review/" + courseId,
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: data,
+            }),
+            invalidatesTags: ["reviews", "course"],
+        }),
+        deleteReview: builder.mutation({
+            query: (reviewId) => ({
+                url: "/delete-review/" + reviewId,
+                method: "DELETE",
+            }),
+            invalidatesTags: ["reviews", "course"],
+        }),
     }),
 });
 
 
 export const {
     useGetAllCoursesQuery,
+    useGetEnrolledCoursesQuery,
     useGetCourseFilesQuery,
     useGetCourseByIdQuery,
     useAddCourseMutation,
@@ -89,4 +122,7 @@ export const {
     useGetAllCategoriesQuery,
     useDeleteCategoryMutation,
     useAddCategoryMutation,
+    useGetReviewsQuery,
+    useAddRevieworUpdateMutation,
+    useDeleteReviewMutation
 } = courseApi;
