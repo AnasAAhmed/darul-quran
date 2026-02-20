@@ -88,10 +88,10 @@ export const courseApi = createApi({
             invalidatesTags: ["categories"],
         }),
         getReviews: builder.query({
-            query: ({ courseId, page, limit, search }) => ({
+            query: ({ courseId, page, limit, search, includeOverview, rating }) => ({
                 url: "/get-reviews/" + courseId,
                 method: "GET",
-                params: { page, limit, search },
+                params: { page, limit, search, includeOverview, rating },
             }),
             providesTags: ["reviews"],
         }),

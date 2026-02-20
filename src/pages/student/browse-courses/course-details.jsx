@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo } from "react";
 
 import { DashHeading } from "../../../components/dashboard-components/DashHeading";
-import { Button, Divider, Progress } from "@heroui/react";
+import { Avatar, Button, Divider, Pagination, Progress } from "@heroui/react";
 import { FaStar, FaUserGraduate } from "react-icons/fa";
 import { IoPlay, IoStarSharp } from "react-icons/io5";
 import { IoIosCheckmark } from "react-icons/io";
@@ -26,13 +26,17 @@ import { MdMenuBook } from "react-icons/md";
 import { useLocation, useParams, useNavigate } from "react-router-dom";
 import { errorMessage, successMessage } from "../../../lib/toast.config";
 import { dateFormatter } from "../../../lib/utils";
-import { useGetCourseByIdQuery, useGetCourseByIdViewQuery, useGetCourseFilesQuery } from "../../../redux/api/courses";
+import { useGetCourseByIdQuery, useGetCourseByIdViewQuery, useGetCourseFilesQuery, useGetReviewsQuery } from "../../../redux/api/courses";
+import RatingStars from "../../../components/RatingStar";
 
 const CourseDetails = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const location = useLocation();
   const courseFromState = location.state || {};
+  const [page, setPage] = useState(1);
+  const [limit, setLimit] = useState(20);
+  const [ratingForSearch, setRatingForSearch] = useState(null);
 
   if (!courseFromState) {
     navigate("/student/browse-courses");
@@ -41,7 +45,13 @@ const CourseDetails = () => {
 
   const [isEnrolled, setIsEnrolled] = useState(false);
   const [enrolling, setEnrolling] = useState(false);
+
+
   const { data, error, isLoading, isError } = useGetCourseByIdViewQuery({ courseId: id, includeCourse: !courseFromState?.id }, { skip: !id });
+  const { data: reviewData, isLoading: isReviewLoading, isError: reviewIsError, error: reviewError } = useGetReviewsQuery(
+    { courseId: id, page, limit, includeOverview: true, rating: ratingForSearch },
+    { skip: !id }
+  );
 
   const course = useMemo(() => {
     if (courseFromState?.id) return courseFromState;
@@ -144,7 +154,7 @@ const CourseDetails = () => {
       bg: "#95C4BE",
     },
     {
-      title: course?.accessDuration?.replace("_", " ")+(course?.accessDuration?.toLowerCase()?.includes("access") ? "" : " access"),
+      title: course?.accessDuration?.replace("_", " ") + (course?.accessDuration?.toLowerCase()?.includes("access") ? "" : " access"),
       desc: "Learn at your own pace",
       icon: <GiCheckMark size={22} color="#06574C" />,
     },
@@ -349,27 +359,25 @@ const CourseDetails = () => {
                 <div className="flex gap-6">
                   {/* Rating */}
                   <div className="min-w-[100px]">
-                    <p className="text-3xl font-bold">4.8</p>
+                    <p className="text-3xl font-bold">{course?.rating}</p>
 
                     <div className="flex gap-1 text-yellow-400 my-1">
-                      {[1, 2, 3, 4, 5].map((i) => (
-                        <FaStar key={i} size={16} />
-                      ))}
+                      <RatingStars rating={course?.rating} />
                     </div>
 
-                    <p className="text-xs text-gray-500">(578 Reviews)</p>
+                    <p className="text-xs text-gray-500">({course?.numOfReviews} Reviews)</p>
                   </div>
 
                   {/* Progress Bars */}
                   <div className="flex-1 space-y-3">
                     {[
-                      { star: 5, value: 85, count: 488 },
-                      { star: 4, value: 40, count: 74 },
-                      { star: 3, value: 10, count: 14 },
-                      { star: 2, value: 0, count: 0 },
-                      { star: 1, value: 0, count: 0 },
+                      { star: 5, value: (reviewData?.agg?.five / course?.numOfReviews) * 100, count: reviewData?.agg?.five },
+                      { star: 4, value: ((reviewData?.agg?.four / course?.numOfReviews) * 100), count: reviewData?.agg?.four },
+                      { star: 3, value: ((reviewData?.agg?.three / course?.numOfReviews) * 100), count: reviewData?.agg?.three },
+                      { star: 2, value: ((reviewData?.agg?.two / course?.numOfReviews) * 100), count: reviewData?.agg?.two },
+                      { star: 1, value: ((reviewData?.agg?.one / course?.numOfReviews) * 100), count: reviewData?.agg?.one },
                     ].map((item) => (
-                      <div key={item.star} className="flex items-center gap-2">
+                      <div onClick={() => setRatingForSearch(item.star)} key={item.star} className="flex cursor-pointer items-center gap-2">
                         <span className="w-12 text-xs text-gray-500">
                           {item.star} stars
                         </span>
@@ -393,34 +401,47 @@ const CourseDetails = () => {
                   </div>
                 </div>
               </div>
+              {reviewData?.reviews?.length > 0 && reviewData?.reviews.map((item) => (
+                <div className="bg-white p-5 rounded-xl">
+                  <p className="text-xs text-gray-400 mb-2">{item.createdAt ? dateFormatter(item.createdAt) : 'N/A'}</p>
 
-              {/* Single Review */}
-              <div className="bg-white p-5 rounded-xl">
-                <p className="text-xs text-gray-400 mb-2">Jan 20, 2025</p>
-
-                <div className="flex gap-1 text-yellow-400 mb-2">
-                  {[1, 2, 3, 4, 5].map((i) => (
-                    <FaStar key={i} size={14} />
-                  ))}
-                </div>
-
-                <div className="flex items-center gap-3 mb-2">
-                  <div className="h-9 w-9 rounded-full bg-[#95C4BE] flex items-center justify-center text-xs font-semibold text-[#06574C]">
-                    AK
+                  <div className="flex gap-1 text-yellow-400 mb-2">
+                    <RatingStars rating={item.rating} />
                   </div>
 
-                  <div>
-                    <p className="text-sm font-medium">Alex K.</p>
-                    <p className="text-xs text-gray-400">Senior Analyst</p>
-                  </div>
-                </div>
+                  <div className="flex items-center gap-3 mb-2">
+                    <Avatar
+                      name={item.username || "User"}
+                      size="sm"
+                      color="success"
+                    />
 
-                <p className="text-sm text-gray-600 leading-relaxed">
-                  Working at SamAI has been an incredible journey so far. The
-                  technology we’re building is truly cutting-edge and immensely
-                  fulfilling.
-                </p>
-              </div>
+                    <div>
+                      <p className="text-sm font-medium">{item.username}</p>
+                      <p className="text-xs text-gray-400">{item.email}</p>
+                    </div>
+                  </div>
+
+                  <p className="text-sm text-gray-600 leading-relaxed">
+                    {item.description}
+                  </p>
+                </div>
+              ))}
+              <Pagination
+                className=""
+                showControls
+                variant="ghost"
+                initialPage={1}
+                page={page}
+                total={Number(reviewData?.totalPages)}
+                onChange={setPage}
+                classNames={{
+                  item: "rounded-sm hover:bg-[#06574C]/10",
+                  cursor: "bg-[#06574C] rounded-sm text-white",
+                  prev: "rounded-sm bg-white/80",
+                  next: "rounded-sm bg-white/80",
+                }}
+              />
             </div>
           </div>
 

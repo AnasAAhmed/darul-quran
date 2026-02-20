@@ -9,14 +9,13 @@ import RatingStars from "../../../components/RatingStar";
 
 const Review = () => {
   const [searchParams] = useSearchParams();
-  const id = searchParams.get("id");
+  const id = searchParams.get("id") || '';
   const [page, setPage] = useState(1);
-  const [limit, setLimit] = useState(10);
+  const [limit, setLimit] = useState(20);
   const [isDeleting, setIsDeleting] = useState(null);
 
-  const { data, isFetching, isError, error, refetch } = useGetReviewsQuery(
-    { courseId: id, page, limit },
-    { skip: !id }
+  const { data, isFetching, isError, error } = useGetReviewsQuery(
+    { courseId: id, page, limit }
   );
 
   const [deleteReview] = useDeleteReviewMutation();
@@ -80,11 +79,12 @@ const Review = () => {
                       color="success"
                     />
                     <div className="flex flex-col gap-1">
-                      <div className="flex items-center gap-2 flex-wrap">
+                      <div className="flex max-sm:flex-wrap items-center gap-2 flex-wrap">
                         <h1 className="text-md font-bold text-gray-800">
                           {item.username || "Anonymous"}
                         </h1>
                         <RatingStars rating={item.rating || 0} /> ({item.rating || 0})
+                        {item?.course?.courseName&&<p className="text-sm text-gray-600"><strong>Course:</strong> {item?.course?.courseName}</p>}
                       </div>
                       <p className="text-sm text-gray-500">{item.email}</p>
                     </div>
@@ -102,7 +102,7 @@ const Review = () => {
                     <Trash2 size={18} />
                   </Button>
                 </div>
-                <div className="mt-3 ml-14">
+                <div className="mt-3 mgl-14">
                   <p className="text-[#06574C] text-md">{item.description || "No description provided"}</p>
                   <p className="text-xs text-gray-400 mt-2">
                     {new Date(item.createdAt).toLocaleDateString("en-US", {
