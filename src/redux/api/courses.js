@@ -36,6 +36,10 @@ export const courseApi = createApi({
             query: (id) => `/getCourseById/${id}`,
             providesTags: ["course"],
         }),
+        getCourseByIdView: builder.query({
+            query: ({ courseId, includeCourse }) => `/getCourseByIdView/${courseId}?includeCourse=${includeCourse}`,
+            providesTags: ["course"],
+        }),
         addCourse: builder.mutation({
             query: (data) => ({
                 url: "/addCourse",
@@ -116,6 +120,7 @@ export const {
     useGetEnrolledCoursesQuery,
     useGetCourseFilesQuery,
     useGetCourseByIdQuery,
+    useGetCourseByIdViewQuery,
     useAddCourseMutation,
     useUpdateCourseMutation,
     useDeleteCourseMutation,

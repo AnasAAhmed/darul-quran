@@ -26,7 +26,7 @@ import { MdMenuBook } from "react-icons/md";
 import { useLocation, useParams, useNavigate } from "react-router-dom";
 import { errorMessage, successMessage } from "../../../lib/toast.config";
 import { dateFormatter } from "../../../lib/utils";
-import { useGetCourseFilesQuery } from "../../../redux/api/courses";
+import { useGetCourseByIdQuery, useGetCourseByIdViewQuery, useGetCourseFilesQuery } from "../../../redux/api/courses";
 
 const CourseDetails = () => {
   const { id } = useParams();
@@ -34,22 +34,21 @@ const CourseDetails = () => {
   const location = useLocation();
   const courseFromState = location.state || {};
 
-  // if (!course) {
-  //   navigate("/student/browse-courses");
-  //   return null;
-  // }
+  if (!courseFromState) {
+    navigate("/student/browse-courses");
+    return null;
+  }
 
   const [isEnrolled, setIsEnrolled] = useState(false);
   const [enrolling, setEnrolling] = useState(false);
-  const { data, error, isLoading, isError } = useGetCourseFilesQuery({ courseId: id, includeCourse: !courseFromState?.id }, { skip: !id });
+  const { data, error, isLoading, isError } = useGetCourseByIdViewQuery({ courseId: id, includeCourse: !courseFromState?.id }, { skip: !id });
 
   const course = useMemo(() => {
     if (courseFromState?.id) return courseFromState;
     if (data?.course) return data.course;
     return null;
   }, [courseFromState, data]);
-  const courseFiles = data?.results;
-  const totalLessons = data?.results?.length || 0;
+  const courseFiles = data?.counts;
   useEffect(() => {
     if (course?.id) {
       checkEnrollmentStatus();
@@ -122,30 +121,30 @@ const CourseDetails = () => {
   };
   const quickStats = [
     {
-      title: `${course?.videoCount || course?.lesson_video?.length || 0} Video Lessons`,
-      desc: `${course?.videoDuration || 0} minutes of video`,
+      title: `${courseFiles?.lessonVideo || 0} Video Lessons`,
+      // desc: `${courseFiles?.totalMinutes || 0} minutes of video`,
       icon: <HiOutlinePlay size={22} color="#06574C" />,
       bg: "#95C4BE",
     },
     {
-      title: `${course?.pdf_notes?.length || 0} PDF Resources`,
+      title: `${courseFiles?.pdfResources || 0} PDF Resources`,
       desc: "Downloadable materials",
       icon: <PiFilePdfLight size={22} color="#06574C" />,
     },
     {
-      title: `${course?.quizzes?.length || 0} Quizzes`,
+      title: `${courseFiles?.quizzes || 0} Quizzes`,
       desc: "Test your knowledge",
       icon: <GoLightBulb size={22} color="#06574C" />,
       bg: "#95C4BE",
     },
     {
-      title: `${course?.assignments?.length || 0} Assignments`,
+      title: `${courseFiles?.assignments || 0} Assignments`,
       desc: "Practice exercises",
       icon: <BsClipboard2Check size={22} color="#06574C" />,
       bg: "#95C4BE",
     },
     {
-      title: "Lifetime Access",
+      title: course?.accessDuration?.replace("_", " ")+(course?.accessDuration?.toLowerCase()?.includes("access") ? "" : " access"),
       desc: "Learn at your own pace",
       icon: <GiCheckMark size={22} color="#06574C" />,
     },
@@ -302,7 +301,7 @@ const CourseDetails = () => {
               <div className="p-3">
                 <div className="flex flex-row gap-1 items-center text-[#666666]">
                   <IoIosCheckmark size={22} />
-                  <h1 className="text-sm  ">Full lifetime access</h1>
+                  <h1 className="text-sm  ">{course?.accessDuration?.replace("_", " ")}{course?.accessDuration?.toLowerCase()?.includes("access") ? "" : " access"}</h1>
                 </div>
                 <div className="flex flex-row gap-1 items-center text-[#666666]">
                   <IoIosCheckmark size={22} />

@@ -28,7 +28,7 @@ const IntervalInput = ({
 
     const handleUpdate = () => {
         if (unitValue === "released_immediately") {
-            onUpdate("released_immediately");
+            onUpdate("null");
             return;
         }
         if (!numberValue || !unitValue) return;
@@ -138,8 +138,8 @@ const handleUploadFile = async ({ title, file, fileType, courseId, duration = 0,
         formData.append("title", title || file.name);
         formData.append("fileType", fileType);
         formData.append("courseId", courseId);
-        formData.append("duration", duration);
-        formData.append("pages", pages);
+        if (duration) formData.append("duration", duration);
+        if (pages) formData.append("pages", pages);
 
         const res = await fetch(`${import.meta.env.VITE_PUBLIC_SERVER_URL}/api/course/course-files`, {
             method: "PATCH",
@@ -221,7 +221,7 @@ export default function Videos({ files, setFiles, courseId }) {
                 file: newFile?.file,
                 fileType: "lesson_video",
                 courseId,
-                duration
+                duration,
             });
 
             clearInterval(interval);
@@ -302,7 +302,7 @@ export default function Videos({ files, setFiles, courseId }) {
                                             <Clock className="size-3.5" /> {document.file.duration.toLocaleString() || 0}ms duration
                                         </span>}
                                         {document?.views && <span className="inline-flex items-center gap-1">
-                                            <Eye className="h-4 w-4" /> {document?.views.toLocaleString() || 0} views
+                                            <Eye className="h-4 w-4" /> {document?.views.toLocaleString()} views
                                         </span>}
                                         <span className="inline-flex items-center gap-1">{document.status}</span>
                                     </div>

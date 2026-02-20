@@ -37,7 +37,7 @@ const CoursePlayer = () => {
         if (courseFromState?.id) return courseFromState;
         if (data?.course) return data.course;
         return null;
-    }, [courseFromState, data]); 
+    }, [courseFromState, data]);
     const courseFiles = data?.results;
     const totalLessons = data?.results?.length || 0;
 
@@ -237,15 +237,26 @@ const CoursePlayer = () => {
                                 const lessonId = lesson.id || lesson.lessonId;
                                 const isCompleted = completedLessons.includes(lessonId);
                                 const isCurrentById = currentLesson && currentLesson.id === lessonId;
+                                const isLocked = !lesson.url;
+                                const releaseText = isLocked
+                                    ? lesson.releasedAt && lesson.releasedAt !== "release_immediately"
+                                        ? `Releases in ${lesson.releasedAt} after enrollment`
+                                        : "Locked"
+                                    : null;
 
                                 return (
                                     <div
                                         key={lessonId || idx}
-                                        onClick={() => setCurrentLesson(currentLesson?.id === lessonId ? null : lesson)}
+                                        onClick={() =>
+                                            !isLocked &&
+                                            setCurrentLesson(
+                                                currentLesson?.id === lessonId ? null : lesson
+                                            )
+                                        }
                                         className={`p-3 rounded-lg cursor-pointer flex items-start gap-3 transition-all duration-200 border ${isCurrentById
-                                            ? "bg-[#06574C]/10 border-[#06574C] shadow-sm transform scale-[1.02]"
-                                            : "hover:bg-gray-50 border-transparent hover:border-gray-200"
-                                            }`}
+                                                ? "bg-[#06574C]/10 border-[#06574C] shadow-sm transform scale-[1.02]"
+                                                : "hover:bg-gray-50 border-transparent hover:border-gray-200"
+                                            } ${isLocked ? "opacity-60 cursor-not-allowed" : ""}`}
                                     >
                                         <div className="mt-1 shrink-0">
                                             {isCompleted ? (
@@ -256,28 +267,30 @@ const CoursePlayer = () => {
                                                 <PlayCircle size={18} className="text-gray-300" />
                                             )}
                                         </div>
-                                        <div>
-                                            <div className={`text-sm font-semibold ${isCurrentById ? "text-[#06574C]" : "text-gray-700"} ${isCompleted ? "line-through text-gray-400" : ""}`}>
+                                        <div className="flex-1">
+                                            <div
+                                                className={`text-sm font-semibold ${isCurrentById ? "text-[#06574C]" : "text-gray-700"
+                                                    } ${isCompleted ? "line-through text-gray-400" : ""}`}
+                                            >
                                                 {lesson.name || lesson.title || `Lesson ${idx + 1}`}
                                             </div>
                                             <div className="flex max-sm:flex-wrap items-center gap-2 text-xs text-gray-400 mt-1">
                                                 <span className="capitalize">
-                                                    Type: {(lesson?.fileType?.replace('_', ' ') || "Video Lesson")}
+                                                    Type: {lesson?.fileType?.replace("_", " ") || "Video Lesson"}
                                                 </span>
-                                                {lesson?.file?.pages &&
-                                                    <span>
-                                                        pages: {lesson?.file?.pages}
-                                                    </span>
-                                                }
-                                                {lesson?.file?.duration && lesson?.file?.duration !== "undefined" &&
-                                                    <span>
-                                                        duration: {lesson?.file?.duration} mins
-                                                    </span>
-                                                }
+                                                {lesson?.file?.pages && <span>pages: {lesson.file.pages}</span>}
+                                                {lesson?.file?.duration && lesson?.file?.duration !== "0" && (
+                                                    <span>duration: {lesson.file.duration} mins</span>
+                                                )}
                                             </div>
+                                            {isLocked && releaseText && (
+                                                <div className="text-xs text-orange-500 mt-1 italic">
+                                                    {releaseText}
+                                                </div>
+                                            )}
                                         </div>
                                     </div>
-                                )
+                                );
                             })
                         ) : (
                             <div className="text-center text-gray-500 mt-10 p-4">

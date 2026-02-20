@@ -112,7 +112,7 @@ const BrowseCourses = () => {
 
   const viewCourseDetails = (courseData) => {
     navigate(`/student/browse-courses/course-details/${courseData.id}`, {
-      state: { course: courseData }
+      state: courseData
     });
   };
 
