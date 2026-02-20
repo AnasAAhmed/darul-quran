@@ -101,7 +101,7 @@ const AdminDashboard = () => {
       {isLoading ? <Skeleton className="w-full h-100 bg-white min-w-[15em] sm:min-w-0 flex-1 space-y-4 rounded-lg p-4 shadow-lg" count={1} /> :
         <div className="px-2 sm:px-6 py-4 sm:rounded-lg sm:bg-white">
 
-          <div className="max-w-7xl mx-auto space-y-6">
+          <div className="pace-y-6">
             <div className="sm:hidden rounded-2xl overflow-hidden">
               <div className='flex justify-between my-4 items-center'>
                 <h2 className="text-base sm:text-lg font-semibold text-gray-900">Upcoming Live Classes</h2>
@@ -143,7 +143,7 @@ const AdminDashboard = () => {
                   td: "py-3",
                   tr: "border-b border-default-200",
                 }}>
-                <TableHeader columns={columns}>
+                <TableHeader columns={columns} >
                   <TableColumn className='bg-[#EBD4C9]/30 rounded-none'>Class</TableColumn>
                   <TableColumn className='bg-[#EBD4C9]/30'>Time</TableColumn>
                   <TableColumn className='bg-[#EBD4C9]/30'>Status</TableColumn>
