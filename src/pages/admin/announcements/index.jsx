@@ -2,16 +2,28 @@ import { DashHeading } from "../../../components/dashboard-components/DashHeadin
 import {
   Button,
   DatePicker,
+  Input,
+  Modal,
+  ModalBody,
+  ModalContent,
+  ModalFooter,
+  ModalHeader,
   Pagination,
   Select,
   SelectItem,
+  Textarea,
   Table,
   TableBody,
   TableCell,
   TableColumn,
   TableHeader,
   TableRow,
+  useDisclosure,
+  Switch,
+  Tooltip,
+  Form,
 } from "@heroui/react";
+import { useSelector } from "react-redux";
 import {
   BeakerIcon,
   BellRing,
@@ -23,8 +35,14 @@ import {
   PlusIcon,
   Trash2,
 } from "lucide-react";
+import { successMessage, errorMessage } from "../../../lib/toast.config";
+import { useEffect, useState } from "react";
+import { dateFormatter, formatForInput } from "../../../lib/utils";
 
 const Announcements = () => {
+  const { user } = useSelector((state) => state.user);
+  console.log(user, "user");
+
   const classes = [
     {
       id: 1,
@@ -134,6 +152,99 @@ const Announcements = () => {
     { key: "40", label: "40" },
     { key: "50", label: "50" },
   ];
+  const { isOpen, onOpen, onClose } = useDisclosure();
+  const [selectedAnnouncement, setSelectedAnnouncement] = useState(null);
+  const [isFeatured, setIsFeatured] = useState(false);
+
+  const handleOpen = (announcement = null) => {
+    if (announcement) {
+      setSelectedAnnouncement(announcement);
+      setIsFeatured(announcement.isFeatured || false);
+    } else {
+      setSelectedAnnouncement(null);
+      setIsFeatured(false);
+    }
+    onOpen();
+  };
+
+  const handleClose = () => {
+    setSelectedAnnouncement(null);
+    setIsFeatured(false);
+    onClose();
+  };
+
+  const [announcements, setAnnouncements] = useState([]);
+
+  const fetchAnnouncements = async () => {
+    try {
+      const res = await fetch(import.meta.env.VITE_PUBLIC_SERVER_URL + "/api/announcement/get", {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${user?.token}`,
+        },
+      });
+      const result = await res.json();
+      console.log(result);
+      if (result.success) {
+        setAnnouncements(result.data);
+      } else {
+        errorMessage(result.message);
+      }
+    } catch (error) {
+      console.error(error);
+      errorMessage("Failed to fetch announcements");
+    }
+  };
+
+  useEffect(() => {
+    fetchAnnouncements();
+  }, []);
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    const formData = new FormData(e.currentTarget);
+    const data = Object.fromEntries(formData.entries());
+
+    const payload = {
+      ...data,
+      userId: user?.id,
+      createdBy: user?.role,
+      senderName: user?.firstName + " " + user?.lastName,
+      isFeatured,
+      date: data.date ? new Date(data.date) : new Date(),
+    };
+
+    console.log("Submitting payload:", payload);
+
+    const url = selectedAnnouncement
+      ? `${import.meta.env.VITE_PUBLIC_SERVER_URL}/api/announcement/update/${selectedAnnouncement.id}`
+      : `${import.meta.env.VITE_PUBLIC_SERVER_URL}/api/announcement/create`;
+
+    const method = selectedAnnouncement ? "PUT" : "POST";
+
+    try {
+      const res = await fetch(url, {
+        method,
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${user?.token}`,
+        },
+        body: JSON.stringify(payload),
+      });
+      const result = await res.json();
+      console.log(result);
+      if (result.success) {
+        onClose();
+        fetchAnnouncements();
+        successMessage(result.message);
+      } else {
+        errorMessage(result.message);
+      }
+    } catch (error) {
+      errorMessage(error.message);
+    }
+  };
 
   return (
     <div className="bg-white sm:bg-linear-to-t from-[#F1C2AC]/50 to-[#95C4BE]/50 px-2 sm:px-3">
@@ -148,6 +259,7 @@ const Announcements = () => {
             radius="sm"
             defaultSelectedKeys={["all"]}
             placeholder="Select status"
+            aria-label="Filter by Status"
           >
             {statuses.map((status) => (
               <SelectItem key={status.key}>{status.label}</SelectItem>
@@ -159,6 +271,7 @@ const Announcements = () => {
             defaultSelectedKeys={["all"]}
             selectorIcon={<ListFilterIcon />}
             placeholder="Filter"
+            aria-label="Filter Options"
           >
             {filters.map((filter) => (
               <SelectItem key={filter.key}>{filter.label}</SelectItem>
@@ -169,6 +282,7 @@ const Announcements = () => {
           startContent={<PlusIcon />}
           radius="sm"
           size="lg"
+          onPress={() => handleOpen()}
           className="bg-[#06574C] text-white"
         >
           Create Announcement
@@ -178,41 +292,53 @@ const Announcements = () => {
         <Table
           removeWrapper
           classNames={{
-            base: "w-full bg-white rounded-lg overflow-x-scroll w-full no-scrollbar",
+            base: "w-full bg-white rounded-lg overflow-x-scroll w-full no-scrollbar min-h-[calc(100vh-350px)]",
             th: "font-bold p-4 text-md  text-[#333333] capitalize tracking-widest  bg-[#EBD4C936]",
-            td: "py-3 items-center whitespace-nowrap",
+            td: "py-3 items-center",
             tr: "border-b border-default-200 ",
           }}
         >
           <TableHeader>
-            <TableColumn className="bg-[#EBD4C9]/30">Title</TableColumn>
-            <TableColumn className="bg-[#EBD4C9]/30">Send To</TableColumn>
-            <TableColumn className="bg-[#EBD4C9]/30">Delivery Type</TableColumn>
-            <TableColumn className="bg-[#EBD4C9]/30">Date Sent</TableColumn>
-            {/* <TableColumn className='bg-[#EBD4C9]/30'>Status</TableColumn>
-                        <TableColumn className='bg-[#EBD4C9]/30'>Zoom Link</TableColumn> */}
-            <TableColumn className="bg-[#EBD4C9]/30">Actions</TableColumn>
+            <TableColumn width={200} className="bg-[#EBD4C9]/30">Title / Description</TableColumn>
+
+            <TableColumn width={120} className="bg-[#EBD4C9]/30">Created By</TableColumn>
+            <TableColumn width={120} className="bg-[#EBD4C9]/30">Send To</TableColumn>
+            <TableColumn width={150} className="bg-[#EBD4C9]/30">Delivery Type</TableColumn>
+            <TableColumn width={180} className="bg-[#EBD4C9]/30">Date Sent</TableColumn>
+            <TableColumn width={220} className="bg-[#EBD4C9]/30">Actions</TableColumn>
           </TableHeader>
 
           <TableBody>
-            {classes.map((classItem) => (
-              <TableRow key={classItem.id}>
+            {announcements.map((announcement) => (
+              <TableRow key={announcement.id}>
                 <TableCell>
-                  <div>
-                    <div className="font-medium text-gray-900">
-                      {classItem.name}
-                    </div>
-                    <div className="text-xs text-gray-500 mt-0.5">
-                      {classItem.desc}
-                    </div>
+                  <div className="max-w-[300px]">
+                    <p className="font-medium text-gray-900">
+                      {announcement.title}
+                    </p>
+                    <p className="text-xs text-gray-500 mt-0.5 line-clamp-2 wrap-break-word">
+                      {announcement.description}
+                    </p>
                   </div>
                 </TableCell>
                 <TableCell>
                   <div className="flex-col flex">
                     <p
-                      className={`p-2 w-full text-center rounded-md bg-[#FBF4EC] text-[#D28E3D] `}
+                      className={`px-3 w-full text-gray-500 text-md font-bold capitalize`}
                     >
-                      {classItem.sendto}
+                      {announcement.createdBy}
+                    </p>
+                    <p className="px-3 text-sm text-gray-500  line-clamp-2 wrap-break-word">
+                      {announcement.senderName}
+                    </p>
+                  </div>
+                </TableCell>
+                <TableCell>
+                  <div className="flex-col flex">
+                    <p
+                      className={`p-2 w-full text-center rounded-md bg-[#FBF4EC] text-[#D28E3D] capitalize`}
+                    >
+                      {announcement.sendTo}
                     </p>
                   </div>
                 </TableCell>
@@ -220,7 +346,7 @@ const Announcements = () => {
                   <div>
                     <Button
                       startContent={
-                        classItem.delivery === "Email" ? (
+                        announcement.delivery === "Email" ? (
                           <Mail size={20} color="#06574C" />
                         ) : (
                           <BellRing size={20} color="#06574C" />
@@ -228,12 +354,12 @@ const Announcements = () => {
                       }
                       className={`p-2 w-full text-center rounded-md bg-[#95C4BE33] text-[#06574C] `}
                     >
-                      {classItem.delivery}
+                      {announcement.delivery}
                     </Button>
                   </div>
                 </TableCell>
                 <TableCell>
-                  <span>{classItem.time}</span>
+                  <span>{dateFormatter(announcement.date, true)}</span>
                 </TableCell>
                 <TableCell className="flex items-center gap-2">
                   <Button
@@ -241,6 +367,7 @@ const Announcements = () => {
                     variant="bordered"
                     className="border-[#06574C] "
                     startContent={<Edit size={20} color="#06574C" />}
+                    onPress={() => handleOpen(announcement)}
                   >
                     Edit
                   </Button>
@@ -265,6 +392,7 @@ const Announcements = () => {
             className="w-[70px]"
             defaultSelectedKeys={["10"]}
             placeholder="1"
+            aria-label="Items per page"
           >
             {limits.map((limit) => (
               <SelectItem key={limit.key}>{limit.label}</SelectItem>
@@ -286,6 +414,92 @@ const Announcements = () => {
           }}
         />
       </div>
+      <Modal backdrop="blur" isOpen={isOpen} onClose={handleClose} placement="top-center">
+        <ModalContent>
+          {(onClose) => (
+            <>
+              <ModalHeader className="flex flex-col gap-1 text-[#06574C]">
+                {selectedAnnouncement ? "Edit Announcement" : "Create Announcement"}
+              </ModalHeader>
+              <ModalBody>
+                <Form
+                  className="w-full"
+                  onSubmit={handleSubmit}
+                >
+                  <div className="flex flex-col gap-3 w-full">
+                    <Input
+                      label="Title"
+                      type="text"
+                      name="title"
+                      labelPlacement="outside"
+                      placeholder="Enter title"
+                      variant="bordered"
+                      defaultValue={selectedAnnouncement?.title}
+                    />
+                    <Textarea
+                      label="Description"
+                      labelPlacement="outside"
+                      placeholder="Enter description"
+                      variant="bordered"
+                      name="description"
+                      defaultValue={selectedAnnouncement?.description}
+                    />
+                    <div className="flex justify-start gap-3 items-center w-full">
+                      <Select
+                        className="w-[48%]"
+                        label="Delivery"
+                        labelPlacement="outside"
+                        placeholder="Select Delivery"
+                        variant="bordered"
+                        name="delivery"
+                        defaultSelectedKeys={selectedAnnouncement?.delivery ? [selectedAnnouncement.delivery] : []}
+                      >
+                        <SelectItem key="Email">Email</SelectItem>
+                        <SelectItem key="In-App">In-App</SelectItem>
+                      </Select>
+                      <Tooltip content="Top Featured">
+                        <Switch
+                          radius="sm"
+                          color="success"
+                          size="lg"
+                          className="pt-5 w-[48%]"
+                          label="Send to all"
+                          placeholder="As Featured"
+                          isSelected={isFeatured}
+                          labelPlacement="outside"
+                          name="sendToAll"
+                          onValueChange={setIsFeatured}
+                        />
+                      </Tooltip>
+                    </div>
+                    <Select
+                      label="Send To"
+                      labelPlacement="outside"
+                      placeholder="Select Audience"
+                      variant="bordered"
+                      name="sendTo"
+                      defaultSelectedKeys={selectedAnnouncement?.sendTo ? [selectedAnnouncement.sendTo] : []}
+                    >
+                      <SelectItem key="all">All</SelectItem>
+                      <SelectItem key="teachers">Teachers</SelectItem>
+                      <SelectItem key="students">Students</SelectItem>
+                    </Select>
+                  </div>
+                  <div className="flex justify-end gap-3 items-center w-full">
+                    <Button color="danger" variant="flat" onPress={handleClose}>
+                      Cancel
+                    </Button>
+                    <Button className="bg-[#06574C] text-white" type="submit">
+                      {selectedAnnouncement ? "Update" : "Create"}
+                    </Button>
+                  </div>
+                </Form>
+              </ModalBody>
+            </>
+          )}
+        </ModalContent>
+      </Modal>
+
     </div>
   );
 };
