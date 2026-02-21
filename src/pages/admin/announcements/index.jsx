@@ -293,7 +293,7 @@ const Announcements = () => {
         <Table
           removeWrapper
           classNames={{
-            base: "w-full bg-white rounded-lg overflow-x-scroll w-full no-scrollbar min-h-[calc(100vh-350px)]",
+            base: "w-full bg-white rounded-lg overflow-x-scroll w-full no-scrollbar min-h-[calc(100vh-350px)] items-center",
             th: "font-bold p-4 text-md  text-[#333333] capitalize tracking-widest  bg-[#EBD4C936]",
             td: "py-3 items-center",
             tr: "border-b border-default-200 ",
@@ -314,7 +314,7 @@ const Announcements = () => {
               <TableRow key={announcement.id}>
                 <TableCell>
                   <div className="max-w-[300px]">
-                    <p className="font-medium text-gray-900">
+                    <p className="font-medium text-gray-900 line-clamp-1">
                       {announcement.title}
                     </p>
                     <p className="text-xs text-gray-500 mt-0.5 line-clamp-2 wrap-break-word">
@@ -500,7 +500,6 @@ const Announcements = () => {
           )}
         </ModalContent>
       </Modal>
-
     </div>
   );
 };
