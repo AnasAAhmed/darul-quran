@@ -24,6 +24,7 @@ import {
   DropdownTrigger,
   DropdownMenu,
   DropdownItem,
+  DateRangePicker,
 } from "@heroui/react";
 import { Calendar, Copy, Edit, Plus, Trash2, Check, ExternalLink, PlusIcon } from "lucide-react";
 
@@ -42,6 +43,8 @@ const Scheduling = () => {
   // Modal State
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
   const [isEdit, setIsEdit] = useState(false);
+  const [startDate, setStartDate] = useState(false);
+  const [endDate, setEndDate] = useState(false);
   const [formData, setFormData] = useState({
     id: null,
     title: '',
@@ -88,6 +91,14 @@ const Scheduling = () => {
       errorMessage("Please fill required fields (Title, Date, Time, Teacher)");
       return;
     }
+    const start = new Date(startDate);
+    const end = new Date(endDate);
+    const dateArray = [];
+    let curr = new Date(start);
+    while (curr <= end) {
+      dateArray.push(curr.toISOString().split("T")[0]);
+      curr.setDate(curr.getDate() + 1);
+    }
 
     setLoading(true);
     try {
@@ -99,7 +110,7 @@ const Scheduling = () => {
       const res = await fetch(url, {
         method,
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formData)
+        body: JSON.stringify({ ...formData, dateArray })
       });
       const data = await res.json();
 
@@ -347,6 +358,12 @@ const Scheduling = () => {
                   variant="bordered"
                   value={formData.title}
                   onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+                />
+                <DateRangePicker
+                  className="max-w-xs"
+                  label="Stay duration"
+                  onChange={(e) => console.log(e)
+                  }
                 />
                 <Select
                   label="Assign Teacher"
