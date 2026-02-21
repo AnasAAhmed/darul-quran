@@ -230,6 +230,7 @@ const Announcements = () => {
           "Content-Type": "application/json",
           "Authorization": `Bearer ${user?.token}`,
         },
+        credentials: "include",
         body: JSON.stringify(payload),
       });
       const result = await res.json();
