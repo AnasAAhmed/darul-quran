@@ -20,11 +20,14 @@ import { CheckIcon, Clock } from "lucide-react";
 import { FaIdCard } from "react-icons/fa";
 import { IoSearchOutline, IoStarSharp } from "react-icons/io5";
 import { MdKeyboardArrowDown } from "react-icons/md";
-import { Link } from "react-router-dom";
 import { useState } from "react";
 import { useEffect } from "react";
 import { useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
+import { useGetAllCategoriesQuery, useGetAllCoursesQuery } from "../../../redux/api/courses";
+import { errorMessage } from "../../../lib/toast.config";
+import Loader from "../../../components/Loader";
+import { debounce } from "../../../lib/utils";
 
 // Helper function to format duration in seconds to readable format
 const formatDuration = (seconds) => {
@@ -41,77 +44,35 @@ const formatDuration = (seconds) => {
 const BrowseCourses = () => {
   const navigate = useNavigate(); // ✅ Initialize navigate hook
 
-  const [categories, setCategories] = useState([]);
-  const [course, setCourse] = useState([]);
-  console.log("categories:", categories);
-  const [isLoading, setIsLoading] = useState(false);
+  const [page, setPage] = useState(1);
+  const [limit, setLimit] = useState(10);
+  const [difficultys, setDifficultys] = useState([]);
+  const [search, setSearch] = useState('');
+  const [isFree, setIsFree] = useState();
+  const [sort, setSort] = useState();
+  const [categoryIds, setCategoryIds] = useState([]);
+  const [type, setType] = useState('all');
   const { user } = useSelector((state) => state.user);
   const role = user?.role;
 
+  const { data, isFetching: isLoading, isError, error } = useGetAllCoursesQuery({ page, sort, isFree, difficulties: difficultys, categoryIds, limit, search, type });
+  const { data: categoriesData, isError: categoriesError, error: categoriesErrorData } = useGetAllCategoriesQuery();
 
-
-
-  useEffect(() => {
-    const fetchCategories = async () => {
-      setIsLoading(true);
-      try {
-        const res = await fetch(
-          import.meta.env.VITE_PUBLIC_SERVER_URL + `/api/course/getAllCategories`,
-          {
-            method: "GET",
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: `Bearer ${user?.token}`,
-            },
-          }
-        );
-        const data = await res.json();
-        console.log("Fetched Categories:", data);
-        setCategories(data.categories || []);
-      } catch (error) {
-        console.error("Error fetching courses:", error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    if (user?.id) {
-      fetchCategories();
-    }
-  }, [user]);
+  const categories = categoriesData?.categories || [];
+  const course = data?.courses || [];
 
   useEffect(() => {
-    const fetchCourses = async () => {
-      setIsLoading(true);
-      try {
-        const res = await fetch(
-          import.meta.env.VITE_PUBLIC_SERVER_URL + `/api/course/getAllCourses`,
-          {
-            method: "GET",
-            credentials: "include",
-            headers: {
-              "Content-Type": "application/json",
-            },
-          }
-        );
-        const data = await res.json();
-        console.log("Fetched difficultydfjhakjsdfhajkdfhakjdfh:", data);
-        setCourse(data.courses || []);
-      } catch (error) {
-        console.error("Error fetching courses:", error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    if (user?.id) {
-      fetchCourses();
+    if (isError) {
+      errorMessage(error.data.error, error.status);
+    } else if (categoriesError) {
+      errorMessage(categoriesErrorData.data.error, categoriesErrorData.status);
     }
-  }, [user]);
+  }, [isError, categoriesError]);
+
 
 
   const viewCourseDetails = (courseData) => {
-    navigate(`/student/browse-courses/course-details/${courseData.id}`, {
+    navigate(`/student/browse-courses/course-details/${courseData.id}?teacher=${courseData?.teacherId || courseData?.teacher_id}`, {
       state: courseData
     });
   };
@@ -121,20 +82,18 @@ const BrowseCourses = () => {
     { key: "z-a", label: "Z-A" },
     { key: "latest", label: "Latest" },
     { key: "oldest", label: "Oldest" },
-    { key: "Most Popular", label: "Most Popular" },
+    { key: "Most_popular", label: "Most Popular" },
   ];
 
   const Subscription = [
-    { key: "All", label: "All" },
-    { key: "Paid", label: "Paid" },
-    { key: "Free", label: "Free" },
+    { key: "all", label: "All" },
+    { key: "false", label: "Paid" },
+    { key: "true", label: "Free" },
   ];
-  const category = [
-    { key: "Design", label: "Design" },
-    { key: "Development", label: "Development" },
-    { key: "Business", label: "Business" },
-    { key: "Marketing", label: "Marketing" },
-    { key: "Photography", label: "Photography" },
+  const difficultyOptions = [
+    { key: "Beginner", label: "Beginner" },
+    { key: "Advanced", label: "Advanced" },
+    { key: "Expert", label: "Expert" },
   ];
   const limits = [
     { key: "10", label: "10" },
@@ -144,19 +103,24 @@ const BrowseCourses = () => {
     { key: "50", label: "50" },
   ];
   return (
-    <div className="bg-white bg-linear-to-t from-[#F1C2AC]/50 to-[#95C4BE]/50 h-scrseen px-2 sm:px-3">
+    <div className="bg-white bg-linear-to-t from-[#F1C2AC]/50 to-[#95C4BE]/50 px-2 sm:px-3">
       <DashHeading
         title={"Browse Courses"}
         desc={"Discover your next learning adventure from 2,847 courses"}
       />
 
-      <div className="bg-white p-3 rounded-lg mb-3">
+      <div className="bg-white p-3  rounded-lg mb-3">
         <div className="flex flex-col md:flex-row gap-3 items-center w-full">
           <Input
             placeholder="Search for a course"
             size="sm"
             radius="md"
-            className="w-[100%]"
+            className="w-full"
+            onChange={(e) =>
+              debounce(() => {
+                setSearch(e.target.value);
+              }, 400)
+            }
             endContent={<IoSearchOutline size={20} color="#06574C" />}
           />
           <div className="flex gap-1 items-center w-fit">
@@ -166,6 +130,10 @@ const BrowseCourses = () => {
               size="sm"
               radius="md"
               className="w-35"
+              onSelectionChange={(k) => {
+                const keys = [...k];
+                setSort(keys[0]);
+              }}
               defaultSelectedKeys={["Most Popular"]}
             >
               {Sort.map((item) => (
@@ -179,11 +147,16 @@ const BrowseCourses = () => {
               ))}
             </Select>
             <Select
-              placeholder="Sort "
+              placeholder="Payment type"
+              title="Payment type"
               size="sm"
               radius="md"
               className="w-20"
-              defaultSelectedKeys={["Free"]}
+              onSelectionChange={(k) => {
+                const keys = [...k];
+                setIsFree(keys[0]);
+              }}
+              defaultSelectedKeys={["all"]}
             >
               {Subscription.map((item) => (
                 <SelectItem
@@ -197,33 +170,48 @@ const BrowseCourses = () => {
             </Select>
           </div>
         </div>
+        <Select
+          placeholder="Select Type"
+          title="Select Type"
+          size="sm"
+          radius="md"
+          className="max-w-xl mt-2"
+          onSelectionChange={(k) => {
+            const keys = [...k];
+            setSort(keys[0]);
+          }}
+          // defaultSelectedKeys={["all"]}
+        >
+          <SelectItem key="all" value="all" className="capitalize">
+            All Courses
+          </SelectItem>
+
+          <SelectItem description={<span title=" Pay once and get lifetime access to all course materials. Includes course player, files, and progress tracking." className="block text-xs text-gray-500">
+              Pay once and get lifetime access to all course materials. Includes course player, files, and progress tracking.
+            </span>} key="one_time" value="one_time" className="capitalize">
+            One Time Paid
+          </SelectItem>
+
+          <SelectItem description={<span title="Scheduled live sessions requiring subscription. Access course player, files, and track progress for each live class." className="block text-xs text-gray-500">
+              Scheduled live sessions requiring subscription. Access course player, files, and track progress for each live class.
+            </span>} key="live" value="live" className="capitalize">
+            Live Classes
+          </SelectItem>
+        </Select>
+
         <div className="mt-4">
           <div className="flex gap-2 items-center ">
             <h1 className="text-lg font-semibold"> Filters</h1>
             <MdKeyboardArrowDown size={22} />
           </div>
-          <div className="mt-5">
-            <h1 className="text-sm font-semibold text-[#666666]  mt-3">
-              Categories
-            </h1>
-            <CheckboxGroup orientation="horizontal" className="gap-2">
-              {category.map((item) => (
-                <CustomCheckbox
-                  key={item.key}
-                  value={item.key}
-                  className="capitalize"
-                >
-                  {item.label}
-                </CustomCheckbox>
-              ))}
-            </CheckboxGroup>
-          </div>
+
           <div className="mt-5">
             <h1 className="text-sm font-semibold text-[#666666]  mt-3">
               Difficulty Level
             </h1>
-            <CheckboxGroup orientation="horizontal" className="gap-2">
-              {course.map((item) => (
+
+            <CheckboxGroup onChange={(e) => setDifficultys(e)} orientation="horizontal" className="gap-2">
+              {difficultyOptions.map((item) => (
                 <CustomCheckbox
                   key={item.key}
                   value={item.key}
@@ -239,31 +227,29 @@ const BrowseCourses = () => {
               Categories
             </h1>
 
-            {isLoading ? (
-              <div className="flex items-center justify-center">
-                <Spinner color="success" />
-              </div>
-            ) : (
-              <CheckboxGroup orientation="horizontal" className="gap-2">
-                {categories.map((item) => (
-                  <CustomCheckbox
-                    key={item.id}
-                    value={item.id}
-                    className="capitalize"
-                  >
-                    {item.categoryName}
-                  </CustomCheckbox>
-                ))}
-              </CheckboxGroup>
-            )}
+
+            <CheckboxGroup
+              onChange={(e) => setCategoryIds(e)}
+              orientation="horizontal"
+              className="gap-2">
+              {categories.map((item) => (
+                <CustomCheckbox
+                  key={item.id}
+                  value={item.id}
+                  className="capitalize"
+                >
+                  {item.categoryName}
+                </CustomCheckbox>
+              ))}
+            </CheckboxGroup>
           </div>
         </div>
       </div>
 
       <div>
-        <div className="grid grid-cols-12 gap-3 pb-4">
+        {isLoading ? <Loader height={50} /> : <div className="grid min-h-[45vh]  grid-cols-12 gap-3 pb-4">
           {course.map((item, index) => (
-            <div className="col-span-12 md:col-span-6 lg:col-span-4 ">
+            <div key={index} className="col-span-12 md:col-span-6 lg:col-span-4 ">
               <div className="w-full bg-white rounded-lg">
                 <div className="bg-[linear-gradient(110.57deg,rgba(241,194,172,0.25)_0.4%,rgba(149,196,190,0.25)_93.82%)]  rounded-lg p-3 ">
                   <div className="flex justify-between items-center">
@@ -293,12 +279,11 @@ const BrowseCourses = () => {
                       <div className="w-12 h-12 rounded-full bg-[#95C4BE33] flex items-center justify-center text-white font-bold text-sm  shrink-0">
                         <RiGroupLine size={22} color="#06574C" />
                       </div>
-                      <div>
-                        <p className="font-semibold text-[#06574C] text-lg leading-tight">
-                          {item.students} Enrolled
+                      {item.studentCourseCount > 0 && <div>
+                        <p className="font-semibold text-[#06574C] text-[16px] leading-tight">
+                          {item.studentCourseCount} Enrolled
                         </p>
-                        <p className="text-sm text-[#666666]">{role}</p>
-                      </div>
+                      </div>}
                     </div>
                     <div className="text-end">
                       <p className={`font-semibold text-xl leading-tight ${item.Status === "Paid" ? "text-[#D28E3D]" : "text-[#34A853]"}`}>
@@ -312,10 +297,10 @@ const BrowseCourses = () => {
                   </div>
                   <div>
                     <div className="flex justify-between items-center text-[#6B7280]">
-                      <div className="flex items-center gap-1 text-sm">
+                      {item.duration && <div className="flex items-center gap-1 text-sm">
                         <Clock size={20} color="#6B7280" />
-                        {formatDuration(item.videoDuration)}
-                      </div>
+                        {item.duration}
+                      </div>}
                       <span className="text-xs px-2 py-1 rounded-md bg-[#95C4BE33] text-[#06574C]">
                         {item.category_name}
                       </span>
@@ -343,7 +328,7 @@ const BrowseCourses = () => {
               </div>
             </div>
           ))}
-        </div>
+        </div>}
         <div className="md:flex md:flex-row items-center pb-4 gap-2 justify-between overflow-hidden ">
           <div className="flex text-sm items-center gap-1">
             <span>Showing</span>
@@ -351,6 +336,10 @@ const BrowseCourses = () => {
               radius="sm"
               className="w-[70px]"
               defaultSelectedKeys={["10"]}
+              onSelectionChange={(k) => {
+                const keys = [...k];
+                setLimit(Number(keys[0]))
+              }}
               placeholder="1"
             >
               {limits.map((limit) => (
@@ -364,7 +353,8 @@ const BrowseCourses = () => {
             showControls
             variant="ghost"
             initialPage={1}
-            total={10}
+            onChange={(page) => setPage(page)}
+            total={data?.totalPages || 1}
             classNames={{
               item: "rounded-sm hover:bg-bg-[#06574C]/50",
               cursor: "bg-[#06574C] rounded-sm text-white",

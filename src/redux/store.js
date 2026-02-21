@@ -4,6 +4,7 @@ import { userAPI } from "./api/user";
 import { courseApi } from "./api/courses";
 import { notificationApi } from "./api/notifications";
 import { dashboardApi } from "./api/dashboard";
+import { announcementAPI } from "./api/announcements";
 
 
 export const store = configureStore({
@@ -12,6 +13,7 @@ export const store = configureStore({
     [courseApi.reducerPath]: courseApi.reducer,
     [notificationApi.reducerPath]: notificationApi.reducer,
     [dashboardApi.reducerPath]: dashboardApi.reducer,
+    [announcementAPI.reducerPath]: announcementAPI.reducer,
     user: userReducer,
   },
   middleware: (mid) => [
@@ -20,6 +22,7 @@ export const store = configureStore({
     courseApi.middleware,
     notificationApi.middleware,
     dashboardApi.middleware,
+    announcementAPI.middleware,
   ],
 });
 

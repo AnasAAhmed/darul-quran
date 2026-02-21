@@ -23,7 +23,7 @@ import { BsClipboard2Check } from "react-icons/bs";
 import { HiDevicePhoneMobile } from "react-icons/hi2";
 import { LiaCertificateSolid } from "react-icons/lia";
 import { MdMenuBook } from "react-icons/md";
-import { useLocation, useParams, useNavigate } from "react-router-dom";
+import { useLocation, useParams, useNavigate, useSearchParams } from "react-router-dom";
 import { errorMessage, successMessage } from "../../../lib/toast.config";
 import { dateFormatter } from "../../../lib/utils";
 import { useGetCourseByIdQuery, useGetCourseByIdViewQuery, useGetCourseFilesQuery, useGetReviewsQuery } from "../../../redux/api/courses";
@@ -31,12 +31,14 @@ import RatingStars from "../../../components/RatingStar";
 
 const CourseDetails = () => {
   const { id } = useParams();
+  const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const location = useLocation();
   const courseFromState = location.state || {};
   const [page, setPage] = useState(1);
   const [limit, setLimit] = useState(20);
   const [ratingForSearch, setRatingForSearch] = useState(null);
+  const teacherId = searchParams.get('teacher') || courseFromState?.teacher_id;
 
   if (!courseFromState) {
     navigate("/student/browse-courses");
@@ -47,7 +49,7 @@ const CourseDetails = () => {
   const [enrolling, setEnrolling] = useState(false);
 
 
-  const { data, error, isLoading, isError } = useGetCourseByIdViewQuery({ courseId: id, includeCourse: !courseFromState?.id }, { skip: !id });
+  const { data, error, isLoading, isError } = useGetCourseByIdViewQuery({ courseId: id, includeCourse: !courseFromState?.id, teacherId }, { skip: !id });
   const { data: reviewData, isLoading: isReviewLoading, isError: reviewIsError, error: reviewError } = useGetReviewsQuery(
     { courseId: id, page, limit, includeOverview: true, rating: ratingForSearch },
     { skip: !id }
@@ -235,7 +237,7 @@ const CourseDetails = () => {
                   <div>
                     <div className="flex items-center gap-1">
                       <FiUsers size={16} />
-                      <span>{course?.enrollNumber} students enrolled</span>
+                      <span>{course?.studentCourseCount} students enrolled</span>
                     </div>
 
                     {/* <div className="flex items-center gap-1">
@@ -377,7 +379,7 @@ const CourseDetails = () => {
                       { star: 2, value: ((reviewData?.agg?.two / course?.numOfReviews) * 100), count: reviewData?.agg?.two },
                       { star: 1, value: ((reviewData?.agg?.one / course?.numOfReviews) * 100), count: reviewData?.agg?.one },
                     ].map((item) => (
-                      <div onClick={() => setRatingForSearch(item.star)} key={item.star} className="flex cursor-pointer items-center gap-2">
+                      <div onClick={() => setRatingForSearch(item.star)} key={item.star} className="flex hover:opacity-50 cursor-pointer items-center gap-2">
                         <span className="w-12 text-xs text-gray-500">
                           {item.star} stars
                         </span>
@@ -457,10 +459,10 @@ const CourseDetails = () => {
 
                 <div>
                   <p className="text-xl font-semibold text-emerald-700">
-                    Sarah Mitchell
+                    {data?.teacher?.firstName} {data?.teacher?.lastName}
                   </p>
                   <p className="text-sm text-gray-500">
-                    Senior UI/UX Designer at TechCorp
+                    {data?.teacher?.tagline}
                   </p>
                 </div>
               </div>
@@ -468,33 +470,22 @@ const CourseDetails = () => {
               <div className="flex gap-6 text-md text-gray-600 mb-4">
                 <div className="flex items-center gap-1">
                   <FaStar className="text-yellow-400" />
-                  <span>4.9 Teacher Rating</span>
+                  <span>{data?.teacher?.rating} Teacher Rating</span>
                 </div>
 
                 <div className="flex items-center gap-1">
                   <HiUserGroup />
-                  <span>15,432 students</span>
+                  <span>{data?.teacher?.studentCount} students</span>
                 </div>
 
                 <div className="flex items-center gap-1">
                   <MdMenuBook />
-                  <span>8 Courses</span>
+                  <span>{data?.teacher?.coursesCount} Courses</span>
                 </div>
               </div>
 
               <p className="text-sm text-[#333333] font-medium mb-2">
-                Sarah is a Senior UI/UX Designer with over 10 years of experience
-                working with Fortune 500 companies and startups. She has designed
-                products used by millions of users worldwide and is passionate
-                about teaching the next generation of designers. Her teaching
-                style focuses on practical, real-world skills that help students
-                get hired quickly.
-              </p>
-
-              <p className="text-sm text-[#333333] font-medium">
-                Sarah is a Senior UI/UX Designer with over 10 years of experience
-                working with Fortune 500 companies and startups. She has designed
-                products used by millions of users worldwide.
+                {data?.teacher?.bio}
               </p>
             </div>
           </div>

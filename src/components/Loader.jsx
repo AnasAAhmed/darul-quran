@@ -1,8 +1,8 @@
 import { Spinner } from '@heroui/react'
 
-const Loader = () => {
+const Loader = ({ height = 100 }) => {
     return (
-        <div className="h-screen flex flex-col items-center justify-center">
+        <div className="h-screen flex flex-col items-center justify-center" style={{ height: `${height}vh` }}>
             <img
                 src="/icons/darul-quran-logo.svg"
                 alt="Darul Quran"

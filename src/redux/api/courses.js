@@ -9,10 +9,14 @@ export const courseApi = createApi({
     tagTypes: ["course", "reviews", "categories"],
     endpoints: (builder) => ({
         getAllCourses: builder.query({
-            query: ({ page, limit, categoryId, search, status }) => ({
+            query: ({ page, limit, categoryId, sort, categoryIds, search, status, type, difficulties, isFree }) => ({
                 url: "/getAllCourses",
                 method: "GET",
-                params: { page, limit, categoryId, search, status }
+                params: {
+                    page, isFree, sort, limit, categoryId, search, status, type,
+                    difficulties: JSON.stringify(difficulties),
+                    categoryIds: JSON.stringify(categoryIds)
+                },
             }),
             providesTags: ["course"],
         }),
@@ -37,7 +41,11 @@ export const courseApi = createApi({
             providesTags: ["course"],
         }),
         getCourseByIdView: builder.query({
-            query: ({ courseId, includeCourse }) => `/getCourseByIdView/${courseId}?includeCourse=${includeCourse}`,
+            query: ({ courseId, includeCourse ,teacherId}) => ({
+                url: `/getCourseByIdView/${courseId}`,
+                method: "GET",
+                params: { teacherId, includeCourse }
+            }),
             providesTags: ["course"],
         }),
         addCourse: builder.mutation({

@@ -1,18 +1,13 @@
-import React, { useState, useEffect } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Button } from "@heroui/react";
+import { Button, Pagination } from "@heroui/react";
 import {
   Clock,
-  UsersRound,
   VideoIcon,
 } from "lucide-react";
 import {
-  AiOutlineBook,
   AiOutlineEye,
-  AiOutlineLineChart,
 } from "react-icons/ai";
-import { LuClock4 } from "react-icons/lu";
-import { RiGroupLine } from "react-icons/ri";
 import { FaRegAddressCard } from "react-icons/fa";
 import { BiGroup } from "react-icons/bi";
 import { GrAnnounce } from "react-icons/gr";
@@ -22,8 +17,10 @@ import NotificationPermission from "../../components/NotificationPermission";
 
 import { Spinner } from "@heroui/react";
 import VideoPlayer from "../../components/dashboard-components/Video";
-import { useGetAllTeachersQuery } from "../../redux/api/user";
 import { useGetEnrolledCoursesQuery } from "../../redux/api/courses";
+import { useGetAllAnnouncementQuery } from "../../redux/api/announcements";
+import { errorMessage } from "../../lib/toast.config";
+import { dateFormatter } from "../../lib/utils";
 
 const StudentDashboard = () => {
   const { user } = useSelector((state) => state.user);
@@ -32,7 +29,12 @@ const StudentDashboard = () => {
   const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(true);
   const { data, isError, error, isLoading } = useGetEnrolledCoursesQuery({ page })
+  const { data: announcementsData, error: announcementsError, isLoading: announcementsLoading } = useGetAllAnnouncementQuery({ limit: 5 })
 
+  // Handle announcement error
+  if (announcementsError) {
+    errorMessage(announcementsError?.data?.message || announcementsError?.message || "Failed to fetch announcements");
+  }
 
   const upcomingClasses = [
     {
@@ -73,33 +75,7 @@ const StudentDashboard = () => {
       minutes: "30 minutes",
     },
   ];
-  const Announcements = [
-    {
-      id: 1,
-      icone: <GrAnnounce color="#06574C" size={30} />,
-      time: "2 hours ago",
-      desc: "Web Development 101: Complete the React project by Friday. Check the assignment details in your course portal.",
-      Title: "Advanced Web Development",
-      students: "32",
-      professer: "Prof. Sarah Johnson",
-    },
-    {
-      id: 2,
-      icone: <CiCalendar color="#D28E3D" size={30} />,
-      time: "2 hours ago",
-      desc: "Web Development 101: Complete the React project by Friday. Check the assignment details in your course portal.",
-      Title: "Class Schedule Update",
-      professer: "Prof. Sarah Johnson",
-    },
-    {
-      id: 3,
-      icone: <GrAnnounce color="#06574C" size={30} />,
-      time: "2 hours ago",
-      desc: "Web Development 101: Complete the React project by Friday. Check the assignment details in your course portal.",
-      Title: "Advanced Web Development",
-      professer: "Prof. Sarah Johnson",
-    },
-  ];
+
   return (
     <div className="bg-white bg-linear-to-t from-[#F1C2AC]/50 to-[#95C4BE]/50 h-scrseen px-2 sm:px-3">
       {/* banner */}
@@ -172,6 +148,20 @@ const StudentDashboard = () => {
               </div>
             )))}
         </div>
+        <Pagination
+          showControls
+          className="mb-4"
+          variant="ghost"
+          initialPage={1}
+          onChange={(page) => setPage(page)}
+          total={data?.totalPages || 1}
+          classNames={{
+            item: "rounded-sm hover:bg-bg-[#06574C]/50",
+            cursor: "bg-[#06574C] rounded-sm text-white",
+            prev: "rounded-sm bg-white/80",
+            next: "rounded-sm bg-white/80",
+          }}
+        />
       </div>
 
       <div className=" bg-white rounded-lg mb-3 ">
@@ -243,44 +233,52 @@ const StudentDashboard = () => {
           Recent Announcements
         </h1>
         <div className="flex flex-col gap-3">
-          {Announcements.map((item, index) => (
-            <div
-              key={item.id}
-              className={`${item.Title !== "Class Schedule Update"
-                ? "bg-[#EAF3F2]"
-                : "bg-[#F5E3DA]"
-                } `}
-            >
-              <div className="flex flex-col md:flex-row gap-4 md:justify-between p-4 md:items-start">
-                <div className="flex flex-col md:flex-row gap-3 md:items-center justify-center">
-                  <div className="h-20 w-20 rounded-full shadow-xl flex flex-col items-center justify-center bg-white">
-                    {item.icone}
+          {announcementsLoading ? (
+            <div className="flex justify-center py-10"><Spinner color="success" size="lg" /></div>
+          ) : !announcementsData?.data || announcementsData.data.length === 0 ? (
+            <div className="text-center py-10 text-gray-500">No announcements found</div>
+          ) : (
+            announcementsData.data.map((item, index) => (
+              <div
+                key={item.id}
+                className={`${(item.createdBy === "teacher" || item.description?.toLowerCase()?.includes("schedule")) ? "bg-[#F5E3DA]"
+                  : "bg-[#EAF3F2]"
+                  } `}
+              >
+                <div className="flex flex-col md:flex-row gap-4 md:justify-between p-4 md:items-start">
+                  <div className="flex flex-col md:flex-row gap-3 md:items-center justify-center">
+                    <div className="h-20 shrink-0 w-20 rounded-full shadow-xl flex flex-col items-center justify-center bg-white">
+                      {(item.createdBy === "teacher" || item.description?.toLowerCase()?.includes("schedule")) ? (
+                        <CiCalendar color="#D28E3D" size={30} />
+                      ) : (
+                        <GrAnnounce color="#06574C" size={30} />
+                      )}
+                    </div>
+                    <div>
+                      <div
+                        className={`${(item.createdBy === "teacher" || item.description?.toLowerCase()?.includes("schedule"))? "text-[#B7721F]"
+                          : "text-[#06574C]"
+                          } font-semibold`}
+                      >
+                        {item.title}
+                      </div>
+                      <div className=" text-xs text-[#666666]">
+                        <p>{dateFormatter(item.date)}</p>
+                      </div>
+                      <div className=" max-w-4xl text-sm text-[#666666]">
+                        <p>{item.description}</p>
+                      </div>
+                    </div>
                   </div>
                   <div>
-                    <div
-                      className={`${item.Title === "Class Schedule Update"
-                        ? "text-[#B7721F]"
-                        : "text-[#06574C]"
-                        } font-semibold`}
-                    >
-                      {item.Title}
-                    </div>
-                    <div className=" text-xs text-[#666666]">
-                      <p>{item.time}</p>
-                    </div>
-                    <div className=" text-sm text-[#666666]">
-                      <p>{item.desc}</p>
-                    </div>
+                    <p className="font-medium text-sm text-[#666666]">
+                      {item.senderName || "Admin"}
+                    </p>
                   </div>
                 </div>
-                <div>
-                  <p className="font-medium text-sm text-[#666666]">
-                    {item.professer}
-                  </p>
-                </div>
               </div>
-            </div>
-          ))}
+            ))
+          )}
         </div>
       </div>
     </div>
