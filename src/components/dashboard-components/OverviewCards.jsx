@@ -32,7 +32,7 @@ const OverviewCards = ({ data = [], isLoading }) => {
     return (
         <div className="py-4 gap-5  overflow-x-auto grid grid-cols-1 sm:grid-cols-4">
             {isLoading ? [...Array(4)].map((_, index) => (
-                <div className="flex items-center justify-center">
+                <div key={index} className="flex items-center justify-center">
                     <Skeleton
                         className="w-full h-40 min-w-[15em] bg-white sm:min-w-0 flex-1 space-y-4 rounded-lg p-4 shadow-lg"
                         count={4}

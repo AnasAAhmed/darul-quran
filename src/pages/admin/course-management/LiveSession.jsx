@@ -165,7 +165,7 @@ const LiveSession = () => {
         limit: 100,
         search: ""
     });
-    // console.log(teachers?.user.map((teacher) => Number(teacher.id)), "teachers");
+    // console.log(teachers);
     return (
         <div className='bg-white sm:bg-linear-to-t from-[#F1C2AC]/50 to-[#95C4BE]/50 px-2 sm:px-5 '>
             <div className="flex justify-between items-center py-4">
@@ -219,7 +219,7 @@ const LiveSession = () => {
                                     label="Assign Teacher"
                                     placeholder="Select Teacher"
                                     variant="bordered"
-                                    className="!text-black"
+                                    className="text-black!"
                                     value={formData.teacherId}
                                     onChange={(e) => setFormData({ ...formData, teacherId: e.target.value })}
                                 >

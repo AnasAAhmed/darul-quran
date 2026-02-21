@@ -20,20 +20,17 @@ import {
   TableBody,
   TableRow,
   TableCell,
-  Dropdown,
-  DropdownTrigger,
-  DropdownMenu,
-  DropdownItem,
-  DateRangePicker,
+  CheckboxGroup,
+  Checkbox,
 } from "@heroui/react";
-import { Calendar, Copy, Edit, Plus, Trash2, Check, ExternalLink, PlusIcon } from "lucide-react";
+import { Calendar, Copy,Trash2, PlusIcon } from "lucide-react";
 
 import { getStatusColor, getStatusText, formatTime12Hour } from "../../../utils/scheduleHelpers";
 import { errorMessage, successMessage } from "../../../lib/toast.config";
+import { useGetAllTeachersQuery } from "../../../redux/api/user";
 
 const Scheduling = () => {
   const [schedules, setSchedules] = useState([]);
-  const [teachers, setTeachers] = useState([]);
   const [loading, setLoading] = useState(false);
   const [copiedId, setCopiedId] = useState(null);
 
@@ -46,19 +43,34 @@ const Scheduling = () => {
   const [startDate, setStartDate] = useState(false);
   const [endDate, setEndDate] = useState(false);
   const [formData, setFormData] = useState({
-    id: null,
-    title: '',
-    date: '',
-    startTime: '',
-    endTime: '',
-    description: '',
-    teacherId: '',
-    meetingLink: ''
+    title: "",
+    description: "",
+    teacherId: "",
+    meetingLink: '',
+    scheduleType: "once",
+
+    // common
+    startTime: "",
+    endTime: "",
+
+    // once
+    date: "",
+
+    // recurring
+    startDate: "",
+    endDate: "",
+    repeatInterval: 1,
+    weeklyDays: [],
   });
+
+ const { data: teachers, isLoading } = useGetAllTeachersQuery({
+        page: 1,
+        limit: 100,
+        search: ""
+    });
 
   useEffect(() => {
     fetchSchedules();
-    fetchTeachers();
   }, []);
 
   const fetchSchedules = async () => {
@@ -74,17 +86,7 @@ const Scheduling = () => {
     }
   };
 
-  const fetchTeachers = async () => {
-    try {
-      const res = await fetch(`${import.meta.env.VITE_PUBLIC_SERVER_URL}/api/user/getTeachers`);
-      const data = await res.json();
-      if (data.success) {
-        setTeachers(data.user);
-      }
-    } catch (error) {
-      console.error("Failed to fetch teachers", error);
-    }
-  };
+
 
   const handleSubmit = async () => {
     if (!formData.title || !formData.date || !formData.startTime || !formData.teacherId) {
@@ -340,7 +342,7 @@ const Scheduling = () => {
       </div>
 
       {/* Schedule / Edit Modal */}
-      <Modal isOpen={isOpen} onOpenChange={onOpenChange} placement="center" backdrop="blur" size="lg">
+      <Modal isOpen={isOpen} scrollBehavior="inside" onOpenChange={onOpenChange} placement="center" backdrop="blur" size="lg">
         <ModalContent>
           {(onClose) => (
             <>
@@ -352,64 +354,181 @@ const Scheduling = () => {
                   <p className="text-xs text-gray-500 mb-2">Zoom link and password will be auto-generated upon creation.</p>
                 )}
                 <Input
-                  autoFocus
                   label="Session Title"
-                  placeholder="e.g. React Workshop"
                   variant="bordered"
                   value={formData.title}
-                  onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                />
-                <DateRangePicker
-                  className="max-w-xs"
-                  label="Stay duration"
-                  onChange={(e) => console.log(e)
+                  onChange={(e) =>
+                    setFormData({ ...formData, title: e.target.value })
                   }
                 />
+
+                {/* Schedule Type */}
                 <Select
-                  label="Assign Teacher"
+                  label="Schedule Type"
                   variant="bordered"
-                  placeholder="Select a teacher"
-                  selectedKeys={formData.teacherId ? [formData.teacherId] : []}
-                  onChange={(e) => setFormData({ ...formData, teacherId: e.target.value })}
+                  selectedKeys={[formData.scheduleType]}
+                  onChange={(e) =>
+                    setFormData({ ...formData, scheduleType: e.target.value })
+                  }
                 >
-                  {teachers.map((teacher) => (
-                    <SelectItem key={teacher.id} textValue={teacher.firstName + ' ' + teacher.lastName}>
-                      {teacher.firstName} {teacher.lastName} ({teacher.email})
-                    </SelectItem>
-                  ))}
+                  <SelectItem key="once">One Time</SelectItem>
+                  <SelectItem key="daily">Daily</SelectItem>
+                  <SelectItem key="weekly">Weekly</SelectItem>
                 </Select>
 
-                <div className='flex gap-2'>
+                {formData.scheduleType === "once" && (
                   <Input
                     type="date"
-                    label="Date"
+                    label="Session Date"
                     variant="bordered"
                     value={formData.date}
-                    onChange={(e) => setFormData({ ...formData, date: e.target.value })}
+                    onChange={(e) =>
+                      setFormData({ ...formData, date: e.target.value })
+                    }
                   />
-                </div>
-                <div className='flex gap-2'>
+                )}
+
+                {formData.scheduleType === "daily" && (
+                  <>
+                    <div className="flex gap-3">
+                      <Input
+                        type="date"
+                        label="Start Date"
+                        variant="bordered"
+                        value={formData.startDate}
+                        onChange={(e) =>
+                          setFormData({ ...formData, startDate: e.target.value })
+                        }
+                      />
+                      <Input
+                        type="date"
+                        label="End Date"
+                        variant="bordered"
+                        value={formData.endDate}
+                        onChange={(e) =>
+                          setFormData({ ...formData, endDate: e.target.value })
+                        }
+                      />
+                    </div>
+
+                    <Input
+                      type="number"
+                      label="Repeat Every (Days)"
+                      min={1}
+                      variant="bordered"
+                      value={formData.repeatInterval}
+                      onChange={(e) =>
+                        setFormData({
+                          ...formData,
+                          repeatInterval: Number(e.target.value),
+                        })
+                      }
+                    />
+                  </>
+                )}
+
+                {formData.scheduleType === "weekly" && (
+                  <>
+                    <div className="flex gap-3">
+                      <Input
+                        type="date"
+                        label="Start Date"
+                        variant="bordered"
+                        value={formData.startDate}
+                        onChange={(e) =>
+                          setFormData({ ...formData, startDate: e.target.value })
+                        }
+                      />
+                      <Input
+                        type="date"
+                        label="End Date"
+                        variant="bordered"
+                        value={formData.endDate}
+                        onChange={(e) =>
+                          setFormData({ ...formData, endDate: e.target.value })
+                        }
+                      />
+                    </div>
+
+                    <Input
+                      type="number"
+                      label="Repeat Every (Weeks)"
+                      min={1}
+                      variant="bordered"
+                      value={formData.repeatInterval}
+                      onChange={(e) =>
+                        setFormData({
+                          ...formData,
+                          repeatInterval: Number(e.target.value),
+                        })
+                      }
+                    />
+
+                    <CheckboxGroup
+                      label="Select Days"
+                      value={formData.weeklyDays}
+                      orientation="horizontal"
+                      color="success"
+                      onChange={(val) =>
+                        setFormData({ ...formData, weeklyDays: val })
+                      }
+                    >
+                      <Checkbox value="1">Sunday</Checkbox>
+                      <Checkbox value="2">Monday</Checkbox>
+                      <Checkbox value="3">Tuesday</Checkbox>
+                      <Checkbox value="4">Wednesday</Checkbox>
+                      <Checkbox value="5">Thursday</Checkbox>
+                      <Checkbox value="6">Friday</Checkbox>
+                      <Checkbox value="7">Saturday</Checkbox>
+                    </CheckboxGroup>
+                  </>
+                )}
+
+                <div className="flex gap-3">
                   <Input
                     type="time"
                     label="Start Time"
                     variant="bordered"
                     value={formData.startTime}
-                    onChange={(e) => setFormData({ ...formData, startTime: e.target.value })}
+                    onChange={(e) =>
+                      setFormData({ ...formData, startTime: e.target.value })
+                    }
                   />
                   <Input
                     type="time"
                     label="End Time"
                     variant="bordered"
                     value={formData.endTime}
-                    onChange={(e) => setFormData({ ...formData, endTime: e.target.value })}
+                    onChange={(e) =>
+                      setFormData({ ...formData, endTime: e.target.value })
+                    }
                   />
                 </div>
+                <Select
+                  label="Assign Teacher"
+                  variant="bordered"
+                  selectedKeys={formData.teacherId ? [formData.teacherId] : []}
+                  onChange={(e) =>
+                    setFormData({ ...formData, teacherId: e.target.value })
+                  }
+                >
+                  {teachers?.user?.map((teacher) => (
+                    <SelectItem
+                      key={teacher.id}
+                      textValue={`${teacher.firstName} ${teacher.lastName}`}
+                    >
+                      {teacher.firstName} {teacher.lastName} ({teacher.email})
+                    </SelectItem>
+                  ))}
+                </Select>
+
                 <Textarea
                   label="Description"
-                  placeholder="Session details..."
                   variant="bordered"
                   value={formData.description}
-                  onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                  onChange={(e) =>
+                    setFormData({ ...formData, description: e.target.value })
+                  }
                 />
               </ModalBody>
               <ModalFooter>

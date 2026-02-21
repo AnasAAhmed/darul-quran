@@ -16,7 +16,7 @@ import { EyeIcon, EyeOffIcon, SearchCheck } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 
 import { Country, City } from "country-state-city";
-import { successMessage } from "../../../lib/toast.config";
+import { errorMessage, successMessage } from "../../../lib/toast.config";
 
 const AddUserForm = ({ id, title, desc, userData, isEdit }) => {
   const [selectedRole, setSelectedRole] = useState(new Set());
@@ -34,8 +34,6 @@ const AddUserForm = ({ id, title, desc, userData, isEdit }) => {
 
   const navigate = useNavigate();
   
-  console.log("User Data in Form:", userData);
-
   const role = [
     { key: "admin", label: "Admin" },
     { key: "teacher", label: "Teacher" },
@@ -221,10 +219,10 @@ const AddUserForm = ({ id, title, desc, userData, isEdit }) => {
       // Build payload
       const payload = {
         id: userData?.id || undefined,
-        first_name: e.target.first_name.value,
-        last_name: e.target.last_name.value,
+        first_name: e.target.firstName.value,
+        last_name: e.target.lastName.value,
         email: e.target.email.value,
-        phone_number: e.target.phone_number.value,
+        phone_number: e.target.phoneNumber.value,
         country: selectedCountryValue,
         city: selectedCityValue,
         role: selectedRoleValue,
@@ -237,8 +235,6 @@ const AddUserForm = ({ id, title, desc, userData, isEdit }) => {
       if (passwordValue.trim() !== "") {
         payload.password = passwordValue;
       }
-
-      console.log("Submitting payload:", payload);
 
       const res = await fetch(
         `${import.meta.env.VITE_PUBLIC_SERVER_URL}/api/user/create-user`,
@@ -262,7 +258,7 @@ const AddUserForm = ({ id, title, desc, userData, isEdit }) => {
 
       navigate("/admin/user-management");
     } catch (error) {
-      toast.error(error.message || "User already exists");
+      errorMessage(error.message || "User already exists");
     } finally {
       setLoading(false);
     }
@@ -284,10 +280,10 @@ const AddUserForm = ({ id, title, desc, userData, isEdit }) => {
             {/* Left Column */}
             <div className="flex flex-col gap-5">
               <Input
-                key={userData?.first_name}
-                defaultValue={userData?.first_name}
+                key={userData?.firstName}
+                defaultValue={userData?.firstName}
                 type="text"
-                name="first_name"
+                name="firstName"
                 labelPlacement="outside"
                 variant="bordered"
                 size="lg"
@@ -315,10 +311,10 @@ const AddUserForm = ({ id, title, desc, userData, isEdit }) => {
             {/* Right Column */}
             <div className="flex flex-col gap-5">
               <Input
-                key={userData?.last_name}
-                defaultValue={userData?.last_name}
+                key={userData?.lastName}
+                defaultValue={userData?.lastName}
                 type="text"
-                name="last_name"
+                name="lastName"
                 labelPlacement="outside"
                 variant="bordered"
                 size="lg"
@@ -328,10 +324,10 @@ const AddUserForm = ({ id, title, desc, userData, isEdit }) => {
                 errorMessage="Please enter last name"
               />
               <Input
-                key={userData?.phone_number}
-                defaultValue={userData?.phone_number}
+                key={userData?.phoneNumber}
+                defaultValue={userData?.phoneNumber}
                 type="number"
-                name="phone_number"
+                name="phoneNumber"
                 labelPlacement="outside"
                 variant="bordered"
                 inputmode="numeric"
