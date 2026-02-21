@@ -1,12 +1,22 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import AddUserForm from "../../../../components/dashboard-components/forms/add-user-form";
+import { useLocation, useParams } from "react-router-dom";
+import { FormOverlayLoader } from "../../../../components/Loader";
 
 const EditUser = () => {
-  const id = window.location.pathname.split("/")[4];
-  const [userData, setUserData] = useState(null);
-  const [loading, setLoading] = useState(true);
-    console.log("ID:", id);
+  const { id } = useParams();
+  const location = useLocation();
+  const userDataFromState = location.state || {};
+  const [userData, setUserData] = useState(userDataFromState);
+  const [loading, setLoading] = useState(!userDataFromState?.id);
+
   useEffect(() => {
+    if (id && userDataFromState?.id) {
+      return;
+    }
+    if (!id) {
+      return;
+    }
     const fetchUserById = async () => {
       try {
         const res = await fetch(
@@ -18,7 +28,6 @@ const EditUser = () => {
         );
         const data = await res.json();
         setUserData(data.user); // ya data.users (API structure par depend karta hai)
-        console.log("Fetched user:", data.user);
       } catch (error) {
         console.error("Error fetching user:", error);
       } finally {
@@ -29,17 +38,19 @@ const EditUser = () => {
     fetchUserById();
   }, [id]);
 
+  if (loading) return <FormOverlayLoader loading={loading} />;
   return (
-    <div>
-      <AddUserForm
-        id={id}
-        title="Edit User"
-        desc="Update the user information by modifying the fields below."
-        isEdit={true}
-        userData={userData}
-        // userData={userData}   {/* 👈 API response yahan bheja */}
-      />
-    </div>
+    <>
+      <div>
+        <AddUserForm
+          id={id}
+          title="Edit User"
+          desc="Update the user information by modifying the fields below."
+          isEdit={true}
+          userData={userData}
+        />
+      </div>
+    </>
   );
 };
 

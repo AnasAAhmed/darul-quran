@@ -20,20 +20,20 @@ import { errorMessage, successMessage } from "../../../lib/toast.config";
 
 const AddUserForm = ({ id, title, desc, userData, isEdit }) => {
   const [selectedRole, setSelectedRole] = useState(new Set());
-  
+
   // Use null for single value selection with Autocomplete
   const [selectedCountry, setSelectedCountry] = useState(null);
   const [selectedCity, setSelectedCity] = useState(null);
   const [countryInputValue, setCountryInputValue] = useState("");
   const [cityInputValue, setCityInputValue] = useState("");
-  
+
   const [isSelected, setIsSelected] = useState(true);
   const [loading, setLoading] = useState(false);
   const [selectedCourses, setSelectedCourses] = useState(new Set());
   const [showPassword, setShowPassword] = useState(false);
 
   const navigate = useNavigate();
-  
+
   const role = [
     { key: "admin", label: "Admin" },
     { key: "teacher", label: "Teacher" },
@@ -100,21 +100,21 @@ const AddUserForm = ({ id, title, desc, userData, isEdit }) => {
   const validatePassword = (value) => {
     // For new users, password is required
     if (!userData?.id && !value) return "Password is required";
-    
+
     // If password is provided (for new user or change), validate it
     if (value && value.length < 6) {
       return "Password must be at least 6 characters";
     }
-    
+
     return true;
   };
 
   // const validatePhoneNumber = (value) => {
   //   if (!value) return "Phone number is required";
-    
+
   //   // Remove any non-digit characters
   //   const cleanPhone = value.replace(/\D/g, '');
-    
+
   //   if (selectedCountryValue === "Pakistan") {
   //     // Check for valid Pakistani mobile numbers (starting with 03 and length 11)
   //     const pakistaniRegex = /^03[0-9]{9}$/;
@@ -127,7 +127,7 @@ const AddUserForm = ({ id, title, desc, userData, isEdit }) => {
   //       return "Please enter a valid phone number";
   //     }
   //   }
-    
+
   //   return true;
   // };
 
@@ -183,10 +183,10 @@ const AddUserForm = ({ id, title, desc, userData, isEdit }) => {
   const handleCountrySelect = (key) => {
     const country = allCountries.find(c => c.isoCode === key);
     if (country) {
-        setSelectedCountry(country);
-        setCountryInputValue(country.name);
-        setSelectedCity(null); // Reset city
-        setCityInputValue("");
+      setSelectedCountry(country);
+      setCountryInputValue(country.name);
+      setSelectedCity(null); // Reset city
+      setCityInputValue("");
     }
   };
 
@@ -194,8 +194,8 @@ const AddUserForm = ({ id, title, desc, userData, isEdit }) => {
     // Since city names might not be unique globally, but are within country, we search in availableCities
     const city = availableCities.find(c => c.name === key);
     if (city) {
-        setSelectedCity(city);
-        setCityInputValue(city.name);
+      setSelectedCity(city);
+      setCityInputValue(city.name);
     }
   };
 
@@ -228,6 +228,7 @@ const AddUserForm = ({ id, title, desc, userData, isEdit }) => {
         role: selectedRoleValue,
         is_active: isSelected,
         permissions: selectedCourseValues,
+        oldRole: userData?.role
       };
 
       // Add password only if provided and valid
@@ -270,8 +271,8 @@ const AddUserForm = ({ id, title, desc, userData, isEdit }) => {
         title={title || "Add New User"}
         desc={desc || "Create a new user by filling out the form below."}
       />
-      <Form 
-        onSubmit={handleUserSubmit} 
+      <Form
+        onSubmit={handleUserSubmit}
         className="w-full"
         validationBehavior="native"
       >
@@ -539,8 +540,8 @@ const AddUserForm = ({ id, title, desc, userData, isEdit }) => {
                 ? "Updating User..."
                 : "Update User"
               : loading
-              ? "Creating User..."
-              : "Create User"}
+                ? "Creating User..."
+                : "Create User"}
           </Button>
         </div>
       </Form>

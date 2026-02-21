@@ -76,7 +76,7 @@ const UserManagement = () => {
   const [isDeleting, setIsDeleting] = useState(false);
   const { isOpen: isBulkDeleteOpen, onOpen: onBulkDeleteOpen, onClose: onBulkDeleteClose } = useDisclosure();
 
-  const { data, isError, error, isFetching } = useGetAllUsersQuery({ page, limit, status, role,search });
+  const { data, isError, error, isFetching } = useGetAllUsersQuery({ page, limit, status, role, search });
   const [deleteUser] = useDeleteUserMutation()
   const [bulkDeleteUser] = useBulkDeleteUserMutation()
 
@@ -307,7 +307,7 @@ const UserManagement = () => {
                 aria-label="Pending approvals table"
                 removeWrapper
                 classNames={{
-                  base: "w-full bg-white my-3 rounded-lg h-[calc(100vh-350px)] overflow-x-scroll w-full no-scrollbar",
+                  base: "w-full bg-white my-3 rounded-lg overflow-x-scroll w-full no-scrollbar",
                   th: "font-bold p-4 text-md  text-[#333333] capitalize tracking-widest  bg-white",
                   tbody: "overflow-y-scroll no-scrollbar",
                   td: "py-3 items-center whitespace-nowrap",
@@ -359,7 +359,7 @@ const UserManagement = () => {
                           startContent={
                             <SquarePen size={18} color="#06574C" />
                           }
-                          onPress={() => { router(`/admin/user-management/edit-user/${classItem.id}`) }}
+                          onPress={() => { router(`/admin/user-management/edit-user/${classItem.id}`, { state: classItem }) }}
                         >
                           Edit
                         </Button>
@@ -477,7 +477,7 @@ const UserManagement = () => {
           </ModalFooter>
         </ModalContent>
       </Modal>
-    </div>
+    </div >
   );
 };
 
