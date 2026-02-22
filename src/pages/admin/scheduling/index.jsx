@@ -23,7 +23,7 @@ import {
   CheckboxGroup,
   Checkbox,
 } from "@heroui/react";
-import { Calendar, Copy,Trash2, PlusIcon } from "lucide-react";
+import { Calendar, Copy, Trash2, PlusIcon } from "lucide-react";
 
 import { getStatusColor, getStatusText, formatTime12Hour } from "../../../utils/scheduleHelpers";
 import { errorMessage, successMessage } from "../../../lib/toast.config";
@@ -47,7 +47,9 @@ const Scheduling = () => {
     description: "",
     teacherId: "",
     meetingLink: '',
+    courseId: '',
     scheduleType: "once",
+    price: undefined,
 
     // common
     startTime: "",
@@ -63,11 +65,11 @@ const Scheduling = () => {
     weeklyDays: [],
   });
 
- const { data: teachers, isLoading } = useGetAllTeachersQuery({
-        page: 1,
-        limit: 100,
-        search: ""
-    });
+  const { data: teachers, isLoading } = useGetAllTeachersQuery({
+    page: 1,
+    limit: 100,
+    search: ""
+  });
 
   useEffect(() => {
     fetchSchedules();
@@ -89,8 +91,8 @@ const Scheduling = () => {
 
 
   const handleSubmit = async () => {
-    if (!formData.title || !formData.date || !formData.startTime || !formData.teacherId) {
-      errorMessage("Please fill required fields (Title, Date, Time, Teacher)");
+    if (!formData.title || !formData.startTime || !formData.teacherId) {
+      errorMessage("Please fill required fields (Title,  Time, Teacher)");
       return;
     }
     const start = new Date(startDate);
@@ -361,7 +363,15 @@ const Scheduling = () => {
                     setFormData({ ...formData, title: e.target.value })
                   }
                 />
-
+                <Input
+                  label="CourseId"
+                  variant="bordered"
+                  type="number"
+                  value={String(formData.courseId)}
+                  onChange={(e) =>
+                    setFormData({ ...formData, courseId: e.target.valueAsNumber })
+                  }
+                />
                 {/* Schedule Type */}
                 <Select
                   label="Schedule Type"

@@ -148,7 +148,7 @@ const StudentDashboard = () => {
               </div>
             )))}
         </div>
-        <Pagination
+        {data?.totalPages > 1 && <Pagination
           showControls
           className="mb-4"
           variant="ghost"
@@ -161,7 +161,7 @@ const StudentDashboard = () => {
             prev: "rounded-sm bg-white/80",
             next: "rounded-sm bg-white/80",
           }}
-        />
+        />}
       </div>
 
       <div className=" bg-white rounded-lg mb-3 ">
@@ -256,7 +256,7 @@ const StudentDashboard = () => {
                     </div>
                     <div>
                       <div
-                        className={`${(item.createdBy === "teacher" || item.description?.toLowerCase()?.includes("schedule"))? "text-[#B7721F]"
+                        className={`${(item.createdBy === "teacher" || item.description?.toLowerCase()?.includes("schedule")) ? "text-[#B7721F]"
                           : "text-[#06574C]"
                           } font-semibold`}
                       >

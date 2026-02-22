@@ -47,11 +47,12 @@ const CourseDetails = () => {
 
   const [isEnrolled, setIsEnrolled] = useState(false);
   const [enrolling, setEnrolling] = useState(false);
-
+  const [overview, setOverview] = useState(null);
+  const [shouldFetchOverview, setShouldFetchOverview] = useState(true);
 
   const { data, error, isLoading, isError } = useGetCourseByIdViewQuery({ courseId: id, includeCourse: !courseFromState?.id, teacherId }, { skip: !id });
   const { data: reviewData, isLoading: isReviewLoading, isError: reviewIsError, error: reviewError } = useGetReviewsQuery(
-    { courseId: id, page, limit, includeOverview: true, rating: ratingForSearch },
+    { courseId: id, page, limit, includeOverview: shouldFetchOverview, rating: ratingForSearch },
     { skip: !id }
   );
 
@@ -61,6 +62,14 @@ const CourseDetails = () => {
     return null;
   }, [courseFromState, data]);
   const courseFiles = data?.counts;
+
+  useEffect(() => {
+    if (data?.agg && shouldFetchOverview) {
+      setOverview(data.agg);
+      setShouldFetchOverview(false);
+    }
+  }, [data, shouldFetchOverview]);
+
   useEffect(() => {
     if (course?.id) {
       checkEnrollmentStatus();
@@ -373,11 +382,11 @@ const CourseDetails = () => {
                   {/* Progress Bars */}
                   <div className="flex-1 space-y-3">
                     {[
-                      { star: 5, value: (reviewData?.agg?.five / course?.numOfReviews) * 100, count: reviewData?.agg?.five },
-                      { star: 4, value: ((reviewData?.agg?.four / course?.numOfReviews) * 100), count: reviewData?.agg?.four },
-                      { star: 3, value: ((reviewData?.agg?.three / course?.numOfReviews) * 100), count: reviewData?.agg?.three },
-                      { star: 2, value: ((reviewData?.agg?.two / course?.numOfReviews) * 100), count: reviewData?.agg?.two },
-                      { star: 1, value: ((reviewData?.agg?.one / course?.numOfReviews) * 100), count: reviewData?.agg?.one },
+                      { star: 5, value: (overview?.five / overview?.total) * 100, count: overview?.five },
+                      { star: 4, value: ((overview?.four / overview?.total) * 100), count: overview?.four },
+                      { star: 3, value: ((overview?.three / overview?.total) * 100), count: overview?.three },
+                      { star: 2, value: ((overview?.two / overview?.total) * 100), count: overview?.two },
+                      { star: 1, value: ((overview?.one / overview?.total) * 100), count: overview?.one },
                     ].map((item) => (
                       <div onClick={() => setRatingForSearch(item.star)} key={item.star} className="flex hover:opacity-50 cursor-pointer items-center gap-2">
                         <span className="w-12 text-xs text-gray-500">
@@ -432,10 +441,10 @@ const CourseDetails = () => {
               <Pagination
                 className=""
                 showControls
-                variant="ghost"
+                // variant="ghost"
                 initialPage={1}
                 page={page}
-                total={Number(reviewData?.totalPages)}
+                total={reviewData?.totalPages}
                 onChange={setPage}
                 classNames={{
                   item: "rounded-sm hover:bg-[#06574C]/10",

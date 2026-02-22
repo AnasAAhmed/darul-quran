@@ -7,6 +7,7 @@ import { PiFile, PiFilePdf } from "react-icons/pi";
 import { errorMessage, successMessage } from "../../../lib/toast.config";
 import { formatForInput } from "../../../lib/utils";
 import { Link } from "react-router-dom";
+import { IntervalInput } from "./IntervalInput";
 
 const formatTime = (seconds) => {
     if (!seconds) return "00:00";
@@ -15,68 +16,6 @@ const formatTime = (seconds) => {
     const s = Math.floor(seconds % 60);
     if (h > 0) return `${h}h ${m}m ${s}s`;
     return `${m}m ${s}s`;
-};
-
-const IntervalInput = ({
-    initialNumber = 0,
-    initialType,
-    onUpdate,
-    units = ["hour", "day", "week", "month", "released_immediately"],
-}) => {
-    const [numberValue, setNumberValue] = useState(initialNumber);
-    const [unitValue, setUnitValue] = useState(initialType || 'released_immediately');
-
-    const handleUpdate = () => {
-        if (unitValue === "released_immediately") {
-            onUpdate("null");
-            return;
-        }
-        if (!numberValue || !unitValue) return;
-        if ((numberValue === initialNumber) || (unitValue === initialType)) return;
-        const interval = `${numberValue} ${numberValue > 1 ? unitValue + "s" : unitValue}`;
-        onUpdate(interval);
-    };
-
-    return (
-        <div className="flex flex-col sm:flex-row sm:items-center gap-2 ">
-            {/* Label */}
-            <span className="text-sm font-medium text-gray-700 sms-36">
-                Released Interval
-            </span>
-
-            {/* Inputs */}
-            <div className="flex flex-wrap sm:flex-nowrap items-center gap-2 flex-1">
-                <input
-                    type="number"
-                    className="w-20 p-2 border disabled:opacity-45 cursor-not-allowed border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-[#406c65] focus:border-[#406c65] transition-colors text-sm"
-                    value={numberValue}
-                    min={1}
-                    placeholder="Period Number"
-                    disabled={!unitValue || unitValue === "released_immediately"}
-                    title="Period Number"
-                    max={unitValue === "hours" ? 24 : 31}
-                    onChange={(e) => setNumberValue(Number(e.target.value))}
-                    onBlur={handleUpdate}
-                />
-
-                <select
-                    className="p-2 capitalize border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-1 focus:ring-[#406c65] focus:border-[#406c65] transition-colors"
-                    value={unitValue}
-                    placeholder="Period Unit Type"
-                    title="Period Unit Type"
-                    onChange={(e) => setUnitValue(e.target.value)}
-                    onBlur={handleUpdate}
-                >
-                    {units.map((unit) => (
-                        <option className="capitalize" key={unit} value={unit}>
-                            {unit?.replace("_", " ")}
-                        </option>
-                    ))}
-                </select>
-            </div>
-        </div>
-
-    );
 };
 
 const deleteDocument = async (id, setFiles, setIsDeleting) => {
@@ -310,8 +249,7 @@ export default function Videos({ files, setFiles, courseId }) {
 
                                 <div className="flex flex-wrap gap-3 items-end sm:items-center">
                                     <IntervalInput
-                                        initialNumber={document?.releasedAt?.split(" ")[0]}
-                                        initialType={document?.releasedAt?.split(" ")[1]}
+                                        initialValue={document?.releasedAt}
                                         onUpdate={(interval) => updateDocument(document.id, "releasedAt", interval)}
                                     />
                                     <div className="flex items-center gap-2">
@@ -500,8 +438,7 @@ export function PdfAndNotes({ files, setFiles, courseId }) {
                                 </div>
                                 <div className="flex flex-wrap gap-3 items-end sm:items-center">
                                     <IntervalInput
-                                        initialNumber={document?.releasedAt?.split(" ")[0]}
-                                        initialType={document?.releasedAt?.split(" ")[1]}
+                                        initialValue={document?.releasedAt}
                                         onUpdate={(interval) => updateDocument(document.id, "releasedAt", interval)}
                                     />
 
@@ -691,8 +628,7 @@ export function Assignments({ files, setFiles, courseId }) {
 
                                 <div className="flex flex-wrap gap-3 items-end sm:items-center">
                                     <IntervalInput
-                                        initialNumber={document?.releasedAt?.split(" ")[0]}
-                                        initialType={document?.releasedAt?.split(" ")[1]}
+                                        initialValue={document?.releasedAt}
                                         onUpdate={(interval) => updateDocument(document.id, "releasedAt", interval)}
                                     />
                                     <div className="flex items-center gap-2">

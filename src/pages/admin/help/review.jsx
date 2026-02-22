@@ -1,11 +1,12 @@
 import React, { useState } from "react";
 import { DashHeading } from "../../../components/dashboard-components/DashHeading";
-import { Avatar, Button, Pagination, Spinner, User } from "@heroui/react";
+import { Avatar, Button, Pagination, Progress, Spinner, User } from "@heroui/react";
 import { useSearchParams } from "react-router-dom";
 import { useGetReviewsQuery, useDeleteReviewMutation } from "../../../redux/api/courses";
 import { Trash2 } from "lucide-react";
 import { errorMessage, successMessage } from "../../../lib/toast.config";
 import RatingStars from "../../../components/RatingStar";
+import { useEffect } from "react";
 
 const Review = () => {
   const [searchParams] = useSearchParams();
@@ -13,13 +14,28 @@ const Review = () => {
   const [page, setPage] = useState(1);
   const [limit, setLimit] = useState(20);
   const [isDeleting, setIsDeleting] = useState(null);
+  const [ratingForSearch, setRatingForSearch] = useState(null);
+  const [overview, setOverview] = useState(null);
+  const [shouldFetchOverview, setShouldFetchOverview] = useState(true);
 
   const { data, isFetching, isError, error } = useGetReviewsQuery(
-    { courseId: id, page, limit }
+    {
+      courseId: id,
+      page,
+      limit,
+      includeOverview: shouldFetchOverview,
+      rating: ratingForSearch,
+    }
   );
-
+  
+  useEffect(() => {
+    if (data?.agg && shouldFetchOverview) {
+      setOverview(data.agg);
+      setShouldFetchOverview(false); 
+    }
+  }, [data, shouldFetchOverview]);
   const [deleteReview] = useDeleteReviewMutation();
-
+  
   const handleDelete = async (reviewId) => {
     if (!window.confirm("Are you sure you want to delete this review?")) return;
 
@@ -54,7 +70,54 @@ const Review = () => {
         title={"Reviews"}
         desc={"See what students are saying about this course"}
       />
+      <div className="bg-white mb-3 p-5 rounded-xl">
+        <h3 className="text-base font-semibold mb-4">Student Reviews</h3>
 
+        <div className="flex gap-6">
+          {/* Rating */}
+          <div className="min-w-[100px]">
+            <p className="text-3xl font-bold">{overview?.avg}</p>
+
+            <div className="flex gap-1 text-yellow-400 my-1">
+              <RatingStars rating={overview?.avg} />
+            </div>
+
+            <p className="text-xs text-gray-500">({overview?.total?.toFixed(0)} Reviews)</p>
+          </div>
+
+          {/* Progress Bars */}
+          <div className="flex-1 space-y-3">
+            {[
+              { star: 5, value: (overview?.five / overview?.total) * 100, count: overview?.five },
+              { star: 4, value: ((overview?.four / overview?.total) * 100), count: overview?.four },
+              { star: 3, value: ((overview?.three / overview?.total) * 100), count: overview?.three },
+              { star: 2, value: ((overview?.two / overview?.total) * 100), count: overview?.two },
+              { star: 1, value: ((overview?.one / overview?.total) * 100), count: overview?.one },
+            ].map((item) => (
+              <div onClick={() => setRatingForSearch(item.star)} key={item.star} className="flex hover:opacity-50 cursor-pointer items-center gap-2">
+                <span className="w-12 text-xs text-gray-500">
+                  {item.star} stars
+                </span>
+
+                <Progress
+                  value={item.value}
+                  size="sm"
+                  radius="full"
+                  className="flex-1"
+                  classNames={{
+                    indicator: "bg-yellow-400",
+                    track: "bg-gray-100",
+                  }}
+                />
+
+                <span className="w-6 text-xs text-gray-500 text-right">
+                  {item.count}
+                </span>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
       {isFetching && !reviews.length ? (
         <div className="flex justify-center items-center py-12">
           <Spinner size="lg" color="success" />
@@ -84,7 +147,7 @@ const Review = () => {
                           {item.username || "Anonymous"}
                         </h1>
                         <RatingStars rating={item.rating || 0} /> ({item.rating || 0})
-                        {item?.course?.courseName&&<p className="text-sm text-gray-600"><strong>Course:</strong> {item?.course?.courseName}</p>}
+                        {item?.courseName && <p className="text-sm text-gray-600"><strong>Course:</strong> {item?.courseName}</p>}
                       </div>
                       <p className="text-sm text-gray-500">{item.email}</p>
                     </div>

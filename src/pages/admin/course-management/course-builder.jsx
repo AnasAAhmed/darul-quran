@@ -39,6 +39,7 @@ import { useAddCategoryMutation, useAddCourseMutation, useDeleteCategoryMutation
 import { errorMessage, successMessage } from "../../../lib/toast.config";
 import { FormOverlayLoader } from "../../../components/Loader";
 import { uploadFilesToServer } from "../../../lib/utils";
+import { IntervalInput } from "../../../components/dashboard-components/forms/IntervalInput";
 const containerVariants = {
   hidden: { opacity: 0, y: 10, scale: 0.98 },
 
@@ -204,6 +205,8 @@ const CourseBuilder = () => {
     enroll_number: "",
     status: "draft", // Default
     videoDuration: "",
+    duration: "",
+    interval: "",
     is_free: false, // Free/Paid toggle
     video_count: 0, // Number of videos
   });
@@ -311,7 +314,7 @@ const CourseBuilder = () => {
 
     try {
 
-       const payload = {
+      const payload = {
         ...formData,
         is_free: formData.is_free,
       };
@@ -588,6 +591,58 @@ const CourseBuilder = () => {
                           })}
                         </Select>
                       </div>
+                      <div className="pt-6">
+                        <Select
+                          placeholder="Select Type"
+                          label="Select Type"
+                          labelPlacement="outside"
+                          title="Select Type"
+                          radius="md"
+                          size="lg"
+                          errorMessage="Type is required"
+                          variant="bordered"
+                          onSelectionChange={(k) => {
+                            const keys = [...k];
+                            handleChange("type", keys[0]);
+
+                          }}
+                          selectedKeys={
+                            formData.type
+                              ? new Set([String(formData.type)])
+                              : new Set()
+                          }
+                        >
+                          <SelectItem key="all" value="all" className="capitalize">
+                            All Courses
+                          </SelectItem>
+
+                          <SelectItem description={<span title=" Pay once and get lifetime access to all course materials. Includes course player, files, and progress tracking." className="block text-xs text-gray-500">
+                            Pay once and get lifetime access to all course materials. Includes course player, files, and progress tracking.
+                          </span>} key="one_time" value="one_time" className="capitalize">
+                            One Time Paid
+                          </SelectItem>
+
+                          <SelectItem description={<span title="Scheduled live sessions requiring subscription. Access course player, files, and track progress for each live class." className="block text-xs text-gray-500">
+                            Scheduled live sessions requiring subscription. Access course player, files, and track progress for each live class.
+                          </span>} key="live" value="live" className="capitalize">
+                            Live Classes
+                          </SelectItem>
+                        </Select>
+                      </div>
+                      <IntervalInput
+                        label="Course duration"
+                        inputWidth={140}
+                        className="mt-3"
+                        initialValue={formData?.duration}
+                        onUpdate={(interval) => handleChange("duration", interval)}
+                      />
+                      <IntervalInput
+                        label="How do wanna charge student for live courses"
+                        inputWidth={140}
+                        className="mt-3"
+                        initialValue={formData?.interval}
+                        onUpdate={(interval) => handleChange("interval", interval)}
+                      />
                     </div>
                   </div>
                   <div className="col-span-12 sm:col-span-4">

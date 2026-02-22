@@ -64,3 +64,19 @@ export function debounce(callback, delay) {
   clearTimeout(debounceTimer);
   debounceTimer = setTimeout(callback, delay);
 }
+
+export const parseInterval = (interval) => {
+    if (!interval) return { number: "", unit: "" };
+    if (interval === "released_immediately") {
+        return { number: "", unit: "released_immediately" };
+    }
+    if (interval.includes(":")) {
+        const hour = interval.split(":")[0];
+        return { number: Number(hour), unit: "hour" };
+    }
+    const [num, unit] = interval.split(" ");
+    return {
+        number: Number(num),
+        unit: unit?.toLowerCase()?.replace("s", ""),
+    };
+};
