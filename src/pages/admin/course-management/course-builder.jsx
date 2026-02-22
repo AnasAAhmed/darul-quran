@@ -199,6 +199,7 @@ const CourseBuilder = () => {
     description: "",
     category_name: "",
     course_price: "",
+    type: "one_time",
     teacher_id: "",
     access_duration: "",
     previous_lesson: "",
@@ -636,13 +637,13 @@ const CourseBuilder = () => {
                         initialValue={formData?.duration}
                         onUpdate={(interval) => handleChange("duration", interval)}
                       />
-                      <IntervalInput
-                        label="How do wanna charge student for live courses"
+                      {formData?.type === 'live' && <IntervalInput
+                        label="How do want to charge student for live courses"
                         inputWidth={140}
                         className="mt-3"
                         initialValue={formData?.interval}
                         onUpdate={(interval) => handleChange("interval", interval)}
-                      />
+                      />}
                     </div>
                   </div>
                   <div className="col-span-12 sm:col-span-4">

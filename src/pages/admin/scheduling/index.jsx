@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { DashHeading } from "../../../components/dashboard-components/DashHeading";
 import {
   Button,
-  DatePicker,
+  Calendar,
   Chip,
   Modal,
   ModalContent,
@@ -22,12 +22,17 @@ import {
   TableCell,
   CheckboxGroup,
   Checkbox,
+  Popover,
+  PopoverTrigger,
+  PopoverContent,
 } from "@heroui/react";
-import { Calendar, Copy, Trash2, PlusIcon } from "lucide-react";
+import { CalendarIcon, Copy, Trash2, PlusIcon } from "lucide-react";
 
 import { getStatusColor, getStatusText, formatTime12Hour } from "../../../utils/scheduleHelpers";
 import { errorMessage, successMessage } from "../../../lib/toast.config";
 import { useGetAllTeachersQuery } from "../../../redux/api/user";
+import { dateFormatter } from "../../../lib/utils";
+import TeacherSelect from "../../../components/select/TeacherSelect";
 
 const Scheduling = () => {
   const [schedules, setSchedules] = useState([]);
@@ -61,13 +66,13 @@ const Scheduling = () => {
     // recurring
     startDate: "",
     endDate: "",
-    repeatInterval: 1,
+    repeatInterval: 0,
     weeklyDays: [],
   });
 
   const { data: teachers, isLoading } = useGetAllTeachersQuery({
     page: 1,
-    limit: 100,
+    limit: 10,
     search: ""
   });
 
@@ -161,7 +166,11 @@ const Scheduling = () => {
       endTime: '',
       description: '',
       teacherId: '',
-      meetingLink: ''
+      meetingLink: '',
+      courseId: '',
+      scheduleType: '',
+      repeatInterval: 0,
+      weeklyDays: [],
     });
     setIsEdit(false);
   };
@@ -182,7 +191,13 @@ const Scheduling = () => {
       endTime: item.endTime,
       description: item.description,
       teacherId: item.teacherId ? String(item.teacherId) : '',
-      meetingLink: item.meetingLink
+      courseId: item.courseId ? String(item.courseId) : '',
+      meetingLink: item.meetingLink,
+      scheduleType: item.scheduleType,
+      startDate: item?.scheduleDates[0],
+      endDate: item?.scheduleDates[1],
+      repeatInterval: item.repeatInterval,
+      weeklyDays: item.weeklyDays,
     });
     onOpen();
   };
@@ -223,6 +238,7 @@ const Scheduling = () => {
         title={"Schedule Live Classes"}
         desc={"Manage and organize your upcoming live sessions"}
       />
+      <TeacherSelect />
       <div className="bg-[#EBD4C9] flex-wrap gap-2 p-2 sm:p-4 rounded-lg my-3 flex justify-between items-center">
         <div className="flex max-md:flex-wrap items-center gap-2">
           <Select
@@ -263,7 +279,7 @@ const Scheduling = () => {
           <TableHeader>
             <TableColumn>Details</TableColumn>
             <TableColumn>Teacher</TableColumn>
-            <TableColumn>Date</TableColumn>
+            <TableColumn>Dates</TableColumn>
             <TableColumn>Time</TableColumn>
             <TableColumn>Status</TableColumn>
             <TableColumn>Zoom Link</TableColumn>
@@ -287,7 +303,24 @@ const Scheduling = () => {
                   </div>
                 </TableCell>
                 <TableCell>
-                  <div className="font-medium">{new Date(item.date).toDateString()}</div>
+                  <Popover>
+                    <PopoverTrigger>
+                      <span className="cursor-pointer font-medium">{dateFormatter(item.scheduleDates[0])} - {dateFormatter(item.scheduleDates[item.scheduleDates?.length - 1])}</span>
+                    </PopoverTrigger>
+                    <PopoverContent>
+                      <Calendar
+                        size="sm"
+                        className="w-full booking-inputs"
+                        variant="underlined"
+                        color='success'
+                        isReadOnly
+
+                        isDateUnavailable={(date) =>
+                          item.scheduleDates.includes(date.toString())
+                        }
+                      />
+                    </PopoverContent>
+                  </Popover>
                 </TableCell>
                 <TableCell>
                   <div className="text-gray-500 text-sm">{formatTime12Hour(item.startTime)} - {formatTime12Hour(item.endTime)}</div>
@@ -320,7 +353,7 @@ const Scheduling = () => {
                       radius="sm"
                       variant="bordered"
                       className="border-[#06574C] text-[#06574C]"
-                      startContent={<Calendar size={18} />}
+                      startContent={<CalendarIcon size={18} />}
                       size="sm"
                       onPress={() => openEditModal(item)}
                     >

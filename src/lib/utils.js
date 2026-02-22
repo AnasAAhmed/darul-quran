@@ -12,6 +12,16 @@ export const dateFormatter = (date, isTime = false) => {
   return formatterUS.format(new Date(date))
 }
 
+export const convertTo12hrsFormat = (time) => {
+  if (!time) return '';
+  const hr = time.split(':');
+  const hours = parseInt(hr[0]);
+  const minutes = hr[1];
+  const ampm = hours >= 12 ? 'PM' : 'AM';
+  const hour12 = hours % 12 || 12;
+  return `${hour12}:${minutes} ${ampm}`;
+}
+
 export const uploadFilesToServer = async (filesArray, removeUrls) => {
   if (!filesArray || filesArray.length === 0) return [];
 
@@ -66,17 +76,17 @@ export function debounce(callback, delay) {
 }
 
 export const parseInterval = (interval) => {
-    if (!interval) return { number: "", unit: "" };
-    if (interval === "released_immediately") {
-        return { number: "", unit: "released_immediately" };
-    }
-    if (interval.includes(":")) {
-        const hour = interval.split(":")[0];
-        return { number: Number(hour), unit: "hour" };
-    }
-    const [num, unit] = interval.split(" ");
-    return {
-        number: Number(num),
-        unit: unit?.toLowerCase()?.replace("s", ""),
-    };
+  if (!interval) return { number: "", unit: "" };
+  if (interval === "released_immediately") {
+    return { number: "", unit: "released_immediately" };
+  }
+  if (interval.includes(":")) {
+    const hour = interval.split(":")[0];
+    return { number: Number(hour), unit: "hour" };
+  }
+  const [num, unit] = interval.split(" ");
+  return {
+    number: Number(num),
+    unit: unit?.toLowerCase()?.replace("s", ""),
+  };
 };

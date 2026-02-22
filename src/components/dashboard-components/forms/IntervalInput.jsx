@@ -10,7 +10,7 @@ export const IntervalInput = ({
     units = ["hour", "day", "month"],
 }) => {
     const [numberValue, setNumberValue] = useState("");
-    const [unitValue, setUnitValue] = useState("");
+    const [unitValue, setUnitValue] = useState('released_immediately');
 
     useEffect(() => {
         if (initialValue) {

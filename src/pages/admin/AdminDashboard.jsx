@@ -6,6 +6,7 @@ import OverviewCards from '../../components/dashboard-components/OverviewCards'
 import { Link } from "react-router-dom";
 import NotificationPermission from '../../components/NotificationPermission'
 import { useGetAdminDashboardQuery } from '../../redux/api/dashboard';
+import { convertTo12hrsFormat } from '../../lib/utils'
 
 const AdminDashboard = () => {
   const { data: dashboardData, isLoading, error } = useGetAdminDashboardQuery();
@@ -116,7 +117,7 @@ const AdminDashboard = () => {
                     subtitle: classItem.description,
                     teacher: "Teacher", // Add placeholder if needed
                     email: "",
-                    time: new Date(classItem.date).toLocaleDateString(),
+                    time: `${classItem.start_time} - ${classItem.end_time}`,
                     enrolled: "N/A",
                     status: classItem.status || "Scheduled"
                   }} />
@@ -159,7 +160,7 @@ const AdminDashboard = () => {
                         </div>
                       </TableCell>
                       <TableCell>
-                        <span className="font-medium">{new Date(classItem.date).toLocaleDateString()} {classItem.startTime}</span>
+                        <span className="font-medium">{convertTo12hrsFormat(classItem.start_time)} - {convertTo12hrsFormat(classItem.end_time)} UTC</span>
                       </TableCell>
                       <TableCell>
                         <p className='p-2 w-full text-center rounded-md text-[#06574C] bg-[#95C4BE]/20'>{classItem.status || 'Scheduled'}</p>
