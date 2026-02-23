@@ -38,6 +38,7 @@ import {
 import { successMessage, errorMessage } from "../../../lib/toast.config";
 import { useEffect, useState } from "react";
 import { dateFormatter, formatForInput } from "../../../lib/utils";
+import Swal from "sweetalert2";
 
 const Announcements = () => {
   const { user } = useSelector((state) => state.user);
@@ -183,6 +184,7 @@ const Announcements = () => {
           "Content-Type": "application/json",
           "Authorization": `Bearer ${user?.token}`,
         },
+        credentials: "include",
       });
       const result = await res.json();
       console.log(result);
@@ -245,6 +247,47 @@ const Announcements = () => {
     } catch (error) {
       errorMessage(error.message);
     }
+  };
+
+  const handleDelete = async (id) => {
+    Swal.fire({
+      title: "Are you sure?",
+      text: "You won't be able to revert this!",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#06574C",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "Yes, delete it!",
+    }).then(async (result) => {
+      if (result.isConfirmed) {
+        try {
+          const res = await fetch(`${import.meta.env.VITE_PUBLIC_SERVER_URL}/api/announcement/delete/${id}`, {
+            method: "DELETE",
+            headers: {
+              "Content-Type": "application/json",
+              "Authorization": `Bearer ${user?.token}`,
+            },
+            credentials: "include",
+          });
+          const result = await res.json();
+          console.log(result);
+          if (result.success) {
+            fetchAnnouncements();
+            successMessage(result.message);
+            Swal.fire({
+              title: "Deleted!",
+              text: "Your announcement has been deleted.",
+              icon: "success",
+              confirmButtonColor: "#06574C",
+            });
+          } else {
+            errorMessage(result.message);
+          }
+        } catch (error) {
+          errorMessage(error.message);
+        }
+      }
+    });
   };
 
   return (
@@ -376,6 +419,7 @@ const Announcements = () => {
                     radius="sm"
                     className="bg-[#06574C] text-white"
                     startContent={<Trash2 color="white" />}
+                    onPress={() => handleDelete(announcement.id)}
                   >
                     Delete
                   </Button>
@@ -484,6 +528,7 @@ const Announcements = () => {
                       <SelectItem key="all">All</SelectItem>
                       <SelectItem key="teachers">Teachers</SelectItem>
                       <SelectItem key="students">Students</SelectItem>
+                      <SelectItem key="admins">Admins</SelectItem>
                     </Select>
                   </div>
                   <div className="flex justify-end gap-3 items-center w-full">
