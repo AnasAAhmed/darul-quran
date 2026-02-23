@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import { useState } from "react";
 import { DashHeading } from "../../../components/dashboard-components/DashHeading";
 import {
   Button,
@@ -25,17 +25,18 @@ import {
   Popover,
   PopoverTrigger,
   PopoverContent,
+  Spinner,
 } from "@heroui/react";
 import { CalendarIcon, Copy, Trash2, PlusIcon } from "lucide-react";
 
 import { getStatusColor, getStatusText, formatTime12Hour } from "../../../utils/scheduleHelpers";
 import { errorMessage, successMessage } from "../../../lib/toast.config";
-import { useGetAllTeachersQuery } from "../../../redux/api/user";
 import { dateFormatter } from "../../../lib/utils";
 import TeacherSelect from "../../../components/select/TeacherSelect";
+import { useGetScheduleQuery } from "../../../redux/api/schedules";
+import CourseSelect from "../../../components/select/CourseSelect";
 
 const Scheduling = () => {
-  const [schedules, setSchedules] = useState([]);
   const [loading, setLoading] = useState(false);
   const [copiedId, setCopiedId] = useState(null);
 
@@ -70,30 +71,12 @@ const Scheduling = () => {
     weeklyDays: [],
   });
 
-  const { data: teachers, isLoading } = useGetAllTeachersQuery({
+  const { data, isFetching } = useGetScheduleQuery({
     page: 1,
     limit: 10,
-    search: ""
+    search: "",
+    status: statusFilter
   });
-
-  useEffect(() => {
-    fetchSchedules();
-  }, []);
-
-  const fetchSchedules = async () => {
-    try {
-      const res = await fetch(`${import.meta.env.VITE_PUBLIC_SERVER_URL}/api/schedule/getAll`);
-      const data = await res.json();
-      if (data.success) {
-        setSchedules(data.schedules);
-      }
-    } catch (error) {
-      console.error("Failed to fetch schedules", error);
-      errorMessage("Failed to load schedules");
-    }
-  };
-
-
 
   const handleSubmit = async () => {
     if (!formData.title || !formData.startTime || !formData.teacherId) {
@@ -125,7 +108,6 @@ const Scheduling = () => {
 
       if (data.success) {
         successMessage(isEdit ? "Session Updated" : "Session Scheduled & Zoom Generated!");
-        fetchSchedules();
         onOpenChange(false);
         resetForm();
       } else {
@@ -133,7 +115,7 @@ const Scheduling = () => {
       }
     } catch (error) {
       console.error(error);
-      errorMessage("Error submitting form");
+      errorMessage("Error submitting form: " + error.message);
     } finally {
       setLoading(false);
     }
@@ -209,28 +191,13 @@ const Scheduling = () => {
     setTimeout(() => setCopiedId(null), 2000);
   };
 
-  // Helper to determine status
-  const getStatus = (item) => {
-    if (item.status === 'cancelled') return 'Cancelled';
-    const now = new Date();
-    const itemDate = new Date(`${item.date.split('T')[0]}T${item.endTime}`); // precise check if passed
-    // Fallback simpler check
-    const dateOnly = new Date(item.date);
-    if (dateOnly < new Date().setHours(0, 0, 0, 0)) return 'Completed';
-    return 'Upcoming';
-  };
-
   const statuses = [
     { key: "all", label: "All Status" },
     { key: "upcoming", label: "Upcoming" },
     { key: "completed", label: "Completed" },
   ];
 
-  const filteredSchedules = schedules.filter(s => {
-    if (statusFilter === 'all') return true;
-    const status = getStatus(s).toLowerCase();
-    return status === statusFilter;
-  });
+
 
   return (
     <div className="bg-white bg-linear-to-t from-[#F1C2AC]/50 to-[#95C4BE]/50 px-2 sm:px-3 min-h-screen">
@@ -238,7 +205,6 @@ const Scheduling = () => {
         title={"Schedule Live Classes"}
         desc={"Manage and organize your upcoming live sessions"}
       />
-      <TeacherSelect />
       <div className="bg-[#EBD4C9] flex-wrap gap-2 p-2 sm:p-4 rounded-lg my-3 flex justify-between items-center">
         <div className="flex max-md:flex-wrap items-center gap-2">
           <Select
@@ -286,8 +252,8 @@ const Scheduling = () => {
             <TableColumn>Actions</TableColumn>
           </TableHeader>
 
-          <TableBody emptyContent={"No sessions scheduled."}>
-            {filteredSchedules.map((item) => (
+          <TableBody loadingContent={<Spinner color="success" />} loadingState={isFetching ? 'loading' : 'idle'} emptyContent={"No sessions scheduled."}>
+            {data?.schedules?.map((item) => (
               <TableRow key={item.id}>
                 <TableCell>
                   <div>
@@ -305,7 +271,7 @@ const Scheduling = () => {
                 <TableCell>
                   <Popover>
                     <PopoverTrigger>
-                      <span className="cursor-pointer font-medium">{dateFormatter(item.scheduleDates[0])} - {dateFormatter(item.scheduleDates[item.scheduleDates?.length - 1])}</span>
+                      <span className="cursor-pointer font-medium">{dateFormatter(item.scheduleDates[0])} - {dateFormatter(item?.scheduleDates[item.scheduleDates?.length - 1])}</span>
                     </PopoverTrigger>
                     <PopoverContent>
                       <Calendar
@@ -316,7 +282,7 @@ const Scheduling = () => {
                         isReadOnly
 
                         isDateUnavailable={(date) =>
-                          item.scheduleDates.includes(date.toString())
+                          item.scheduleDates?.includes(date.toString())
                         }
                       />
                     </PopoverContent>
@@ -396,20 +362,14 @@ const Scheduling = () => {
                     setFormData({ ...formData, title: e.target.value })
                   }
                 />
-                <Input
-                  label="CourseId"
-                  variant="bordered"
-                  type="number"
-                  value={String(formData.courseId)}
-                  onChange={(e) =>
-                    setFormData({ ...formData, courseId: e.target.valueAsNumber })
-                  }
+                <CourseSelect
+                  onChange={(courseId) => setFormData({ ...formData, courseId })}
                 />
                 {/* Schedule Type */}
                 <Select
                   label="Schedule Type"
                   variant="bordered"
-                  selectedKeys={[formData.scheduleType]}
+                  selectedKeys={formData?.scheduleType ? new Set([formData?.scheduleType]) : new Set([])}
                   onChange={(e) =>
                     setFormData({ ...formData, scheduleType: e.target.value })
                   }
@@ -509,7 +469,7 @@ const Scheduling = () => {
 
                     <CheckboxGroup
                       label="Select Days"
-                      value={formData.weeklyDays}
+                      value={formData?.weeklyDays}
                       orientation="horizontal"
                       color="success"
                       onChange={(val) =>
@@ -547,24 +507,9 @@ const Scheduling = () => {
                     }
                   />
                 </div>
-                <Select
-                  label="Assign Teacher"
-                  variant="bordered"
-                  selectedKeys={formData.teacherId ? [formData.teacherId] : []}
-                  onChange={(e) =>
-                    setFormData({ ...formData, teacherId: e.target.value })
-                  }
-                >
-                  {teachers?.user?.map((teacher) => (
-                    <SelectItem
-                      key={teacher.id}
-                      textValue={`${teacher.firstName} ${teacher.lastName}`}
-                    >
-                      {teacher.firstName} {teacher.lastName} ({teacher.email})
-                    </SelectItem>
-                  ))}
-                </Select>
-
+                <TeacherSelect
+                  onChange={(teacherId) => setFormData({ ...formData, teacherId })}
+                />
                 <Textarea
                   label="Description"
                   variant="bordered"

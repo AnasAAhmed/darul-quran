@@ -152,6 +152,7 @@ const CourseManagement = () => {
           >
             <TableHeader>
               <TableColumn className="w-1/4">Course</TableColumn>
+              <TableColumn className="w-2/6 text-center">Type</TableColumn>
               <TableColumn className="w-1/6 text-center">Category</TableColumn>
               <TableColumn className="w-1/6">Teacher</TableColumn>
               <TableColumn className="w-1/12 text-center">Price</TableColumn>
@@ -178,9 +179,13 @@ const CourseManagement = () => {
                       </div>
                     </div>
                   </TableCell>
-
                   <TableCell>
-                    <p className="p-2 w-full text-xs rounded-md text-[#06574C] bg-[#95C4BE]/20">
+                    <p className="p-2 text-center w-full capitalize text-xs rounded-md text-[#06574C] bg-[#95C4BE]/20">
+                      {classItem?.type?.replace("_", " ")}
+                    </p>
+                  </TableCell>
+                  <TableCell>
+                    <p className="p-2 w-full text-center text-xs rounded-md text-[#06574C] bg-[#95C4BE]/20">
                       {classItem?.category_name}
                     </p>
                   </TableCell>
@@ -203,7 +208,7 @@ const CourseManagement = () => {
 
                   <TableCell className="text-center">
                     <span className="font-medium">
-                      {classItem?.enrolledCount}
+                      {classItem?.studentCourseCount}
                     </span>
                   </TableCell>
 
@@ -215,7 +220,7 @@ const CourseManagement = () => {
 
                   <TableCell>
                     <div className="min-w-0 flex items-center">
-                      <Link to={'/admin/help/reviews?id='+classItem?.id} className="font-medium truncate max-w-[220px] block">
+                      <Link to={'/admin/help/reviews?id=' + classItem?.id} className="font-medium truncate max-w-[220px] block">
                         {classItem?.rating || "No ratings"}
                       </Link>
                     </div>

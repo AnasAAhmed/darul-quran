@@ -69,9 +69,38 @@ export const getStatusColor = (schedule) => {
  * @returns {string} Status text
  */
 export const getStatusText = (schedule) => {
-    if (isClassExpired(schedule)) return "Completed";
-    if (isClassLive(schedule)) return "Live Now";
-    return "Upcoming";
+    const scheduleDates = schedule.scheduleDates || [];
+    if (!scheduleDates.length) return "completed";
+
+    const now = new Date();
+    const todayStr = now.toLocaleDateString("en-CA"); 
+
+    const [startHour, startMin] = schedule.startTime.split(":").map(Number);
+    const [endHour, endMin] = schedule.endTime.split(":").map(Number);
+
+    const lastDateStr = scheduleDates[scheduleDates.length - 1];
+
+    if (scheduleDates.includes(todayStr)) {
+        const startTime = new Date(todayStr);
+        startTime.setHours(startHour, startMin, 0, 0);
+
+        const endTime = new Date(todayStr);
+        endTime.setHours(endHour, endMin, 0, 0);
+
+        if (now >= startTime && now <= endTime) {
+            return "live";
+        }
+
+        if (now < startTime) {
+            return "upcoming";
+        }
+    }
+
+    if (todayStr < lastDateStr) {
+        return "upcoming";
+    }
+
+    return "completed";
 };
 
 /**

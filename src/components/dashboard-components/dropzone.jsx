@@ -1,5 +1,6 @@
 import { PlusCircle } from "lucide-react";
 import { useDropzone } from "react-dropzone";
+import { errorMessage } from "../../lib/toast.config";
 
 const fileTypeMap = {
   image: {
@@ -13,7 +14,7 @@ const fileTypeMap = {
     "application/msword": [".doc"],
     "application/vnd.openxmlformats-officedocument.wordprocessingml.document": [".docx"],
   },
-  assignment:{"application": [".pdf", ".doc", ".docx", ".xls", ".xlsx", ".txt"]}
+  assignment: { "application": [".pdf", ".doc", ".docx", ".xls", ".xlsx", ".txt"] }
 };
 
 
@@ -22,7 +23,7 @@ const FileDropzone = ({
   text = ' Recommended: 1280x720 pixels',
   files,
   fileType = "",// "image" | "video" | "pdf" | "assignment",
-  maxSize = 50,
+  maxSize = 100,
   setFiles,
   height = "280px",
   className = "w-full",
@@ -56,6 +57,21 @@ const FileDropzone = ({
         // Replace with single file
         setFiles(filesWithMetadata);
       }
+    },
+    onDropRejected: (fileRejections) => {
+      fileRejections.forEach(({ file, errors }) => {
+        errors.forEach(error => {
+          if (error.code === "file-too-large") {
+            errorMessage(
+              `"${file.name}" is too large.\nMaximum file size is ${maxSize} MB.`
+            );
+          }
+
+          if (error.code === "file-invalid-type") {
+            errorMessage(`"${file.name}" has an unsupported file type.`);
+          }
+        });
+      });
     },
   });
   const removeFile = (index) => {

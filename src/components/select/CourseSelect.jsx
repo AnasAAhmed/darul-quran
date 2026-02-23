@@ -1,7 +1,7 @@
 import { Autocomplete, AutocompleteItem } from "@heroui/react";
-import { useState, useMemo, useEffect } from "react";
-import { useGetAllTeachersQuery } from "../../redux/api/user";
+import { useState, useEffect } from "react";
 import { debounce } from "../../lib/utils";
+import { useGetAllCoursesForSelectQuery } from "../../redux/api/courses";
 
 
 /**
@@ -9,22 +9,18 @@ import { debounce } from "../../lib/utils";
  * @param {(teacherId: Number)=>void} props.onChange
  * @param {String} props.label
  */
-const TeacherSelect = ({ onChange, label = undefined }) => {
+const CourseSelect = ({ onChange, label = undefined }) => {
     const [searchValue, setSearchValue] = useState("");
     const [selectedId, setSelectedId] = useState("");
     const [total, setTotal] = useState(0);
+    const { data = { total: 0, courses: [] }, isFetching: isLoading, isError, error } = useGetAllCoursesForSelectQuery({ page: 1, limit: 20, search: searchValue });
 
-    const { data: teachersData = { user: [], total: 0 }, isFetching: isLoading } = useGetAllTeachersQuery({
-        page: 1,
-        limit: 20,
-        search: searchValue,
-    });
 
     useEffect(() => {
         if (!total) {
-            setTotal(teachersData.total);
+            setTotal(data?.total);
         }
-    }, [teachersData.total]);
+    }, [data?.total]);
 
     const onInputChange = (value) => {
         debounce(() => setSearchValue(value), 500);
@@ -38,7 +34,7 @@ const TeacherSelect = ({ onChange, label = undefined }) => {
     return (
         <Autocomplete
             label={label}
-            placeholder="Search a teacher"
+            placeholder="Select a Course"
             labelPlacement="outside"
             variant="bordered"
             size="lg"
@@ -47,16 +43,16 @@ const TeacherSelect = ({ onChange, label = undefined }) => {
             isLoading={isLoading}
             onInputChange={total > 10 ? onInputChange : undefined}
             onSelectionChange={onSelectionChange}
-            defaultItems={teachersData.user}
+            defaultItems={data.courses}
             endContent={total > 10 && `+${total - 10}`}
         >
             {(item) => (
                 <AutocompleteItem key={String(item.id)}>
-                    {`${item.firstName} ${item.lastName}`}
+                    {item.courseName}
                 </AutocompleteItem>
             )}
         </Autocomplete>
     );
 };
 
-export default TeacherSelect;
+export default CourseSelect;

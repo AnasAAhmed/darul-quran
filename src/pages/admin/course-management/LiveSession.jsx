@@ -29,7 +29,6 @@ const LiveSession = () => {
         price: '',
         teacherId: '',
     });
-    console.log(formData);
     const [editData, setEditData] = useState({});
 
     useEffect(() => {

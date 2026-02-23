@@ -14,6 +14,7 @@ import { Skeleton } from "@heroui/react";
  *   changeText: string,
  *   changeColor: string
  * }>} props.data - Array of card objects to display.
+ * @param {Boolean} props.isLoading
  *
  * @example
  * const cardsData = [
@@ -28,7 +29,7 @@ import { Skeleton } from "@heroui/react";
  *
  * <OverviewCards data={cardsData} />
  */
-const OverviewCards = ({ data = [], isLoading }) => {
+const OverviewCards = ({ data = [], isLoading = false }) => {
     return (
         <div className="py-4 gap-5  overflow-x-auto grid grid-cols-1 sm:grid-cols-4">
             {isLoading ? [...Array(4)].map((_, index) => (

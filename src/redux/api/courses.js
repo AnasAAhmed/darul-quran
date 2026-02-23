@@ -20,6 +20,16 @@ export const courseApi = createApi({
             }),
             providesTags: ["course"],
         }),
+        getAllCoursesForSelect: builder.query({
+            query: ({ page, limit, search, type= "live" }) => ({
+                url: "/getAllCoursesForSelect",
+                method: "GET",
+                params: {
+                    page, limit, search, type,
+                },
+            }),
+            providesTags: ["course"],
+        }),
         getEnrolledCourses: builder.query({
             query: ({ page = 1, limit, categoryId, search = '' }) => ({
                 url: "/my-courses",
@@ -41,7 +51,7 @@ export const courseApi = createApi({
             providesTags: ["course"],
         }),
         getCourseByIdView: builder.query({
-            query: ({ courseId, includeCourse ,teacherId}) => ({
+            query: ({ courseId, includeCourse, teacherId }) => ({
                 url: `/getCourseByIdView/${courseId}`,
                 method: "GET",
                 params: { teacherId, includeCourse }
@@ -125,6 +135,7 @@ export const courseApi = createApi({
 
 export const {
     useGetAllCoursesQuery,
+    useGetAllCoursesForSelectQuery,
     useGetEnrolledCoursesQuery,
     useGetCourseFilesQuery,
     useGetCourseByIdQuery,

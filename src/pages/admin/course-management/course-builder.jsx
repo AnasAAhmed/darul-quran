@@ -40,6 +40,7 @@ import { errorMessage, successMessage } from "../../../lib/toast.config";
 import { FormOverlayLoader } from "../../../components/Loader";
 import { uploadFilesToServer } from "../../../lib/utils";
 import { IntervalInput } from "../../../components/dashboard-components/forms/IntervalInput";
+import TeacherSelect from "../../../components/select/TeacherSelect";
 const containerVariants = {
   hidden: { opacity: 0, y: 10, scale: 0.98 },
 
@@ -121,12 +122,15 @@ const CourseBuilder = () => {
           course_price: course.coursePrice || "",
           teacher_id: Number(course.teacherId) || "",
           access_duration: course.accessDuration || "",
-          previous_lesson: course.previousLesson || "",
+          previous_lesson: course?.files?.length || "",
           enroll_number: course.enrollNumber || "",
           status: course.status || "draft",
           videoDuration: course.videoDuration || "",
           is_free: course.isFree || false,
           video_count: course.videoCount || 0,
+          type: course.type || 'one_time',
+          interval: course.interval || '',
+          duration: course.duration || '',
         });
 
         setVideoUrl(course.video || "");
@@ -202,7 +206,7 @@ const CourseBuilder = () => {
     type: "one_time",
     teacher_id: "",
     access_duration: "",
-    previous_lesson: "",
+    previous_lesson: 0,
     enroll_number: "",
     status: "draft", // Default
     videoDuration: "",
@@ -217,6 +221,9 @@ const CourseBuilder = () => {
     { title: "Category:", desc: categories?.find((category) => category.id === formData?.category_id)?.categoryName || formData?.category_name || "Add Category" },
     { title: "Difficulty Level:", desc: formData?.difficulty_level || "Add Difficulty Level" },
     { title: "Price:", desc: formData?.course_price || "Add Price" },
+    { title: "Type:", desc: formData?.type?.replace("_", " ") || "Add Type" },
+    { title: "Duration:", desc: formData?.duration || "Add Duration" },
+    { title: "Subscription Interval:", desc: formData?.interval || "Add Subscription Interval" },
   ];
   // handle change
   const handleChange = (name, value) => {
@@ -224,10 +231,16 @@ const CourseBuilder = () => {
       ...prev,
       [name]: value,
     }));
-    console.log(formData);
   };
   // handle submit tab 1
   // Function to upload files to server
+
+  useEffect(()=>{
+    setFormData((prev) => ({
+      ...prev,
+      previous_lesson: files?.length || 0
+    }))
+  }, [files])
 
   const handleSubmitTab1 = async (e) => {
     e.preventDefault();
@@ -560,37 +573,9 @@ const CourseBuilder = () => {
                         }
                       />
                       <div className="pt-6">
-                        <Select
-                          size="lg"
-                          variant="bordered"
-                          label="Teacher Name"
-                          labelPlacement="outside"
-                          placeholder="Select teacher"
-                          isRequired
-                          errorMessage="Teacher is required"
-                          className="w-full"
-                          selectedKeys={
-                            formData.teacher_id
-                              ? new Set([String(formData.teacher_id)])
-                              : new Set()
-                          }
-                          onSelectionChange={(keys) => {
-                            const teacherId = Number([...keys][0]); // ✅ convert to number
-                            handleChange("teacher_id", teacherId);
-                          }}
-                        >
-                          {teachers.map((teacher) => {
-                            const fullName = `${teacher.firstName} ${teacher.lastName}`;
-                            return (
-                              <SelectItem
-                                key={String(teacher.id)}
-                                textValue={fullName}
-                              >
-                                {fullName}
-                              </SelectItem>
-                            );
-                          })}
-                        </Select>
+                        <TeacherSelect
+                          onChange={(id) => handleChange("teacher_id", id)}
+                        />
                       </div>
                       <div className="pt-6">
                         <Select
@@ -605,7 +590,7 @@ const CourseBuilder = () => {
                           onSelectionChange={(k) => {
                             const keys = [...k];
                             handleChange("type", keys[0]);
-
+                            successMessage("Type changed successfully" + keys[0]);
                           }}
                           selectedKeys={
                             formData.type
@@ -636,14 +621,19 @@ const CourseBuilder = () => {
                         className="mt-3"
                         initialValue={formData?.duration}
                         onUpdate={(interval) => handleChange("duration", interval)}
+                        releasedImmediately={false}
                       />
-                      {formData?.type === 'live' && <IntervalInput
-                        label="How do want to charge student for live courses"
-                        inputWidth={140}
-                        className="mt-3"
-                        initialValue={formData?.interval}
-                        onUpdate={(interval) => handleChange("interval", interval)}
-                      />}
+                      {formData?.type === 'live' &&
+                        <IntervalInput
+                          label="Subscription Interval"
+                          inputWidth={140}
+                          toolTipContent={'How do want to charge student for live sessions on this course'}
+                          className="mt-3"
+                          initialValue={formData?.interval}
+                          onUpdate={(interval) => handleChange("interval", interval)}
+                          releasedImmediately={false}
+                        />
+                      }
                     </div>
                   </div>
                   <div className="col-span-12 sm:col-span-4">
@@ -731,7 +721,7 @@ const CourseBuilder = () => {
                             <h1 className="text-md font-medium text-[#666666]">
                               {item.title}
                             </h1>
-                            <p className="text-md font-semibold text-[#333333]">
+                            <p className="text-md capitalize font-semibold text-[#333333]">
                               {item.desc}
                             </p>
                           </div>
