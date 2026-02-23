@@ -59,6 +59,7 @@ const ClassSheduling = () => {
     try {
       const res = await fetch(`${import.meta.env.VITE_PUBLIC_SERVER_URL}/api/auth/me`, {
         credentials: 'include'
+        
       });
       const data = await res.json();
       if (data.user) {
@@ -73,7 +74,9 @@ const ClassSheduling = () => {
     try {
       if (!currentTeacher) return;
 
-      const res = await fetch(`${import.meta.env.VITE_PUBLIC_SERVER_URL}/api/course/getAll?teacherId=${currentTeacher.id}`);
+      const res = await fetch(`${import.meta.env.VITE_PUBLIC_SERVER_URL}/api/course/getAll?teacherId=${currentTeacher.id}`,
+       { credentials: 'include'}
+      );
       const data = await res.json();
       if (data.success) {
         setCourses(data.courses || []);

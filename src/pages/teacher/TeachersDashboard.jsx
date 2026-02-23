@@ -42,7 +42,9 @@ import { IoAlertCircleOutline } from "react-icons/io5";
 import { Link } from "react-router-dom";
 import { formatTime12Hour, isClassLive, isClassExpired } from "../../utils/scheduleHelpers";
 import NotificationPermission from "../../components/NotificationPermission";
+import { useSelector } from "react-redux";
 const TeachersDashboard = () => {
+  const { user: currentUser } = useSelector((state) => state.user);
   const cardsData = [
     {
       title: "Total Courses ",
@@ -201,18 +203,57 @@ const TeachersDashboard = () => {
   const removeFile = (index) => {
     setFiles((prev) => prev.filter((_, i) => i !== index));
   };
+
+    const [featured, setFeatured] = useState(null);
+
+  useEffect(() => {
+    const fetchFeaturedAnnouncement = async () => {
+      try {
+        const res = await fetch(
+          `${import.meta.env.VITE_PUBLIC_SERVER_URL}/api/dashboard/teacher`,
+          {
+            credentials: "include",
+          },
+        );
+        const data = await res.json();
+        if (data.success && data.data?.featured) {
+          setFeatured(data.data.featured);
+        }
+      } catch (error) {
+        console.error("Error fetching featured announcement:", error);
+      }
+    };
+    fetchFeaturedAnnouncement();
+  }, []);
+
   return (
     <div className="bg-white bg-linear-to-t from-[#F1C2AC]/50 to-[#95C4BE]/50 h-scrseen px-2 sm:px-3">
       {/* banner */}
       <div className="space-y-4 mt-3 w-full bg-[url('/images/banner.png')] p-4 rounded-lg bg-center bg-no-repeat bg-cover">
         <div className="flex max-sm:flex-wrap gap-3 justify-between items-start">
           <div>
-            <h1 className="text-xl sm:text-3xl text-white font-semibold mb-0 ">
-              Upload your class materials 24 hours before the <br /> session to give
-              students time to prepare. <br />
-            </h1>
-            <Button size="sm" className="bg-[#06574C] text-white rounded-md">
-              Learn More
+            {featured && featured.length > 0 ? (
+              <div>
+                <h1 className="text-xl sm:text-3xl text-white font-semibold capitalize">
+                  {featured[0]?.title}
+                </h1>
+                <p className="text-white text-lg sm:text-xl overflow-hidden line-clamp-2">
+                  {featured[0]?.description}
+                </p>
+              </div>
+            ) : (
+              <p className="text-white text-xl">
+                Welcome to Darul Quran{" "}
+                {currentUser?.firstName + " " + currentUser?.lastName}
+              </p>
+            )}
+            <Button
+              as={Link}
+              to={`/`}
+              size="sm"
+              className="bg-[#06574C] text-white rounded-md mt-2"
+            >
+              View Announcements
             </Button>
           </div>
           <div>

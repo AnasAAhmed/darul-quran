@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import { Button, Pagination } from "@heroui/react";
 import {
   Clock,
@@ -28,8 +28,27 @@ const StudentDashboard = () => {
   const [courses, setCourses] = useState([]);
   const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(true);
+  const [featured, setFeatured] = useState([]);
   const { data, isError, error, isLoading } = useGetEnrolledCoursesQuery({ page })
   const { data: announcementsData, error: announcementsError, isLoading: announcementsLoading } = useGetAllAnnouncementQuery({ limit: 5 })
+
+  useEffect(() => {
+    const fetchFeatured = async () => {
+      try {
+        const res = await fetch(
+          `${import.meta.env.VITE_PUBLIC_SERVER_URL}/api/dashboard/student`,
+          { credentials: "include" }
+        );
+        const data = await res.json();
+        if (data.success && data.data?.featured) {
+          setFeatured(data.data.featured);
+        }
+      } catch (error) {
+        console.error("Error fetching featured announcement:", error);
+      }
+    };
+    fetchFeatured();
+  }, []);
 
   // Handle announcement error
   if (announcementsError) {
@@ -82,14 +101,32 @@ const StudentDashboard = () => {
       <div className="space-y-4 mt-3 w-full bg-[url('/images/banner.png')] p-4 rounded-lg bg-center bg-no-repeat bg-cover">
         <div className="flex max-sm:flex-wrap gap-3 justify-between items-start">
           <div>
-            <h1 className="text-xl sm:text-3xl text-white font-semibold mb-0 ">
-              Welcome back, {user?.firstName}! 👋
-            </h1>
-            <p className="text-white text-sm">
-              Ready to continue your learning journey? Let's make today productive!
-            </p>
-            <Button size="sm" className="bg-[#06574C] text-white rounded-md">
-              Learn More
+            {featured.length > 0 ? (
+              <div>
+                <h1 className="text-xl sm:text-3xl text-white font-semibold capitalize">
+                  {featured[0]?.title}
+                </h1>
+                <p className="text-white text-lg sm:text-xl overflow-hidden line-clamp-2">
+                  {featured[0]?.description}
+                </p>
+              </div>
+            ) : (
+              <div>
+                <h1 className="text-xl sm:text-3xl text-white font-semibold mb-0">
+                  Welcome back, {user?.firstName}! 👋
+                </h1>
+                <p className="text-white text-sm">
+                  Ready to continue your learning journey? Let's make today productive!
+                </p>
+              </div>
+            )}
+            <Button
+              as={Link}
+              to=""
+              size="sm"
+              className="bg-[#06574C] text-white rounded-md mt-2"
+            >
+              View Announcements
             </Button>
           </div>
           <div>
