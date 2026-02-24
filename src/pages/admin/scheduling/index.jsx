@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { DashHeading } from "../../../components/dashboard-components/DashHeading";
 import {
   Button,
@@ -37,9 +37,10 @@ import TeacherSelect from "../../../components/select/TeacherSelect";
 import { useCreateScheduleMutation, useDeleteScheduleMutation, useGetScheduleQuery, useUpdateScheduleMutation } from "../../../redux/api/schedules";
 import CourseSelect from "../../../components/select/CourseSelect";
 import Swal from "sweetalert2";
+import { Link, useSearchParams } from "react-router-dom";
 
 const Scheduling = () => {
-  const [loading, setLoading] = useState(false);
+  const [searchParams] = useSearchParams();
   const [deleteLoading, setDeleteLoading] = useState(null);
   const [copiedId, setCopiedId] = useState(null);
 
@@ -48,6 +49,8 @@ const Scheduling = () => {
   const [page, setPage] = useState(1);
   const [limit, setLimit] = useState(10);
   const [search, setSearch] = useState('');
+  const isCalenderView = searchParams.get('calender') === 'true';
+  const isOpenModalOnLoad = searchParams.get('modal') === 'true';
 
   // Modal State
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
@@ -82,11 +85,18 @@ const Scheduling = () => {
     limit: limit,
     search,
     status: statusFilter
-  });
+  }, { skip: isCalenderView });
   const [createSchedule, { isLoading: isSubmitting }] = useCreateScheduleMutation();
   const [updateSchedule, { isLoading: isUpdating }] = useUpdateScheduleMutation();
   const [deleteSchedule] = useDeleteScheduleMutation();
 
+  useEffect(() => {
+    if (isOpenModalOnLoad) {
+      openCreateModal();
+    }
+  }, [isOpenModalOnLoad]);
+
+  if (isCalenderView) return null;
 
   const handleSubmit = async () => {
     if (!formData.title || !formData.startTime || !formData.teacherId) {
@@ -244,15 +254,27 @@ const Scheduling = () => {
             }
           />
         </div>
-        <Button
-          startContent={<PlusIcon />}
-          radius="sm"
-          size="lg"
-          className="bg-[#06574C] text-white max-md:w-full"
-          onPress={openCreateModal}
-        >
-          Schedule New
-        </Button>
+        <div className="flex items-center gap-2">
+          <Button
+            as={Link}
+            to={'/admin/scheduling?calender=true'}
+            radius="sm"
+            size="md"
+            startContent={<CalendarIcon color="white" size={15} />}
+            color="success"
+          >
+            Calender View
+          </Button>
+          <Button
+            startContent={<PlusIcon />}
+            radius="sm"
+            size="md"
+            color="success"
+            onPress={openCreateModal}
+          >
+            Schedule New
+          </Button>
+        </div>
       </div>
 
       <div className="">
@@ -425,6 +447,8 @@ const Scheduling = () => {
                 <CourseSelect
                   initialValue={formData.courseId}
                   onChange={(courseId) => setFormData({ ...formData, courseId })}
+                  status="published"
+                  type="live"
                 />
                 {/* Schedule Type */}
                 <Select

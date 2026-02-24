@@ -3,6 +3,7 @@ import { AnimatePresence, motion } from 'framer-motion';
 import {
   BookIcon,
   CalendarIcon,
+  CalendarPlus,
   ChartBarIcon,
   ChevronDown,
   DollarSignIcon,
@@ -50,13 +51,13 @@ const Sidebar = ({ isSidebarOpen, setIsSidebarOpen }) => {
       link: '/admin/courses-management',
       children: [
         { name: 'Course Builder', link: '/admin/courses-management/builder' },
-        { name: 'Live Sessions Schedule', link: '/admin/courses-management/live-sessions' },
+        // { name: 'Live Sessions Schedule', link: '/admin/courses-management/live-sessions' },
         { name: 'Attendance & Progress', link: '/admin/courses-management/attendance' }
       ]
     },
     { name: 'User Management', icon: <UsersIcon />, link: '/admin/user-management' },
     { name: 'Class Scheduling', icon: <CalendarIcon />, link: '/admin/scheduling', badge: 3 },
-    { name: 'Reschedule Requests', icon: <CalendarIcon />, link: '/admin/reschedule-requests', badge: 3 },
+    { name: 'Reschedule Requests', icon: <CalendarPlus />, link: '/admin/reschedule-requests', badge: 3 },
     { name: 'Announcements', icon: <MegaphoneIcon />, link: '/admin/announcements' },
     { name: 'Payments & Refunds', icon: <DollarSignIcon />, link: '/admin/payments' },
     { name: 'Support Tickets', icon: <TicketIcon />, link: '/admin/tickets' },

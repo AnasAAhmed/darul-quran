@@ -214,14 +214,6 @@ function App() {
             }
           />
           <Route
-            path="/admin/courses-management/live-sessions"
-            element={
-              <ProtectedRoute isAuthenticated={isAuthenticated} redirect="/">
-                <LiveSession />
-              </ProtectedRoute>
-            }
-          />
-          <Route
             path="/admin/courses-management/attendance"
             element={
               <ProtectedRoute isAuthenticated={isAuthenticated} redirect="/">
@@ -266,6 +258,7 @@ function App() {
             element={
               <ProtectedRoute isAuthenticated={isAuthenticated} redirect="/">
                 <Scheduling />
+                <LiveSession />
               </ProtectedRoute>
             }
           />
@@ -356,7 +349,7 @@ function App() {
             }
           />
           <Route
-            path="/teacher/courses/course-details"
+            path="/teacher/courses/:id"
             element={
               <ProtectedRoute isAuthenticated={isAuthenticated} redirect="/">
                 <MyCourses />

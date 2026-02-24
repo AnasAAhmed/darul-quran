@@ -1,176 +1,76 @@
-import { Button, Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, Input, Textarea, useDisclosure, Select, SelectItem } from '@heroui/react'
+import { Button, Spinner } from '@heroui/react'
 import { DashHeading } from '../../../components/dashboard-components/DashHeading'
-import { Plus, Calendar } from 'lucide-react';
-import { useState, useEffect } from "react";
+import { Plus, Calendar, ChevronLeft, ChevronRight, ArrowBigLeft } from 'lucide-react';
+import { useState, useMemo, useRef, useEffect } from "react";
 import FullCalendar from "@fullcalendar/react";
 import dayGridPlugin from "@fullcalendar/daygrid";
 import interactionPlugin from "@fullcalendar/interaction";
-import { errorMessage, successMessage } from '../../../lib/toast.config';
-import { useGetAllTeachersQuery } from '../../../redux/api/user';
+import { errorMessage } from '../../../lib/toast.config';
+import { Link, useSearchParams } from 'react-router-dom';
+import { useGetSchedulesByMonthQuery } from '../../../redux/api/schedules';
 
 const LiveSession = () => {
-    // Schedule Modal
-    const { isOpen, onOpen, onOpenChange } = useDisclosure();
-    // Reschedule Modal
-    const { isOpen: isEditOpen, onOpen: onEditOpen, onOpenChange: onEditOpenChange } = useDisclosure();
-
-    const [events, setEvents] = useState([]);
-    const [rawSchedules, setRawSchedules] = useState([]);
-    const [loading, setLoading] = useState(false);
-    const [stats, setStats] = useState({ upcoming: 0, completed: 0 });
-    const [copiedId, setCopiedId] = useState(null);
-
-    const [formData, setFormData] = useState({
-        title: '',
-        date: '',
-        startTime: '',
-        endTime: '',
-        description: '',
-        price: '',
-        teacherId: '',
+    const [searchParams] = useSearchParams();
+    const calendarRef = useRef(null);
+    const [currentMonth, setCurrentMonth] = useState(() => {
+        const now = new Date();
+        return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
     });
-    const [editData, setEditData] = useState({});
+    const isCalenderView = searchParams.get('calender') === 'true';
+    const { data, isLoading, error } = useGetSchedulesByMonthQuery(currentMonth, { skip: !isCalenderView });
 
-    useEffect(() => {
-        fetchSessions();
-    }, []);
+    const events = useMemo(() => {
+        if (!data?.schedules) return [];
 
-    const fetchSessions = async () => {
-        try {
-            const res = await fetch(`${import.meta.env.VITE_PUBLIC_SERVER_URL}/api/schedule/getAll`);
-            const data = await res.json();
-            if (data.success) {
-                setRawSchedules(data.schedules);
-
-                // Stats
-                const now = new Date();
-                const upcoming = data.schedules.filter(s => new Date(s.date) >= now || new Date(s.date).toDateString() === now.toDateString()).length;
-                setStats({ upcoming, completed: data.schedules.length - upcoming });
-
-                // Calendar Events
-                const formattedEvents = data.schedules.map(s => {
-                    const dateStr = new Date(s.date).toISOString().split('T')[0];
-                    return {
-                        id: s.id,
-                        title: s.title,
-                        start: `${dateStr}T${s.startTime}`,
-                        end: `${dateStr}T${s.endTime}`,
-                        backgroundColor: '#dcd0ff',
-                        borderColor: '#dcd0ff',
-                        textColor: '#06574C',
-                        extendedProps: { ...s }
-                    };
-                });
-                setEvents(formattedEvents);
+        return data.schedules.flatMap(schedule => {
+            if (!schedule.scheduleDates || !Array.isArray(schedule.scheduleDates)) {
+                return [];
             }
-        } catch (error) {
-            console.error("Failed to fetch sessions", error);
-            errorMessage("Failed to load schedule");
-        }
-    };
 
-    const handleCreate = async () => {
-        if (!formData.title || !formData.date || !formData.startTime) {
-            errorMessage("Please fill required fields");
-            return;
-        }
-
-        try {
-            setLoading(true);
-            const res = await fetch(`${import.meta.env.VITE_PUBLIC_SERVER_URL}/api/schedule/create`, {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(formData)
-            });
-            const data = await res.json();
-
-            if (data.success) {
-                successMessage("Scheduled & Zoom Link Generated!");
-                fetchSessions();
-                onOpenChange(false);
-                setFormData({ title: '', date: '', startTime: '', endTime: '', description: '' });
-            } else {
-                errorMessage(data.message || "Failed to schedule");
-            }
-        } catch (error) {
-            console.error(error);
-            errorMessage("Error scheduling session");
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    const handleUpdate = async () => {
-        try {
-            setLoading(true);
-            const res = await fetch(`${import.meta.env.VITE_PUBLIC_SERVER_URL}/api/schedule/update/${editData.id}`, {
-                method: "PATCH",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(editData)
-            });
-            const data = await res.json();
-            if (data.success) {
-                successMessage("Session Rescheduled Successfully");
-                fetchSessions();
-                onEditOpenChange(false);
-            } else {
-                errorMessage("Update failed");
-            }
-        } catch (error) {
-            errorMessage("Error updating session");
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    const handleDelete = async (id) => {
-        if (!confirm("Are you sure you want to delete this session?")) return;
-        try {
-            const res = await fetch(`${import.meta.env.VITE_PUBLIC_SERVER_URL}/api/schedule/delete/${id}`, {
-                method: "DELETE"
-            });
-            const data = await res.json();
-            if (data.success) {
-                successMessage("Session Deleted");
-                fetchSessions();
-            } else {
-                errorMessage("Delete failed");
-            }
-        } catch (error) {
-            errorMessage("Error deleting session");
-        }
-    };
-
-    const copyToClipboard = (text, id) => {
-        navigator.clipboard.writeText(text);
-        setCopiedId(id);
-        successMessage("Link Copied!");
-        setTimeout(() => setCopiedId(null), 2000);
-    };
-
-    const openRescheduleModal = (session) => {
-        // Format date for input type="date"
-        const dateStr = new Date(session.date).toISOString().split('T')[0];
-        setEditData({
-            ...session,
-            date: dateStr
+            return schedule.scheduleDates.map(date => ({
+                id: `${schedule.id}-${date}`,
+                title: schedule.title,
+                start: date,
+                backgroundColor: '#dcd0ff',
+                borderColor: '#dcd0ff',
+                textColor: '#06574C',
+                extendedProps: {
+                    description: schedule.description,
+                    courseName: schedule.courseName,
+                    scheduleId: schedule.id
+                }
+            }));
         });
-        onEditOpen();
-    };
+    }, [data]);
 
-    const sortedDetails = [...rawSchedules].sort((a, b) => new Date(a.date) - new Date(b.date));
-    const { data: teachers, isLoading } = useGetAllTeachersQuery({
-        page: 1,
-        limit: 100,
-        search: ""
-    });
-    // console.log(teachers);
+    const stats = useMemo(() => {
+        if (!data?.schedules) return { upcoming: 0, completed: 0 };
+        const now = new Date();
+        const today = now.toISOString().split('T')[0];
+        const upcoming = data.schedules.filter(s =>
+            s.scheduleDates?.some(date => date >= today)
+        ).length;
+        return { upcoming, completed: data.schedules.length - upcoming };
+    }, [data]);
+
+    const handleDatesSet = (arg) => {
+        const viewDate = arg.view.currentStart;
+        const year = viewDate.getFullYear();
+        const month = String(viewDate.getMonth() + 1).padStart(2, '0');
+        setCurrentMonth(`${year}-${month}`);
+    };
+    if (!isCalenderView) return null;
+
+    if (error) {
+        errorMessage("Failed to load schedules: " + error?.data?.message);
+    }
+
     return (
-        <div className='bg-white sm:bg-linear-to-t from-[#F1C2AC]/50 to-[#95C4BE]/50 px-2 sm:px-5 '>
+        <div className='bg-white min-h-screen sm:bg-linear-to-t from-[#F1C2AC]/50 to-[#95C4BE]/50 px-2 sm:px-5 '>
             <div className="flex justify-between items-center py-4">
                 <DashHeading
-                    title={"Live Sessions Schedule"}
-                    desc={'Manage upcoming live classes and sessions'} />
+                    title={"Scheduled Live Classes Calendar"}
+                    desc={'View live classes and sessions in calender'} />
                 <div className="bg-white px-4 py-2 rounded-lg shadow-sm border border-gray-100 flex items-center gap-3">
                     <div className="bg-blue-50 p-2 rounded-full"><Calendar className="text-blue-600" size={20} /></div>
                     <div>
@@ -181,170 +81,32 @@ const LiveSession = () => {
             </div>
 
             <div className="bg-[#EBD4C9] max-md:flex-wrap gap-2 p-2 sm:p-4 rounded-lg my-3 flex flex-col md:flex-row justify-between md:items-center">
-                <p className="text-[#06574C] font-medium hidden md:block">Zoom Integration Enabled</p>
-                <Button onPress={onOpen} radius="sm" startContent={<Plus color="white" size={15} />} className="bg-[#06574C] text-white py-4 px-3 sm:px-8">
+                <Button as={Link} color='success' variant='bordered' to={'/admin/scheduling'} radius="sm" startContent={<ArrowBigLeft size={15} />} >
+                    Back
+                </Button>
+                <Button as={Link} to={'/admin/scheduling?modal=true'} radius="sm" startContent={<Plus color="white" size={15} />} className="bg-[#06574C] text-white py-4 px-3 sm:px-8">
                     Schedule Session
                 </Button>
             </div>
 
             <div className="p-4 bg-white rounded-lg shadow mb-6">
-                <FullCalendar
-                    showNonCurrentDates={true}
-                    plugins={[dayGridPlugin, interactionPlugin]}
-                    initialView="dayGridMonth"
-                    events={events}
-                    height="auto"
-                    eventClick={(info) => { }}
-                />
+                {isLoading ? (
+                    <div className="flex justify-center items-center py-12">
+                        <Spinner size="lg" variant="dots" labelColor="success" color="success" />
+                    </div>
+                ) : (
+                    <FullCalendar
+                        ref={calendarRef}
+                        showNonCurrentDates={true}
+                        plugins={[dayGridPlugin, interactionPlugin]}
+                        initialView="dayGridMonth"
+                        events={events}
+                        height="auto"
+                        eventClick={(info) => { }}
+                        datesSet={handleDatesSet}
+                    />
+                )}
             </div>
-
-            {/* Create Schedule Modal */}
-            <Modal isOpen={isOpen} onOpenChange={onOpenChange} placement="top-center">
-                <ModalContent>
-                    {(onClose) => (
-                        <>
-                            <ModalHeader className="flex flex-col gap-1 text-[#06574C]">Schedule New Session (Zoom)</ModalHeader>
-                            <ModalBody>
-                                <p className="text-xs text-gray-500 mb-2">Zoom link and password will be auto-generated upon creation.</p>
-                                <Input
-                                    autoFocus
-                                    label="Session Title"
-                                    placeholder="e.g. React Doubt Session"
-                                    variant="bordered"
-                                    value={formData.title}
-                                    onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                                />
-                                <Select
-                                    label="Assign Teacher"
-                                    placeholder="Select Teacher"
-                                    variant="bordered"
-                                    className="text-black!"
-                                    value={formData.teacherId}
-                                    onChange={(e) => setFormData({ ...formData, teacherId: e.target.value })}
-                                >
-                                    {teachers?.user?.map((teacher) => (
-                                        <SelectItem key={teacher.id} value={teacher.id}>
-                                            {teacher.firstName + " " + teacher.lastName}
-                                        </SelectItem>
-                                    ))}
-                                </Select>
-                                <div className='flex gap-2'>
-                                    <Input
-                                        type="date"
-                                        label="Date"
-                                        variant="bordered"
-                                        value={formData.date}
-                                        onChange={(e) => setFormData({ ...formData, date: e.target.value })}
-                                    />
-                                </div>
-                                <div className='flex gap-2'>
-                                    <Input
-                                        type="time"
-                                        label="Start Time"
-                                        variant="bordered"
-                                        value={formData.startTime}
-                                        onChange={(e) => setFormData({ ...formData, startTime: e.target.value })}
-                                    />
-                                    <Input
-                                        type="time"
-                                        label="End Time"
-                                        variant="bordered"
-                                        value={formData.endTime}
-                                        onChange={(e) => setFormData({ ...formData, endTime: e.target.value })}
-                                    />
-                                </div>
-                                <div>
-                                    <Input
-                                        label="Price"
-                                        variant="bordered"
-                                        type="number"
-                                        placeholder="Enter Session Price"
-                                        step="0.01"
-                                        value={formData.price}
-                                        onChange={(e) => setFormData({ ...formData, price: e.target.value })}
-                                    />
-                                </div>
-                                <Textarea
-                                    label="Description/Agenda"
-                                    placeholder="Details..."
-                                    variant="bordered"
-                                    value={formData.description}
-                                    onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                                />
-                            </ModalBody>
-                            <ModalFooter>
-                                <Button color="danger" variant="flat" onPress={onClose}>
-                                    Cancel
-                                </Button>
-                                <Button className="bg-[#06574C] text-white" onPress={handleCreate} isLoading={loading}>
-                                    Schedule & Generate Zoom
-                                </Button>
-                            </ModalFooter>
-                        </>
-                    )}
-                </ModalContent>
-            </Modal>
-
-            {/* Reschedule Modal with Blur */}
-            <Modal isOpen={isEditOpen} onOpenChange={onEditOpenChange} placement="top-center" backdrop="blur">
-                <ModalContent>
-                    {(onClose) => (
-                        <>
-                            <ModalHeader className="flex flex-col gap-1 text-[#06574C]">Reschedule Session</ModalHeader>
-                            <ModalBody>
-                                <Input
-                                    label="Session Title"
-                                    variant="bordered"
-                                    value={editData.title}
-                                    onChange={(e) => setEditData({ ...editData, title: e.target.value })}
-                                />
-                                <div className='flex gap-2'>
-                                    <Input
-                                        type="date"
-                                        label="Date"
-                                        variant="bordered"
-                                        value={editData.date}
-                                        onChange={(e) => setEditData({ ...editData, date: e.target.value })}
-                                    />
-                                </div>
-                                <div className='flex gap-2'>
-                                    <Input
-                                        type="time"
-                                        label="Start Time"
-                                        variant="bordered"
-                                        value={editData.startTime}
-                                        onChange={(e) => setEditData({ ...editData, startTime: e.target.value })}
-                                    />
-                                    <Input
-                                        type="time"
-                                        label="End Time"
-                                        variant="bordered"
-                                        value={editData.endTime}
-                                        onChange={(e) => setEditData({ ...editData, endTime: e.target.value })}
-                                    />
-                                </div>
-                                <Textarea
-                                    label="Description"
-                                    variant="bordered"
-                                    value={editData.description}
-                                    onChange={(e) => setEditData({ ...editData, description: e.target.value })}
-                                />
-                                <p className="text-xs text-orange-500 bg-orange-50 p-2 rounded">
-                                    Note: This updates the local schedule. You may need to update the Zoom meeting separately via Zoom Dashboard if needed.
-                                </p>
-                            </ModalBody>
-                            <ModalFooter>
-                                <Button color="danger" variant="flat" onPress={onClose}>
-                                    Cancel
-                                </Button>
-                                <Button className="bg-[#06574C] text-white" onPress={handleUpdate} isLoading={loading}>
-                                    Save Changes
-                                </Button>
-                            </ModalFooter>
-                        </>
-                    )}
-                </ModalContent>
-            </Modal>
         </div>
     )
 }

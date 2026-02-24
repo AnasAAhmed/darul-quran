@@ -9,42 +9,53 @@ import Videos, {
   PdfAndNotes,
 } from "../../../components/dashboard-components/forms/ContentUpload";
 import { GoLightBulb, GoRocket } from "react-icons/go";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import CourseSelect from "../../../components/select/CourseSelect";
+import { useGetCourseFilesQuery } from "../../../redux/api/courses";
+import { useSearchParams } from "react-router-dom";
 
 const UploadMaterial = () => {
+  const [searchParams] = useSearchParams();
+  const courseIdFromQuery = searchParams.get("courseId");
   const [files, setFiles] = useState([]);
+  const [courseId, setCourseId] = useState(courseIdFromQuery || null);
+  const { data, error, isLoading, isError } = useGetCourseFilesQuery({ courseId, page: 1, search: "", includeCourse: false }, { skip: (!courseId || !courseIdFromQuery) });
+  useEffect(() => {
+    if (data?.results) {
+      setFiles(data?.results);
+    }
+  }, [data?.results]);
 
   const cardsData = [
     {
       title: "Videos ",
-      value: "10",
+      value: (files?.filter((f) => f.fileType === "lesson_video")).length || 0,
       icon: <Video color="#06574C" size={22} />,
       // changeText: "8%",
       changeColor: "text-[#38A100]",
     },
     {
       title: "PDFs",
-      value: "10",
+      value: (files?.filter((f) => f.fileType === "pdf_notes")).length || 0,
       icon: <PiFilePdf color="#06574C" size={22} />,
       // changeText: "5%",
       changeColor: "text-[#38A100]",
     },
     {
       title: "Quizzes",
-      value: "20",
+      value: 0,
       icon: <GoLightBulb color="#06574C" size={22} />,
       // changeText: "12%",
       changeColor: "text-[#E8505B]",
     },
     {
       title: "Assignment",
-      value: "15",
+      value: (files?.filter((f) => f.fileType === "assignments")).length || 0,
       icon: <LuClipboardList color="#06574C" size={22} />,
       // changeText: "-0%",
       changeColor: "text-[#9A9A9A]",
     },
   ];
-
   const courses = [
     { key: "Web Development", label: "Web Development" },
     { key: "React", label: "React js" },
@@ -79,49 +90,28 @@ const UploadMaterial = () => {
           </div>
         ))}
       </div>
-      <div className="bg-white rounded-lg mb-3 p-4">
+      {!courseIdFromQuery && <div className="bg-white rounded-lg mb-3 p-4">
         <div className="">
-          <h1 className="text-xl font-semibold">Course & Lecture Assignment</h1>
+          <h1 className="text-xl font-semibold">Course</h1>
         </div>
         <div className="flex flex-col md:flex-row md gap-3 items-center pt-4">
-          <Select
-            className="md:min-w-[120px]"
-            radius="sm"
-            label="Select Course"
-            name="Course"
-            variant="bordered"
-            defaultValue="all"
-            labelPlacement="outside"
-            placeholder="Select Course"
-          >
-            {courses.map((item, index) => (
-              <SelectItem key={index}>{item.label}</SelectItem>
-            ))}
-          </Select>
-          <Input
-            className="w-full"
-            radius="sm"
-            label="Lecture Number"
-            name="Lecture Number"
-            variant="bordered"
-            defaultValue="1"
-            labelPlacement="outside"
-            placeholder="Enter Lecture Number"
+          <CourseSelect
+            onChange={(id) => setCourseId(id)}
           />
         </div>
-      </div>
+      </div>}
       <Videos
-        courseId={152}
+        courseId={courseId}
         files={files}
         setFiles={setFiles}
       />
       <PdfAndNotes
-        courseId={152}
+        courseId={courseId}
         files={files}
         setFiles={setFiles}
       />
       <Assignments
-        courseId={152}
+        courseId={courseId}
         files={files}
         setFiles={setFiles}
       />

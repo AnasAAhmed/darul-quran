@@ -6,7 +6,7 @@ export const courseApi = createApi({
         baseUrl: import.meta.env.VITE_PUBLIC_SERVER_URL + "/api/course",
         credentials: "include",
     }),
-    tagTypes: ["course", "reviews", "categories"],
+    tagTypes: ["course", "reviews", "categories", "courseStudents", "courseAttendance"],
     endpoints: (builder) => ({
         getAllCourses: builder.query({
             query: ({ page, limit, categoryId, sort, categoryIds, search, status, type, difficulties, isFree }) => ({
@@ -21,11 +21,11 @@ export const courseApi = createApi({
             providesTags: ["course"],
         }),
         getAllCoursesForSelect: builder.query({
-            query: ({ page, limit, search, type= "live" }) => ({
+            query: ({ page, limit, status, search, type = "live" }) => ({
                 url: "/getAllCoursesForSelect",
                 method: "GET",
                 params: {
-                    page, limit, search, type,
+                    page, limit, search, status, type,
                 },
             }),
             providesTags: ["course"],
@@ -57,6 +57,22 @@ export const courseApi = createApi({
                 params: { teacherId, includeCourse }
             }),
             providesTags: ["course"],
+        }),
+        getCourseByTeacherId: builder.query({
+            query: ({ courseId, includeSchedules = true, includeStats = true }) => ({
+                url: `/getCourseByTeacherId/${courseId}`,
+                method: "GET",
+                params: { includeSchedules, includeStats }
+            }),
+            providesTags: ["course"],
+        }),
+        getCourseStudents: builder.query({
+            query: ({ courseId, page = 1, limit = 10, search = '', sort = 'latest' }) => ({
+                url: `/getCourseStudents/${courseId}`,
+                method: "GET",
+                params: { page, limit, search, sort }
+            }),
+            providesTags: ["courseStudents"],
         }),
         addCourse: builder.mutation({
             query: (data) => ({
@@ -140,6 +156,8 @@ export const {
     useGetCourseFilesQuery,
     useGetCourseByIdQuery,
     useGetCourseByIdViewQuery,
+    useGetCourseByTeacherIdQuery,
+    useGetCourseStudentsQuery,
     useAddCourseMutation,
     useUpdateCourseMutation,
     useDeleteCourseMutation,

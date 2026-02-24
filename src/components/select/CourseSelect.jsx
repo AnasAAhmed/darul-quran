@@ -9,12 +9,14 @@ import { useGetAllCoursesForSelectQuery } from "../../redux/api/courses";
  * @param {(teacherId: Number)=>void} props.onChange
  * @param {Number?} props.initialValue
  * @param {String} props.label
+ * @param {'published'|'draft'|'all'} props.status 
+ * @param {'live'|'one_time'|'all'} props.type 
  */
-const CourseSelect = ({ initialValue, onChange, label = undefined }) => {
+const CourseSelect = ({ initialValue, onChange, label = undefined, status = 'all' ,type = 'all' }) => {
     const [searchValue, setSearchValue] = useState("");
     const [selectedId, setSelectedId] = useState(String(initialValue) || "");
     const [total, setTotal] = useState(0);
-    const { data = { total: 0, courses: [] }, isFetching: isLoading, isError, error } = useGetAllCoursesForSelectQuery({ page: 1, limit: 20, search: searchValue });
+    const { data = { total: 0, courses: [] }, isFetching: isLoading, isError, error } = useGetAllCoursesForSelectQuery({ type, status, page: 1, limit: 20, search: searchValue });
 
 
     useEffect(() => {
@@ -49,8 +51,8 @@ const CourseSelect = ({ initialValue, onChange, label = undefined }) => {
             endContent={total > 10 && `+${total - 10}`}
         >
             {(item) => (
-                <AutocompleteItem key={String(item.id)}>
-                    {item.courseName}
+                <AutocompleteItem className="capitalize" key={String(item.id)}>
+                    {`${item.courseName} (${item.status})`}
                 </AutocompleteItem>
             )}
         </Autocomplete>

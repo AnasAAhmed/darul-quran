@@ -15,6 +15,13 @@ export const scheduleApi = createApi({
             }),
             providesTags: ["schedule"],
         }),
+        getSchedulesByMonth: builder.query({
+            query: (month) => ({
+                url: "/getByMonth",
+                params: { month },
+            }),
+            providesTags: ["schedule"],
+        }),
         createSchedule: builder.mutation({
             query: (data) => ({
                 url: "/create",
@@ -45,6 +52,7 @@ export const scheduleApi = createApi({
 
 export const {
     useGetScheduleQuery,
+    useGetSchedulesByMonthQuery,
     useCreateScheduleMutation,
     useUpdateScheduleMutation,
     useDeleteScheduleMutation,

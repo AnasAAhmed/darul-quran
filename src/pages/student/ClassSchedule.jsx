@@ -67,7 +67,8 @@ const StudentClassSchedule = () => {
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
                     scheduleId: schedule.id,
-                    studentId: currentUser.id
+                    studentId: currentUser.id,
+                    courseId: schedule.courseId,
                 })
             });
 

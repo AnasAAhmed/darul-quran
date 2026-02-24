@@ -47,7 +47,6 @@ const Attendance = () => {
 
   const {
     data: attendanceData,
-    isLoading,
     isFetching,
     refetch,
   } = useGetCourseAttendanceSummaryQuery({
@@ -178,8 +177,9 @@ const Attendance = () => {
         </div>
         <Button
           radius="sm"
+          size="md"
           startContent={<Download color="white" size={15} />}
-          className="bg-[#06574C] text-white py-6 px-3 sm:px-4"
+          color="success"
         >
           Export
         </Button>
