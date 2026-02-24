@@ -26,7 +26,7 @@ const Login = () => {
 
   const navigate = useNavigate();
 
-  const [email, setEmail] = useState("syedmazzh@gmail.com");
+  const [email, setEmail] = useState("admin@admin.com");
   const [password, setPassword] = useState("password123");
   const [showPassword, setShowPassword] = useState(false);
   const { isOpen, onOpen, onClose } = useDisclosure();
@@ -103,7 +103,7 @@ const Login = () => {
           className=" w-56 h-56 top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 absolute"
         />
       </div>
-      <div className="flex-1 flex flex-col max-sm:items-center items-start md:justify-center bg-[#E9E0D6] !ml-0 px-6 sm:px-12 md:px-16 lg:px-24 py-8 lg:py-0 m-0 lg:m-6 lg:rounded-r-lg ">
+      <div className="flex-1 flex flex-col max-sm:items-center items-start md:justify-center bg-[#E9E0D6] ml-0! px-6 sm:px-12 md:px-16 lg:px-24 py-8 lg:py-0 m-0 lg:m-6 lg:rounded-r-lg ">
         <img
           src="/icons/darul-quran-logo.png"
           alt="Darul Quran"
@@ -128,6 +128,7 @@ const Login = () => {
               </p>
               <Select
                 defaultSelectedKeys={new Set([rolesWithEmail[0].key])}
+                placeholder="Select role to login"
                 onSelectionChange={(k) => {
                   const keys = [...k];
                   setEmail(keys[0]);
