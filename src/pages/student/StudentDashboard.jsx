@@ -1,13 +1,8 @@
 import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { Button, Pagination } from "@heroui/react";
-import {
-  Clock,
-  VideoIcon,
-} from "lucide-react";
-import {
-  AiOutlineEye,
-} from "react-icons/ai";
+import { Button, Pagination, Skeleton } from "@heroui/react";
+import { Clock, VideoIcon } from "lucide-react";
+import { AiOutlineEye } from "react-icons/ai";
 import { FaRegAddressCard } from "react-icons/fa";
 import { BiGroup } from "react-icons/bi";
 import { GrAnnounce } from "react-icons/gr";
@@ -29,15 +24,21 @@ const StudentDashboard = () => {
   const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(true);
   const [featured, setFeatured] = useState([]);
-  const { data, isError, error, isLoading } = useGetEnrolledCoursesQuery({ page })
-  const { data: announcementsData, error: announcementsError, isLoading: announcementsLoading } = useGetAllAnnouncementQuery({ limit: 5 })
+  const { data, isError, error, isLoading } = useGetEnrolledCoursesQuery({
+    page,
+  });
+  const {
+    data: announcementsData,
+    error: announcementsError,
+    isLoading: announcementsLoading,
+  } = useGetAllAnnouncementQuery({ limit: 5 });
 
   useEffect(() => {
     const fetchFeatured = async () => {
       try {
         const res = await fetch(
           `${import.meta.env.VITE_PUBLIC_SERVER_URL}/api/dashboard/student`,
-          { credentials: "include" }
+          { credentials: "include" },
         );
         const data = await res.json();
         if (data.success && data.data?.featured) {
@@ -52,7 +53,11 @@ const StudentDashboard = () => {
 
   // Handle announcement error
   if (announcementsError) {
-    errorMessage(announcementsError?.data?.message || announcementsError?.message || "Failed to fetch announcements");
+    errorMessage(
+      announcementsError?.data?.message ||
+        announcementsError?.message ||
+        "Failed to fetch announcements",
+    );
   }
 
   const upcomingClasses = [
@@ -116,7 +121,8 @@ const StudentDashboard = () => {
                   Welcome back, {user?.firstName}! 👋
                 </h1>
                 <p className="text-white text-sm">
-                  Ready to continue your learning journey? Let's make today productive!
+                  Ready to continue your learning journey? Let's make today
+                  productive!
                 </p>
               </div>
             )}
@@ -137,12 +143,54 @@ const StudentDashboard = () => {
       <div>
         <div className="grid grid-cols-12 gap-3 py-4">
           {isLoading ? (
-            <div className="col-span-12 flex justify-center py-10"><Spinner color="success" size="lg" /></div>
+            Array.from({ length: 3 }).map((_, index) => (
+              <div
+                key={index}
+                className="col-span-12 md:col-span-6 lg:col-span-4"
+              >
+                <div className="w-full bg-white rounded-lg shadow-sm border border-gray-100/50 p-4 space-y-4">
+                  {/* Status Badge */}
+                  <Skeleton className="h-6 w-24 rounded-md" />
+
+                  {/* Course Title */}
+                  <Skeleton className="h-8 w-3/4 rounded-md mx-auto" />
+
+                  {/* Student + Next Class Row */}
+                  <div className="flex justify-between items-center">
+                    <div className="flex items-center gap-3">
+                      <Skeleton className="h-12 w-12 rounded-full" />
+                      <div className="space-y-2">
+                        <Skeleton className="h-4 w-16 rounded-md" />
+                        <Skeleton className="h-3 w-24 rounded-md" />
+                      </div>
+                    </div>
+                    <div className="space-y-2 text-end">
+                      <Skeleton className="h-4 w-20 rounded-md" />
+                      <Skeleton className="h-3 w-24 rounded-md" />
+                    </div>
+                  </div>
+
+                  {/* Progress */}
+                  <div className="space-y-2">
+                    <Skeleton className="h-3 w-full rounded-md" />
+                    <Skeleton className="h-3 w-full rounded-md" />
+                  </div>
+
+                  {/* Button */}
+                  <Skeleton className="h-9 w-full rounded-md" />
+                </div>
+              </div>
+            ))
           ) : data?.courses?.length === 0 ? (
-            <div className="col-span-12 text-center py-10 text-gray-500">You haven't enrolled in any courses yet.</div>
+            <div className="col-span-12 text-center py-10 text-gray-500">
+              You haven't enrolled in any courses yet.
+            </div>
           ) : (
             data?.courses?.map((item) => (
-              <div key={item.id} className="col-span-12 md:col-span-6 lg:col-span-4 ">
+              <div
+                key={item.id}
+                className="col-span-12 md:col-span-6 lg:col-span-4 "
+              >
                 <div className="w-full bg-white rounded-lg border shadow-sm hover:shadow-md transition-all">
                   <div className="h-48 overflow-hidden rounded-t-lg bg-gray-100">
                     <VideoPlayer
@@ -152,17 +200,17 @@ const StudentDashboard = () => {
                     />
                   </div>
                   <div className="p-4 space-y-3">
-                    <h1 className="text-lg font-bold text-[#06574C] line-clamp-1">{item.courseName}</h1>
+                    <h1 className="text-lg font-bold text-[#06574C] line-clamp-1">
+                      {item.courseName}
+                    </h1>
 
                     <div className="flex justify-between items-center text-sm text-[#6B7280]">
                       <div className="flex gap-1 items-center ">
-                        {<FaRegAddressCard size={18} />}
-                        {" "}
+                        {<FaRegAddressCard size={18} />}{" "}
                         {item.teacherName || "Instructor"}
                       </div>
                       <div className="flex gap-1 items-center ">
-                        {<CiCalendar size={18} />}
-                        {" "}
+                        {<CiCalendar size={18} />}{" "}
                         {new Date(item.enrolledAt).toLocaleDateString()}
                       </div>
                     </div>
@@ -175,7 +223,11 @@ const StudentDashboard = () => {
                         color="success"
                         className="w-full mt-2 font-medium"
                         startContent={<AiOutlineEye size={20} />}
-                        onPress={() => navigate(`/student/course/${item.id}/learn`, { state: item })}
+                        onPress={() =>
+                          navigate(`/student/course/${item.id}/learn`, {
+                            state: item,
+                          })
+                        }
                       >
                         View Course
                       </Button>
@@ -183,22 +235,25 @@ const StudentDashboard = () => {
                   </div>
                 </div>
               </div>
-            )))}
+            ))
+          )}
         </div>
-        {data?.totalPages > 1 && <Pagination
-          showControls
-          className="mb-4"
-          variant="ghost"
-          initialPage={1}
-          onChange={(page) => setPage(page)}
-          total={data?.totalPages || 1}
-          classNames={{
-            item: "rounded-sm hover:bg-bg-[#06574C]/50",
-            cursor: "bg-[#06574C] rounded-sm text-white",
-            prev: "rounded-sm bg-white/80",
-            next: "rounded-sm bg-white/80",
-          }}
-        />}
+        {data?.totalPages > 1 && (
+          <Pagination
+            showControls
+            className="mb-4"
+            variant="ghost"
+            initialPage={1}
+            onChange={(page) => setPage(page)}
+            total={data?.totalPages || 1}
+            classNames={{
+              item: "rounded-sm hover:bg-bg-[#06574C]/50",
+              cursor: "bg-[#06574C] rounded-sm text-white",
+              prev: "rounded-sm bg-white/80",
+              next: "rounded-sm bg-white/80",
+            }}
+          />
+        )}
       </div>
 
       <div className=" bg-white rounded-lg mb-3 ">
@@ -209,8 +264,9 @@ const StudentDashboard = () => {
           {upcomingClasses.map((item, index) => (
             <div
               key={item.id}
-              className={`${item.location === "Join Zoom" ? "bg-[#EAF3F2]" : "bg-[#F5E3DA]"
-                } `}
+              className={`${
+                item.location === "Join Zoom" ? "bg-[#EAF3F2]" : "bg-[#F5E3DA]"
+              } `}
             >
               <div className="flex flex-col md:flex-row gap-4 md:justify-between p-4 md:items-center">
                 <div className="flex flex-col md:flex-row gap-3 md:items-center justify-center">
@@ -271,21 +327,30 @@ const StudentDashboard = () => {
         </h1>
         <div className="flex flex-col gap-3">
           {announcementsLoading ? (
-            <div className="flex justify-center py-10"><Spinner color="success" size="lg" /></div>
-          ) : !announcementsData?.data || announcementsData.data.length === 0 ? (
-            <div className="text-center py-10 text-gray-500">No announcements found</div>
+            <div className="flex justify-center py-10">
+              <Spinner color="success" size="lg" />
+            </div>
+          ) : !announcementsData?.data ||
+            announcementsData.data.length === 0 ? (
+            <div className="text-center py-10 text-gray-500">
+              No announcements found
+            </div>
           ) : (
             announcementsData.data.map((item, index) => (
               <div
                 key={item.id}
-                className={`${(item.createdBy === "teacher" || item.description?.toLowerCase()?.includes("schedule")) ? "bg-[#F5E3DA]"
-                  : "bg-[#EAF3F2]"
-                  } `}
+                className={`${
+                  item.createdBy === "teacher" ||
+                  item.description?.toLowerCase()?.includes("schedule")
+                    ? "bg-[#F5E3DA]"
+                    : "bg-[#EAF3F2]"
+                } `}
               >
                 <div className="flex flex-col md:flex-row gap-4 md:justify-between p-4 md:items-start">
                   <div className="flex flex-col md:flex-row gap-3 md:items-center justify-center">
                     <div className="h-20 shrink-0 w-20 rounded-full shadow-xl flex flex-col items-center justify-center bg-white">
-                      {(item.createdBy === "teacher" || item.description?.toLowerCase()?.includes("schedule")) ? (
+                      {item.createdBy === "teacher" ||
+                      item.description?.toLowerCase()?.includes("schedule") ? (
                         <CiCalendar color="#D28E3D" size={30} />
                       ) : (
                         <GrAnnounce color="#06574C" size={30} />
@@ -293,9 +358,12 @@ const StudentDashboard = () => {
                     </div>
                     <div>
                       <div
-                        className={`${(item.createdBy === "teacher" || item.description?.toLowerCase()?.includes("schedule")) ? "text-[#B7721F]"
-                          : "text-[#06574C]"
-                          } font-semibold`}
+                        className={`${
+                          item.createdBy === "teacher" ||
+                          item.description?.toLowerCase()?.includes("schedule")
+                            ? "text-[#B7721F]"
+                            : "text-[#06574C]"
+                        } font-semibold`}
                       >
                         {item.title}
                       </div>
