@@ -10,9 +10,12 @@ import { useSelector } from "react-redux";
 export const ScheduleCard = ({
     schedule,
     onJoin,
+    onRequestReschedule,
     showJoinButton = true,
     showTeacherName = true,
-    actionButtons = null
+    actionButtons = null,
+    showRescheduleButton = false,
+    canReschedule = true
 }) => {
     // console.log(schedule, "schedule");
     const live = isClassLive(schedule);
@@ -81,6 +84,18 @@ export const ScheduleCard = ({
                         {schedule.courseName}
                     </Chip>
                 </div>
+            )}
+
+            {/* Reschedule Request Button */}
+            {showRescheduleButton && canReschedule && (
+                <Button
+                    className="w-full bg-[#95C4BE] text-white mb-3"
+                    onPress={() => onRequestReschedule && onRequestReschedule(schedule)}
+                    radius="sm"
+                    size="sm"
+                >
+                    📅 Request Reschedule
+                </Button>
             )}
 
             {/* Custom action buttons or default join button */}

@@ -56,6 +56,7 @@ const Sidebar = ({ isSidebarOpen, setIsSidebarOpen }) => {
     },
     { name: 'User Management', icon: <UsersIcon />, link: '/admin/user-management' },
     { name: 'Class Scheduling', icon: <CalendarIcon />, link: '/admin/scheduling', badge: 3 },
+    { name: 'Reschedule Requests', icon: <CalendarIcon />, link: '/admin/reschedule-requests', badge: 3 },
     { name: 'Announcements', icon: <MegaphoneIcon />, link: '/admin/announcements' },
     { name: 'Payments & Refunds', icon: <DollarSignIcon />, link: '/admin/payments' },
     { name: 'Support Tickets', icon: <TicketIcon />, link: '/admin/tickets' },
@@ -229,52 +230,75 @@ const Sidebar = ({ isSidebarOpen, setIsSidebarOpen }) => {
 
             return (
               <li key={idx}>
-                <Link
-                  to={item.link}
-                  onClick={() => {
-                    if (item.children && !expandedItems.includes(idx)) {
-                      toggleExpand(idx);
-                    }
-                    handleCloseMobile();
-                  }}
+                <div
                   className={`
-                    relative flex items-center rounded-md justify-between px-6 py-3 cursor-pointer transition-all
-                    ${isActiveParent ? 'text-[#1a5850]' : 'text-[#b8d4d0] hover:bg-white/5'}
-                  `}
+      relative flex items-center rounded-md justify-between px-6 py-3 cursor-pointer transition-all
+      ${isActiveParent ? 'text-[#1a5850]' : 'text-[#b8d4d0] hover:bg-white/5'}
+    `}
                 >
-                  <div className="flex z-10 items-center gap-3 flex-1">
+                  {/* LEFT SIDE - MAIN LINK */}
+                  <Link
+                    to={item.link}
+                    onClick={handleCloseMobile}
+                    className="flex items-center gap-3 flex-1 z-10"
+                  >
                     <span className="w-5 h-5">{item.icon}</span>
-                    {isSidebarOpen && <span className="text-sm font-medium">{item.name}</span>}
+                    {isSidebarOpen && (
+                      <span className="text-sm font-medium">{item.name}</span>
+                    )}
+                  </Link>
+
+                  {/* RIGHT SIDE - BADGE + TOGGLER */}
+                  <div className="flex items-center gap-2 z-10">
+                    {item.badge && isSidebarOpen && (
+                      <span className="px-2 py-0.5 text-xs bg-[#EBD4C9] text-[#06574C] rounded-full min-w-5 text-center">
+                        {item.badge}
+                      </span>
+                    )}
+
+                    {item.children && isSidebarOpen && (
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          toggleExpand(idx);
+                        }}
+                        className="p-1 rounded hover:bg-white/10 transition"
+                      >
+                        <ChevronDown
+                          size={16}
+                          className={`transition-transform duration-200 ${expandedItems.includes(idx) ? "rotate-180" : ""
+                            }`}
+                        />
+                      </button>
+                    )}
                   </div>
 
-                  {item.badge && isSidebarOpen && (
-                    <span className="px-2 z-10 py-0.5 text-xs bg-[#EBD4C9] text-[#06574C] rounded-full min-w-5 text-center">
-                      {item.badge}
-                    </span>
-                  )}
+                  {/* Active background animation */}
                   <AnimatePresence>
                     {isActiveParent && (
                       <motion.span
                         layoutId="active-rail"
-                        className="absolute left-0  top-0 h-full w-full bg-[#d9ebe8] rounded-md"
+                        className="absolute left-0 top-0 h-full w-full bg-[#d9ebe8] rounded-md"
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
                         transition={{
-                          type: 'spring',
+                          type: "spring",
                           stiffness: 300,
-                          damping: 28
+                          damping: 28,
                         }}
                       />
                     )}
                   </AnimatePresence>
-                </Link>
+                </div>
 
+                {/* CHILDREN */}
                 <AnimatePresence>
                   {item.children && expandedItems.includes(idx) && (
                     <motion.ul
                       initial={{ height: 0, opacity: 0 }}
-                      animate={{ height: 'auto', opacity: 1 }}
+                      animate={{ height: "auto", opacity: 1 }}
                       exit={{ height: 0, opacity: 0 }}
                       transition={{ duration: 0.25 }}
                       className="overflow-hidden"
@@ -286,8 +310,11 @@ const Sidebar = ({ isSidebarOpen, setIsSidebarOpen }) => {
                           <Link
                             to={child.link}
                             className={`block pl-14 pr-6 py-2 text-sm transition-colors 
-                              ${pathname === child.link ? 'text-white' : 'text-[#b8d4d0] hover:text-white'}
-                            `}
+                ${pathname === child.link
+                                ? "text-white"
+                                : "text-[#b8d4d0] hover:text-white"
+                              }
+              `}
                           >
                             {child.name}
                           </Link>
@@ -315,7 +342,7 @@ const Sidebar = ({ isSidebarOpen, setIsSidebarOpen }) => {
             <div className="flex items-center gap-3 px-2"> <User
               avatarProps={{ src: user?.avatar, alt: "user", size: "md", className: "shrink-0" }}
               name={user?.firstName + " " + user?.lastName}
-              classNames={{description:"text-gray-300 wrap-break-word"}}
+              classNames={{ description: "text-gray-300 wrap-break-word" }}
               description={user?.email + (user?.role === 'admin' ? (" - " + user?.role) : "")}
             />
               {/*

@@ -36,7 +36,7 @@ const Login = () => {
   const [modalType, setModalType] = useState("success");
 
   const rolesWithEmail = [
-    { label: "Admin", key: "syedmazzh@gmail.com" },
+    { label: "Admin", key: "admin@admin.com" },
     { label: "Teacher", key: "legenddevelop@gmail.com" },
     { label: "Student", key: "ahmedarslan599@gmail.com" }
   ];

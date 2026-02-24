@@ -3,12 +3,18 @@ import { Calendar } from "lucide-react";
 
 import { DashHeading } from "../../components/dashboard-components/DashHeading";
 import { ScheduleCard } from "../../components/schedule/ScheduleCard";
+import { RescheduleRequestModal } from "../../components/schedule/RescheduleRequestModal";
 import { errorMessage, successMessage } from "../../lib/toast.config";
+import { useCreateRescheduleRequestMutation } from "../../redux/api/reschedule";
 
 const StudentClassSchedule = () => {
     const [schedules, setSchedules] = useState([]);
     const [loading, setLoading] = useState(true);
     const [currentUser, setCurrentUser] = useState(null);
+    const [selectedSchedule, setSelectedSchedule] = useState(null);
+    const [isRescheduleModalOpen, setIsRescheduleModalOpen] = useState(false);
+
+    const [createRescheduleRequest, { isLoading: isSubmitting }] = useCreateRescheduleRequestMutation();
 
     useEffect(() => {
         fetchData();
@@ -73,6 +79,30 @@ const StudentClassSchedule = () => {
         }
     };
 
+    const handleRequestReschedule = (schedule) => {
+        setSelectedSchedule(schedule);
+        setIsRescheduleModalOpen(true);
+    };
+
+    const handleSubmitRescheduleRequest = async (requestData) => {
+        try {
+            await createRescheduleRequest(requestData).unwrap();
+            successMessage("Reschedule request submitted successfully! You will be notified once admin reviews your request.");
+            setIsRescheduleModalOpen(false);
+            setSelectedSchedule(null);
+        } catch (error) {
+            errorMessage(error?.data?.message || "Failed to submit reschedule request");
+        }
+    };
+
+    // Check if student can reschedule (more than 4 hours before class)
+    const canReschedule = (schedule) => {
+        const scheduleDateTime = new Date(`${schedule.date}T${schedule.startTime}`);
+        const now = new Date();
+        const hoursUntilClass = (scheduleDateTime - now) / (1000 * 60 * 60);
+        return hoursUntilClass > 4;
+    };
+
     return (
         <div className="bg-white bg-linear-to-t from-[#F1C2AC]/50 to-[#95C4BE]/50 px-2 sm:px-3 min-h-screen">
             <DashHeading
@@ -98,10 +128,25 @@ const StudentClassSchedule = () => {
                             onJoin={handleJoinClass}
                             showJoinButton={true}
                             showTeacherName={true}
+                            showRescheduleButton={true}
+                            canReschedule={canReschedule(schedule)}
+                            onRequestReschedule={handleRequestReschedule}
                         />
                     ))}
                 </div>
             )}
+
+            {/* Reschedule Request Modal */}
+            <RescheduleRequestModal
+                isOpen={isRescheduleModalOpen}
+                onClose={() => {
+                    setIsRescheduleModalOpen(false);
+                    setSelectedSchedule(null);
+                }}
+                schedule={selectedSchedule}
+                onSubmit={handleSubmitRescheduleRequest}
+                isSubmitting={isSubmitting}
+            />
         </div>
     );
 };
