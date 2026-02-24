@@ -27,7 +27,7 @@ const EditUser = () => {
           }
         );
         const data = await res.json();
-        setUserData(data.user); // ya data.users (API structure par depend karta hai)
+        setUserData(data.user);
       } catch (error) {
         console.error("Error fetching user:", error);
       } finally {

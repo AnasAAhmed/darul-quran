@@ -10,6 +10,7 @@ import {
   Switch,
   Autocomplete,
   AutocompleteItem,
+  Textarea,
 } from "@heroui/react";
 import { DashHeading } from "../DashHeading";
 import { EyeIcon, EyeOffIcon, SearchCheck } from "lucide-react";
@@ -31,7 +32,13 @@ const AddUserForm = ({ id, title, desc, userData, isEdit }) => {
   const [loading, setLoading] = useState(false);
   const [selectedCourses, setSelectedCourses] = useState(new Set());
   const [showPassword, setShowPassword] = useState(false);
+  const [selectedPermissions, setSelectedPermissions] = useState([]);
 
+  useEffect(() => {
+    if (userData?.permissions) {
+      setSelectedPermissions(userData.permissions);
+    }
+  }, [userData]);
   const navigate = useNavigate();
 
   const role = [
@@ -208,27 +215,31 @@ const AddUserForm = ({ id, title, desc, userData, isEdit }) => {
     if (loading) return;
 
     setLoading(true);
-
+    const formData = new FormData(e.currentTarget);
+    let data = Object.fromEntries(formData);
     try {
       // Get selected courses values
-      const selectedCourseValues = Array.from(selectedCourses).map(key => {
-        const course = courses.find(c => c.key === key);
-        return course ? course.value : key;
-      });
+      // const selectedCourseValues = Array.from(selectedCourses).map(key => {
+      //   const course = courses.find(c => c.key === key);
+      //   return course ? course.value : key;
+      // });
 
       // Build payload
       const payload = {
         id: userData?.id || undefined,
-        first_name: e.target.firstName.value,
-        last_name: e.target.lastName.value,
-        email: e.target.email.value,
-        phone_number: e.target.phoneNumber.value,
+        first_name: data.firstName,
+        last_name: data.lastName,
+        email: data.email,
+        phone_number: data.phoneNumber,
         country: selectedCountryValue,
         city: selectedCityValue,
         role: selectedRoleValue,
         is_active: isSelected,
-        permissions: selectedCourseValues,
-        oldRole: userData?.role
+        permissions: selectedPermissions,
+        oldRole: userData?.role,
+        bio: data?.bio,
+        tagline: data?.tagline,
+        experience_years: data?.experience_years,
       };
 
       // Add password only if provided and valid
@@ -265,6 +276,33 @@ const AddUserForm = ({ id, title, desc, userData, isEdit }) => {
     }
   };
 
+  const ALL_PERMISSIONS = [
+    { label: "Dashboard", value: "dashboard" },
+    { label: "Courses Management", value: "courses-management" },
+    { label: "Course Builder", value: "course-builder" },
+    { label: "Attendance & Progress", value: "attendance-progress" },
+    { label: "User Management", value: "user-management" },
+    { label: "Class Scheduling", value: "class-scheduling" },
+    { label: "Announcements", value: "announcements" },
+    { label: "Payments & Refunds", value: "payments-refunds" },
+    { label: "Support Tickets", value: "support-tickets" },
+    { label: "Analytics", value: "analytics" },
+    { label: "Help and Support", value: "help-support" },
+    { label: "Message Center", value: "messages" },
+    { label: "Notifications Center", value: "notifications" },
+    { label: "Teacher & Student Chat", value: "chat" },
+    { label: "Reviews", value: "reviews" },
+    { label: "FAQs", value: "faqs" },
+  ];
+  const handleToggle = (permission = '', checked = false) => {
+    setSelectedPermissions((prev) =>
+      checked
+        ? [...prev, permission]
+        : prev.filter((p) => p !== permission)
+    );
+  };
+
+
   return (
     <div className="bg-white bg-linear-to-t from-[#F1C2AC]/50 to-[#95C4BE]/50 px-2 sm:px-5 pb-3">
       <DashHeading
@@ -289,7 +327,7 @@ const AddUserForm = ({ id, title, desc, userData, isEdit }) => {
                 variant="bordered"
                 size="lg"
                 label="First Name"
-                placeholder="Enter your first name"
+                placeholder="Enter first name"
                 isRequired
                 errorMessage="Please enter first name"
               />
@@ -320,7 +358,7 @@ const AddUserForm = ({ id, title, desc, userData, isEdit }) => {
                 variant="bordered"
                 size="lg"
                 label="Last Name"
-                placeholder="Enter your Last name"
+                placeholder="Enter Last name"
                 isRequired
                 errorMessage="Please enter last name"
               />
@@ -426,33 +464,33 @@ const AddUserForm = ({ id, title, desc, userData, isEdit }) => {
             </Select>
           </div>
 
-          {!userData?.id && (
-            <div className="py-3">
-              <Input
-                name="password"
-                labelPlacement="outside"
-                variant="bordered"
-                size="lg"
-                label="Password"
-                placeholder="Enter your password"
-                isRequired
-                errorMessage="Password must be at least 6 characters"
-                validate={validatePassword}
-                description="Minimum 6 characters"
-                type={showPassword ? "text" : "password"}
-                endContent={
-                  <span onClick={() => setShowPassword(!showPassword)}>
-                    {showPassword ? (
-                      <EyeOffIcon className="cursor-pointer" size={20} />
-                    ) : (
-                      <EyeIcon className="cursor-pointer" size={20} />
-                    )}
-                  </span>
-                }
-                onChange={(e) => setPassword(e.target.value)}
-              />
-            </div>
-          )}
+          {/* {!userData?.id && ( */}
+          <div className="py-3">
+            <Input
+              name="password"
+              labelPlacement="outside"
+              variant="bordered"
+              size="lg"
+              label="Password"
+              placeholder={userData?.id ? "Enter user password" : "Edit user password"}
+              isRequired={!userData?.id}
+              errorMessage="Password must be at least 6 characters"
+              validate={validatePassword}
+              description="Minimum 6 characters"
+              type={showPassword ? "text" : "password"}
+              endContent={
+                <span onClick={() => setShowPassword(!showPassword)}>
+                  {showPassword ? (
+                    <EyeOffIcon className="cursor-pointer" size={20} />
+                  ) : (
+                    <EyeIcon className="cursor-pointer" size={20} />
+                  )}
+                </span>
+              }
+              onChange={(e) => setPassword(e.target.value)}
+            />
+          </div>
+          {/* )} */}
 
           <div className="w-full p-3 bg-[#95C4BE33] rounded-lg mt-3 flex items-center justify-between">
             <span className="text-[#06574C] text-sm">Status</span>
@@ -470,7 +508,78 @@ const AddUserForm = ({ id, title, desc, userData, isEdit }) => {
             </div>
           </div>
         </div>
+        {selectedRoleValue === 'teacher' && <div className="p-4 mt-4 w-full rounded-md bg-[#FFFFFF]">
 
+          <h1 className="text-lg py-3 border-[#D9D9D9] font-semibold">
+            Teacher Details
+          </h1>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full">
+            <div className="flex flex-col gap-5">
+              <Input
+                key={userData?.experience_years}
+                defaultValue={userData?.experience_years}
+                type="number"
+                name="experience_years"
+                labelPlacement="outside"
+                variant="bordered"
+                size="lg"
+                label="Teacher's Expericence"
+                placeholder="Enter Teacher's Expericence"
+              />
+
+              <Textarea
+                key={userData?.bio}
+                defaultValue={userData?.bio}
+                name="bio"
+                rows={3}
+                labelPlacement="outside"
+                variant="bordered"
+                size="lg"
+                label="Teacher's Bio"
+                placeholder="Enter Teacher's Bio"
+              />
+            </div>
+
+            {/* Right Column */}
+            <div className="flex flex-col gap-5">
+              <Input
+                key={userData?.tagline}
+                type="text"
+                name="tagline"
+                defaultValue={userData?.tagline}
+                labelPlacement="outside"
+                variant="bordered"
+                size="lg"
+                label="Teacher's Tagline"
+                placeholder="Enter Teacher's Tagline"
+              />
+            </div>
+          </div>
+        </div>}
+        {selectedRoleValue === 'admin' &&
+          <div className="p-4 mt-4 w-full rounded-md bg-[#FFFFFF]">
+            <h1 className="text-[#406C65] text-md w-full border-b-2 py-3 border-[#D9D9D9] font-semibold">
+              Permissions
+            </h1>
+
+            <div className="flex flex-wrap gap-6 p-6">
+              {ALL_PERMISSIONS.map((permission) => (
+                <Checkbox
+                  key={permission.value}
+                  size="md"
+                  isSelected={selectedPermissions.includes(permission.value)}
+                  onValueChange={(checked) =>
+                    handleToggle(permission.value, checked)
+                  }
+                  value={permission.value}
+                  color="success"
+                  radius="full"
+                >
+                  {permission.label}
+                </Checkbox>
+              ))}
+            </div>
+          </div>}
         {selectedRoleValue === "Teacher" && (
           <div className="p-3 bg-white rounded-lg w-full">
             <div className="flex justify-between items-center py-2">
@@ -481,7 +590,7 @@ const AddUserForm = ({ id, title, desc, userData, isEdit }) => {
                 placeholder="Search course...."
                 className="w-1/3"
                 endContent={
-                  <SearchCheck className="text-default-400 pointer-events-none flex-shrink-0" />
+                  <SearchCheck className="text-default-400 pointer-events-none shrink-0" />
                 }
               />
             </div>

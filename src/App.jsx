@@ -68,6 +68,7 @@ const Review = lazy(() => import("./pages/admin/help/review"));
 const Faqs = lazy(() => import("./pages/admin/help/faqs"));
 const EnrollSuccess = lazy(() => import("./pages/student/enroll-success"));
 const CoursePlayer = lazy(() => import("./pages/student/course-player"));
+const AdminRescheduleRequests = lazy(() => import("./pages/admin/RescheduleRequests"));
 
 function App() {
   const navigate = useNavigate();
@@ -328,6 +329,14 @@ function App() {
             element={
               <ProtectedRoute isAuthenticated={isAuthenticated} redirect="/">
                 <TeacherAndStudentChat />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/reschedule-requests"
+            element={
+              <ProtectedRoute isAuthenticated={isAuthenticated} redirect="/">
+                <AdminRescheduleRequests />
               </ProtectedRoute>
             }
           />
