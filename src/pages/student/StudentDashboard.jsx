@@ -136,7 +136,7 @@ const StudentDashboard = () => {
             )}
             <Button
               as={Link}
-              to=""
+              to="/student/announcements"
               size="sm"
               className="bg-[#06574C] text-white rounded-md mt-2"
             >
@@ -375,7 +375,7 @@ const StudentDashboard = () => {
                       <div className=" text-xs text-[#666666]">
                         <p>{dateFormatter(item.date)}</p>
                       </div>
-                      <div className=" max-w-4xl text-sm text-[#666666]">
+                      <div className=" max-w-4xl text-sm text-[#666666] line-clamp-2">
                         <p>{item.description}</p>
                       </div>
                     </div>

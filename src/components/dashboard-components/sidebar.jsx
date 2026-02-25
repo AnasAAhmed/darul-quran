@@ -10,6 +10,7 @@ import {
   FileQuestionIcon,
   HomeIcon,
   MegaphoneIcon,
+  MegaphoneOffIcon,
   TicketIcon,
   TicketsIcon,
   UsersIcon,
@@ -111,7 +112,7 @@ const Sidebar = ({ isSidebarOpen, setIsSidebarOpen }) => {
       ]
     },
     { name: 'Support Tickets  ', icon: <TicketsIcon />, link: '/student/support-tickets' },
-
+    { name: "Announcements", icon: <MegaphoneIcon />, link: "/student/announcements" }
   ];
 
   // Decide which menu to show based on role

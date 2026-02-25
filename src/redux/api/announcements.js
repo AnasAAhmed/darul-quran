@@ -12,7 +12,6 @@ export const announcementAPI = createApi({
             query: (data) => ({
                 url: "/create",
                 method: "POST",
-                headers: { "Content-Type": "application/json" },
                 body: data
             }),
             invalidatesTags: ["announcement"],

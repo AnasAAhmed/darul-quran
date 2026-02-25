@@ -56,6 +56,8 @@ const UserDetails = lazy(() =>
 );
 const Scheduling = lazy(() => import("./pages/admin/scheduling"));
 const Announcements = lazy(() => import("./pages/admin/announcements"));
+const TeacherAnnouncements = lazy(() => import("./pages/teacher/announcements"));
+const StudentAnnouncements = lazy(() => import("./pages/student/announcements"));
 const PaymentsRefunds = lazy(() => import("./pages/admin/payment-refund"));
 const SupportTickets = lazy(() => import("./pages/admin/support-ticket"));
 const Analytics = lazy(() => import("./pages/admin/analytics"));
@@ -378,6 +380,14 @@ function App() {
               </ProtectedRoute>
             }
           />
+          <Route
+            path="/teacher/announcements"
+            element={
+              <ProtectedRoute isAuthenticated={isAuthenticated} redirect="/">
+                <TeacherAnnouncements />
+              </ProtectedRoute>
+            }
+          />
         </Route>
         <Route element={<StudentLayout />}>
 
@@ -458,6 +468,14 @@ function App() {
             element={
               <ProtectedRoute isAuthenticated={isAuthenticated} redirect="/">
                 <SupportTicketsStudent />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/student/announcements"
+            element={
+              <ProtectedRoute isAuthenticated={isAuthenticated} redirect="/">
+                <StudentAnnouncements />
               </ProtectedRoute>
             }
           />

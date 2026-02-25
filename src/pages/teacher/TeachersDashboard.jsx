@@ -40,13 +40,16 @@ import { useEffect, useRef, useState } from "react";
 import { GrAnnounce, GrAttachment, GrClose, GrSend } from "react-icons/gr";
 import { CiCalendar } from "react-icons/ci";
 import { IoAlertCircleOutline } from "react-icons/io5";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { formatTime12Hour, isClassLive, isClassExpired } from "../../utils/scheduleHelpers";
 import NotificationPermission from "../../components/NotificationPermission";
 import { useSelector } from "react-redux";
 import { errorMessage } from "../../lib/toast.config";
 import { useGetTeacherDashboardQuery } from "../../redux/api/dashboard";
+import { useGetAllAnnouncementQuery, useCreateAnnouncementMutation } from "../../redux/api/announcements";
 import QueryError from "../../components/QueryError";
+import CourseSelect from "../../components/select/CourseSelect";
+import { dateFormatter } from "../../lib/utils";
 const TeachersDashboard = () => {
   const { user: currentUser } = useSelector((state) => state.user);
 
@@ -64,47 +67,11 @@ const TeachersDashboard = () => {
     { key: "Next js", label: "Next js" },
   ];
 
-  const announcements = [
-    {
-      id: 1,
-      title: "Important Update",
-      description:
-        "The deadline for Assignment 3 has been extended to Friday, 5 PM. Make sure to submit your work before the new deadline.",
-      time: "2 hours ago",
-      course: "Web Development 101",
-      students: "42 students",
-      icone: <GrAnnounce color="#D28E3D" size={22} />,
-    },
-    {
-      id: 2,
-      title: "Upcoming Event",
-      description: "Guest lecture on Advanced React Patterns scheduled for next Monday at 3 PM. Don't miss this opportunity!",
-      time: "2 hours ago",
-      course: "Web Development 101",
-      students: "42 students",
-      icone: <CiCalendar color="#D28E3D" size={22} />,
-    },
-    {
-      id: 3,
-      title: "Reminder",
-      description:
-        "Mid-term exam preparation sessions will be held every Tuesday and Thursday at 4 PM in Room 301.",
-      time: "2 hours ago",
-      course: "Web Development 101",
-      students: "42 students",
-      icone: <IoAlertCircleOutline color="#D28E3D" size={22} />,
-    },
-    {
-      id: 4,
-      title: "Reminder",
-      description:
-        "The deadline for Assignment 3 has been extended to Friday, 5 PM. Make sure to submit your work before the new deadline.",
-      time: "2 hours ago",
-      course: "Web Development 101",
-      students: "42 students",
-      icone: <IoAlertCircleOutline color="#D28E3D" size={22} />,
-    },
-  ];
+  const {
+    data: announcementsData,
+    error: announcementsError,
+    isLoading: announcementsLoading,
+  } = useGetAllAnnouncementQuery({ limit: 5 });
 
   const fileInputRef = useRef(null);
   const [files, setFiles] = useState([]);
@@ -123,14 +90,53 @@ const TeachersDashboard = () => {
     setFiles((prev) => prev.filter((_, i) => i !== index));
   };
 
-
+  const [createAnnouncement, { isLoading: isCreatingAnnouncement }] = useCreateAnnouncementMutation();
   const { data, isLoading: loading, error, refetch } = useGetTeacherDashboardQuery();
 
   const featured = data?.data?.featured;
   const upcomingClasses = data?.data?.upcomingClasses;
   const analytics = data?.data?.analytics;
   const activeCourses = data?.data?.activeCourses;
+  const [announcement, setAnnouncement] = useState("");
+  const [course, setCourse] = useState("");
+  const [description, setDescription] = useState("");
+ const handleAnnouncement = async (onClose) => {
+  if (!course || !announcement || !description) {
+    errorMessage("Please fill all fields");
+    return;
+  }
 
+  try {
+    const formData = new FormData();
+    formData.append("userId", currentUser.id);
+    formData.append("title", announcement);
+    formData.append("description", description);
+    formData.append("type", announcement);
+    formData.append("delivery", "Both"); // Changed to "Both" so it sends push notification
+    formData.append("isFeatured", false);
+    formData.append("sendTo", "students");
+    formData.append("courseId", course);
+    formData.append("senderName", `${currentUser.firstName} ${currentUser.lastName}`);
+    formData.append("createdBy", currentUser.id);
+    formData.append("date", new Date().toISOString());
+
+    files.forEach((file) => {
+      formData.append("files", file);
+    });
+
+    await createAnnouncement(formData).unwrap();
+
+    // reset
+    setCourse("");
+    setAnnouncement("");
+    setDescription("");
+    setFiles([]);
+
+    onClose();
+  } catch (err) {
+    errorMessage(err?.data?.message || "Failed to send");
+  }
+};
   const cardsData = [
     {
       title: "Total Courses ",
@@ -512,71 +518,125 @@ const TeachersDashboard = () => {
               <>
                 <DrawerHeader className="flex flex-col gap-1 ">
                   Announcements
-                  <Button className="bg-[#06574C] text-white">
-                    New Announcement
-                  </Button>
                 </DrawerHeader>
                 <DrawerBody className="!px-0">
                   <Form className="bg-[#95C4BE47] p-3">
-                    <Select
+                    <CourseSelect label="Select Course" onChange={(val) => setCourse(val)} />
+                     <Select
                       radius="sm"
-                      label="Select Course"
-                      name="Course"
+                      label="Announcement Type"
+                      name="Announcement Type"
                       variant="bordered"
-                      defaultSelectedKeys={"React"}
+                      defaultSelectedKeys={announcement ? [announcement] : undefined}
+                      onChange={(e) => setAnnouncement(e.target.value)}
                       labelPlacement="outside"
-                      placeholder="Select Course"
+                      placeholder="Select Announcement Type"
                     >
-                      {courses.map((item, index) => (
-                        <SelectItem key={index}>{item.label}</SelectItem>
-                      ))}
+                      <SelectItem key={"Live Class"}>Live Class</SelectItem>
+                      <SelectItem key={"Assignment"}>Assignment</SelectItem>
+                      <SelectItem key={"Exam"}>Exam</SelectItem>
+                      <SelectItem key={"Other"}>Other</SelectItem>
+                      <SelectItem key={"Holiday"}>Holiday</SelectItem>
+                      <SelectItem key={"Fee"}>Fee</SelectItem>
+                      <SelectItem key={"Result"}>Result</SelectItem>   
+                      <SelectItem key={"Information"}>Information</SelectItem>
+                      <SelectItem key={"Important Notice"}>Important Notice</SelectItem>
                     </Select>
                   </Form>
-                  <div className="overflow-y-scroll no-scrollbar">
-                    {announcements.map((item, index) => (
-                      <div
-                        key={index}
-                        className="p-4 bg-white rounded-md my-2 group hover:bg-[#FBF4EC] border-[#D28E3D] border-1 m-3 cursor-pointer"
-                      >
-                        <div className="flex gap-3 itmes-center">
-                          <div className="h-10 w-10 flex justify-center items-center group-hover:bg-white bg-[#FBF4EC] rounded-full shadow-xl">
-                            {item.icone}
+                  <div className="overflow-y-auto no-scrollbar pb-10">
+                    <div className="flex justify-between items-center px-4 pt-2">
+                       <h3 className="font-semibold text-sm text-[#06574C]">Recent Announcements</h3>
+                       <Link to="/teacher/announcements" className="text-xs text-[#D28E3D] hover:underline" onClick={onClose}>
+                          View All
+                       </Link>
+                    </div>
+                    {announcementsLoading ? (
+                      <div className="flex justify-center p-6"><Spinner color="success" size="md" /></div>
+                    ) : announcementsData?.data?.length === 0 ? (
+                      <div className="text-center p-6 text-sm text-gray-500">No announcements found.</div>
+                    ) : (
+                      announcementsData?.data?.map((item, index) => (
+                        <div
+                          key={item.id || index}
+                          className="p-4 bg-white rounded-md my-2 group hover:bg-[#FBF4EC] border-[#D28E3D] border-1 m-3 cursor-pointer"
+                        >
+                          <div className="flex gap-3 items-center">
+                            <div className="h-10 w-10 flex flex-shrink-0 justify-center items-center group-hover:bg-white bg-[#FBF4EC] rounded-full shadow-xl">
+                              {item.createdBy === "teacher" || item.description?.toLowerCase()?.includes("schedule") ? (
+                                <CiCalendar color="#D28E3D" size={22} />
+                              ) : (
+                                <GrAnnounce color="#06574C" size={22} />
+                              )}
+                            </div>
+                            <div>
+                              <h1 className="text-sm font-bold group-hover:text-[#D28E3D]">
+                                {item.title}
+                              </h1>
+                              <p className="text-[#666666] text-[10px]">
+                                {dateFormatter(item.date)}
+                              </p>
+                            </div>
                           </div>
-                          <div>
-                            <h1 className="text-sm font-bold group-hover:text-[#D28E3D]">
-                              {item.title}
-                            </h1>
-                            <p className="text-[#666666] text-xs">
-                              {item.time}
+                          <div className="my-2">
+                            <p className="text-[#B7721F] text-xs line-clamp-3 leading-relaxed">
+                              {item.description}
                             </p>
                           </div>
-                        </div>
-                        <div className="my-2">
-                          <p className="text-[#B7721F] text-xs">
-                            {item.description}
-                          </p>
-                        </div>
-                        <div className="flex justify-between items-center mt-6">
-                          <p className="text-xs text-[#B7721f]">
-                            {item.course}
-                          </p>
-                          <div className="text-xs flex gap-1 items-center text-[#B7721f]">
-                            <RiGroupLine size={14} />
-                            {item.students}
+                          <div className="flex justify-between items-center mt-4">
+                            <div className="text-[10px] text-[#B7721f] font-medium">
+                              Created by {item.senderName || "Admin"}
+                            </div>
+                            {(item.sendTo === "students" || item.sendTo === "all") && item.studentCount > 0 && (
+                              <div className="text-[10px] flex gap-1 items-center bg-[#EAF3F2] px-2 py-1 rounded text-[#06574C] font-medium">
+                                <RiGroupLine size={12} />
+                                {item.studentCount} students
+                              </div>
+                            )}
                           </div>
                         </div>
-                      </div>
-                    ))}
+                      ))
+                    )}
                   </div>
                 </DrawerBody>
-                <DrawerFooter className="rounded-xl">
+                <DrawerFooter className="rounded-xl flex flex-col gap-2 pb-6">
+                  {files.length > 0 && (
+                    <div className="flex gap-3 w-full overflow-x-auto no-scrollbar pt-2 pb-1">
+                      {files.map((file, index) => (
+                        <div
+                          key={index}
+                          className="relative w-[80px] h-[60px] rounded-lg border border-gray-200 shadow-sm flex items-center justify-center shrink-0 bg-gray-50 mt-1 mr-1"
+                        >
+                          {file.type.startsWith("image/") ? (
+                            <img
+                              src={URL.createObjectURL(file)}
+                              alt="preview"
+                              className="w-full h-full object-cover rounded-lg"
+                            />
+                          ) : (
+                            <span className="text-[10px] text-center px-1 break-all line-clamp-3">
+                              {file.name}
+                            </span>
+                          )}
+
+                          <div
+                            className="absolute -top-1.5 -right-1.5 bg-red-500 rounded-full cursor-pointer z-10 shadow-md p-0.5 flex items-center justify-center"
+                            onClick={() => removeFile(index)}
+                          >
+                            <GrClose size={12} color="white" />
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
                   <div className="relative w-full no-scrollbar">
                     <Textarea
                       classNames={{ base: "rounded-xl" }}
                       variant="bordered"
                       radius="sm"
                       className="shadow-xl"
+                      value={description}
                       placeholder="Write your announcement..."
+                      onChange={(e) => setDescription(e.target.value)}
                       startContent={
                         <GrAttachment
                           className="absolute bottom-3 left-2 cursor-pointer"
@@ -585,48 +645,18 @@ const TeachersDashboard = () => {
                         />
                       }
                       endContent={
-                        <div className="p-2 bg-[#06574C] rounded-md absolute right-2 bottom-1 cursor-pointer">
+                        <div onClick={() => handleAnnouncement(onClose)} className="p-2 bg-[#06574C] rounded-md absolute right-2 bottom-1 cursor-pointer">
                           <GrSend color="white" size={16} />
                         </div>
                       }
                     />
 
-                    {/* Preview Overlay */}
-                    {files.length > 0 && (
-                      <div className="absolute inset-0 top-[-8px]  rounded-xl p-3 flex gap-3 no-scrollbar overflow-hidden z-10 aspect-3/1">
-                        {files.map((file, index) => (
-                          <div
-                            key={index}
-                            className="relative min-w-[80px] h-[40px] rounded-lg border flex items-center justify-center"
-                          >
-                            {file.type.startsWith("image/") ? (
-                              <img
-                                src={URL.createObjectURL(file)}
-                                alt="preview"
-                                className="w-full h-full object-cover rounded-lg"
-                              />
-                            ) : (
-                              <span className="text-xs text-center px-1">
-                                {file.name}
-                              </span>
-                            )}
-
-                            <GrClose
-                              size={12}
-                              className="absolute top-1 right-1 cursor-pointer"
-                              onClick={() => removeFile(index)}
-                            />
-                          </div>
-                        ))}
-                      </div>
-                    )}
 
                     {/* Hidden file input */}
                     <input
                       type="file"
                       ref={fileInputRef}
-                      className="hidden"
-                      multiple
+                      className="hidden" 
                       onChange={handleFileChange}
                     />
                   </div>
