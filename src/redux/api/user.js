@@ -24,6 +24,15 @@ export const userAPI = createApi({
             }),
             providesTags: ["user"],
         }),
+        createOrUpdateUser: builder.mutation({
+            query: (data) => ({
+                url: `/create-user`,
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: data,
+            }),
+            invalidatesTags: ["user"],
+        }),
         deleteUser: builder.mutation({
             query: (id) => ({
                 url: `/deleteUser/${id}`,
@@ -46,6 +55,7 @@ export const userAPI = createApi({
 export const {
     useGetAllUsersQuery,
     useGetAllTeachersQuery,
+    useCreateOrUpdateUserMutation,
     useDeleteUserMutation,
     useBulkDeleteUserMutation
 } = userAPI;

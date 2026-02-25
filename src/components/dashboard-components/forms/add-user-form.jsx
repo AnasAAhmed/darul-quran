@@ -18,6 +18,7 @@ import { Link, useNavigate } from "react-router-dom";
 
 import { Country, City } from "country-state-city";
 import { errorMessage, successMessage } from "../../../lib/toast.config";
+import { useCreateOrUpdateUserMutation } from "../../../redux/api/user";
 
 const AddUserForm = ({ id, title, desc, userData, isEdit }) => {
   const [selectedRole, setSelectedRole] = useState(new Set());
@@ -33,6 +34,8 @@ const AddUserForm = ({ id, title, desc, userData, isEdit }) => {
   const [selectedCourses, setSelectedCourses] = useState(new Set());
   const [showPassword, setShowPassword] = useState(false);
   const [selectedPermissions, setSelectedPermissions] = useState([]);
+
+  const [createOrUpdateUser, { isLoading, error }] = useCreateOrUpdateUserMutation();
 
   useEffect(() => {
     if (userData?.permissions) {
@@ -206,9 +209,6 @@ const AddUserForm = ({ id, title, desc, userData, isEdit }) => {
     }
   };
 
-  const handleCourseChange = (keys) => {
-    setSelectedCourses(new Set(keys));
-  };
 
   const handleUserSubmit = async (e) => {
     e.preventDefault();
@@ -248,27 +248,19 @@ const AddUserForm = ({ id, title, desc, userData, isEdit }) => {
         payload.password = passwordValue;
       }
 
-      const res = await fetch(
-        `${import.meta.env.VITE_PUBLIC_SERVER_URL}/api/user/create-user`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(payload),
-        }
-      );
+      const res = await createOrUpdateUser(payload);
 
-      if (!res.ok) {
-        const errorData = await res.json();
-        throw new Error(errorData.message);
+      if (error) {
+        throw new Error(error?.data?.errors || res?.data?.message);
       }
 
       if (userData?.id) {
-        successMessage("User updated successfully!");
+        successMessage(`User "${userData.firstName + " " + userData.lastName}" updated successfully!`);
       } else {
         successMessage("User created successfully!");
       }
 
-      navigate("/admin/user-management");
+      navigate("/admin/user-management?role=" + payload.role);
     } catch (error) {
       errorMessage(error.message || "User already exists");
     } finally {
@@ -523,7 +515,7 @@ const AddUserForm = ({ id, title, desc, userData, isEdit }) => {
                 labelPlacement="outside"
                 variant="bordered"
                 size="lg"
-                label="Teacher's Expericence"
+                label="Teacher's Expericence (Years)"
                 placeholder="Enter Teacher's Expericence"
               />
 

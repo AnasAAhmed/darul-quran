@@ -52,21 +52,22 @@ const CourseDetails = () => {
   const [shouldFetchOverview, setShouldFetchOverview] = useState(true);
 
   const { data, error, isLoading, isError, refetch } = useGetCourseByIdViewQuery({ courseId: id, includeCourse: !courseFromState?.id, teacherId }, { skip: !id });
-  const { data: reviewData, isLoading: isReviewLoading, isError: reviewIsError, error: reviewError, refetch: reviewRefetch } = useGetReviewsQuery(
-    { courseId: id, page, limit, includeOverview: shouldFetchOverview, rating: ratingForSearch },
-    { skip: !id }
-  );
 
   const course = useMemo(() => {
     if (courseFromState?.id) return courseFromState;
     if (data?.course) return data.course;
     return null;
   }, [courseFromState, data]);
-  const courseFiles = data?.counts;
 
+  const { data: reviewData, isLoading: isReviewLoading, isError: reviewIsError, error: reviewError, refetch: reviewRefetch } = useGetReviewsQuery(
+    { courseId: id, page, limit, includeOverview: shouldFetchOverview, rating: ratingForSearch },
+    { skip: (!id || course.rating <= 0) }
+  );
+
+  const courseFiles = data?.counts;
   useEffect(() => {
-    if (data?.agg && shouldFetchOverview) {
-      setOverview(data.agg);
+    if (reviewData?.agg && shouldFetchOverview) {
+      setOverview(reviewData.agg);
       setShouldFetchOverview(false);
     }
   }, [data, shouldFetchOverview]);
@@ -400,7 +401,6 @@ const CourseDetails = () => {
                         <span className="w-12 text-xs text-gray-500">
                           {item.star} stars
                         </span>
-
                         <Progress
                           value={item.value}
                           size="sm"
@@ -480,12 +480,15 @@ const CourseDetails = () => {
                   <HiUserGroup size={28} color="#06574C" />
                 </div>
 
-                <div>
+                <div className="space-y-1">
                   <p className="text-xl font-semibold text-emerald-700">
                     {data?.teacher?.firstName} {data?.teacher?.lastName}
                   </p>
-                  <p className="text-sm text-gray-500">
-                    {data?.teacher?.tagline}
+                  <p className="text-xs text-gray-500">
+                    {data?.teacher?.email}
+                  </p>
+                  <p className="text-sm text-gray-600">
+                    {data?.teacher?.tagline} f dgsdg sdgfdsf
                   </p>
                 </div>
               </div>

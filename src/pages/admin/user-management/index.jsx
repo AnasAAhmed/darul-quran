@@ -30,7 +30,7 @@ import {
   Trash2,
 } from "lucide-react";
 import { useEffect, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { AnimatePresence } from "motion/react";
 import * as motion from "motion/react-client";
 import { dateFormatter, debounce } from "../../../lib/utils";
@@ -38,7 +38,7 @@ import { errorMessage, showMessage, successMessage } from "../../../lib/toast.co
 import { useBulkDeleteUserMutation, useDeleteUserMutation, useGetAllUsersQuery } from "../../../redux/api/user";
 
 const UserManagement = () => {
-
+  const [searchParams, setSearchParams] = useSearchParams();
   const statuses = [
     { key: "all", label: "All Status" },
     { key: "true", label: "Active" },
@@ -65,7 +65,7 @@ const UserManagement = () => {
 
   const [selectedTab, setSelectedTab] = useState("");
   const router = useNavigate();
-  const [role, setRole] = useState('student');
+  const [role, setRole] = useState(searchParams.get('role') || 'student');
   const [page, setPage] = useState(1);
   const [limit, setLimit] = useState(10);
   const [status, setStatus] = useState('all');
@@ -239,11 +239,12 @@ const UserManagement = () => {
       <div>
         <div className=" ">
           <Tabs aria-label="Tabs colors" radius="full"
+            defaultSelectedKey={role}
             className="flex"
           >
             <Tab
-              key="Students"
-              onClick={() => { setRole('student'); setSelectedUsers(new Set()); }}
+              key="student"
+              onClick={() => { setRole('student'); setSearchParams({ role: 'student' }); setSelectedUsers(new Set()); }}
               title={
                 <div className="text-[#06574C] flex gap-2 items-center">
                   <span>Students</span>
@@ -258,8 +259,8 @@ const UserManagement = () => {
             >
             </Tab>
             <Tab
-              key="Teachers"
-              onClick={() => { setRole('teacher'); setSelectedUsers(new Set()); }}
+              key="teacher"
+              onClick={() => { setRole('teacher'); setSearchParams({ role: 'teacher' }); setSelectedUsers(new Set()); }}
               title={
                 <div className="text-[#06574C] flex gap-2 items-center">
                   <span>Teachers</span>
@@ -274,8 +275,8 @@ const UserManagement = () => {
             >
             </Tab>
             <Tab
-              key="Supports_Staff"
-              onClick={() => { setRole('admin'); setSelectedUsers(new Set()); }}
+              key="admin"
+              onClick={() => { setRole('admin'); setSearchParams({ role: 'admin' }); setSelectedUsers(new Set()); }}
               title={
                 <div className="text-[#06574C] flex gap-2 items-center">
                   <span>Admins </span>
