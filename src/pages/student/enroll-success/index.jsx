@@ -8,7 +8,7 @@ const EnrollSuccess = () => {
     const [searchParams] = useSearchParams();
     const navigate = useNavigate();
     const session_id = searchParams.get('session_id');
-    const [status, setStatus] = useState('verifying'); // verifying, success, error
+    const [status, setStatus] = useState('success'); // verifying, success, error
 
     // useEffect(() => {
     //     if (session_id) {
@@ -49,7 +49,7 @@ const EnrollSuccess = () => {
                     <CheckCircle size={64} className="text-green-500 mb-4" />
                     <h1 className="text-2xl font-bold mb-2">Payment Successful!</h1>
                     <p className="mb-6 text-gray-600">You have been enrolled in the course.</p>
-                    <Button color="primary" onPress={() => navigate('/student/dashboard')}>
+                    <Button color="success" onPress={() => navigate('/student/dashboard')}>
                         Go to Dashboard
                     </Button>
                 </>

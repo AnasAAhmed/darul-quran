@@ -11,6 +11,7 @@ import { enrollmentAdminApi } from "./api/enrollmentAdmin";
 import { rescheduleApi } from "./api/reschedule";
 import { supportTicketApi } from "./api/supportTickets";
 import { paymentApi } from "./api/payments";
+import { analyticsApi } from "./api/analytics";
 
 
 export const store = configureStore({
@@ -26,6 +27,7 @@ export const store = configureStore({
     [rescheduleApi.reducerPath]: rescheduleApi.reducer,
     [supportTicketApi.reducerPath]: supportTicketApi.reducer,
     [paymentApi.reducerPath]: paymentApi.reducer,
+    [analyticsApi.reducerPath]: analyticsApi.reducer,
     user: userReducer,
   },
   middleware: (mid) => [
@@ -41,6 +43,7 @@ export const store = configureStore({
     rescheduleApi.middleware,
     supportTicketApi.middleware,
     paymentApi.middleware,
+    analyticsApi.middleware,
   ],
 });
 

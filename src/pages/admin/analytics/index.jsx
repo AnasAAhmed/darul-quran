@@ -36,7 +36,7 @@ import AnalyticsCards from "../../../components/dashboard-components/AnalyticsCa
 import ApexChart from "../../../components/dashboard-components/AnalyticsChat";
 import BarChart from "../../../components/dashboard-components/BarChart";
 import PieChart from "../../../components/dashboard-components/PieChart";
-import { details, title } from "framer-motion/client";
+import { useGetAnalyticsQuery } from "../../../redux/api/analytics";
 
 const Analytics = () => {
   const statuses = [
@@ -50,24 +50,26 @@ const Analytics = () => {
     { key: "Yesterday,  3 Dec2025", label: "Yesterday, 3 Dec 2025" },
     { key: "Tommorrow, 5 Dec 2025", label: "Tommorrow, 5 Dec 2025" },
   ];
+  const { data, isLoading } = useGetAnalyticsQuery();
+
   const cardsData = [
     {
       title: "Active Courses",
-      value: "12,847",
+      value: data?.data?.activeCourses?.toLocaleString() || "0",
       icon: <Album size={26} color="#06574C" />,
       changeText: "+12.5% from last month",
       changeColor: "text-[#38A100]",
     },
     {
       title: "Revenue",
-      value: "$89,432",
+      value: `$${data?.data?.totalRevenue?.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }) || "0.00"}`,
       icon: <ChartLine size={26} color="#06574C" />,
       changeText: "Avg. duration: 28m",
       changeColor: "text-[#38A100]",
     },
     {
       title: "Active Users",
-      value: "3,847",
+      value: data?.data?.totalUsers?.toLocaleString() || "0",
       icon: <UsersRound size={26} color="#06574C" />,
       changeText: "-2.1% from last week",
       changeColor: "text-[#E8505B]",
@@ -205,7 +207,7 @@ const Analytics = () => {
           Export
         </Button>
       </div>
-      <AnalyticsCards data={cardsData} />
+      <AnalyticsCards data={cardsData} isLoading={isLoading} />
       <div className="grid grid-cols-12 gap-3 my-3 px-3 md:px-0">
         <div className="col-span-12 md:col-span-6 bg-white p-3 rounded-lg">
           <div className="flex flex-col md:flex-row gap-3 md:justify-between md:items-center mb-4">
@@ -228,7 +230,7 @@ const Analytics = () => {
               ))}
             </Select>
           </div>
-          <ApexChart />
+          <ApexChart data={data?.data?.revenueAnalytics}  isLoading={isLoading}/>
         </div>
         <div className="col-span-12 md:col-span-6 bg-white p-3 rounded-lg">
           <div className="flex flex-col md:flex-row gap-3 md:justify-between md:items-center mb-4">
@@ -251,7 +253,7 @@ const Analytics = () => {
               ))}
             </Select>
           </div>
-          <BarChart />
+          <BarChart data={data?.data?.enrollmentTrends} isLoading={isLoading}/>
         </div>
         <div className="col-span-12 md:col-span-6 bg-white px-3 py-5 rounded-lg">
           <div className="flex flex-col md:flex-row gap-3 md:justify-between md:items-center">

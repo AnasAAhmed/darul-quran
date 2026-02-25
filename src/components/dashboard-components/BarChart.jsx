@@ -2,19 +2,24 @@ import React from "react";
 import ReactApexChart from "react-apexcharts";
 // import dayjs from "dayjs";
 
-const BarChart = () => {
+const BarChart = ({ data = [] }) => {
+  // If data is passed in, use it; otherwise fallback to the hardcoded array
+  const formattedData = data && data.length > 0 
+    ? data.map(item => ({ x: item.x, y: Number(item.y) || 0 }))
+    : [
+        { x: "Mon", y: 0 },
+        { x: "Tue", y: 0 },
+        { x: "Wed", y: 0 },
+        { x: "Thu", y: 0 },
+        { x: "Fri", y: 0 },
+        { x: "Sat", y: 0 },
+        { x: "Sun", y: 0 },
+      ];
+
   const series = [
     {
-      name: "sales",
-      data: [
-        { x: "Mon", y: 500 },
-        { x: "Tue", y: 400 },
-        { x: "Wed", y: 448 },
-        { x: "Thu", y: 470 },
-        { x: "Fri", y: 540 },
-        { x: "Sat", y: 540 },
-        { x: "Sun", y: 500 },
-      ]
+      name: "Enrollments",
+      data: formattedData
     }
   ];
 

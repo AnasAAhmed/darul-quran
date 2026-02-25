@@ -1,12 +1,14 @@
 import React from 'react';
 import ReactApexChart from 'react-apexcharts';
 
-const ApexChart = () => {
+const ApexChart = ({ data = [] }) => {
+  const seriesData = data.map(item => Number(item.revenue) || 0);
+  const categoriesData = data.map(item => item.week_label);
+
   const [chartState, setChartState] = React.useState({
     series: [{
       name: 'Revenue',
-      data: [50, 40, 30, 20, ],
-      weesks: ['Week 1', 'Week 2', 'Week 3', 'Week 4', ]
+      data: seriesData.length > 0 ? seriesData : [0, 0, 0, 0],
     }],
     options: {
       chart: {
@@ -48,7 +50,7 @@ const ApexChart = () => {
       colors: ['#06574C'],
       xaxis: {
         type: 'categories',
-        categories: ['Week 1', 'Week 2', 'Week 3', 'Week 4',],
+        categories: categoriesData.length > 0 ? categoriesData : ['Week 1', 'Week 2', 'Week 3', 'Week 4'],
         labels: {
           style: {
             colors: '#6B7280',
@@ -85,6 +87,26 @@ const ApexChart = () => {
       },
     },
   });
+
+  // Add useEffect to update the chart if data changes
+  React.useEffect(() => {
+    if (data && data.length > 0) {
+      setChartState(prevState => ({
+        ...prevState,
+        series: [{
+          name: 'Revenue',
+          data: data.map(item => Number(item.revenue) || 0)
+        }],
+        options: {
+          ...prevState.options,
+          xaxis: {
+            ...prevState.options.xaxis,
+            categories: data.map(item => item.week_label)
+          }
+        }
+      }));
+    }
+  }, [data]);
 
   return (
     <div id="chart">

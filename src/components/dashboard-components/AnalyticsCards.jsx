@@ -26,7 +26,9 @@
  *
  * <AnalyticsCards data={cardsData} />
  */
-const AnalyticsCards = ({ data = [] }) => {
+import { Skeleton } from "@heroui/react";
+
+const AnalyticsCards = ({ data = [], isLoading = false }) => {
     return (
         <div className="py-4 gap-5  overflow-x-auto grid sm:grid-cols-3">
             {data.map((item, index) => (
@@ -43,8 +45,12 @@ const AnalyticsCards = ({ data = [] }) => {
                             </div>
                         </div>
                         <div>
-                            <p className="text-2xl font-semibold">{item.value}</p>
-                            <p className={item.changeColor}>{item.changeText}</p>
+                            <Skeleton isLoaded={!isLoading} className="rounded-lg mb-1 min-w-[100px] min-h-[32px]">
+                                <p className="text-2xl font-semibold">{item.value}</p>
+                            </Skeleton>
+                            <Skeleton isLoaded={!isLoading} className="rounded-lg min-w-[140px] min-h-[20px]">
+                                <p className={item.changeColor}>{item.changeText}</p>
+                            </Skeleton>
                         </div>
                     </div>
 
