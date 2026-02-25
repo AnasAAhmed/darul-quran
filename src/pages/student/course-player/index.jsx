@@ -9,6 +9,7 @@ import { useGetCourseFilesQuery, useAddRevieworUpdateMutation } from "../../../r
 import Loader from "../../../components/Loader";
 import LessonFileViewer from "../../../components/dashboard-components/LessonViewer";
 import RatingStars from "../../../components/RatingStar";
+import QueryError from "../../../components/QueryError";
 
 const CoursePlayer = () => {
     const { id } = useParams();
@@ -30,7 +31,7 @@ const CoursePlayer = () => {
 
     const { user } = useSelector((state) => state.user);
 
-    const { data, error, isLoading, isError } = useGetCourseFilesQuery({ courseId: id, page, search, includeCourse: !courseFromState?.id }, { skip: !id });
+    const { data, error, isLoading, isError,refetch } = useGetCourseFilesQuery({ courseId: id, page, search, includeCourse: !courseFromState?.id }, { skip: !id });
     const [addReview, { isLoading: isAddingReview }] = useAddRevieworUpdateMutation();
 
     const course = useMemo(() => {
@@ -39,7 +40,7 @@ const CoursePlayer = () => {
         return null;
     }, [courseFromState, data]);
     const courseFiles = data?.results;
-    const totalLessons = data?.results?.length || 0;
+    const totalLessons = courseFromState?.previousLesson || data?.course?.previousLesson || 0;
 
     useEffect(() => {
         if (course?.id && totalLessons) {
@@ -226,7 +227,14 @@ const CoursePlayer = () => {
                 <div className="w-80 md:w-96 bg-white border-l flex flex-col shrink-0 shadow-lg z-0">
                     <div className="p-4 border-b font-bold text-lg bg-gray-50 text-[#06574C]">Course Content</div>
                     <div className="flex-1 overflow-y-auto p-2 space-y-2">
-                        {isError && <div className="p-10 text-center text-red-500">Failed to load course content: {error.data?.message}</div>}
+                        {isError &&
+                            <QueryError
+                                height="300px"
+                                error={error}
+                                onRetry={refetch}
+                                showLogo={false}
+                            />
+                        }
                         {isLoading &&
                             <div className="text-center text-gray-500 mt-10 p-4">
                                 <Spinner color="success" variant="dots" label="Loading Content..." />
@@ -254,8 +262,8 @@ const CoursePlayer = () => {
                                             )
                                         }
                                         className={`p-3 rounded-lg cursor-pointer flex items-start gap-3 transition-all duration-200 border ${isCurrentById
-                                                ? "bg-[#06574C]/10 border-[#06574C] shadow-sm transform scale-[1.02]"
-                                                : "hover:bg-gray-50 border-transparent hover:border-gray-200"
+                                            ? "bg-[#06574C]/10 border-[#06574C] shadow-sm transform scale-[1.02]"
+                                            : "hover:bg-gray-50 border-transparent hover:border-gray-200"
                                             } ${isLocked ? "opacity-60 cursor-not-allowed" : ""}`}
                                     >
                                         <div className="mt-1 shrink-0">

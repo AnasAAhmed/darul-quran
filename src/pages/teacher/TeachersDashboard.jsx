@@ -45,11 +45,12 @@ import { formatTime12Hour, isClassLive, isClassExpired } from "../../utils/sched
 import NotificationPermission from "../../components/NotificationPermission";
 import { useSelector } from "react-redux";
 import { errorMessage } from "../../lib/toast.config";
+import { useGetTeacherDashboardQuery } from "../../redux/api/dashboard";
+import QueryError from "../../components/QueryError";
 const TeachersDashboard = () => {
   const { user: currentUser } = useSelector((state) => state.user);
 
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
-  const [activeCourses, setActiveCourses] = useState([]);
 
   const [placement, setPlacement] = useState("left");
 
@@ -77,7 +78,7 @@ const TeachersDashboard = () => {
     {
       id: 2,
       title: "Upcoming Event",
-      description:"Guest lecture on Advanced React Patterns scheduled for next Monday at 3 PM. Don't miss this opportunity!",
+      description: "Guest lecture on Advanced React Patterns scheduled for next Monday at 3 PM. Don't miss this opportunity!",
       time: "2 hours ago",
       course: "Web Development 101",
       students: "42 students",
@@ -122,42 +123,13 @@ const TeachersDashboard = () => {
     setFiles((prev) => prev.filter((_, i) => i !== index));
   };
 
-    const [featured, setFeatured] = useState(null);
-    const [upcomingClasses, setUpcomingClasses] = useState([]);
-    const [analytics, setAnalytics] = useState(null);
-    const [loading, setLoading] = useState(false);
-useEffect(() => {
-  const fetchTeacherDashboardData = async () => {
-    try {
-      setLoading(true);
-      const res = await fetch(
-        `${import.meta.env.VITE_PUBLIC_SERVER_URL}/api/dashboard/teacher`,
-        { credentials: "include" }
-      );
 
-      const data = await res.json();
+  const { data, isLoading: loading, error, refetch } = useGetTeacherDashboardQuery();
 
-      // 🔥 THIS IS IMPORTANT
-      if (!res.ok) {
-        throw new Error(data.message || "Something went wrong");
-      }
-
-      if (data.success) {
-        if (data.data?.featured) setFeatured(data.data.featured);
-        if (data.data?.upcomingClasses) setUpcomingClasses(data.data.upcomingClasses);
-        if (data.data?.analytics) setAnalytics(data.data.analytics);
-        if (data.data?.activeCourses) setActiveCourses(data.data.activeCourses);
-      }
-      setLoading(false);
-    } catch (error) {
-      console.error(error.message);
-      setLoading(false);
-      errorMessage(error.message); // ✅ Now message will show
-    }
-  };
-
-  fetchTeacherDashboardData();
-}, []);
+  const featured = data?.data?.featured;
+  const upcomingClasses = data?.data?.upcomingClasses;
+  const analytics = data?.data?.analytics;
+  const activeCourses = data?.data?.activeCourses;
 
   const cardsData = [
     {
@@ -189,8 +161,14 @@ useEffect(() => {
       changeColor: "text-[#06574C]",
     },
   ];
-
-  console.log(featured , "featured");
+  if (error) {
+    return <QueryError
+      height="300px"
+      error={error}
+      onRetry={refetch}
+      showLogo={false}
+    />
+  }
   return (
     <div className="bg-white bg-linear-to-t from-[#F1C2AC]/50 to-[#95C4BE]/50 h-scrseen px-2 sm:px-3">
       {/* banner */}
@@ -227,123 +205,123 @@ useEffect(() => {
         </div>
       </div>
 
-      <OverviewCards data={cardsData} isLoading={loading}/>
+      <OverviewCards data={cardsData} isLoading={loading} />
 
       <div>
         <div className="grid grid-cols-12 gap-3 pb-4">
-        {loading
-  ? Array.from({ length: 3 }).map((_, index) => (
-      <div
-        key={index}
-        className="col-span-12 md:col-span-6 lg:col-span-4"
-      >
-        <div className="w-full bg-white rounded-lg shadow-sm border border-gray-100/50 p-4 space-y-4">
-          
-          {/* Status Badge */}
-          <Skeleton className="h-6 w-24 rounded-md" />
+          {loading
+            ? Array.from({ length: 3 }).map((_, index) => (
+              <div
+                key={index}
+                className="col-span-12 md:col-span-6 lg:col-span-4"
+              >
+                <div className="w-full bg-white rounded-lg shadow-sm border border-gray-100/50 p-4 space-y-4">
 
-          {/* Course Title */}
-          <Skeleton className="h-8 w-3/4 rounded-md mx-auto" />
+                  {/* Status Badge */}
+                  <Skeleton className="h-6 w-24 rounded-md" />
 
-          {/* Student + Next Class Row */}
-          <div className="flex justify-between items-center">
-            <div className="flex items-center gap-3">
-              <Skeleton className="h-12 w-12 rounded-full" />
-              <div className="space-y-2">
-                <Skeleton className="h-4 w-16 rounded-md" />
-                <Skeleton className="h-3 w-24 rounded-md" />
-              </div>
-            </div>
-            <div className="space-y-2 text-end">
-              <Skeleton className="h-4 w-20 rounded-md" />
-              <Skeleton className="h-3 w-24 rounded-md" />
-            </div>
-          </div>
+                  {/* Course Title */}
+                  <Skeleton className="h-8 w-3/4 rounded-md mx-auto" />
 
-          {/* Progress */}
-          <div className="space-y-2">
-            <Skeleton className="h-3 w-full rounded-md" />
-            <Skeleton className="h-3 w-full rounded-md" />
-          </div>
-
-          {/* Button */}
-          <Skeleton className="h-9 w-full rounded-md" />
-        </div>
-      </div>
-    )): activeCourses.length === 0 ? (
-            <div className="col-span-12 p-10 text-center bg-white/50 rounded-lg border-2 border-dashed border-gray-200">
-              <p className="text-gray-500 text-lg italic">No active courses found.</p>
-            </div>
-          ) : activeCourses.map((item, index) => {
-            const nextClassTime = item.nextClass?.date 
-              ? `${new Date(item.nextClass.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}, ${formatTime12Hour(item.nextClass.startTime)}`
-              : "No upcoming classes";
-
-            return (
-              <div key={item.id} className="col-span-12 md:col-span-6 lg:col-span-4 ">
-                <div className="w-full bg-white rounded-lg shadow-sm border border-gray-100/50">
-                  <div className="bg-[linear-gradient(110.57deg,rgba(241,194,172,0.25)_0.4%,rgba(149,196,190,0.25)_93.82%)]  rounded-lg p-3 ">
-                    <Button
-                      size="sm"
-                      radius="sm"
-                      className="bg-white text-[#06574C] px-4 font-medium capitalize"
-                    >
-                      {item.status}
-                    </Button>
-                    <div className="">
-                      <span className=" flex justify-center items-center py-6 text-2xl font-semibold text-[#333333]">
-                        {item.courseName}
-                      </span>
+                  {/* Student + Next Class Row */}
+                  <div className="flex justify-between items-center">
+                    <div className="flex items-center gap-3">
+                      <Skeleton className="h-12 w-12 rounded-full" />
+                      <div className="space-y-2">
+                        <Skeleton className="h-4 w-16 rounded-md" />
+                        <Skeleton className="h-3 w-24 rounded-md" />
+                      </div>
+                    </div>
+                    <div className="space-y-2 text-end">
+                      <Skeleton className="h-4 w-20 rounded-md" />
+                      <Skeleton className="h-3 w-24 rounded-md" />
                     </div>
                   </div>
-                  <div className="p-3 space-y-3">
-                    <div className="flex justify-between items-center ">
-                      <div className="flex items-center gap-3">
-                        <div className="w-12 h-12 rounded-full bg-[#95C4BE33] flex items-center justify-center text-white font-bold text-sm  shrink-0">
-                          <RiGroupLine size={22} color="#06574C" />
-                        </div>
-                        <div>
-                          <p className="font-semibold text-[#06574C] text-lg leading-tight">
-                            {item.studentCount}
-                          </p>
-                          <p className="text-sm text-[#666666]">Students Enrolled</p>
-                        </div>
-                      </div>
-                      <div className="text-end">
-                        <p className="font-semibold text-black text-sm leading-tight">
-                          Next Class
-                        </p>
-                        <p className="text-sm text-[#666666]">{nextClassTime}</p>
-                      </div>
-                    </div>
-                    <div>
-                      <div className="flex justify-between items-center text-[#6B7280]">
-                        <span>Progress</span>
-                        <span>{item.progress}%</span>
-                      </div>
-                      <Progress
-                        color="success"
-                        value={item.progress}
-                        size="sm"
-                        className="mt-1"
-                      ></Progress>
-                    </div>
-                    <div>
+
+                  {/* Progress */}
+                  <div className="space-y-2">
+                    <Skeleton className="h-3 w-full rounded-md" />
+                    <Skeleton className="h-3 w-full rounded-md" />
+                  </div>
+
+                  {/* Button */}
+                  <Skeleton className="h-9 w-full rounded-md" />
+                </div>
+              </div>
+            )) : activeCourses.length === 0 ? (
+              <div className="col-span-12 p-10 text-center bg-white/50 rounded-lg border-2 border-dashed border-gray-200">
+                <p className="text-gray-500 text-lg italic">No active courses found.</p>
+              </div>
+            ) : activeCourses.map((item, index) => {
+              const nextClassTime = item.nextClass?.date
+                ? `${new Date(item.nextClass.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}, ${formatTime12Hour(item.nextClass.startTime)}`
+                : "No upcoming classes";
+
+              return (
+                <div key={item.id} className="col-span-12 md:col-span-6 lg:col-span-4 ">
+                  <div className="w-full bg-white rounded-lg shadow-sm border border-gray-100/50">
+                    <div className="bg-[linear-gradient(110.57deg,rgba(241,194,172,0.25)_0.4%,rgba(149,196,190,0.25)_93.82%)]  rounded-lg p-3 ">
                       <Button
-                        as={Link}
-                        to={`/teacher/courses/${item.id}`}
                         size="sm"
-                        className="bg-[#06574C] text-white rounded-md w-full mt-2"
-                        startContent={<AiOutlineEye size={22} />}
+                        radius="sm"
+                        className="bg-white text-[#06574C] px-4 font-medium capitalize"
                       >
-                        View Course
+                        {item.status}
                       </Button>
+                      <div className="">
+                        <span className=" flex justify-center items-center py-6 text-2xl font-semibold text-[#333333]">
+                          {item.courseName}
+                        </span>
+                      </div>
+                    </div>
+                    <div className="p-3 space-y-3">
+                      <div className="flex justify-between items-center ">
+                        <div className="flex items-center gap-3">
+                          <div className="w-12 h-12 rounded-full bg-[#95C4BE33] flex items-center justify-center text-white font-bold text-sm  shrink-0">
+                            <RiGroupLine size={22} color="#06574C" />
+                          </div>
+                          <div>
+                            <p className="font-semibold text-[#06574C] text-lg leading-tight">
+                              {item.studentCount}
+                            </p>
+                            <p className="text-sm text-[#666666]">Students Enrolled</p>
+                          </div>
+                        </div>
+                        <div className="text-end">
+                          <p className="font-semibold text-black text-sm leading-tight">
+                            Next Class
+                          </p>
+                          <p className="text-sm text-[#666666]">{nextClassTime}</p>
+                        </div>
+                      </div>
+                      <div>
+                        <div className="flex justify-between items-center text-[#6B7280]">
+                          <span>Progress</span>
+                          <span>{item.progress}%</span>
+                        </div>
+                        <Progress
+                          color="success"
+                          value={item.progress}
+                          size="sm"
+                          className="mt-1"
+                        ></Progress>
+                      </div>
+                      <div>
+                        <Button
+                          as={Link}
+                          to={`/teacher/courses/${item.id}`}
+                          size="sm"
+                          className="bg-[#06574C] text-white rounded-md w-full mt-2"
+                          startContent={<AiOutlineEye size={22} />}
+                        >
+                          View Course
+                        </Button>
+                      </div>
                     </div>
                   </div>
                 </div>
-              </div>
-            );
-          })}
+              );
+            })}
         </div>
       </div>
 

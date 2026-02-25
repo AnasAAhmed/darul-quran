@@ -1,4 +1,4 @@
-import { Button, Chip, Input, Tab, Tabs } from "@heroui/react";
+import { Button, Calendar, Chip, Input, Tab, Tabs } from "@heroui/react";
 import {
   Clock,
   Download,
@@ -24,6 +24,8 @@ import {
 } from "../../../redux/api/courses";
 import { useGetCourseAttendanceDetailQuery } from "../../../redux/api/attendance";
 import { debounce } from '../../../lib/utils';
+import Loader from "../../../components/Loader";
+import QueryError from "../../../components/QueryError";
 
 const MyCourses = () => {
   const { id: courseId } = useParams();
@@ -32,17 +34,16 @@ const MyCourses = () => {
   const [page, setPage] = useState(1);
   const limit = 10;
 
-  // Fetch course data with schedules and stats
   const {
     data: courseData,
     isLoading: courseLoading,
     refetch: refetchCourse,
+    error,
   } = useGetCourseByTeacherIdQuery(
     { courseId, includeSchedules: true, includeStats: true },
     { skip: !courseId }
   );
 
-  // Fetch course files (materials and quizzes)
   const { data: filesData, isLoading: filesLoading } = useGetCourseFilesQuery(
     {
       courseId,
@@ -51,10 +52,13 @@ const MyCourses = () => {
       search: searchQuery,
       includeCourse: false,
     },
-    { skip: !courseId || (activeTab !== "materials" && activeTab !== "quizzes") }
+    {
+      skip: !courseId ||
+        (activeTab !== "materials" && activeTab !== "quizzes") ||
+        !courseData?.stats?.totalMaterials
+    }
   );
 
-  // Fetch students with pagination
   const { data: studentsData, isLoading: studentsLoading } =
     useGetCourseStudentsQuery(
       {
@@ -67,69 +71,58 @@ const MyCourses = () => {
       { skip: !courseId || activeTab !== "students" }
     );
 
-  // Fetch attendance data
   const { data: attendanceData, isLoading: attendanceLoading } =
     useGetCourseAttendanceDetailQuery(
       { courseId, page: 1, limit: 50 },
       { skip: !courseId || activeTab !== "attendance" }
     );
 
-  // Filter files based on tab
-  const materials =
-    filesData?.results?.filter(
-      (file) =>
-        file.fileType &&
-        !["quiz"].includes(file.fileType.toLowerCase())
-    ) || [];
-  const quizzes =
-    filesData?.results?.filter((file) =>
-      file.fileType?.toLowerCase().includes("quiz")
-    ) || [];
 
-  // Get upcoming classes from schedules
   const now = new Date();
   const upcomingClasses =
     courseData?.schedules
-      ?.filter((schedule) => {
-        const scheduleDate = schedule.date ? new Date(schedule.date) : null;
-        return scheduleDate && scheduleDate >= now;
+      ?.flatMap((schedule) => {
+        if (!schedule.scheduleDates || !Array.isArray(schedule.scheduleDates)) {
+          return [];
+        }
+        return schedule.scheduleDates
+          .filter((date) => {
+            const scheduleDate = date ? new Date(date) : null;
+            return scheduleDate && scheduleDate >= now;
+          })
+          .map((date) => ({
+            ...schedule,
+            scheduleDate: date,
+          }));
       })
       .slice(0, 5) || [];
 
-  // Check if Zoom button should be shown based on schedule
   const shouldShowZoomButton = upcomingClasses.some((schedule) => {
-    if (!schedule.startTime || !schedule.endTime) return false;
-    const scheduleDateTime = schedule.date
-      ? new Date(`${schedule.date}T${schedule.startTime}`)
-      : null;
+    if (!schedule.startTime || !schedule.endTime || !schedule.scheduleDate) return false;
+    const scheduleDateTime = new Date(`${schedule.scheduleDate}T${schedule.startTime}`);
     const nowTime = new Date();
-    const endTime = schedule.date
-      ? new Date(`${schedule.date}T${schedule.endTime}`)
-      : null;
+    const endTime = new Date(`${schedule.scheduleDate}T${schedule.endTime}`);
 
-    return scheduleDateTime && endTime && nowTime >= scheduleDateTime && nowTime <= endTime;
+    return nowTime >= scheduleDateTime && nowTime <= endTime;
   });
 
   const activeSchedule = upcomingClasses.find((schedule) => {
-    if (!schedule.startTime || !schedule.endTime) return false;
-    const scheduleDateTime = schedule.date
-      ? new Date(`${schedule.date}T${schedule.startTime}`)
-      : null;
+    if (!schedule.startTime || !schedule.endTime || !schedule.scheduleDate) return false;
+    const scheduleDateTime = new Date(`${schedule.scheduleDate}T${schedule.startTime}`);
     const nowTime = new Date();
-    const endTime = schedule.date
-      ? new Date(`${schedule.date}T${schedule.endTime}`)
-      : null;
+    const endTime = new Date(`${schedule.scheduleDate}T${schedule.endTime}`);
 
-    return scheduleDateTime && endTime && nowTime >= scheduleDateTime && nowTime <= endTime;
+    return nowTime >= scheduleDateTime && nowTime <= endTime;
   });
 
-  // Cards data from API
   const cardsData = [
     {
-      title: "Total Courses",
-      value: "1",
+      title: "Total Materials",
+      value: courseData?.stats
+        ? `${courseData.stats.totalMaterials}`
+        : "0%",
       icon: <AiOutlineBook color="#06574C" size={22} />,
-      changeText: "N/A",
+      // changeText: "N/A",
       changeColor: "text-[#9A9A9A]",
     },
     {
@@ -138,26 +131,26 @@ const MyCourses = () => {
         ? `${Math.round(courseData.stats.avgAttendance * 100)}%`
         : "0%",
       icon: <AiOutlineLineChart color="#06574C" size={22} />,
-      changeText: "N/A",
+      // changeText: "N/A",
       changeColor: "text-[#9A9A9A]",
     },
     {
       title: "Total Students",
       value: courseData?.stats?.totalStudents?.toLocaleString() || "0",
       icon: <UsersRound color="#06574C" size={22} />,
-      changeText: "N/A",
+      // changeText: "N/A",
       changeColor: "text-[#9A9A9A]",
     },
     {
       title: "Active Quizzes",
-      value: quizzes.length.toString(),
-      icon: <IoBulbOutline color="#06574C" size={22} />,
-      changeText: "N/A",
+      value: courseData?.stats
+        ? `${courseData.stats.totalQuizzes}`
+        : "0%", icon: <IoBulbOutline color="#06574C" size={22} />,
+      // changeText:s "N/A",
       changeColor: "text-[#9A9A9A]",
     },
   ];
 
-  // Course outline data
   const coursesonline = [
     {
       id: 1,
@@ -166,17 +159,12 @@ const MyCourses = () => {
     },
     {
       id: 2,
-      name: "Schedule",
-      title: courseData?.schedules?.[0]
-        ? `${new Date(courseData.schedules[0].date).toLocaleDateString(
-          "en-US",
-          { weekday: "short" }
-        )} • ${courseData.schedules[0].startTime || "TBD"}`
-        : "TBD",
+      name: "Type",
+      title: courseData?.course?.type?.replace("_", " ") || "N/A",
     },
     {
       id: 3,
-      name: "Progress",
+      name: "Status",
       title: `${courseData?.course?.status || "N/A"}`,
     },
   ];
@@ -211,13 +199,17 @@ const MyCourses = () => {
   };
 
   if (courseLoading) {
-    return (
-      <div className="flex items-center justify-center h-screen">
-        <p className="text-lg text-[#06574C]">Loading course data...</p>
-      </div>
-    );
+    return <Loader text="Loading course data..." />;
   }
 
+  if (error) {
+    return <QueryError
+      height="300px"
+      error={error}
+      onRetry={refetchCourse}
+      showLogo={false}
+    />
+  }
   return (
     <div className="bg-white bg-linear-to-t from-[#F1C2AC]/50 to-[#95C4BE]/50 h-scrseen px-2 sm:px-3">
       <div className="md:flex md:justify-between md:items-center max-md:pb-3 ">
@@ -226,7 +218,7 @@ const MyCourses = () => {
             title={courseData?.course?.courseName || "Course Name"}
             desc={`${courseData?.stats?.totalStudents || 0} Students Enrolled`}
           />
-          <p className="bg-white text-[#06574C] mt-8 py-1.5 text-xs  rounded-md text-center font-semibold w-20 max-md:absolute max-md:top-1/10 max-md:left-3/4">
+          <p className="bg-white capitalize text-[#06574C] mt-8 py-1.5 text-xs  rounded-md text-center font-semibold w-20 max-md:absolute max-md:top-1/10 max-md:left-3/4">
             {courseData?.course?.status || "Active"}
           </p>
         </div>
@@ -266,10 +258,76 @@ const MyCourses = () => {
           </div>
         ))}
       </div>
+
+      {/* Class Schedules Section */}
+      {courseData?.schedules?.length > 0 && (
+        <div className="bg-white rounded-lg mb-3 p-4">
+          <div className="flex justify-between items-center mb-4">
+            <h1 className="text-xl font-semibold">Class Schedules</h1>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {courseData.schedules.map((schedule, index) => (
+              <div
+                key={index}
+                className="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow"
+              >
+                <div className="flex items-start justify-between mb-3">
+                  <h3 className="font-semibold text-[#06574C]">
+                    {schedule.title || `Schedule ${index + 1}`}
+                  </h3>
+                  {schedule.scheduleDates?.some((date) => {
+                    const scheduleDateTime = schedule.startTime
+                      ? new Date(`${date}T${schedule.startTime}`)
+                      : new Date(date);
+                    return scheduleDateTime >= now;
+                  }) && (
+                      <Chip size="sm" className="bg-green-100 text-green-800">
+                        Upcoming
+                      </Chip>
+                    )}
+                </div>
+                <div className="space-y-2 text-sm">
+                  {schedule.startTime && schedule.endTime && (
+                    <div className="flex items-center gap-2 text-gray-600">
+                      <Clock size={16} />
+                      <span>
+                        {schedule.startTime} - {schedule.endTime}
+                      </span>
+                    </div>
+                  )}
+                  {schedule.scheduleDates && schedule.scheduleDates.length > 0 && (
+                    <div className="flex justify-center">
+                      <Calendar isReadOnly color="success"
+                        isDateUnavailable={(date) =>
+                          schedule.scheduleDates?.includes(date.toString())
+                        }
+                      />
+                    </div>
+                  )}
+                  {schedule.meetingLink && (
+                    <div className="flex items-center gap-2 text-gray-600">
+                      <Video size={16} />
+                      <a
+                        href={schedule.meetingLink}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-[#1570E8] hover:underline"
+                      >
+                        Join Meeting
+                      </a>
+                    </div>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
       <div className="bg-white rounded-lg mb-3 p-4">
         <div className="flex justify-between">
           <h1 className="text-xl font-semibold">Course Outline</h1>
-          <Button
+          {/* <Button
             variant="bordered"
             color="#06574C"
             className="  text-[#06574C]"
@@ -278,7 +336,7 @@ const MyCourses = () => {
             startContent={<LuSquareArrowOutUpRight size={18} color="#06574C" />}
           >
             Edit
-          </Button>
+          </Button> */}
         </div>
         <div className="py-3">
           <div className="flex justify-between items-center">
@@ -286,7 +344,7 @@ const MyCourses = () => {
               <div key={index} className="flex justify-between  w-full">
                 <div className="w-full flex flex-col ">
                   <p className="text-[#666666] text-sm">{item.name}</p>
-                  <p className="text-md font-medium">{item.title}</p>
+                  <p className="text-md font-medium capitalize">{item.title}</p>
                 </div>
               </div>
             ))}
@@ -384,15 +442,14 @@ const MyCourses = () => {
           </div>
         </div>
 
-        {/* Materials Tab Content */}
         {activeTab === "materials" && (
           <div className="flex flex-col gap-3">
             {filesLoading ? (
               <p className="text-center text-gray-500 py-8">Loading materials...</p>
-            ) : materials.length === 0 ? (
+            ) : filesData?.results?.length === 0 ? (
               <p className="text-center text-gray-500 py-8">No materials uploaded yet.</p>
             ) : (
-              materials.map((item, index) => (
+              filesData?.results?.map((item, index) => (
                 <div
                   key={index}
                   className="bg-[#EAF3F2]"
@@ -407,8 +464,11 @@ const MyCourses = () => {
                           {item.title}
                         </div>
                         <div className="flex flex-wrap max-md:my-3 md:items-center mb-2 gap-5 text-sm text-[#666666]">
-                          {item.file?.pages && (
+                          {item.file?.pages > 0 && (
                             <p>{item.file.pages} pages</p>
+                          )}
+                          {item.file?.duration > 0 && (
+                            <p>{item.file.duration} Duration</p>
                           )}
                           {item.file?.size && (
                             <p>{(item.file.size / 1024 / 1024).toFixed(2)} MB</p>
@@ -450,24 +510,23 @@ const MyCourses = () => {
           </div>
         )}
 
-        {/* Quizzes Tab Content */}
         {activeTab === "quizzes" && (
           <div className="flex flex-col gap-3">
             {filesLoading ? (
               <p className="text-center text-gray-500 py-8">Loading quizzes...</p>
-            ) : quizzes.length === 0 ? (
+            ) : filesData?.quizzes?.length === 0 ? (
               <p className="text-center text-gray-500 py-8">No quizzes available.</p>
             ) : (
-              quizzes.map((item, index) => (
+              filesData?.quizzes?.map((item, index) => (
                 <div
                   key={index}
                   className="bg-[#EAF3F2]"
                 >
                   <div className="flex flex-col md:flex-row gap-4 md:justify-between p-4 md:items-center">
                     <div className="flex flex-col md:flex-row gap-3 md:items-center justify-center">
-                      <div className="h-15 w-15 rounded-full shadow-xl flex flex-col items-center justify-center bg-white">
+                      {/* <div className="h-15 w-15 rounded-full shadow-xl flex flex-col items-center justify-center bg-white">
                         {getFileIcon(item.fileType)}
-                      </div>
+                      </div> */}
                       <div>
                         <div className="text-lg text-[#06574C] font-semibold">
                           {item.title}
@@ -475,7 +534,7 @@ const MyCourses = () => {
                         <div className="flex flex-wrap max-md:my-3 md:items-center mb-2 gap-5 text-sm text-[#666666]">
                           <div className="flex items-center gap-1 ">
                             <TbListCheck size={20} />
-                            {item.file?.questions || "10"} Questions
+                            {item.file?.totalQuestions || "10"} Questions
                           </div>
                           {item.file?.duration && (
                             <div className="flex items-center gap-1 ">
@@ -560,7 +619,7 @@ const MyCourses = () => {
                         <tr key={student.id}>
                           <td className="px-6 py-4 whitespace-nowrap">
                             <div className="flex items-center">
-                              <div className="flex-shrink-0 h-10 w-10 rounded-full bg-[#95C4BE]/20 flex items-center justify-center">
+                              <div className="shrink-0 h-10 w-10 rounded-full bg-[#95C4BE]/20 flex items-center justify-center">
                                 <RiGroupLine color="#06574C" size={20} />
                               </div>
                               <div className="ml-4">
@@ -684,7 +743,7 @@ const MyCourses = () => {
                         <tr key={student.studentId}>
                           <td className="px-6 py-4 whitespace-nowrap">
                             <div className="flex items-center">
-                              <div className="flex-shrink-0 h-10 w-10 rounded-full bg-[#95C4BE]/20 flex items-center justify-center">
+                              <div className="shrink-0 h-10 w-10 rounded-full bg-[#95C4BE]/20 flex items-center justify-center">
                                 <RiGroupLine color="#06574C" size={20} />
                               </div>
                               <div className="ml-4">

@@ -13,9 +13,9 @@ export const courseApi = createApi({
                 url: "/getAllCourses",
                 method: "GET",
                 params: {
-                    page, isFree, sort, limit, categoryId, search, status, type,
-                    difficulties: JSON.stringify(difficulties),
-                    categoryIds: JSON.stringify(categoryIds)
+                    page, isFree, sort, limit, categoryId: categoryId ? categoryId : undefined, search, status, type,
+                    difficulties: difficulties?.length > 0 ? JSON.stringify(difficulties) : undefined,
+                    categoryIds: categoryIds?.length > 0 ? JSON.stringify(categoryIds) : undefined
                 },
             }),
             providesTags: ["course"],
@@ -35,6 +35,14 @@ export const courseApi = createApi({
                 url: "/my-courses",
                 method: "GET",
                 params: { page, limit, categoryId, search }
+            }),
+            providesTags: ["course"],
+        }),
+        getCoursesByTeacherId: builder.query({
+            query: ({ page = 1, limit, categoryId, search = '', type, status }) => ({
+                url: "/teacher-courses",
+                method: "GET",
+                params: { page, limit, categoryId, search, type, status }
             }),
             providesTags: ["course"],
         }),
@@ -153,6 +161,7 @@ export const {
     useGetAllCoursesQuery,
     useGetAllCoursesForSelectQuery,
     useGetEnrolledCoursesQuery,
+    useGetCoursesByTeacherIdQuery,
     useGetCourseFilesQuery,
     useGetCourseByIdQuery,
     useGetCourseByIdViewQuery,

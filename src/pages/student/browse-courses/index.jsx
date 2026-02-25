@@ -42,7 +42,7 @@ const formatDuration = (seconds) => {
 };
 
 const BrowseCourses = () => {
-  const navigate = useNavigate(); // ✅ Initialize navigate hook
+  const navigate = useNavigate();
 
   const [page, setPage] = useState(1);
   const [limit, setLimit] = useState(10);
@@ -53,7 +53,6 @@ const BrowseCourses = () => {
   const [categoryIds, setCategoryIds] = useState([]);
   const [type, setType] = useState('all');
   const { user } = useSelector((state) => state.user);
-  const role = user?.role;
 
   const { data, isFetching: isLoading, isError, error } = useGetAllCoursesQuery({ page, sort, isFree, difficulties: difficultys, categoryIds, limit, search, type });
   const { data: categoriesData, isError: categoriesError, error: categoriesErrorData } = useGetAllCategoriesQuery();
@@ -180,21 +179,21 @@ const BrowseCourses = () => {
             const keys = [...k];
             setSort(keys[0]);
           }}
-          // defaultSelectedKeys={["all"]}
+        // defaultSelectedKeys={["all"]}
         >
           <SelectItem key="all" value="all" className="capitalize">
             All Courses
           </SelectItem>
 
           <SelectItem description={<span title=" Pay once and get lifetime access to all course materials. Includes course player, files, and progress tracking." className="block text-xs text-gray-500">
-              Pay once and get lifetime access to all course materials. Includes course player, files, and progress tracking.
-            </span>} key="one_time" value="one_time" className="capitalize">
+            Pay once and get lifetime access to all course materials. Includes course player, files, and progress tracking.
+          </span>} key="one_time" value="one_time" className="capitalize">
             One Time Paid
           </SelectItem>
 
           <SelectItem description={<span title="Scheduled live sessions requiring subscription. Access course player, files, and track progress for each live class." className="block text-xs text-gray-500">
-              Scheduled live sessions requiring subscription. Access course player, files, and track progress for each live class.
-            </span>} key="live" value="live" className="capitalize">
+            Scheduled live sessions requiring subscription. Access course player, files, and track progress for each live class.
+          </span>} key="live" value="live" className="capitalize">
             Live Classes
           </SelectItem>
         </Select>
@@ -331,7 +330,7 @@ const BrowseCourses = () => {
         </div>}
         <div className="md:flex md:flex-row items-center pb-4 gap-2 justify-between overflow-hidden ">
           <div className="flex text-sm items-center gap-1">
-            <span>Showing</span>
+            <span>Limit</span>
             <Select
               radius="sm"
               className="w-[70px]"
@@ -346,7 +345,7 @@ const BrowseCourses = () => {
                 <SelectItem key={limit.key}>{limit.label}</SelectItem>
               ))}
             </Select>
-            <span className="min-w-56">Out of 58</span>
+            <span className="min-w-56">Out of {data?.total}</span>
           </div>
           <Pagination
             className=""

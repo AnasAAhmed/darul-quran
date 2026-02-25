@@ -28,16 +28,11 @@ import NotificationPermission from "../../components/NotificationPermission";
 import { useGetAdminDashboardQuery } from "../../redux/api/dashboard";
 import { convertTo12hrsFormat } from "../../lib/utils";
 import { useSelector } from "react-redux";
+import QueryError from "../../components/QueryError";
 
 const AdminDashboard = () => {
-  const { data: dashboardData, isLoading, error } = useGetAdminDashboardQuery();
+  const { data: dashboardData, isLoading, error, refetch } = useGetAdminDashboardQuery();
   const { user: currentUser } = useSelector((state) => state.user);
-  if (error)
-    return (
-      <div className="p-8 text-center text-red-500">
-        Error loading dashboard: {error.message}
-      </div>
-    );
 
   const data = dashboardData?.data || {};
   const stats = data.stats || {};
@@ -73,17 +68,19 @@ const AdminDashboard = () => {
     },
   ];
 
-  const upcomingClasses = data.upcomingClasses || [];
+  const upcomingClasses = data?.upcomingClasses || [];
 
   const columns = "2fr 1.5fr 1fr 0.8fr 0.8fr";
-  const Datefilters = [
-    { key: "Today, 4 Dec 2025", label: "Today, 4 Dec 2025" },
-    { key: "Yesterday,  3 Dec2025", label: "Yesterday, 3 Dec 2025" },
-    { key: "Tommorrow, 5 Dec 2025", label: "Tommorrow, 5 Dec 2025" },
-  ];
+  const featured = data?.featured || [];
 
-  const featured = data.featured || [];
-  console.log(featured, "featured");
+  if (error) {
+    return <QueryError
+      height="300px"
+      error={error}
+      onRetry={refetch}
+      showLogo={false}
+    />
+  }
   return (
     <div className="bg-white sm:bg-linear-to-t from-[#F1C2AC]/50 to-[#95C4BE]/50 h-scrseen px-2 sm:px-3">
       {/* banner */}
@@ -279,6 +276,8 @@ const AdminDashboard = () => {
           </Button>
           <Button
             variant="flat"
+            as={Link}
+            to={'/admin/announcements'}
             startContent={<MegaphoneIcon />}
             className="w-full py-4 bg-[#95C4BE] text-[#06574C] font-semibold"
           >

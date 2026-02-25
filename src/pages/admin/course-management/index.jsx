@@ -31,7 +31,7 @@ const CourseManagement = () => {
   const [categoryId, setCategoryId] = useState(null);
 
   // Query/Fetch
-  const { data, isFetching: isLoading, isError, error } = useGetAllCoursesQuery({ page, categoryId, limit, status, search });
+  const { data, isFetching: isLoading, isError, error,refetch } = useGetAllCoursesQuery({ page, categoryId, limit, status, search });
   const { data: categoriesData, isError: categoriesError, error: categoriesErrorData } = useGetAllCategoriesQuery();
   // Mutation/Action
   const [deleteProduct] = useDeleteCourseMutation();
@@ -85,7 +85,15 @@ const CourseManagement = () => {
   const handleEdit = (id) => {
     navigate(`/admin/courses-management/builder?tab=info&id=${id}`);
   };
-
+  if (error) {
+    return <QueryError
+      height="300px"
+      error={error}
+      onRetry={refetch}
+      showLogo={false}
+      isLoading={isLoading}
+    />
+  }
   return (
     <div className="bg-white sm:bg-linear-to-t from-[#F1C2AC]/50 to-[#95C4BE]/50 px-2 sm:px-3">
       <DashHeading desc={"Manage and monitor course catalog"} />

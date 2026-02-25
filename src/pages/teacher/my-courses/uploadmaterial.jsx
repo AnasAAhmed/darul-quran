@@ -13,13 +13,14 @@ import { useEffect, useState } from "react";
 import CourseSelect from "../../../components/select/CourseSelect";
 import { useGetCourseFilesQuery } from "../../../redux/api/courses";
 import { useSearchParams } from "react-router-dom";
+import QueryError from "../../../components/QueryError";
 
 const UploadMaterial = () => {
   const [searchParams] = useSearchParams();
   const courseIdFromQuery = searchParams.get("courseId");
   const [files, setFiles] = useState([]);
   const [courseId, setCourseId] = useState(courseIdFromQuery || null);
-  const { data, error, isLoading, isError } = useGetCourseFilesQuery({ courseId, page: 1, search: "", includeCourse: false }, { skip: (!courseId || !courseIdFromQuery) });
+  const { data, error, isLoading, refetch } = useGetCourseFilesQuery({ courseId, page: 1, search: "", includeCourse: false }, { skip: (!courseId || !courseIdFromQuery) });
   useEffect(() => {
     if (data?.results) {
       setFiles(data?.results);
@@ -56,11 +57,15 @@ const UploadMaterial = () => {
       changeColor: "text-[#9A9A9A]",
     },
   ];
-  const courses = [
-    { key: "Web Development", label: "Web Development" },
-    { key: "React", label: "React js" },
-    { key: "Next js", label: "Next js" },
-  ];
+
+  if (error) {
+    return <QueryError
+      height="300px"
+      error={error}
+      onRetry={refetch}
+      showLogo={false}
+    />
+  }
 
   return (
     <div className="bg-white bg-linear-to-t from-[#F1C2AC]/50 to-[#95C4BE]/50 h-scrseen px-2 sm:px-3">

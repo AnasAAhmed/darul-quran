@@ -81,9 +81,9 @@ const Sidebar = ({ isSidebarOpen, setIsSidebarOpen }) => {
     {
       name: 'My Courses',
       icon: <BookIcon />,
-      link: '/teacher/courses/course-details',
+      link: '/teacher/courses',
       children: [
-        { name: 'Course Details View', link: '/teacher/courses/course-details' },
+        // { name: 'Course Details View', link: '/teacher/courses/course-details' },
         { name: 'Upload Materials', link: '/teacher/courses/upload-material' }
       ]
     },

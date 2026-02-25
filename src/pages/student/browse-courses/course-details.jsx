@@ -28,6 +28,7 @@ import { errorMessage, successMessage } from "../../../lib/toast.config";
 import { dateFormatter } from "../../../lib/utils";
 import { useGetCourseByIdQuery, useGetCourseByIdViewQuery, useGetCourseFilesQuery, useGetReviewsQuery } from "../../../redux/api/courses";
 import RatingStars from "../../../components/RatingStar";
+import QueryError from "../../../components/QueryError";
 
 const CourseDetails = () => {
   const { id } = useParams();
@@ -50,8 +51,8 @@ const CourseDetails = () => {
   const [overview, setOverview] = useState(null);
   const [shouldFetchOverview, setShouldFetchOverview] = useState(true);
 
-  const { data, error, isLoading, isError } = useGetCourseByIdViewQuery({ courseId: id, includeCourse: !courseFromState?.id, teacherId }, { skip: !id });
-  const { data: reviewData, isLoading: isReviewLoading, isError: reviewIsError, error: reviewError } = useGetReviewsQuery(
+  const { data, error, isLoading, isError, refetch } = useGetCourseByIdViewQuery({ courseId: id, includeCourse: !courseFromState?.id, teacherId }, { skip: !id });
+  const { data: reviewData, isLoading: isReviewLoading, isError: reviewIsError, error: reviewError, refetch: reviewRefetch } = useGetReviewsQuery(
     { courseId: id, page, limit, includeOverview: shouldFetchOverview, rating: ratingForSearch },
     { skip: !id }
   );
@@ -181,7 +182,14 @@ const CourseDetails = () => {
       icon: <LiaCertificateSolid size={22} color="#06574C" />,
     },
   ];
-
+  if (error) {
+    return <QueryError
+      height="300px"
+      error={error}
+      onRetry={refetch}
+      showLogo={false}
+    />
+  }
   return (
     <>
       <div className="bg-white bg-linear-to-t from-[#F1C2AC]/50 to-[#95C4BE]/50 h-scrseen px-2 sm:px-3">
@@ -412,6 +420,12 @@ const CourseDetails = () => {
                   </div>
                 </div>
               </div>
+              {reviewError && <QueryError
+                height="300px"
+                error={reviewError}
+                onRetry={reviewRefetch}
+                showLogo={false}
+              />}
               {reviewData?.reviews?.length > 0 && reviewData?.reviews.map((item) => (
                 <div className="bg-white p-5 rounded-xl">
                   <p className="text-xs text-gray-400 mb-2">{item.createdAt ? dateFormatter(item.createdAt) : 'N/A'}</p>

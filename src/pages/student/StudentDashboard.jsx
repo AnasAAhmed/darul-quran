@@ -16,6 +16,7 @@ import { useGetEnrolledCoursesQuery } from "../../redux/api/courses";
 import { useGetAllAnnouncementQuery } from "../../redux/api/announcements";
 import { errorMessage } from "../../lib/toast.config";
 import { dateFormatter } from "../../lib/utils";
+import QueryError from "../../components/QueryError";
 
 const StudentDashboard = () => {
   const { user } = useSelector((state) => state.user);
@@ -24,7 +25,7 @@ const StudentDashboard = () => {
   const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(true);
   const [featured, setFeatured] = useState([]);
-  const { data, isError, error, isLoading } = useGetEnrolledCoursesQuery({
+  const { data, error, isLoading, refetch } = useGetEnrolledCoursesQuery({
     page,
   });
   const {
@@ -55,8 +56,8 @@ const StudentDashboard = () => {
   if (announcementsError) {
     errorMessage(
       announcementsError?.data?.message ||
-        announcementsError?.message ||
-        "Failed to fetch announcements",
+      announcementsError?.message ||
+      "Failed to fetch announcements",
     );
   }
 
@@ -99,7 +100,14 @@ const StudentDashboard = () => {
       minutes: "30 minutes",
     },
   ];
-
+  if (error) {
+    return <QueryError
+      height="300px"
+      error={error}
+      onRetry={refetch}
+      showLogo={false}
+    />
+  }
   return (
     <div className="bg-white bg-linear-to-t from-[#F1C2AC]/50 to-[#95C4BE]/50 h-full px-2 sm:px-3">
       {/* banner */}
@@ -264,9 +272,8 @@ const StudentDashboard = () => {
           {upcomingClasses.map((item, index) => (
             <div
               key={item.id}
-              className={`${
-                item.location === "Join Zoom" ? "bg-[#EAF3F2]" : "bg-[#F5E3DA]"
-              } `}
+              className={`${item.location === "Join Zoom" ? "bg-[#EAF3F2]" : "bg-[#F5E3DA]"
+                } `}
             >
               <div className="flex flex-col md:flex-row gap-4 md:justify-between p-4 md:items-center">
                 <div className="flex flex-col md:flex-row gap-3 md:items-center justify-center">
@@ -339,18 +346,17 @@ const StudentDashboard = () => {
             announcementsData.data.map((item, index) => (
               <div
                 key={item.id}
-                className={`${
-                  item.createdBy === "teacher" ||
+                className={`${item.createdBy === "teacher" ||
                   item.description?.toLowerCase()?.includes("schedule")
-                    ? "bg-[#F5E3DA]"
-                    : "bg-[#EAF3F2]"
-                } `}
+                  ? "bg-[#F5E3DA]"
+                  : "bg-[#EAF3F2]"
+                  } `}
               >
                 <div className="flex flex-col md:flex-row gap-4 md:justify-between p-4 md:items-start">
                   <div className="flex flex-col md:flex-row gap-3 md:items-center justify-center">
                     <div className="h-20 shrink-0 w-20 rounded-full shadow-xl flex flex-col items-center justify-center bg-white">
                       {item.createdBy === "teacher" ||
-                      item.description?.toLowerCase()?.includes("schedule") ? (
+                        item.description?.toLowerCase()?.includes("schedule") ? (
                         <CiCalendar color="#D28E3D" size={30} />
                       ) : (
                         <GrAnnounce color="#06574C" size={30} />
@@ -358,12 +364,11 @@ const StudentDashboard = () => {
                     </div>
                     <div>
                       <div
-                        className={`${
-                          item.createdBy === "teacher" ||
+                        className={`${item.createdBy === "teacher" ||
                           item.description?.toLowerCase()?.includes("schedule")
-                            ? "text-[#B7721F]"
-                            : "text-[#06574C]"
-                        } font-semibold`}
+                          ? "text-[#B7721F]"
+                          : "text-[#06574C]"
+                          } font-semibold`}
                       >
                         {item.title}
                       </div>

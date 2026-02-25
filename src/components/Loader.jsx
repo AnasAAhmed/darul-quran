@@ -1,6 +1,6 @@
 import { Spinner } from '@heroui/react'
 
-const Loader = ({ height = 100 }) => {
+const Loader = ({ height = 100, text = '' }) => {
     return (
         <div className="h-screen flex flex-col items-center justify-center" style={{ height: `${height}vh` }}>
             <img
@@ -8,7 +8,7 @@ const Loader = ({ height = 100 }) => {
                 alt="Darul Quran"
                 className=" w-36 h-36"
             />
-            <Spinner size="lg" variant="dots" labelColor="success" color="success" />
+            <Spinner size="lg" variant="dots" label={text} labelColor="success" color="success" />
         </div>
     )
 }

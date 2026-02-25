@@ -325,28 +325,28 @@ const CourseBuilder = () => {
     if (data.previous_lesson === formData.previous_lesson) {
       handleSelected("pricing");
     }
-    try {
+    // try {
 
-      const payload = {
-        previous_lesson: formData.previous_lesson,
-      };
+    //   const payload = {
+    //     previous_lesson: formData.previous_lesson,
+    //   };
 
-      const response = await updateCourse({ id: courseId, data: payload });
+    //   const response = await updateCourse({ id: courseId, data: payload });
 
-      const data = response.data;
-      if (data.success) {
-        successMessage("Course Files Updated  Successfully");
-        handleSelected("pricing");
-      } else {
-        errorMessage(data.message || "Failed to update course");
-      }
-    } catch (error) {
-      console.error(error);
-      errorMessage(error?.message || "Failed to update course");
-    } finally {
-      setLoadingAction(null);
-      setPendingAction(null);
-    }
+    //   const data = response.data;
+    //   if (data.success) {
+    //     successMessage("Course Files Updated  Successfully");
+    //     handleSelected("pricing");
+    //   } else {
+    //     errorMessage(data.message || "Failed to update course");
+    //   }
+    // } catch (error) {
+    //   console.error(error);
+    //   errorMessage(error?.message || "Failed to update course");
+    // } finally {
+    //   setLoadingAction(null);
+    //   setPendingAction(null);
+    // }
   };
 
 
@@ -1006,7 +1006,7 @@ const CourseBuilder = () => {
                             </SelectItem>
                           ))}
                         </Select>
-                        <Input
+                        {/* <Input
                           size="lg"
                           variant="bordered"
                           label="Preview Lessons "
@@ -1018,7 +1018,7 @@ const CourseBuilder = () => {
                           onChange={(e) =>
                             handleChange("previous_lesson", e.target.value)
                           }
-                        />
+                        /> */}
                       </div>
                       <Input
                         size="lg"

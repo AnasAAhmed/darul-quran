@@ -8,6 +8,7 @@ import interactionPlugin from "@fullcalendar/interaction";
 import { errorMessage } from '../../../lib/toast.config';
 import { Link, useSearchParams } from 'react-router-dom';
 import { useGetSchedulesByMonthQuery } from '../../../redux/api/schedules';
+import QueryError from '../../../components/QueryError';
 
 const LiveSession = () => {
     const [searchParams] = useSearchParams();
@@ -17,7 +18,7 @@ const LiveSession = () => {
         return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
     });
     const isCalenderView = searchParams.get('calender') === 'true';
-    const { data, isLoading, error } = useGetSchedulesByMonthQuery(currentMonth, { skip: !isCalenderView });
+    const { data, isLoading, error ,refetch} = useGetSchedulesByMonthQuery(currentMonth, { skip: !isCalenderView });
 
     const events = useMemo(() => {
         if (!data?.schedules) return [];
@@ -62,7 +63,12 @@ const LiveSession = () => {
     if (!isCalenderView) return null;
 
     if (error) {
-        errorMessage("Failed to load schedules: " + error?.data?.message);
+        return <QueryError
+            height="300px"
+            error={error}
+            onRetry={refetch}
+            showLogo={false}
+        />
     }
 
     return (

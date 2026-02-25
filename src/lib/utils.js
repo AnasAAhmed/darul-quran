@@ -11,7 +11,11 @@ export const dateFormatter = (date, isTime = false) => {
   });
   return formatterUS.format(new Date(date))
 }
-
+export const pageTitle = (title = '') => {
+  return title
+    .replace(/\//g, " ")
+    .replace(/\b\w/g, (char) => char.toUpperCase()); // Capitalize the first letter of each word
+};
 export const convertTo12hrsFormat = (time) => {
   if (!time) return '';
   const hr = time.split(':');
@@ -22,13 +26,13 @@ export const convertTo12hrsFormat = (time) => {
   return `${hour12}:${minutes} ${ampm}`;
 }
 export const limits = [
-    { key: "6", label: "6" },
-    { key: "10", label: "10" },
-    { key: "20", label: "20" },
-    { key: "30", label: "30" },
-    { key: "40", label: "40" },
-    { key: "50", label: "50" },
-  ];
+  { key: "6", label: "6" },
+  { key: "10", label: "10" },
+  { key: "20", label: "20" },
+  { key: "30", label: "30" },
+  { key: "40", label: "40" },
+  { key: "50", label: "50" },
+];
 export const uploadFilesToServer = async (filesArray, removeUrls) => {
   if (!filesArray || filesArray.length === 0) return [];
 

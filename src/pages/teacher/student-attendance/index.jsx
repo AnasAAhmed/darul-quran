@@ -18,6 +18,7 @@ import {
   ModalFooter,
   Chip,
   Spinner,
+  Skeleton,
 } from "@heroui/react";
 import { DashHeading } from "../../../components/dashboard-components/DashHeading";
 import {
@@ -58,7 +59,7 @@ const StudentAttendance = () => {
     type
   });
 
-  const { data: topStudentsData } = useGetTopPerformingStudentsQuery({
+  const { data: topStudentsData, isLoading: isTopStudentsLoading } = useGetTopPerformingStudentsQuery({
     page: 1,
     limit: 3,
     sortBy: "progress",
@@ -306,45 +307,57 @@ const StudentAttendance = () => {
       <div className="bg-white px-4 py-3 rounded-lg my-3">
         <h1 className="text-xl font-bold mb-4">Top Performing Students</h1>
 
-        {topStudentsData?.students?.length === 0 ? (
-          <p className="text-gray-500 text-center py-8">No students found</p>
-        ) : (
-          <div className="mt-4 grid grid-cols-1 sm:grid-cols-3 gap-4">
-            {topStudentsData?.students?.map((s, i) => (
-              <div
-                key={i}
-                className="rounded-lg px-4 py-6 bg-[#EAF6F4] shadow-sm flex flex-col justify-between"
-                style={{ minHeight: 120 }}
-              >
-                <div>
-                  <div className="text-sm font-semibold text-gray-800">
-                    {s.firstName} {s.lastName}
-                  </div>
-                  <div className="text-xs text-gray-500 mt-1">{s.courseName}</div>
-                </div>
-
-                <div className="mt-4">
-                  <div className="flex items-center justify-between mb-2">
-                    <div className="text-sm text-[#06574C] font-semibold">
-                      Progress
-                    </div>
-                    <div className="text-sm font-semibold text-gray-700">
-                      {s.progressRate}%
-                    </div>
-                  </div>
-
-                  <Progress
-                    className="h-2 rounded-full"
-                    classNames={{ indicator: "bg-[#95C4BE]" }}
-                    showValueLabel={false}
-                    size="md"
-                    value={s.progressRate}
-                  />
-                </div>
+        {isTopStudentsLoading ? (
+          <div className=" gap-5  overflow-x-auto grid grid-cols-1 sm:grid-cols-3">
+            {Array.from({ length: 3 }).map((_, index) => (
+              <div key={index} className="flex items-center justify-center">
+                <Skeleton
+                  className="w-full h-34 min-w-[15em] bg-white sm:min-w-0 flex-1 space-y-4 rounded-lg p-4 shadow-lg"
+                  count={3}
+                />
               </div>
             ))}
           </div>
-        )}
+        ) :
+          topStudentsData?.students?.length === 0 ? (
+            <p className="text-gray-500 text-center py-8">No students found</p>
+          ) : (
+            <div className="mt-4 grid grid-cols-1 sm:grid-cols-3 gap-4">
+              {topStudentsData?.students?.map((s, i) => (
+                <div
+                  key={i}
+                  className="rounded-lg px-4 py-6 bg-[#EAF6F4] shadow-sm flex flex-col justify-between"
+                  style={{ minHeight: 120 }}
+                >
+                  <div>
+                    <div className="text-sm font-semibold text-gray-800">
+                      {s.firstName} {s.lastName}
+                    </div>
+                    <div className="text-xs text-gray-500 mt-1">{s.courseName}</div>
+                  </div>
+
+                  <div className="mt-4">
+                    <div className="flex items-center justify-between mb-2">
+                      <div className="text-sm text-[#06574C] font-semibold">
+                        Progress
+                      </div>
+                      <div className="text-sm font-semibold text-gray-700">
+                        {s.progressRate}%
+                      </div>
+                    </div>
+
+                    <Progress
+                      className="h-2 rounded-full"
+                      classNames={{ indicator: "bg-[#95C4BE]" }}
+                      showValueLabel={false}
+                      size="md"
+                      value={s.progressRate}
+                    />
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
       </div>
 
       <Modal

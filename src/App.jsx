@@ -37,6 +37,8 @@ import Loader from "./components/Loader";
 import StudentLayout from "./components/layouts/Studentlayout";
 import SupportTicketsStudent from "./pages/student/supports-tickets/page";
 import SupportTicketsTeacher from "./pages/teacher/supports-tickets/page";
+import useDynamicMeta from "./hooks/useDynamicMetadata";
+import CourseList from "./pages/teacher/my-courses/CourseList";
 
 const Home = lazy(() => import("./pages/Home"));
 const CourseManagement = lazy(() =>
@@ -74,56 +76,20 @@ const AdminRescheduleRequests = lazy(() => import("./pages/admin/RescheduleReque
 
 function App() {
   const navigate = useNavigate();
+  const location = useLocation();
   const { pathname } = useLocation();
+
+  useDynamicMeta({ location });
 
   const dispatch = useDispatch();
 
   const { user, loading, shouldFetch, isAuthenticated } = useSelector(
     (state) => state?.user
   )
-  const subscribeNow = async () => {
-    const registration = await navigator.serviceWorker.ready;
-
-    const permission = await Notification.requestPermission();
-    if (permission !== "granted") {
-      alert("Permission denied");
-      return;
-    }
-    function urlBase64ToUint8Array(base64String) {
-      const padding = "=".repeat((4 - base64String.length % 4) % 4);
-      const base64 = (base64String + padding)
-        .replace(/-/g, "+")
-        .replace(/_/g, "/");
-
-      const rawData = window.atob(base64);
-      const outputArray = new Uint8Array(rawData.length);
-
-      for (let i = 0; i < rawData.length; ++i) {
-        outputArray[i] = rawData.charCodeAt(i);
-      }
-
-      return outputArray;
-    }
-
-    const res = await fetch("http://localhost:5000/api/notifications/vapid-public-key");
-    const { publicKey } = await res.json();
-
-    const subscription = await registration.pushManager.subscribe({
-      userVisibleOnly: true,
-      applicationServerKey: urlBase64ToUint8Array(publicKey),
-    });
-
-    console.log("FULL SUB:", subscription);
-    console.log("ENDPOINT:", subscription.endpoint);
-    console.log("P256DH:", subscription.toJSON().keys.p256dh);
-    console.log("AUTH:", subscription.toJSON().keys.auth);
-  };
 
   useEffect(() => {
     async function loadUser() {
       try {
-        // dispatch(setLoading(true));
-
         const res = await fetch(
           import.meta.env.VITE_PUBLIC_SERVER_URL + "/api/auth/me",
           { credentials: "include" }
@@ -133,7 +99,6 @@ function App() {
 
         if (res.ok && data.user) {
           dispatch(setUser(data.user));
-          // redirect ONLY if on auth pages
           if (["/", "/auth/forget-password", "/auth/change-password"].includes(pathname)) {
             const role = data.user.role?.toLowerCase();
 
@@ -158,7 +123,8 @@ function App() {
       loadUser();
     }
   }, [shouldFetch, user]);
-  if (loading) return (<Loader/>);
+  if (loading) return (<Loader />);
+
   return (
     <HeroUIProvider>
       <ToastProvider position="top-bottom" />
@@ -166,7 +132,7 @@ function App() {
 
 
       <Routes>
-        {/* ---------- Auth/Public Layout (NO HEADER/FOOTER) ---------- */}
+        {/* ---------- Auth/Public Layout (NO HEADER/SIDEBAR) ---------- */}
         <Route element={<AuthLayout isAuthenticated={!isAuthenticated} redirect={''} />}>
           <Route
             path="/"
@@ -345,6 +311,14 @@ function App() {
             element={
               <ProtectedRoute isAuthenticated={isAuthenticated} redirect="/">
                 <TeachersDashboard />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/teacher/courses"
+            element={
+              <ProtectedRoute isAuthenticated={isAuthenticated} redirect="/">
+                <CourseList />
               </ProtectedRoute>
             }
           />
