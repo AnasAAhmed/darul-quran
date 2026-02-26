@@ -37,7 +37,7 @@ import {
   useGetMyRefundRequestsQuery,
   useRequestRefundMutation
 } from "../../../redux/api/payments";
-import { debounce } from "../../../lib/utils";
+import { dateFormatter, debounce } from "../../../lib/utils";
 
 const PaymentsInvoices = () => {
   const [page, setPage] = useState(1);
@@ -65,7 +65,7 @@ const PaymentsInvoices = () => {
   const total = paymentData?.total || 0;
   const totalPages = paymentData?.totalPages || 1;
 
-  const refundRequests = refundRequestsData?.enrollments || [];
+  const refundRequests = refundRequestsData?.refundRequests || [];
   const refundTotal = refundRequestsData?.total || 0;
   const refundTotalPages = refundRequestsData?.totalPages || 1;
 
@@ -92,6 +92,7 @@ const PaymentsInvoices = () => {
       }
       successMessage(res.data.message);
       onClose();
+      refetchRefundRequests();
     } catch (error) {
       errorMessage(error?.message);
     }
@@ -115,11 +116,12 @@ const PaymentsInvoices = () => {
   ];
 
   const refundHeader = [
-    { key: "Course Name", label: "Course Name" },
-    { key: "Request Date", label: "Request Date" },
-    { key: "Amount", label: "Amount" },
-    { key: "Reason", label: "Reason" },
-    { key: "Status", label: "Status" },
+    { key: "courseName", label: "Course Name" },
+    { key: "requestedAt", label: "Request Date" },
+    { key: "amount", label: "Amount" },
+    { key: "reason", label: "Reason" },
+    { key: "status", label: "Status" },
+    { key: "adminNotes", label: "Admin Notes" },
   ];
 
   const limits = [
@@ -144,6 +146,7 @@ const PaymentsInvoices = () => {
     switch (status?.toLowerCase()) {
       case 'requested':
         return 'bg-[#F1C2AC33] text-[#D28E3D]';
+      case 'approved':
       case 'processing':
       case 'pending_refund':
         return 'bg-[#FDEBD0] text-[#D68910]';
@@ -153,7 +156,7 @@ const PaymentsInvoices = () => {
       case 'failed':
         return 'bg-[#FFEAEC] text-[#E8505B]';
       default:
-        return 'bg-[#F1C2AC33] text-[#D28E3D]';
+        return 'bg-gray-100 text-gray-600';
     }
   };
 
@@ -161,6 +164,8 @@ const PaymentsInvoices = () => {
     switch (status?.toLowerCase()) {
       case 'requested':
         return 'Requested';
+      case 'approved':
+        return 'Approved';
       case 'processing':
       case 'pending_refund':
         return 'Processing';
@@ -281,15 +286,14 @@ const PaymentsInvoices = () => {
                           {item.status || "Unknown"}
                         </Button>
                         {item.refundStatus && item.refundStatus !== 'none' && (
-                          <span className={`text-[10px] font-medium px-1.5 py-0.5 rounded w-fit ${
-                            item.refundStatus === 'refunded' 
+                          <span className={`text-[10px] font-medium px-1.5 py-0.5 rounded w-fit ${item.refundStatus === 'refunded'
                               ? 'bg-[#95C4BE33] text-[#06574C]'
                               : item.refundStatus === 'rejected' || item.refundStatus === 'failed'
                                 ? 'bg-[#FFEAEC] text-[#E8505B]'
                                 : item.refundStatus === 'processing' || item.refundStatus === 'pending_refund'
                                   ? 'bg-[#FDEBD0] text-[#D68910]'
                                   : 'bg-[#F1C2AC33] text-[#D28E3D]'
-                          }`}>
+                            }`}>
                             Refund: {getRefundStatusText(item.refundStatus)}
                           </span>
                         )}
@@ -417,17 +421,22 @@ const PaymentsInvoices = () => {
                     {item.courseName || "Course"}
                   </div>
                 </TableCell>
-                <TableCell>{new Date(item.createdAt || item.enrolledAt).toLocaleDateString()}</TableCell>
-                <TableCell>${(item.amountPaid || item.amount || 0).toFixed(2)}</TableCell>
+                <TableCell>{dateFormatter((item.requestedAt || item.createdAt),true)}</TableCell>
+                <TableCell>${(item.amount / 100 || 0).toFixed(2)}</TableCell>
                 <TableCell>
-                  <div className="max-w-[250px] text-sm text-gray-600 truncate" title={item.refundReason}>
-                    {item.refundReason || "-"}
+                  <div className="max-w-[250px] text-sm text-gray-600 truncate" title={item.reason}>
+                    {item.reason || "-"}
                   </div>
                 </TableCell>
                 <TableCell>
-                  <Button className={`text-sm p-2 rounded-md capitalize h-8 ${getStatusColor(item.refundStatus)}`}>
-                    {item.refundStatus || "Unknown"}
+                  <Button className={`text-sm p-2 rounded-md capitalize h-8 ${getStatusColor(item.status)}`}>
+                    {getRefundStatusText(item.status)}
                   </Button>
+                </TableCell>
+                <TableCell>
+                    <div className="mt-1 text-xs text-gray-400 italic max-w-[150px] truncate">
+                      {item?.adminNotes||'---'}
+                    </div>
                 </TableCell>
               </TableRow>
             ))}

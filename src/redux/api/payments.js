@@ -6,7 +6,7 @@ export const paymentApi = createApi({
         baseUrl: `${import.meta.env.VITE_PUBLIC_SERVER_URL}/api/payment`,
         credentials: "include",
     }),
-    tagTypes: ["Payment"],
+    tagTypes: ["Payment", "Refund"],
     endpoints: (builder) => ({
         // Get payment history (unified invoices with pagination)
         getPaymentHistory: builder.query({
@@ -25,7 +25,7 @@ export const paymentApi = createApi({
                 method: "GET",
                 params: { page, limit, search }
             }),
-            providesTags: ["Payment"],
+            providesTags: ["Refund"],
         }),
 
         // Get subscription invoices
@@ -45,7 +45,7 @@ export const paymentApi = createApi({
                 headers: { "Content-Type": "application/json" },
                 body: data,
             }),
-            invalidatesTags: ["Payment"],
+            invalidatesTags: ["Refund"],
         }),
 
         // Process refund action (admin - approve/reject)
@@ -56,7 +56,27 @@ export const paymentApi = createApi({
                 headers: { "Content-Type": "application/json" },
                 body: data,
             }),
-            invalidatesTags: ["Payment"],
+            invalidatesTags: ["Refund"],
+        }),
+
+        // Admin: Get all refund requests
+        getAdminRefundRequests: builder.query({
+            query: ({ page = 1, limit = 20, search = '', status = 'all' } = {}) => ({
+                url: "/admin/refunds",
+                method: "GET",
+                params: { page, limit, search, status }
+            }),
+            providesTags: ["Refund"],
+        }),
+
+        // Admin: Get all payment history
+        getAdminPaymentHistory: builder.query({
+            query: ({ page = 1, limit = 20 } = {}) => ({
+                url: "/admin/history",
+                method: "GET",
+                params: { page, limit }
+            }),
+            providesTags: ["Payment"],
         }),
     })
 });
@@ -66,5 +86,7 @@ export const {
     useGetMyRefundRequestsQuery,
     useGetSubscriptionInvoicesQuery,
     useRequestRefundMutation,
-    useProcessRefundActionMutation
+    useProcessRefundActionMutation,
+    useGetAdminRefundRequestsQuery,
+    useGetAdminPaymentHistoryQuery
 } = paymentApi;
