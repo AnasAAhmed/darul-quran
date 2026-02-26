@@ -76,6 +76,9 @@ const Faqs = lazy(() => import("./pages/admin/help/faqs"));
 const EnrollSuccess = lazy(() => import("./pages/student/enroll-success"));
 const CoursePlayer = lazy(() => import("./pages/student/course-player"));
 const AdminRescheduleRequests = lazy(() => import("./pages/admin/RescheduleRequests"));
+import { io } from "socket.io-client";
+
+const socket = io(import.meta.env.VITE_PUBLIC_SERVER_URL);
 
 function App() {
   const navigate = useNavigate();
@@ -99,11 +102,13 @@ function App() {
         );
 
         const data = await res.json();
-
+        console.log("Data:", data);
         if (res.ok && data.user) {
           dispatch(setUser(data.user));
           if (["/", "/auth/forget-password", "/auth/change-password"].includes(pathname)) {
             const role = data.user.role?.toLowerCase();
+
+
 
             if (role === "admin") {
               navigate("/admin/dashboard", { replace: true });
@@ -112,6 +117,8 @@ function App() {
             } else if (role === "student") {
               navigate("/student/dashboard", { replace: true });
             }
+
+
           }
         } else {
           dispatch(clearUser());
@@ -125,8 +132,44 @@ function App() {
     if (loading || shouldFetch) {
       loadUser();
     }
+
   }, [shouldFetch, user]);
-  if (loading) return (<Loader />);
+
+  useEffect(() => {
+    if (user) {
+      connectSocket(user.id);
+    }
+    return () => {
+      socket.disconnect();
+    };
+  }, [user]);
+  const connectSocket = (userId) => {
+    console.log("Connecting socket for users:", userId);
+    socket.emit("user-online", userId);
+    socket.on("update-online-users", (users) => {
+      console.log("Online Users:", users);
+      dispatch(setOnlineUsers(users));
+    });
+
+    socket.on('receive-message', (msg) => {
+      console.log("Received message:", msg);
+      dispatch(setMessages(msg));
+      // socket.auth.serverOffset = serverOffset;
+
+    });
+  };
+  if (loading) return (
+    <div className="h-screen flex flex-col items-center justify-center">
+      <img
+        src="/icons/darul-quran-logo.png"
+        alt="Darul Quran"
+        className=" w-36 h-36"
+      />
+      <Spinner size="lg" variant="dots" labelColor="success" color="success" />
+    </div>
+  );
+
+
 
   return (
     <HeroUIProvider>
