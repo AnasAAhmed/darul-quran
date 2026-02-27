@@ -317,8 +317,7 @@ const CourseBuilder = () => {
     }
   };
 
-  const handleSubmit2tab = async (e) => {
-    if (e) e.preventDefault();
+  const handleSubmit2tab = async () => {
     setLoadingAction(pendingAction);
     if (files.length === 0) { errorMessage("Please upload at least one file"); return; };
 
