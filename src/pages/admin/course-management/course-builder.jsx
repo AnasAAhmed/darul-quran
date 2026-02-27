@@ -122,7 +122,7 @@ const CourseBuilder = () => {
           course_price: course.coursePrice || "",
           teacher_id: Number(course.teacherId) || "",
           access_duration: course.accessDuration || "",
-          previous_lesson: course?.files?.length || "",
+          previous_lesson: course?.previous_lesson || course?.previousLesson|| "",
           enroll_number: course.enrollNumber || "",
           status: course.status || "draft",
           videoDuration: course.videoDuration || "",
@@ -232,15 +232,6 @@ const CourseBuilder = () => {
       [name]: value,
     }));
   };
-  // handle submit tab 1
-  // Function to upload files to server
-
-  useEffect(() => {
-    setFormData((prev) => ({
-      ...prev,
-      previous_lesson: files?.length || 0
-    }))
-  }, [files])
 
   const handleSubmitTab1 = async (e) => {
     e.preventDefault();
@@ -914,7 +905,10 @@ const CourseBuilder = () => {
                     size="lg"
                     className="bg-[#06574C] w-full text-white sm:w-35"
                     type="submit"
-                    onPress={handleSubmit2tab}
+                    onPress={() => {
+                      if (files.length === 0) { errorMessage("Please upload at least one file"); return; };
+                      handleSelected("pricing");
+                    }}
                   >
                     Next Step
                   </Button>
@@ -1006,19 +1000,19 @@ const CourseBuilder = () => {
                             </SelectItem>
                           ))}
                         </Select>
-                        {/* <Input
+                        <Input
                           size="lg"
                           variant="bordered"
                           label="Preview Lessons "
                           labelPlacement="outside"
                           placeholder="Select Preview Lessons "
                           className="w-full"
-                          type="number"
+                          type="text"
                           value={formData.previous_lesson}
                           onChange={(e) =>
                             handleChange("previous_lesson", e.target.value)
                           }
-                        /> */}
+                        />
                       </div>
                       <Input
                         size="lg"
