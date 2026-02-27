@@ -1,0 +1,176 @@
+import React from "react";
+import { DashHeading } from "../../components/dashboard-components/DashHeading";
+import {
+  Button,
+  Card,
+  CardBody,
+  Chip,
+  Skeleton,
+  Input,
+  Select,
+  SelectItem,
+} from "@heroui/react";
+import { BellRing, CheckCircle2, Clock, Search, Check, Trash2, DollarSign, Home, MessageSquare } from "lucide-react";
+import { useGetNotificationsQuery, useMarkAsReadMutation } from "../../redux/api/notifications";
+import { Link } from "react-router-dom";
+
+const NotificationsPage = () => {
+  const [search, setSearch] = React.useState("");
+  const { data: notificationData, isLoading, refetch } = useGetNotificationsQuery();
+  const [markAsRead] = useMarkAsReadMutation();
+
+  const notifications = notificationData?.data || [];
+
+  const handleMarkAsRead = async (id) => {
+    try {
+      await markAsRead({ id, is_read: true }).unwrap();
+    } catch (error) {
+      console.error("Failed to mark notification as read:", error);
+    }
+  };
+
+  const handleMarkAllAsRead = async () => {
+    try {
+      await markAsRead({ is_read: true }).unwrap();
+    } catch (error) {
+      console.error("Failed to mark all as read:", error);
+    }
+  };
+
+  const getIcon = (type) => {
+    switch (type) {
+      case 'withdrawal': return <DollarSign size={24} />;
+      case 'dispute': return <BellRing size={24} />;
+      case 'property': return <Home size={24} />;
+      case 'message': return <MessageSquare size={24} />;
+      default: return <BellRing size={24} />;
+    }
+  };
+
+  const getIconBg = (type, isRead) => {
+    if (isRead) return 'bg-gray-100 text-gray-400';
+    switch (type) {
+      case 'withdrawal': return 'bg-[#06574C] text-white';
+      case 'dispute': return 'bg-blue-100 text-blue-600';
+      case 'property': return 'bg-green-100 text-green-600';
+      default: return 'bg-[#06574C] text-white';
+    }
+  };
+
+
+  return (
+    <div className="bg-white bg-linear-to-t from-[#F1C2AC]/50 to-[#95C4BE]/50 px-2 sm:px-3">
+      <div className="max-w-7xl mx-auto">
+        <div className="mb-2"> 
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <DashHeading
+                title="Notifications"
+                desc="Stay updated with the latest platform activities and alerts."
+              />
+            
+            <div className="flex flex-wrap items-center gap-3">
+              <Input
+                placeholder="Search Notifications..."
+                startContent={<Search size={18} className="text-gray-400" />}
+                className="w-full md:w-64"
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+              />
+              <Button 
+                variant="bordered" 
+                className="border-gray-200 text-gray-500 font-medium"
+                startContent={<Check size={18} className="text-green-500" />}
+                onPress={handleMarkAllAsRead}
+              >
+                Mark All Read
+              </Button>
+              <Button 
+                className="bg-[#06574C] text-white font-medium"
+              >
+                Delete Read
+              </Button>
+            </div>
+          </div>
+        </div>
+
+        <div className="mt-6 mb-6">
+          <Select 
+            defaultSelectedKeys={["latest"]} 
+            className="w-32"
+            size="sm"
+            variant="bordered"
+          >
+            <SelectItem key="latest" value="latest">Latest</SelectItem>
+            <SelectItem key="oldest" value="oldest">Oldest</SelectItem>
+          </Select>
+        </div>
+
+        <div className="space-y-4">
+          {isLoading ? (
+            [1, 2, 3].map((i) => (
+              <Skeleton key={i} className="w-full h-24 rounded-xl" />
+            ))
+          ) : notifications.length > 0 ? (
+            notifications.map((notif) => (
+              <Card key={notif.id} className="border-none shadow-sm hover:shadow-md transition-shadow">
+                <CardBody className="p-4 sm:p-6">
+                  <div className="flex items-start gap-4">
+                    {/* Icon Box */}
+                    <div className={`w-16 h-16 rounded-xl flex items-center justify-center shrink-0 ${getIconBg(notif.type, notif.is_read)}`}>
+                      {getIcon(notif.type)}
+                    </div>
+
+                    {/* Content */}
+                    <div className="flex-1 min-w-0">
+                      <div className="flex flex-col sm:flex-row justify-between items-start gap-2 h-full">
+                        <div className="w-full">
+                          <h3 className={`text-xl ${!notif.is_read ? 'font-bold' : 'font-semibold'} text-gray-900 truncate`}>
+                            {notif.title}
+                          </h3>
+                          <p className="text-gray-500 text-base mt-1 line-clamp-2">
+                            {notif.description}
+                          </p>
+                          
+                          <div className="flex flex-wrap items-center gap-3 mt-3 text-sm">
+                            <Link to={notif.url || "#"} className="underline text-gray-600 font-medium hover:text-[#06574C]">View</Link>
+                            {!notif.is_read && (
+                              <>
+                                <span className="text-gray-300">•</span>
+                                <button 
+                                  onClick={() => handleMarkAsRead(notif.id)}
+                                  className="underline text-gray-600 font-medium hover:text-[#06574C]"
+                                >
+                                  Mark as Read
+                                </button>
+                                <span className="text-gray-300">•</span>
+                                <span className="text-gray-400">Unread</span>
+                              </>
+                            )}
+                          </div>
+                        </div>
+
+                        {/* Timestamp */}
+                        <div className="shrink-0 text-gray-400 text-sm font-medium sm:mt-1">
+                          {(() => {
+                            const diff = Math.floor((new Date() - new Date(notif.created_at)) / (1000 * 60 * 60 * 24));
+                            return diff === 0 ? "Today" : `${diff} days ago`;
+                          })()}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </CardBody>
+              </Card>
+            ))
+          ) : (
+            <div className="text-center py-20 bg-white rounded-2xl shadow-sm">
+              <p className="text-gray-500 text-lg">No notifications found</p>
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default NotificationsPage;

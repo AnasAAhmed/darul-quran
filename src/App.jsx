@@ -76,6 +76,7 @@ const Faqs = lazy(() => import("./pages/admin/help/faqs"));
 const EnrollSuccess = lazy(() => import("./pages/student/enroll-success"));
 const CoursePlayer = lazy(() => import("./pages/student/course-player"));
 const AdminRescheduleRequests = lazy(() => import("./pages/admin/RescheduleRequests"));
+const Notifications = lazy(() => import("./pages/notifications"));
 
 function App() {
   const navigate = useNavigate();
@@ -305,6 +306,14 @@ function App() {
                 </ProtectedRoute>
               }
             />
+            <Route
+              path="/admin/notifications"
+              element={
+                <ProtectedRoute isAuthenticated={isAuthenticated} redirect="/">
+                  <Notifications />
+                </ProtectedRoute>
+              }
+            />
           </Route>
           {/* <Route element={<ChatLayout />}>
           </Route> */}
@@ -389,6 +398,14 @@ function App() {
               element={
                 <ProtectedRoute isAuthenticated={isAuthenticated} redirect="/">
                   <TeacherAnnouncements />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/teacher/notifications"
+              element={
+                <ProtectedRoute isAuthenticated={isAuthenticated} redirect="/">
+                  <Notifications />
                 </ProtectedRoute>
               }
             />
@@ -480,6 +497,14 @@ function App() {
               element={
                 <ProtectedRoute isAuthenticated={isAuthenticated} redirect="/">
                   <StudentAnnouncements />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/student/notifications"
+              element={
+                <ProtectedRoute isAuthenticated={isAuthenticated} redirect="/">
+                  <Notifications />
                 </ProtectedRoute>
               }
             />

@@ -254,7 +254,12 @@ const Analytics = () => {
     ];
 
     // Class Status Overview
-    const classStatusLabels = ["Upcoming", "Cancelled", "Missed", "In Progress"];
+    const classStatusLabels = [
+      "Upcoming",
+      "Cancelled",
+      "Missed",
+      "In Progress",
+    ];
     const classStatusData = [
       ["Class Status Overview"],
       ["Status", "Value"],
@@ -277,7 +282,7 @@ const Analytics = () => {
         "Date",
         "Time",
         "Status",
-      ]
+      ],
     ];
 
     const logsData = PaymentTable.map((item) => [
@@ -299,7 +304,9 @@ const Analytics = () => {
       ...classStatusData,
       ...logsHeader,
       ...logsData,
-    ].map(row => row.join(",")).join("\n");
+    ]
+      .map((row) => row.join(","))
+      .join("\n");
 
     const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
     const link = document.createElement("a");
@@ -307,7 +314,7 @@ const Analytics = () => {
     link.setAttribute("href", url);
     link.setAttribute(
       "download",
-      `analytics_export_${formatDate(today).replace(/ /g, "_")}.csv`
+      `analytics_export_${formatDate(today).replace(/ /g, "_")}.csv`,
     );
     link.style.visibility = "hidden";
     document.body.appendChild(link);
@@ -318,11 +325,11 @@ const Analytics = () => {
   return (
     <div className="bg-white bg-linear-to-t from-[#F1C2AC]/50 to-[#95C4BE]/50 px-2 sm:px-3">
       <div className="flex justify-between items-center">
-      <DashHeading
-        title={"Logs & Analytics"}
-        desc={"Monitor platform activity and performance metrics"}
-      />
-      <Button
+        <DashHeading
+          title={"Logs & Analytics"}
+          desc={"Monitor platform activity and performance metrics"}
+        />
+        <Button
           onPress={handleExport}
           startContent={<Download size={20} />}
           size="lg"
@@ -330,7 +337,8 @@ const Analytics = () => {
           className="bg-[#06574C] text-white"
         >
           Export
-        </Button></div>
+        </Button>
+      </div>
       {/* <div> */}
       <AnalyticsCards data={cardsData} isLoading={isLoading} />
       <div className="grid grid-cols-12 gap-3 my-3 px-3 md:px-0">
