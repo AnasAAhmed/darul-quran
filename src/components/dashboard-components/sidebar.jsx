@@ -14,7 +14,8 @@ import {
   TicketIcon,
   TicketsIcon,
   UsersIcon,
-  Video
+  Video,
+  BellRing
 } from 'lucide-react';
 import { Link, useLocation } from 'react-router-dom';
 import { b } from 'framer-motion/client';
@@ -63,6 +64,7 @@ const Sidebar = ({ isSidebarOpen, setIsSidebarOpen }) => {
     { name: 'Payments & Refunds', icon: <DollarSignIcon />, link: '/admin/payments' },
     { name: 'Support Tickets', icon: <TicketIcon />, link: '/admin/tickets' },
     { name: 'Analytics', icon: <ChartBarIcon />, link: '/admin/analytics' },
+    { name: 'Notifications', icon: <BellRing />, link: '/admin/notifications' },
     {
       name: 'Help and Support',
       icon: <FileQuestionIcon />,
@@ -93,6 +95,7 @@ const Sidebar = ({ isSidebarOpen, setIsSidebarOpen }) => {
     { name: 'Chat Center', icon: <TicketIcon />, link: '/teacher/chat' },
     { name: 'Support Tickets  ', icon: <TicketsIcon />, link: '/teacher/support-tickets' },
     { name: 'Announcements', icon: <MegaphoneIcon />, link: '/teacher/announcements' },
+    { name: 'Notifications', icon: <BellRing />, link: '/teacher/notifications' },
   ];
 
   const studentMenu = [
@@ -112,7 +115,8 @@ const Sidebar = ({ isSidebarOpen, setIsSidebarOpen }) => {
       ]
     },
     { name: 'Support Tickets  ', icon: <TicketsIcon />, link: '/student/support-tickets' },
-    { name: "Announcements", icon: <MegaphoneIcon />, link: "/student/announcements" }
+    { name: "Announcements", icon: <MegaphoneIcon />, link: "/student/announcements" },
+    { name: 'Notifications', icon: <BellRing />, link: '/student/notifications' }
   ];
 
   // Decide which menu to show based on role
