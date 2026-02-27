@@ -148,10 +148,11 @@ const Scheduling = () => {
     try {
       setDeleteLoading(id);
       const res = await deleteSchedule(id);
-      if (res.data.success) {
-        successMessage(res.data.message || "Course deleted successfully");
-        return;
-      } else throw new Error(res.data.message);
+      const error = res?.error?.data;
+      if (error) {
+        throw new Error(error.message || "Operation failed");
+      }
+      successMessage(res.data.message || "Course deleted successfully");
     } catch (error) {
       errorMessage("Error deleting session: " + error.message);
     } finally {
