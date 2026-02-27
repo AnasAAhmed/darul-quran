@@ -117,7 +117,7 @@ const AdminSupportTickets = () => {
             selectedKeys={[statusFilter]}
             onSelectionChange={(keys) => setStatusFilter([...keys][0] || "all")}
           >
-            <SelectItem key="all">All Statistics</SelectItem>
+            <SelectItem key="all">All</SelectItem>
             <SelectItem key="open">Open</SelectItem>
             <SelectItem key="pending">Pending</SelectItem>
             <SelectItem key="resolved">Resolved</SelectItem>
@@ -136,10 +136,11 @@ const AdminSupportTickets = () => {
 
       <div className="overflow-hidden">
         <Table
+        isHeaderSticky
           removeWrapper
           classNames={{
-            base: "w-full bg-white rounded-lg overflow-x-auto no-scrollbar",
-            th: "font-bold p-4 text-md text-[#333333] capitalize tracking-widest bg-[#EBD4C936]",
+            base: "w-full bg-white rounded-lg overflow-x-auto no-scrollbar h-[calc(100vh-280px)]",
+            th: "font-bold p-4 text-md text-[#333333] capitalize tracking-widest bg-[#ebd4c9]",
             td: "py-3 items-center whitespace-nowrap px-4",
             tr: "border-b border-default-200",
           }}
@@ -237,7 +238,7 @@ const AdminSupportTickets = () => {
         </Table>
       </div>
 
-      {totalPages > 1 && (
+      {/* {totalPages > 1 && ( */}
         <div className="flex justify-between items-center p-4">
           <span className="text-sm text-gray-500">
             Showing Page {page} of {totalPages}
@@ -251,12 +252,12 @@ const AdminSupportTickets = () => {
             classNames={{
               item: "rounded-sm",
               cursor: "bg-[#06574C] rounded-sm text-white",
-              prev: "rounded-sm bg-white/80",
-              next: "rounded-sm bg-white/80",
+              prev: "rounded-sm bg-gray-200",
+              next: "rounded-sm bg-gray-200",
             }}
           />
         </div>
-      )}
+      {/* )} */}
 
       {/* ── Respond Modal ── */}
       <Modal isOpen={respondModal.isOpen} onOpenChange={respondModal.onOpenChange} size="lg">

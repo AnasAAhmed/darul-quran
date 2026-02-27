@@ -1,3 +1,4 @@
+import React, { useState } from "react";
 import { DashHeading } from "../../../components/dashboard-components/DashHeading";
 import {
   Button,
@@ -37,6 +38,7 @@ import ApexChart from "../../../components/dashboard-components/AnalyticsChat";
 import BarChart from "../../../components/dashboard-components/BarChart";
 import PieChart from "../../../components/dashboard-components/PieChart";
 import { useGetAnalyticsQuery } from "../../../redux/api/analytics";
+import QueryError from "../../../components/QueryError"; 
 
 const Analytics = () => {
   const statuses = [
@@ -45,34 +47,66 @@ const Analytics = () => {
     { key: "published", label: "Published" },
   ];
   const filters = [{ key: "all", label: "Filter" }];
+  const [revenueFilter, setRevenueFilter] = useState("week");
+  const [enrollmentFilter, setEnrollmentFilter] = useState("week");
+
+  const today = new Date();
+  const yesterday = new Date(today);
+  yesterday.setDate(yesterday.getDate() - 1);
+
+  const formatDate = (date) => {
+    return date.toLocaleDateString("en-GB", {
+      day: "numeric",
+      month: "short",
+      year: "numeric",
+    });
+  };
+
   const Datefilters = [
-    { key: "Today, 4 Dec 2025", label: "Today, 4 Dec 2025" },
-    { key: "Yesterday,  3 Dec2025", label: "Yesterday, 3 Dec 2025" },
-    { key: "Tommorrow, 5 Dec 2025", label: "Tommorrow, 5 Dec 2025" },
+    { key: "today", label: `Today, ${formatDate(today)}` },
+    { key: "yesterday", label: `Yesterday, ${formatDate(yesterday)}` },
+    { key: "week", label: "This Week" },
+    { key: "month", label: "This Month" },
   ];
-  const { data, isLoading } = useGetAnalyticsQuery();
+
+  const { data, isLoading, error, refetch } = useGetAnalyticsQuery({
+    revenueFilter,
+    enrollmentFilter,
+  });
+
+  if (error) {
+    return <QueryError
+      height="300px"
+      error={error.message}
+      onRetry={refetch}
+      showLogo={false}
+
+    />
+    }
+
+  const analyticsData = data?.data;
 
   const cardsData = [
     {
       title: "Active Courses",
-      value: data?.data?.activeCourses?.toLocaleString() || "0",
+      value: analyticsData?.activeCourses?.toLocaleString() || "0",
       icon: <Album size={26} color="#06574C" />,
-      changeText: "+12.5% from last month",
-      changeColor: "text-[#38A100]",
+      changeText: `${Number(analyticsData?.activeCoursesChange) >= 0 ? "+" : ""}${analyticsData?.activeCoursesChange || "0.0"}% from last month`,
+      changeColor: Number(analyticsData?.activeCoursesChange) >= 0 ? "text-[#38A100]" : "text-[#E8505B]",
     },
     {
       title: "Revenue",
-      value: `$${data?.data?.totalRevenue?.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }) || "0.00"}`,
+      value: `$${(analyticsData?.revenueToday || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
       icon: <ChartLine size={26} color="#06574C" />,
-      changeText: "Avg. duration: 28m",
-      changeColor: "text-[#38A100]",
+      changeText: `${Number(analyticsData?.revenueChange) >= 0 ? "+" : ""}${analyticsData?.revenueChange || "0.0"}% from yesterday`,
+      changeColor: Number(analyticsData?.revenueChange) >= 0 ? "text-[#38A100]" : "text-[#E8505B]",
     },
     {
       title: "Active Users",
-      value: data?.data?.totalUsers?.toLocaleString() || "0",
+      value: analyticsData?.totalUsers?.toLocaleString() || "0",
       icon: <UsersRound size={26} color="#06574C" />,
-      changeText: "-2.1% from last week",
-      changeColor: "text-[#E8505B]",
+      changeText: `${Number(analyticsData?.activeUsersChange) >= 0 ? "+" : ""}${analyticsData?.activeUsersChange || "0.0"}% from last week`,
+      changeColor: Number(analyticsData?.activeUsersChange) >= 0 ? "text-[#38A100]" : "text-[#E8505B]",
     },
   ];
 
@@ -210,7 +244,8 @@ const Analytics = () => {
               radius="sm"
               className="w-50 "
               variant="bordered"
-              defaultSelectedKeys={["all"]}
+              selectedKeys={[revenueFilter]}
+              onSelectionChange={(keys) => setRevenueFilter(Array.from(keys)[0])}
               placeholder="Select Filtered Date"
               classNames={{
                 value: "!text-gray-400",
@@ -233,7 +268,8 @@ const Analytics = () => {
               radius="sm"
               className="w-50"
               variant="bordered"
-              defaultSelectedKeys={["all"]}
+              selectedKeys={[enrollmentFilter]}
+              onSelectionChange={(keys) => setEnrollmentFilter(Array.from(keys)[0])}
               placeholder="Select Filtered Date"
               classNames={{
                 value: "!text-gray-400",
