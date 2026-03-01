@@ -92,6 +92,7 @@ const Sidebar = ({ isSidebarOpen, setIsSidebarOpen }) => {
     },
     { name: 'Student Attendance', icon: <CalendarIcon />, link: '/teacher/student-attendance' },
     { name: 'Class Schedule', icon: <MegaphoneIcon />, link: '/teacher/class-scheduling' },
+    { name: 'Reschedule Requests', icon: <CalendarPlus />, link: '/teacher/reschedule-requests' },
     { name: 'Chat Center', icon: <TicketIcon />, link: '/teacher/chat' },
     { name: 'Support Tickets  ', icon: <TicketsIcon />, link: '/teacher/support-tickets' },
     { name: 'Announcements', icon: <MegaphoneIcon />, link: '/teacher/announcements' },
@@ -110,6 +111,7 @@ const Sidebar = ({ isSidebarOpen, setIsSidebarOpen }) => {
       children: [
         { name: 'Chat Center', link: '/student/help/messages' },
         { name: 'Payments & Invoices', link: '/student/payments' },
+        { name: 'My Reschedule Requests', link: '/student/reschedule-requests' },
         // { name: 'Reviews', link: '/admin/help/reviews' },
         // { name: 'FAQs', link: '/admin/help/faqs' }
       ]

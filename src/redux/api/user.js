@@ -48,7 +48,17 @@ export const userAPI = createApi({
                 body: { ids },
             }),
             invalidatesTags: ["user"],
-        })
+        }),
+        getAllUserForSelect: builder.query({
+            query: ({ page, limit, search, courseId }) => ({
+                url: "/getAllUserForSelect",
+                method: "GET",
+                params: {
+                    page, limit, search, courseId
+                },
+            }),
+            providesTags: ["user"],
+        }),
     })
 })
 
@@ -57,5 +67,6 @@ export const {
     useGetAllTeachersQuery,
     useCreateOrUpdateUserMutation,
     useDeleteUserMutation,
-    useBulkDeleteUserMutation
+    useBulkDeleteUserMutation,
+    useGetAllUserForSelectQuery,
 } = userAPI;

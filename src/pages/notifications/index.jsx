@@ -16,16 +16,20 @@ import { Link } from "react-router-dom";
 
 const NotificationsPage = () => {
   const [search, setSearch] = React.useState("");
+  const [markLoading, setMarkLoading] = React.useState(null);
   const { data: notificationData, isLoading, refetch } = useGetNotificationsQuery();
-  const [markAsRead] = useMarkAsReadMutation();
+  const [markAsRead, { isLoading: isLoading2 }] = useMarkAsReadMutation();
 
   const notifications = notificationData?.data || [];
 
   const handleMarkAsRead = async (id) => {
     try {
+      setMarkLoading(id);
       await markAsRead({ id, is_read: true }).unwrap();
     } catch (error) {
       console.error("Failed to mark notification as read:", error);
+    } finally {
+      setMarkLoading(null);
     }
   };
 
@@ -61,13 +65,13 @@ const NotificationsPage = () => {
   return (
     <div className="bg-white bg-linear-to-t from-[#F1C2AC]/50 to-[#95C4BE]/50 px-2 sm:px-3">
       <div className="max-w-7xl mx-auto">
-        <div className="mb-2"> 
+        <div className="mb-2">
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
             <DashHeading
-                title="Notifications"
-                desc="Stay updated with the latest platform activities and alerts."
-              />
-            
+              title="Notifications"
+              desc="Stay updated with the latest platform activities and alerts."
+            />
+
             <div className="flex flex-wrap items-center gap-3">
               <Input
                 placeholder="Search Notifications..."
@@ -76,15 +80,15 @@ const NotificationsPage = () => {
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
               />
-              <Button 
-                variant="bordered" 
+              <Button
+                variant="bordered"
                 className="border-gray-200 text-gray-500 font-medium"
                 startContent={<Check size={18} className="text-green-500" />}
                 onPress={handleMarkAllAsRead}
               >
                 Mark All Read
               </Button>
-              <Button 
+              <Button
                 className="bg-[#06574C] text-white font-medium"
               >
                 Delete Read
@@ -94,8 +98,8 @@ const NotificationsPage = () => {
         </div>
 
         <div className="mt-6 mb-6">
-          <Select 
-            defaultSelectedKeys={["latest"]} 
+          <Select
+            defaultSelectedKeys={["latest"]}
             className="w-32"
             size="sm"
             variant="bordered"
@@ -130,18 +134,20 @@ const NotificationsPage = () => {
                           <p className="text-gray-500 text-base mt-1 line-clamp-2">
                             {notif.description}
                           </p>
-                          
+
                           <div className="flex flex-wrap items-center gap-3 mt-3 text-sm">
                             <Link to={notif.url || "#"} className="underline text-gray-600 font-medium hover:text-[#06574C]">View</Link>
                             {!notif.is_read && (
                               <>
                                 <span className="text-gray-300">•</span>
-                                <button 
-                                  onClick={() => handleMarkAsRead(notif.id)}
-                                  className="underline text-gray-600 font-medium hover:text-[#06574C]"
+                                <Button
+                                  onPress={() => handleMarkAsRead(notif.id)}
+                                  isLoading={isLoading2 && markLoading === notif.id}
+                                  variant="light"
+                                  color="success"
                                 >
                                   Mark as Read
-                                </button>
+                                </Button>
                                 <span className="text-gray-300">•</span>
                                 <span className="text-gray-400">Unread</span>
                               </>

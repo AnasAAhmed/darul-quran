@@ -28,12 +28,13 @@ import {
   Spinner,
   Pagination,
 } from "@heroui/react";
-import { CalendarIcon, Copy, Trash2, PlusIcon } from "lucide-react";
+import { CalendarIcon, Copy, Trash2, PlusIcon, User } from "lucide-react";
 
 import { getStatusColor, getStatusText, formatTime12Hour } from "../../../utils/scheduleHelpers";
 import { errorMessage, successMessage } from "../../../lib/toast.config";
-import { dateFormatter, limits, parseDateForArray } from "../../../lib/utils";
+import { dateFormatter, limits } from "../../../lib/utils";
 import TeacherSelect from "../../../components/select/TeacherSelect";
+import UserSelect from "../../../components/select/UserSelect";
 import { useCreateScheduleMutation, useDeleteScheduleMutation, useGetScheduleQuery, useUpdateScheduleMutation } from "../../../redux/api/schedules";
 import CourseSelect from "../../../components/select/CourseSelect";
 import Swal from "sweetalert2";
@@ -78,7 +79,7 @@ const Scheduling = () => {
     endDate: "",
     repeatInterval: 0,
     weeklyDays: [],
-
+    specificStudentIds: [],
     // Zoom settings
     settings: {
       join_before_host: false,
@@ -110,13 +111,12 @@ const Scheduling = () => {
       return;
     }
     try {
-      const payload = { ...formData }
       let response;
 
       if (isEdit) {
-        response = await updateSchedule({ id: formData.id, data: payload });;
+        response = await updateSchedule({ id: formData.id, data: formData });;
       } else {
-        response = await createSchedule(payload);
+        response = await createSchedule(formData);
       }
 
       const data = response.data;
@@ -174,6 +174,7 @@ const Scheduling = () => {
       scheduleType: '',
       repeatInterval: 0,
       weeklyDays: [],
+      specificStudentIds: [],
       settings: {
         join_before_host: false,
         auto_recording: false,
@@ -205,6 +206,7 @@ const Scheduling = () => {
       endDate: item?.scheduleDates[1],
       repeatInterval: item.repeatInterval,
       weeklyDays: item.weeklyDays,
+      specificStudentIds: item.specificStudents,
       settings: {
         join_before_host: item.settings?.join_before_host || false,
         auto_recording: item.settings?.auto_recording || false,
@@ -601,6 +603,11 @@ const Scheduling = () => {
                 <TeacherSelect
                   initialValue={formData.teacherId}
                   onChange={(teacherId) => setFormData({ ...formData, teacherId })}
+                />
+                <UserSelect
+                  courseId={formData.courseId}
+                  initialValue={formData?.specificStudentIds}
+                  onChange={(specificStudentIds) => setFormData({ ...formData, specificStudentIds })}
                 />
                 <Textarea
                   label="Description"
