@@ -183,14 +183,14 @@ const PaymentsRefunds = () => {
               onValueChange={(e) => debounce(() => setSearchQuery(e), 500)}
               onKeyDown={handleSearchKeyDown}
               startContent={<Search size={18} className="text-gray-400" />}
-              className="max-w-xs"
+              className="max-w-sm"
               radius="sm"
               size="sm"
             />
             <Select
               selectedKeys={[statusFilter]}
               onSelectionChange={(keys) => setStatusFilter(Array.from(keys)[0] || 'all')}
-              className="w-[150px]"
+              className="max-w-48"
               size="sm"
               radius="sm"
             >
@@ -289,7 +289,7 @@ const PaymentsRefunds = () => {
 
           <div className="md:flex items-center pb-4 gap-2 justify-between overflow-hidden mt-4">
             <div className="flex text-sm items-center gap-1">
-              <span>Showing</span>
+              <span>Limit</span>
               <Select
                 radius="sm"
                 className="w-[70px]"
@@ -418,7 +418,7 @@ const PaymentsRefunds = () => {
 
         <div className="md:flex items-center pb-4 gap-2 justify-between overflow-hidden mt-4">
           <div className="flex text-sm items-center gap-1">
-            <span>Showing</span>
+            <span>Limit</span>
             <Select
               radius="sm"
               className="w-[70px]"

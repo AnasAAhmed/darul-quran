@@ -38,7 +38,7 @@ const Login = () => {
   const rolesWithEmail = [
     { label: "Admin", key: "admin@admin.com" },
     { label: "Teacher", key: "teacher@teacher.com" },
-    { label: "Student", key: "ahmedarslan599@gmail.com" }
+    { label: "Student", key: "student@student.com" }
   ];
 
   const handleLogin = async (e) => {

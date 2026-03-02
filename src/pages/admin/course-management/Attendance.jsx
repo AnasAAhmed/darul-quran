@@ -309,7 +309,7 @@ const Attendance = () => {
         }}
       >
         <TableHeader>
-          <TableColumn className="w-2/6 ">Session</TableColumn>
+          <TableColumn >Session</TableColumn>
           <TableColumn>Date</TableColumn>
           <TableColumn>Type</TableColumn>
           <TableColumn>Enrollments</TableColumn>
@@ -322,20 +322,8 @@ const Attendance = () => {
         <TableBody loadingContent={<Spinner color="success" />} loadingState={isFetching ? 'loading' : 'idle'} emptyContent={"No courses found"}>
           {attendanceData?.courses?.map((course) => (
             <TableRow key={course.id}>
-              <TableCell className="px-4">
-                <div>
-                  <div className="font-medium text-gray-900">
+              <TableCell className="px-4 flex items-center gap-2">
                     {course.courseName}
-                  </div>
-                  <Chip
-                    size="sm"
-                    variant="flat"
-                    className="mt-1"
-                    color={course.status === "published" ? "success" : "warning"}
-                  >
-                    {course.status}
-                  </Chip>
-                </div>
               </TableCell>
 
               <TableCell>

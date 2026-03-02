@@ -27,7 +27,7 @@ import {
   Trash2Icon,
   Video,
 } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Videos, {
   Assignments,
   PdfAndNotes,
@@ -122,7 +122,7 @@ const CourseBuilder = () => {
           course_price: course.coursePrice || "",
           teacher_id: Number(course.teacherId) || null,
           access_duration: course.accessDuration || "",
-          previous_lesson: course?.previous_lesson || course?.previousLesson|| "",
+          previous_lesson: course?.previous_lesson || course?.previousLesson || "",
           enroll_number: course.enrollNumber || "",
           status: course.status || "draft",
           videoDuration: course.videoDuration || "",
@@ -215,16 +215,20 @@ const CourseBuilder = () => {
     is_free: false, // Free/Paid toggle
     video_count: 0, // Number of videos
   });
+
   // console.log(formData);
-  const coursepreview = [
-    { title: "Title:", desc: formData?.course_name || "Add Tittle" },
-    { title: "Category:", desc: categories?.find((category) => category.id === formData?.category_id)?.categoryName || formData?.category_name || "Add Category" },
-    { title: "Difficulty Level:", desc: formData?.difficulty_level || "Add Difficulty Level" },
-    { title: "Price:", desc: formData?.course_price || "Add Price" },
-    { title: "Type:", desc: formData?.type?.replace("_", " ") || "Add Type" },
-    { title: "Duration:", desc: formData?.duration || "Add Duration" },
-    formData?.type === "live" && { title: "Subscription - Interval:", desc: formData?.interval || "Add Subscription - Interval" },
-  ];
+  const coursepreview = useMemo(() => {
+    return [
+      { title: "Title:", desc: formData?.course_name || "Add Tittle" },
+      { title: "Category:", desc: categoriesData?.categories?.find((category) => category.id === formData?.category_id)?.categoryName || formData?.category_name || "Add Category" },
+      { title: "Difficulty Level:", desc: formData?.difficulty_level || "Add Difficulty Level" },
+      { title: "Price:", desc: formData?.course_price || "Add Price" },
+      { title: "Type:", desc: formData?.type?.replace("_", " ") || "Add Type" },
+      { title: "Duration:", desc: formData?.duration || "Add Duration" },
+      formData?.type === "live" && { title: "Subscription - Interval:", desc: formData?.interval || "Add Subscription - Interval" },
+    ];
+  },[categoriesData, formData]);
+
   // handle change
   const handleChange = (name, value) => {
     setFormData((prev) => ({
@@ -232,7 +236,6 @@ const CourseBuilder = () => {
       [name]: value,
     }));
   };
-
   const handleSubmitTab1 = async (e) => {
     e.preventDefault();
     setLoadingAction(pendingAction);
