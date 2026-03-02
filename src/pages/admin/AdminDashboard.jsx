@@ -23,7 +23,7 @@ import {
   Video,
 } from "lucide-react";
 import OverviewCards from "../../components/dashboard-components/OverviewCards";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import NotificationPermission from "../../components/NotificationPermission";
 import { useGetAdminDashboardQuery } from "../../redux/api/dashboard";
 import { convertTo12hrsFormat } from "../../lib/utils";
@@ -43,21 +43,21 @@ const AdminDashboard = () => {
       value: stats.total_enrollments || "0",
       icon: <UserStar color="#06574C" size={22} />,
       changeText: "Total students registered",
-      changeColor: "text-gray-500",
+      changeColor: "text-[#06574C]",
     },
     {
       title: "Revenue",
       value: `$${Number(stats.total_revenue || 0).toLocaleString()}`,
       icon: <ChartPie color="#06574C" size={22} />,
       changeText: "Total revenue generated",
-      changeColor: "text-gray-500",
+      changeColor: "text-[#06574C]",
     },
     {
       title: "Active Users",
       value: stats.active_users || "0",
       icon: <UsersRound color="#06574C" size={22} />,
       changeText: "Active in last week",
-      changeColor: "text-gray-500",
+      changeColor: "text-[#06574C]",
     },
     {
       title: "Live Classes Today",
@@ -72,7 +72,7 @@ const AdminDashboard = () => {
 
   const columns = "2fr 1.5fr 1fr 0.8fr 0.8fr";
   const featured = data?.featured || [];
-
+  const navigate = useNavigate();
   if (error) {
     return <QueryError
       height="300px"
@@ -193,6 +193,7 @@ const AdminDashboard = () => {
                 <Button
                   startContent={<PlusIcon />}
                   className="text-sm bg-[#06574C] text-white"
+                  onPress={() => navigate("/admin/class-scheduling")}
                 >
                   Schedule New
                 </Button>
