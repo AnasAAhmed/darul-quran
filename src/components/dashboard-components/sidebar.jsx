@@ -128,7 +128,6 @@ const Sidebar = ({ isSidebarOpen, setIsSidebarOpen }) => {
 
       successMessage(data?.message || "Logout successful");
       dispatch(clearUser());
-      location.href = '/';
     } catch (error) {
       console.log(error);
       errorMessage(error.message);
