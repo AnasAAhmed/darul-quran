@@ -269,6 +269,8 @@ const AddUserForm = ({ id, title, desc, userData, isEdit }) => {
     { label: "Course Builder", value: "/admin/courses-management/builder" },
     { label: "Attendance & Progress", value: "/admin/courses-management/attendance" },
     { label: "User Management", value: "/admin/user-management" },
+    { label: "Add User Management", value: "/admin/user-management/add-user" },
+    { label: "Edit User", value: "/admin/user-management/edit-user" },
     { label: "Class Scheduling", value: "/admin/scheduling" },
     { label: "Announcements", value: "/admin/announcements" },
     { label: "Payments & Refunds", value: "/admin/payments" },

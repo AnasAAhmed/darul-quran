@@ -6,7 +6,6 @@ import AdminLayout from "./components/layouts/AdminLayout";
 import { Route, Routes, useLocation, useNavigate } from "react-router-dom";
 import {
   HeroUIProvider,
-  Spinner,
   ToastProvider,
 } from "@heroui/react";
 import { lazy, useEffect } from "react";
@@ -18,12 +17,9 @@ import NoPermissions from "./pages/admin/NoPermissions";
 import MyCourses from "./pages/teacher/my-courses";
 import UploadMaterial from "./pages/teacher/my-courses/uploadmaterial";
 import StudentAttendance from "./pages/teacher/student-attendance";
-import ClassSheduling from "./pages/teacher/class-sheduling";
-import SheduleClass from "./pages/teacher/class-sheduling/shedule-class";
 import StudentDashboard from "./pages/student/StudentDashboard";
 import MyLearning from "./pages/student/my-learning-joureny";
 import StudentClassSheduling from "./pages/student/class-sheduling";
-import ClassSchedule from "./pages/student/ClassSchedule";
 import BrowseCourses from "./pages/student/browse-courses";
 import PaymentsInvoices from "./pages/student/payments-invoices";
 import CourseDetails from "./pages/student/browse-courses/course-details";
@@ -47,7 +43,7 @@ const CourseManagement = lazy(() =>
   import("./pages/admin/course-management/index")
 );
 const LiveSession = lazy(() =>
-  import("./pages/admin/course-management/LiveSession")
+  import("./pages/LiveSession")
 );
 const Attendance = lazy(() =>
   import("./pages/admin/course-management/Attendance")
@@ -56,7 +52,7 @@ const UserManagement = lazy(() => import("./pages/admin/user-management"));
 const UserDetails = lazy(() =>
   import("./pages/admin/user-management/users-details")
 );
-const Scheduling = lazy(() => import("./pages/admin/scheduling"));
+const Scheduling = lazy(() => import("./pages/scheduling"));
 const Announcements = lazy(() => import("./pages/admin/announcements"));
 const TeacherAnnouncements = lazy(() => import("./pages/teacher/announcements"));
 const StudentAnnouncements = lazy(() => import("./pages/student/announcements"));
@@ -236,7 +232,7 @@ function App() {
               }
             />
             <Route
-              path="/admin/scheduling"
+              path="/admin/class-scheduling"
               element={
                 <ProtectedRoute isAuthenticated={isAuthenticated} redirect="/">
                   <Scheduling />
@@ -374,17 +370,8 @@ function App() {
               path="/teacher/class-scheduling"
               element={
                 <ProtectedRoute isAuthenticated={isAuthenticated} redirect="/">
-                  <ClassSheduling />
+                  <Scheduling />
                   <LiveSession isTeacher />
-
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/teacher/class-scheduling/sheduled-class"
-              element={
-                <ProtectedRoute isAuthenticated={isAuthenticated} redirect="/">
-                  <SheduleClass />
                 </ProtectedRoute>
               }
             />

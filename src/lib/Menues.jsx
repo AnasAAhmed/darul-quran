@@ -28,7 +28,7 @@ export const adminMenu = [
         ]
     },
     { name: 'User Management', icon: <UsersIcon />, link: '/admin/user-management', value: 'user-management' },
-    { name: 'Class Scheduling', icon: <CalendarIcon />, link: '/admin/scheduling', value: 'class-scheduling' },
+    { name: 'Class Scheduling', icon: <CalendarIcon />, link: '/admin/class-scheduling', value: 'class-scheduling' },
     { name: 'Announcements', icon: <MegaphoneIcon />, link: '/admin/announcements', value: 'announcements' },
     { name: 'Payments & Refunds', icon: <DollarSignIcon />, link: '/admin/payments', value: 'payments-refunds' },
     { name: 'Support Tickets', icon: <TicketIcon />, link: '/admin/tickets', value: 'support-tickets' },

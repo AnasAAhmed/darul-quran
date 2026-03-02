@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { DashHeading } from "../../../components/dashboard-components/DashHeading";
+import { DashHeading } from "../../components/dashboard-components/DashHeading";
 import {
   Button,
   Calendar,
@@ -30,15 +30,16 @@ import {
 } from "@heroui/react";
 import { CalendarIcon, Copy, Trash2, PlusIcon, User } from "lucide-react";
 
-import { getStatusColor, getStatusText, formatTime12Hour } from "../../../utils/scheduleHelpers";
-import { errorMessage, successMessage } from "../../../lib/toast.config";
-import { dateFormatter, debounce, limits } from "../../../lib/utils";
-import TeacherSelect from "../../../components/select/TeacherSelect";
-import UserSelect from "../../../components/select/UserSelect";
-import { useCreateScheduleMutation, useDeleteScheduleMutation, useGetScheduleQuery, useUpdateScheduleMutation } from "../../../redux/api/schedules";
-import CourseSelect from "../../../components/select/CourseSelect";
+import { getStatusColor, getStatusText, formatTime12Hour } from "../../utils/scheduleHelpers";
+import { errorMessage, successMessage } from "../../lib/toast.config";
+import { dateFormatter, debounce, limits } from "../../lib/utils";
+import TeacherSelect from "../../components/select/TeacherSelect";
+import UserSelect from "../../components/select/UserSelect";
+import { useCreateScheduleMutation, useDeleteScheduleMutation, useGetScheduleQuery, useUpdateScheduleMutation } from "../../redux/api/schedules";
+import CourseSelect from "../../components/select/CourseSelect";
 import Swal from "sweetalert2";
 import { Link, useSearchParams } from "react-router-dom";
+import { useSelector } from "react-redux";
 
 const Scheduling = () => {
   const [searchParams] = useSearchParams();
@@ -52,7 +53,7 @@ const Scheduling = () => {
   const [search, setSearch] = useState('');
   const isCalenderView = searchParams.get('calender') === 'true';
   const isOpenModalOnLoad = searchParams.get('modal') === 'true';
-
+  const { user } = useSelector(state => state.user)
   // Modal State
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
   const [isEdit, setIsEdit] = useState(false);
@@ -266,7 +267,7 @@ const Scheduling = () => {
         <div className="flex items-center gap-2">
           <Button
             as={Link}
-            to={'/admin/scheduling?calender=true'}
+            to={`/${user.role}/class-scheduling?calender=true`}
             radius="sm"
             size="md"
             startContent={<CalendarIcon color="white" size={15} />}

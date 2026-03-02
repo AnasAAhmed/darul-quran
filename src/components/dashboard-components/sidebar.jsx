@@ -50,7 +50,7 @@ const Sidebar = ({ isSidebarOpen, setIsSidebarOpen }) => {
       }
       return null;
     })
-    .filter(Boolean); 
+    .filter(Boolean);
 
   // Decide which menu to show based on role
   const menuItems =
@@ -128,7 +128,7 @@ const Sidebar = ({ isSidebarOpen, setIsSidebarOpen }) => {
 
       successMessage(data?.message || "Logout successful");
       dispatch(clearUser());
-      // location.reload();
+      location.href = '/';
     } catch (error) {
       console.log(error);
       errorMessage(error.message);

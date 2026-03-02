@@ -1,15 +1,15 @@
 import { Button, Spinner } from '@heroui/react'
-import { DashHeading } from '../../../components/dashboard-components/DashHeading'
+import { DashHeading } from '../components/dashboard-components/DashHeading'
 import { Plus, Calendar, ChevronLeft, ChevronRight, ArrowBigLeft } from 'lucide-react';
 import { useState, useMemo, useRef, useEffect } from "react";
 import FullCalendar from "@fullcalendar/react";
 import dayGridPlugin from "@fullcalendar/daygrid";
 import interactionPlugin from "@fullcalendar/interaction";
-import { errorMessage } from '../../../lib/toast.config';
+import { errorMessage } from '../lib/toast.config';
 import { Link, useSearchParams } from 'react-router-dom';
-import { useGetSchedulesByMonthQuery } from '../../../redux/api/schedules';
-import QueryError from '../../../components/QueryError';
-import { formatTime12Hour } from '../../../utils/scheduleHelpers';
+import { useGetSchedulesByMonthQuery } from '../redux/api/schedules';
+import QueryError from '../components/QueryError';
+import { formatTime12Hour } from '../utils/scheduleHelpers';
 
 const LiveSession = ({ isTeacher = false }) => {
     const [searchParams] = useSearchParams();
