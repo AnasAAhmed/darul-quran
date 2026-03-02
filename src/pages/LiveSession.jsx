@@ -90,7 +90,7 @@ const LiveSession = ({ isTeacher = false }) => {
             </div>
 
             <div className="bg-[#EBD4C9] max-md:flex-wrap gap-2 p-2 sm:p-4 rounded-lg my-3 flex flex-col md:flex-row justify-between md:items-center">
-                <Button as={Link} color='success' variant='bordered' to={isTeacher ? '/teacher/class-scheduling' : '/admin/scheduling'} radius="sm" startContent={<ArrowBigLeft size={15} />} >
+                <Button as={Link} color='success' variant='bordered' to={isTeacher ? '/teacher/class-scheduling' : '/admin/class-scheduling'} radius="sm" startContent={<ArrowBigLeft size={15} />} >
                     Back
                 </Button>
                 <Button as={Link} to={isTeacher ? '/teacher/class-scheduling?calender=true' : '/admin/scheduling?modal=true'} radius="sm" startContent={<Plus color="white" size={15} />} className="bg-[#06574C] text-white py-4 px-3 sm:px-8">
