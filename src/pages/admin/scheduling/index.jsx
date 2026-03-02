@@ -32,7 +32,7 @@ import { CalendarIcon, Copy, Trash2, PlusIcon, User } from "lucide-react";
 
 import { getStatusColor, getStatusText, formatTime12Hour } from "../../../utils/scheduleHelpers";
 import { errorMessage, successMessage } from "../../../lib/toast.config";
-import { dateFormatter, limits } from "../../../lib/utils";
+import { dateFormatter, debounce, limits } from "../../../lib/utils";
 import TeacherSelect from "../../../components/select/TeacherSelect";
 import UserSelect from "../../../components/select/UserSelect";
 import { useCreateScheduleMutation, useDeleteScheduleMutation, useGetScheduleQuery, useUpdateScheduleMutation } from "../../../redux/api/schedules";
@@ -56,8 +56,6 @@ const Scheduling = () => {
   // Modal State
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
   const [isEdit, setIsEdit] = useState(false);
-  const [startDate, setStartDate] = useState(null);
-  const [endDate, setEndDate] = useState(null);
   const [formData, setFormData] = useState({
     title: "",
     description: "",
@@ -229,12 +227,13 @@ const Scheduling = () => {
     { key: "all", label: "All Status" },
     { key: "upcoming", label: "Upcoming" },
     { key: "completed", label: "Completed" },
+    { key: "live", label: "Live" },
   ];
 
 
 
   return (
-    <div className="bg-white bg-linear-to-t from-[#F1C2AC]/50 to-[#95C4BE]/50 px-2 sm:px-3 mins-h-screen">
+    <div className="bg-white bg-linear-to-t from-[#F1C2AC]/50 to-[#95C4BE]/50 px-2 sm:px-3 ">
       <DashHeading
         title={"Schedule Live Classes"}
         desc={"Manage and organize your upcoming live sessions"}
@@ -293,7 +292,7 @@ const Scheduling = () => {
           isHeaderSticky
           aria-label="Example static collection table"
           classNames={{
-            base: "w-full bg-white rounded-lg min-h-[50vh] overflow-x-scroll w-full no-scrollbar max-h-[500px] shadow-md",
+            base: "w-full bg-white rounded-lg min-h-[55vh] overflow-x-scroll w-full no-scrollbar max-h-[500px] shadow-md",
             th: "font-bold bg-[#EBD4C9] p-4 text-md text-[#333333] capitalize tracking-widest ",
             td: "py-3 items-center whitespace-nowrap",
             tr: "border-b border-default-200",

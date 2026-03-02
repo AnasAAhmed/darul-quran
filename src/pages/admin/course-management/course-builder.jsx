@@ -585,6 +585,7 @@ const CourseBuilder = () => {
                         size="lg"
                         variant="bordered"
                         label="Course Price ($)"
+                        type="number"
                         labelPlacement="outside"
                         placeholder="$  0.00"
                         isRequired
