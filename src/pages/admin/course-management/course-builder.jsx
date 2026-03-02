@@ -22,6 +22,7 @@ import {
   File,
   FolderDot,
   Lightbulb,
+  PlusIcon,
   Rocket,
   ScrollText,
   Trash2Icon,
@@ -38,7 +39,7 @@ import { useNavigate } from "react-router-dom";
 import { useAddCategoryMutation, useAddCourseMutation, useDeleteCategoryMutation, useGetAllCategoriesQuery, useGetCourseByIdQuery, useUpdateCourseMutation } from "../../../redux/api/courses";
 import { errorMessage, successMessage } from "../../../lib/toast.config";
 import { FormOverlayLoader } from "../../../components/Loader";
-import { uploadFilesToServer } from "../../../lib/utils";
+import { parseInterval, uploadFilesToServer } from "../../../lib/utils";
 import { IntervalInput } from "../../../components/dashboard-components/forms/IntervalInput";
 import TeacherSelect from "../../../components/select/TeacherSelect";
 const containerVariants = {
@@ -97,7 +98,7 @@ const CourseBuilder = () => {
   const [addCourse] = useAddCourseMutation();
   const [updateCourse] = useUpdateCourseMutation();
   const [deleteCategory] = useDeleteCategoryMutation();
-  const [addCategory] = useAddCategoryMutation();
+  const [addCategory, { isLoading: isAddingCategory }] = useAddCategoryMutation();
 
   useEffect(() => {
     if (isError) {
@@ -224,10 +225,10 @@ const CourseBuilder = () => {
       { title: "Difficulty Level:", desc: formData?.difficulty_level || "Add Difficulty Level" },
       { title: "Price:", desc: formData?.course_price || "Add Price" },
       { title: "Type:", desc: formData?.type?.replace("_", " ") || "Add Type" },
-      { title: "Duration:", desc: formData?.duration || "Add Duration" },
-      formData?.type === "live" && { title: "Subscription - Interval:", desc: formData?.interval || "Add Subscription - Interval" },
+      { title: "Duration:", desc: `${parseInterval(formData?.duration).number} ${parseInterval(formData?.duration).unit}` || "Add Duration" },
+      formData?.type === "live" && { title: "Subscription - Interval:", desc: `${parseInterval(formData?.interval).number} ${parseInterval(formData?.interval).unit}` || "Add Subscription - Interval" },
     ];
-  },[categoriesData, formData]);
+  }, [categoriesData, formData]);
 
   // handle change
   const handleChange = (name, value) => {
@@ -546,8 +547,9 @@ const CourseBuilder = () => {
                             key="add-category"
                             className="text-primary font-semibold"
                             textValue="Add Category"
+                            startContent={<PlusIcon size={15} />}
                           >
-                            ➕ Add Category
+                            Add Category
                           </SelectItem>
                         </Select>
                         <Select
@@ -810,7 +812,7 @@ const CourseBuilder = () => {
                       Cancel
                     </Button>
 
-                    <Button color="primary" onPress={handleSubmitAddCategory}>
+                    <Button color="success" isDisabled={isAddingCategory} isLoading={isAddingCategory} onPress={handleSubmitAddCategory}>
                       Add
                     </Button>
                   </ModalFooter>
