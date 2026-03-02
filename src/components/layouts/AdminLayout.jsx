@@ -55,6 +55,11 @@ export default function AdminLayout() {
         }
         return <Navigate to={route} replace />;
     }
+
+    if (user?.permissions?.includes(pathname) === false) {
+        return <Navigate to="/no-permissions" replace />;
+    }
+
     return (
         <main className="flex h-screen w-screen overflow-hidden bg-gray-50">
 
@@ -94,7 +99,7 @@ export default function AdminLayout() {
                     <button
                         onClick={() => setIsSidebarOpen(!isSidebarOpen)}
                         type="button"
-                        className="absolute shadow-md border-gray-400 border-r border-t border-b z-30 top-0 cursor-pointer inline-flex items-center justify-center p-1 bg-white rounded-full h-10 w-10 mt-2 ml-2 shadow-lg"
+                        className="absolute border-gray-400 border-r border-t border-b z-30 top-0 cursor-pointer inline-flex items-center justify-center p-1 bg-white rounded-full h-10 w-10 mt-2 ml-2 shadow-lg"
                         aria-label="Sidebar Button"
                         title={isSidebarOpen ? 'Close Sidebar' : 'Open Sidebar'}
                     >
@@ -124,7 +129,7 @@ export default function AdminLayout() {
                                 <PopoverTrigger >
                                     <button
                                         type="button"
-                                        className="relative inline-flex items-center justify-center p-3 border-[#CBD5E1] border-[1px] bg-white rounded-full shadow-sm hover:shadow-md"
+                                        className="relative inline-flex items-center justify-center p-3 border-[#CBD5E1] border  bg-white rounded-full shadow-sm hover:shadow-md"
                                         aria-label="Notifications"
                                     >
                                         <TbBell size={20} />
@@ -158,10 +163,10 @@ export default function AdminLayout() {
                                                 >
                                                     <Link to={notif.url || '#'} className="block w-full p-2 hover:bg-gray-50 transition-colors">
                                                         <div className={`p-3 rounded-lg flex flex-col gap-1 ${!notif.is_read ? 'bg-green-50/50 border-l-4 border-l-[#06574C]' : 'bg-white'}`}>
-                                                            <div className="text-sm font-bold text-gray-900 leading-tight break-words">
+                                                            <div className="text-sm font-bold text-gray-900 leading-tight wrap-break-word">
                                                                 {notif.title}
                                                             </div>
-                                                            <div className="text-xs text-gray-600 line-clamp-2 leading-relaxed break-words">
+                                                            <div className="text-xs text-gray-600 line-clamp-2 leading-relaxed wrap-break-word">
                                                                 {notif.description}
                                                             </div>
                                                             <div className="text-[10px] text-gray-400 mt-1 font-medium">

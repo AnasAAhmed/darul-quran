@@ -14,6 +14,7 @@ import { useDispatch, useSelector } from "react-redux";
 import TeachersLayout from "./components/layouts/Teacherslayout";
 import TeachersDashboard from "./pages/teacher/TeachersDashboard";
 import AdminDashboard from "./pages/admin/AdminDashboard";
+import NoPermissions from "./pages/admin/NoPermissions";
 import MyCourses from "./pages/teacher/my-courses";
 import UploadMaterial from "./pages/teacher/my-courses/uploadmaterial";
 import StudentAttendance from "./pages/teacher/student-attendance";
@@ -161,6 +162,14 @@ function App() {
             />
           </Route>
           {/* --- ----- Admin Layout (WITH HEADER/SIDEBAR) -------- */}
+          <Route
+            path="/no-permissions"
+            element={
+              <ProtectedRoute isAuthenticated={isAuthenticated} redirect="/">
+                <NoPermissions />
+              </ProtectedRoute>
+            }
+          />
           <Route element={<AdminLayout />}>
             <Route
               path="/admin/dashboard"
@@ -366,7 +375,7 @@ function App() {
               element={
                 <ProtectedRoute isAuthenticated={isAuthenticated} redirect="/">
                   <ClassSheduling />
-                  <LiveSession isTeacher/>
+                  <LiveSession isTeacher />
 
                 </ProtectedRoute>
               }

@@ -2,6 +2,7 @@ import { useState, useEffect, useRef, useMemo } from "react";
 import { useGetAllUserForSelectQuery } from "../../redux/api/user";
 import { debounce } from "../../lib/utils";
 import { X, Search, ChevronDown, Users } from "lucide-react";
+import { Spinner } from "@heroui/react";
 
 /**
  * @param {Object} props
@@ -14,7 +15,7 @@ import { X, Search, ChevronDown, Users } from "lucide-react";
  */
 const UserSelect = ({ onChange, courseId, initialValues = [], label, placeholder = "Select students...", limit = 20 }) => {
     const [searchValue, setSearchValue] = useState("");
-    const [selectedIds, setSelectedIds] = useState(initialValues?.map(String));
+    const [selectedIds, setSelectedIds] = useState(initialValues);
     const [isOpen, setIsOpen] = useState(false);
     const [selectedUsers, setSelectedUsers] = useState([]);
     const containerRef = useRef(null);
@@ -27,7 +28,6 @@ const UserSelect = ({ onChange, courseId, initialValues = [], label, placeholder
         courseId,
     }, { skip: !courseId });
 
-    // Load initial selected user details
     useEffect(() => {
         if (initialValues?.length > 0 && data.users) {
             const initialSelected = data.users?.filter(u => initialValues.includes(u.id));
@@ -37,7 +37,6 @@ const UserSelect = ({ onChange, courseId, initialValues = [], label, placeholder
         }
     }, [data.users]);
 
-    // Close dropdown when clicking outside
     useEffect(() => {
         const handleClickOutside = (event) => {
             if (containerRef.current && !containerRef.current.contains(event.target)) {
@@ -55,14 +54,14 @@ const UserSelect = ({ onChange, courseId, initialValues = [], label, placeholder
     };
 
     const toggleUser = (user) => {
-        const isSelected = selectedIds.includes(String(user.id));
+        const isSelected = selectedIds.includes(user.id);
         let newSelectedIds, newSelectedUsers;
 
         if (isSelected) {
-            newSelectedIds = selectedIds?.filter(id => id !== String(user.id));
+            newSelectedIds = selectedIds?.filter(id => id !== user.id);
             newSelectedUsers = selectedUsers?.filter(u => u.id !== user.id);
         } else {
-            newSelectedIds = [...selectedIds, String(user.id)];
+            newSelectedIds = [...selectedIds, user.id];
             newSelectedUsers = [...selectedUsers, user];
         }
 
@@ -73,7 +72,7 @@ const UserSelect = ({ onChange, courseId, initialValues = [], label, placeholder
 
     const removeUser = (userId, e) => {
         e.stopPropagation();
-        const newSelectedIds = selectedIds.filter(id => id !== String(userId));
+        const newSelectedIds = selectedIds.filter(id => id !== userId);
         const newSelectedUsers = selectedUsers.filter(u => u.id !== userId);
         setSelectedIds(newSelectedIds);
         setSelectedUsers(newSelectedUsers);
@@ -88,7 +87,7 @@ const UserSelect = ({ onChange, courseId, initialValues = [], label, placeholder
     };
 
     const filteredUsers = data.users?.filter(
-        user => !selectedIds.includes(String(user.id))
+        user => !selectedIds.includes(user.id)
     );
 
     return (
@@ -98,7 +97,6 @@ const UserSelect = ({ onChange, courseId, initialValues = [], label, placeholder
                     {label}
                 </label>
             )}
-
             <div
                 className={`
                     relative w-full min-h-12 px-3 py-2 bg-white border-2 rounded-xl cursor-pointer
@@ -142,9 +140,11 @@ const UserSelect = ({ onChange, courseId, initialValues = [], label, placeholder
                                 Clear all
                             </button>
                         )}
-                        <ChevronDown
+                       {isLoading?
+                       <Spinner size="sm" color="success"/>
+                       : <ChevronDown
                             className={`w-5 h-5 text-gray-400 transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`}
-                        />
+                        />}
                     </div>
                 </div>
             </div>
@@ -207,11 +207,10 @@ const UserSelect = ({ onChange, courseId, initialValues = [], label, placeholder
                             </div>
                         )}
 
-                        {/* Total count footer */}
                         {data.total > 0 && (
                             <div className="px-3 py-2 bg-gray-50 border-t border-gray-100 text-xs text-gray-500 text-center">
                                 {data.total <= limit
-                                    ? `✓ All ${data.total} users loaded`
+                                    ? `All ${data.total} users loaded`
                                     : `Showing ${limit} of ${data.total} users - refine your search`
                                 }
                             </div>

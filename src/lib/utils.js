@@ -2,12 +2,30 @@ import { errorMessage } from "./toast.config";
 
 export const parseDateForArray = (input) => {
   console.log("INPUT:", input, typeof input);
-      const [month, day, year] = input.split(/[-/]/);
+  const [month, day, year] = input.split(/[-/]/);
 
-      const fullYear = year.length === 2 ? `20${year}` : year;
+  const fullYear = year.length === 2 ? `20${year}` : year;
 
-      return new Date(`${fullYear}-${month.padStart(2, "0")}-${day.padStart(2, "0")}`);
-    };
+  return new Date(`${fullYear}-${month.padStart(2, "0")}-${day.padStart(2, "0")}`);
+};
+
+export const getAllowedPaths = (menu) => {
+  const paths = [];
+
+  const traverse = (items) => {
+    items.forEach(item => {
+      if (item.children && item.children.length > 0) {
+        traverse(item.children);
+      }
+      if (item.link) {
+        paths.push(item.link);
+      }
+    });
+  };
+
+  traverse(menu);
+  return paths;
+};
 
 export const dateFormatter = (date, isTime = false) => {
   if (!date) return '';

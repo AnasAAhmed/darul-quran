@@ -64,8 +64,9 @@ const Scheduling = () => {
     teacherId: "",
     meetingLink: '',
     courseId: '',
-    scheduleType: "once",
+    scheduleType: "daily",
     price: undefined,
+    sessionMode: "all", // "one-on-one" or "all"
 
     // common
     startTime: "",
@@ -93,9 +94,9 @@ const Scheduling = () => {
     search,
     status: statusFilter
   }, { skip: isCalenderView });
-  const [createSchedule, { isLoading: isSubmitting }] = useCreateScheduleMutation();
-  const [updateSchedule, { isLoading: isUpdating }] = useUpdateScheduleMutation();
-  const [deleteSchedule] = useDeleteScheduleMutation();
+  const [createSchedule, { isLoading: isSubmitting, isError }] = useCreateScheduleMutation();
+  const [updateSchedule, { isLoading: isUpdating, isError: isError2 }] = useUpdateScheduleMutation();
+  const [deleteSchedule, { isError: isError3 }] = useDeleteScheduleMutation();
 
   useEffect(() => {
     if (isOpenModalOnLoad) {
@@ -120,10 +121,9 @@ const Scheduling = () => {
       }
 
       const data = response.data;
-      const error = response?.error?.data;
 
-      if (error) {
-        throw new Error(error.message || "Operation failed");
+      if (response?.error) {
+        throw new Error(response?.error?.data?.message || "Operation failed");
       }
       successMessage(data?.message);
       onOpenChange(false);
@@ -172,6 +172,7 @@ const Scheduling = () => {
       meetingLink: '',
       courseId: '',
       scheduleType: '',
+      sessionMode: 'all',
       repeatInterval: 0,
       weeklyDays: [],
       specificStudentIds: [],
@@ -202,11 +203,13 @@ const Scheduling = () => {
       courseId: item.courseId ? String(item.courseId) : '',
       meetingLink: item.meetingLink,
       scheduleType: item.scheduleType,
+      sessionMode: item.specificStudents?.length > 0 ? 'one-on-one' : 'all',
       startDate: item?.scheduleDates[0],
       endDate: item?.scheduleDates[1],
       repeatInterval: item.repeatInterval,
       weeklyDays: item.weeklyDays,
       specificStudentIds: item.specificStudents,
+      specificStudents: item.specificStudents,
       settings: {
         join_before_host: item.settings?.join_before_host || false,
         auto_recording: item.settings?.auto_recording || false,
@@ -431,7 +434,6 @@ const Scheduling = () => {
         </div>
       </div>
 
-      {/* Schedule / Edit Modal */}
       <Modal isOpen={isOpen} scrollBehavior="inside" onOpenChange={onOpenChange} placement="center" backdrop="blur" size="lg">
         <ModalContent>
           {(onClose) => (
@@ -443,6 +445,30 @@ const Scheduling = () => {
                 {!isEdit && (
                   <p className="text-xs text-gray-500 mb-2">Zoom link and password will be auto-generated upon creation.</p>
                 )}
+
+                <div className="flex gap-2 mb-4">
+                  <Button
+                    radius="sm"
+                    size="md"
+                    color={formData.sessionMode === "all" ? "success" : "default"}
+                    variant={formData.sessionMode === "all" ? "solid" : "bordered"}
+                    className="w-full"
+                    onPress={() => setFormData({ ...formData, sessionMode: "all" })}
+                  >
+                    For All Enrolled Users
+                  </Button>
+                  <Button
+                    radius="sm"
+                    size="md"
+                    color={formData.sessionMode === "one-on-one" ? "success" : "default"}
+                    className="w-full"
+                    variant={formData.sessionMode === "one-on-one" ? "solid" : "bordered"}
+                    onPress={() => setFormData({ ...formData, sessionMode: "one-on-one" })}
+                  >
+                    One-on-One Live
+                  </Button>
+                </div>
+
                 <Input
                   label="Session Title"
                   variant="bordered"
@@ -458,19 +484,36 @@ const Scheduling = () => {
                   type="live"
                   isDisabled={isEdit}
                 />
-                {/* Schedule Type */}
-                <Select
-                  label="Schedule Type"
-                  variant="bordered"
-                  selectedKeys={formData?.scheduleType ? new Set([formData?.scheduleType]) : new Set([])}
-                  onChange={(e) =>
-                    setFormData({ ...formData, scheduleType: e.target.value })
-                  }
-                >
-                  <SelectItem key="once">One Time</SelectItem>
-                  <SelectItem key="daily">Daily</SelectItem>
-                  <SelectItem key="weekly">Weekly</SelectItem>
-                </Select>
+
+                <div className="flex gap-2 mb-4">
+                  <Button
+                    radius="md"
+                    size="md"
+                    color={formData.scheduleType === "once" ? "success" : "default"}
+                    variant={formData.scheduleType === "once" ? "solid" : "bordered"}
+                    onPress={() => setFormData({ ...formData, scheduleType: "once" })}
+                  >
+                    One Time
+                  </Button>
+                  <Button
+                    radius="md"
+                    size="md"
+                    color={formData.scheduleType === "daily" ? "success" : "default"}
+                    variant={formData.scheduleType === "daily" ? "solid" : "bordered"}
+                    onPress={() => setFormData({ ...formData, scheduleType: "daily" })}
+                  >
+                    Daily
+                  </Button>
+                  <Button
+                    radius="md"
+                    size="md"
+                    color={formData.scheduleType === "weekly" ? "success" : "default"}
+                    variant={formData.scheduleType === "weekly" ? "solid" : "bordered"}
+                    onPress={() => setFormData({ ...formData, scheduleType: "weekly" })}
+                  >
+                    Weekly
+                  </Button>
+                </div>
 
                 {formData.scheduleType === "once" && (
                   <Input
@@ -604,11 +647,14 @@ const Scheduling = () => {
                   initialValue={formData.teacherId}
                   onChange={(teacherId) => setFormData({ ...formData, teacherId })}
                 />
-                <UserSelect
-                  courseId={formData.courseId}
-                  initialValue={formData?.specificStudentIds}
-                  onChange={(specificStudentIds) => setFormData({ ...formData, specificStudentIds })}
-                />
+                {formData.sessionMode === "one-on-one" && (
+                  <UserSelect
+                    courseId={formData.courseId}
+                    initialValues={formData?.specificStudentIds}
+                    onChange={(specificStudentIds) => setFormData({ ...formData, specificStudentIds })}
+                  />
+                )}
+
                 <Textarea
                   label="Description"
                   variant="bordered"

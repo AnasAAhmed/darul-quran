@@ -250,41 +250,36 @@ const AddUserForm = ({ id, title, desc, userData, isEdit }) => {
 
       const res = await createOrUpdateUser(payload);
 
-      if (error) {
-        throw new Error(error?.data?.errors || res?.data?.message);
+      if (res.error) {
+        throw new Error(res?.error?.data?.message);
       }
 
-      if (userData?.id) {
-        successMessage(`User "${userData.firstName + " " + userData.lastName}" updated successfully!`);
-      } else {
-        successMessage("User created successfully!");
-      }
-
+      successMessage(res.data.message || "User created successfully");
       navigate("/admin/user-management?role=" + payload.role);
     } catch (error) {
-      errorMessage(error.message || "User already exists");
+      errorMessage(error.message );
     } finally {
       setLoading(false);
     }
   };
 
   const ALL_PERMISSIONS = [
-    { label: "Dashboard", value: "dashboard" },
-    { label: "Courses Management", value: "courses-management" },
-    { label: "Course Builder", value: "course-builder" },
-    { label: "Attendance & Progress", value: "attendance-progress" },
-    { label: "User Management", value: "user-management" },
-    { label: "Class Scheduling", value: "class-scheduling" },
-    { label: "Announcements", value: "announcements" },
-    { label: "Payments & Refunds", value: "payments-refunds" },
-    { label: "Support Tickets", value: "support-tickets" },
-    { label: "Analytics", value: "analytics" },
-    { label: "Help and Support", value: "help-support" },
-    { label: "Message Center", value: "messages" },
-    { label: "Notifications Center", value: "notifications" },
-    { label: "Teacher & Student Chat", value: "chat" },
-    { label: "Reviews", value: "reviews" },
-    { label: "FAQs", value: "faqs" },
+    { label: "Dashboard", value: "/admin/dashboard" },
+    { label: "Courses Management", value: "/admin/courses-management" },
+    { label: "Course Builder", value: "/admin/courses-management/builder" },
+    { label: "Attendance & Progress", value: "/admin/courses-management/attendance" },
+    { label: "User Management", value: "/admin/user-management" },
+    { label: "Class Scheduling", value: "/admin/scheduling" },
+    { label: "Announcements", value: "/admin/announcements" },
+    { label: "Payments & Refunds", value: "/admin/payments" },
+    { label: "Support Tickets", value: "/admin/tickets" },
+    { label: "Analytics", value: "/admin/analytics" },
+    { label: "Notifications", value: "/admin/notifications" },
+    // { label: "Help and Support", value: "/admin/help/messages" },
+    { label: "Message Center Or Chat", value: "/admin/help/messages" },
+    { label: "Teacher & Student Chat", value: "/admin/help/chat" },
+    { label: "Reviews", value: "/admin/help/reviews" },
+    { label: "FAQs", value: "/admin/help/faqs" },
   ];
   const handleToggle = (permission = '', checked = false) => {
     setSelectedPermissions((prev) =>
