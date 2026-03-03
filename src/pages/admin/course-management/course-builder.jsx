@@ -304,7 +304,7 @@ const CourseBuilder = () => {
           handleSelected("content");
         }
       } else {
-        errorMessage(response?.error?.data?.message||response?.error?.data?.error || "Something went wrong");
+        errorMessage(response?.error?.data?.message || response?.error?.data?.error || "Something went wrong");
       }
     } catch (error) {
       console.error(error);
@@ -589,52 +589,39 @@ const CourseBuilder = () => {
                           placeholder="Enter course description"
                         />
                       </div>
-                      {/* <Input
-                        size="lg"
-                        variant="bordered"
-                        label="Course Price ($)"
-                        type="number"
-                        labelPlacement="outside"
-                        placeholder="$  0.00"
-                        isRequired
-                        errorMessage="Course Price is required"
-                        className="w-full"
-                        value={formData.course_price}
-                        onChange={(e) =>
-                          handleChange("course_price", e.target.value)
-                        }
-                      /> */}
-                      <Input
-                        size="lg"
-                        variant="bordered"
-                        label="Base Course Price ($)"
-                        type="number"
-                        labelPlacement="outside"
-                        placeholder="$  0.00"
-                        isRequired
-                        errorMessage="BaseCourse Price is required"
-                        className="w-full"
-                        value={formData.base_price}
-                        onChange={(e) =>
-                          handleChange("base_price", e.target.value)
-                        }
-                      />
-                      <Input
-                        size="lg"
-                        variant="bordered"
-                        label="Discount Percentage"
-                        type="number"
-                        labelPlacement="outside"
-                        placeholder="15%"
-                        endContent={'%'}
-                        max={100}
-                        errorMessage="Discount Percentage is must be between 0 and 100"
-                        className="w-full"
-                        value={formData.discount_percentage}
-                        onChange={(e) =>
-                          handleChange("discount_percentage", e.target.value)
-                        }
-                      />
+                      <div className="flex items-center max-sm:flex-wrap gap-3">
+                        <Input
+                          size="lg"
+                          variant="bordered"
+                          label="Base Course Price ($)"
+                          type="number"
+                          labelPlacement="outside"
+                          placeholder="$  0.00"
+                          isRequired
+                          errorMessage="BaseCourse Price is required"
+                          className="w-full"
+                          value={formData.base_price}
+                          onChange={(e) =>
+                            handleChange("base_price", e.target.value)
+                          }
+                        />
+                        <Input
+                          size="lg"
+                          variant="bordered"
+                          label="Discount Percentage"
+                          type="number"
+                          labelPlacement="outside"
+                          placeholder="15%"
+                          endContent={'%'}
+                          max={100}
+                          errorMessage="Discount Percentage is must be between 0 and 100"
+                          className="w-full"
+                          value={formData.discount_percentage}
+                          onChange={(e) =>
+                            handleChange("discount_percentage", e.target.value)
+                          }
+                        />
+                      </div>
                       <div className="pt-6">
                         <TeacherSelect
                           onChange={(id) => handleChange("teacher_id", id)}
