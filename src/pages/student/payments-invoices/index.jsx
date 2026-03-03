@@ -287,12 +287,12 @@ const PaymentsInvoices = () => {
                         </Button>
                         {item.refundStatus && item.refundStatus !== 'none' && (
                           <span className={`text-[10px] font-medium px-1.5 py-0.5 rounded w-fit ${item.refundStatus === 'refunded'
-                              ? 'bg-[#95C4BE33] text-[#06574C]'
-                              : item.refundStatus === 'rejected' || item.refundStatus === 'failed'
-                                ? 'bg-[#FFEAEC] text-[#E8505B]'
-                                : item.refundStatus === 'processing' || item.refundStatus === 'pending_refund'
-                                  ? 'bg-[#FDEBD0] text-[#D68910]'
-                                  : 'bg-[#F1C2AC33] text-[#D28E3D]'
+                            ? 'bg-[#95C4BE33] text-[#06574C]'
+                            : item.refundStatus === 'rejected' || item.refundStatus === 'failed'
+                              ? 'bg-[#FFEAEC] text-[#E8505B]'
+                              : item.refundStatus === 'processing' || item.refundStatus === 'pending_refund'
+                                ? 'bg-[#FDEBD0] text-[#D68910]'
+                                : 'bg-[#F1C2AC33] text-[#D28E3D]'
                             }`}>
                             Refund: {getRefundStatusText(item.refundStatus)}
                           </span>
@@ -421,8 +421,8 @@ const PaymentsInvoices = () => {
                     {item.courseName || "Course"}
                   </div>
                 </TableCell>
-                <TableCell>{dateFormatter((item.requestedAt || item.createdAt),true)}</TableCell>
-                <TableCell>${(item.amount / 100 || 0).toFixed(2)}</TableCell>
+                <TableCell>{dateFormatter((item.requestedAt || item.createdAt), true)}</TableCell>
+                <TableCell>${item.amount}</TableCell>
                 <TableCell>
                   <div className="max-w-[250px] text-sm text-gray-600 truncate" title={item.reason}>
                     {item.reason || "-"}
@@ -434,9 +434,9 @@ const PaymentsInvoices = () => {
                   </Button>
                 </TableCell>
                 <TableCell>
-                    <div className="mt-1 text-xs text-gray-400 italic max-w-[150px] truncate">
-                      {item?.adminNotes||'---'}
-                    </div>
+                  <div className="mt-1 text-xs text-gray-400 italic max-w-[150px] truncate">
+                    {item?.adminNotes || '---'}
+                  </div>
                 </TableCell>
               </TableRow>
             ))}
