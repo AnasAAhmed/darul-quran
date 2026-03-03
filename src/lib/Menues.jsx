@@ -34,6 +34,7 @@ export const adminMenu = [
     { name: 'Support Tickets', icon: <TicketIcon />, link: '/admin/tickets', value: 'support-tickets' },
     { name: 'Analytics', icon: <ChartBarIcon />, link: '/admin/analytics', value: 'analytics' },
     { name: 'Notifications', icon: <BellRing />, link: '/admin/notifications', value: 'notifications' },
+    { name: 'Reschedule Requests', icon: <CalendarPlus />, link: '/admin/reschedule-requests' },
     {
         name: 'Help and Support',
         icon: <FileQuestionIcon />,
