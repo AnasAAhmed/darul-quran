@@ -171,7 +171,7 @@ const CoursePlayer = () => {
                     </div>
                 </div>
                 <div>
-                    <div className="text-sm font-medium text-[#06574C]">Your Progress: {progress}%</div>
+                    <div className="text-sm font-medium text-[#06574C]">Your Progress: {progress?.toFixed(2)}%</div>
                     <div className="w-32 h-2 bg-gray-200 rounded-full mt-1 overflow-hidden">
                         <div className="h-full bg-[#06574C] transition-all duration-500" style={{ width: `${progress}%` }}></div>
                     </div>
