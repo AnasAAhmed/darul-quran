@@ -78,6 +78,15 @@ export const paymentApi = createApi({
             }),
             providesTags: ["Payment"],
         }),
+        
+        // Student: Get my subscriptions
+        getMySubscriptions: builder.query({
+            query: (params) => ({
+                url: `/subscriptions${params?.search ? `?search=${params.search}` : ""}`,
+                method: "GET",
+            }),
+            providesTags: ["Payment"],
+        }),
     })
 });
 
@@ -85,6 +94,7 @@ export const {
     useGetPaymentHistoryQuery,
     useGetMyRefundRequestsQuery,
     useGetSubscriptionInvoicesQuery,
+    useGetMySubscriptionsQuery,
     useRequestRefundMutation,
     useProcessRefundActionMutation,
     useGetAdminRefundRequestsQuery,
