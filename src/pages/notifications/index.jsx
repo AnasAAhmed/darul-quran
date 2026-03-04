@@ -84,11 +84,12 @@ const NotificationsPage = () => {
               desc="Stay updated with the latest platform activities and alerts."
             />
 
-            <div className="flex flex-wrap items-center gap-3">
+            <div className="flex  justify-end flex-row flex-wrap items-end gap-3">
               <Input
                 placeholder="Search Notifications..."
                 startContent={<Search size={18} className="text-gray-400" />}
                 className="w-full md:w-64"
+                size="sm"
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
               />
@@ -98,29 +99,19 @@ const NotificationsPage = () => {
                 startContent={<Check size={18} className="text-green-500" />}
                 onPress={handleMarkAllAsRead}
                 isLoading={isLoading2}
+                size="sm"
               >
                 Mark All Read
               </Button>
               <Button
                 className="bg-[#06574C] text-white font-medium"
+                size="sm"
               >
                 Delete Read
               </Button>
             </div>
           </div>
         </div>
-
-        {/* <div className="mt-6 mb-6">
-          <Select
-            defaultSelectedKeys={["latest"]}
-            className="w-32"
-            size="sm"
-            variant="bordered"
-          >
-            <SelectItem key="latest" value="latest">Latest</SelectItem>
-            <SelectItem key="oldest" value="oldest">Oldest</SelectItem>
-          </Select>
-        </div> */}
 
         <div className="space-y-4">
           {isLoading ? (
