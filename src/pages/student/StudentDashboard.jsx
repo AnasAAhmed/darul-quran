@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Button, Pagination, Skeleton } from "@heroui/react";
-import { Clock, VideoIcon } from "lucide-react";
+import { Clock, Video, VideoIcon } from "lucide-react";
 import { AiOutlineEye } from "react-icons/ai";
 import { FaRegAddressCard } from "react-icons/fa";
 import { BiGroup } from "react-icons/bi";

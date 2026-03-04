@@ -24,7 +24,7 @@ import {
 import { useCreateRescheduleRequestMutation } from "../../../redux/api/reschedule";
 import { RescheduleRequestModal } from "../../../components/schedule/RescheduleRequestModal";
 import { errorMessage, successMessage } from "../../../lib/toast.config";
-import { formatTime12Hour, isClassLive, isClassExpired, getStatusColor, getStatusText, getStatusTextForSingleDate } from "../../../utils/scheduleHelpers";
+import { formatTime12Hour, isClassLive, isClassExpired, getStatusColor, getStatusText, getStatusTextForSingleDate, getHoursUntilClass } from "../../../utils/scheduleHelpers";
 import { useSelector } from "react-redux";
 import { dateFormatter } from "../../../lib/utils";
 
@@ -196,31 +196,54 @@ const StudentClassSheduling = () => {
     };
 
     const canReschedule = (schedule) => {
-        const parsedDate = parseDateFromDB(schedule.date);
-        const scheduleDateTime = parsedDate
-            ? new Date(`${parsedDate.toISOString().split('T')[0]}T${schedule.startTime}`)
-            : new Date(`${schedule.date}T${schedule.startTime}`);
-        const now = new Date();
-        const hoursUntilClass = (scheduleDateTime - now) / (1000 * 60 * 60);
-        return hoursUntilClass > 4;
+        const scheduleDates = schedule.scheduleDates || [];
+        const todayStr = new Date().toISOString().split('T')[0];
+        const upcomingDates = scheduleDates.filter(d => d >= todayStr);
+        
+        if (upcomingDates.length === 0) return false;
+        
+        // Use the next upcoming date
+        const nextDate = upcomingDates.sort()[0];
+        const hoursUntil = getHoursUntilClass(nextDate, schedule.startTime);
+        return hoursUntil > 4;
     };
 
     const canCancel = (schedule) => {
-        const parsedDate = parseDateFromDB(schedule.date);
-        const scheduleDateTime = parsedDate
-            ? new Date(`${parsedDate.toISOString().split('T')[0]}T${schedule.startTime}`)
-            : new Date(`${schedule.date}T${schedule.startTime}`);
-        const now = new Date();
-        const hoursUntilClass = (scheduleDateTime - now) / (1000 * 60 * 60);
-        return hoursUntilClass > 0; // Can cancel anytime before class starts
+        const scheduleDates = schedule.scheduleDates || [];
+        const todayStr = new Date().toISOString().split('T')[0];
+        const upcomingDates = scheduleDates.filter(d => d >= todayStr);
+        
+        if (upcomingDates.length === 0) return false;
+        
+        // Use the next upcoming date
+        const nextDate = upcomingDates.sort()[0];
+        const hoursUntil = getHoursUntilClass(nextDate, schedule.startTime);
+        return hoursUntil > 0; // Can cancel anytime before class starts
     };
 
     const getClassStatusBadge = (schedule, type = 'single') => {
         let status = '';
+        let hoursUntil = null;
+
         if (type === 'single') {
+            // For single date view, use the schedule's date field
             status = getStatusTextForSingleDate(schedule.date, schedule.startTime, schedule.endTime);
+            hoursUntil = getHoursUntilClass(schedule.date, schedule.startTime);
         } else {
+            // For recurring schedules, find the next upcoming date from scheduleDates
             status = getStatusText(schedule);
+            const scheduleDates = schedule.scheduleDates || [];
+            const todayStr = new Date().toISOString().split('T')[0];
+            const upcomingDates = scheduleDates.filter(d => d >= todayStr);
+            
+            if (upcomingDates.length > 0) {
+                const nextDate = upcomingDates.sort()[0];
+                hoursUntil = getHoursUntilClass(nextDate, schedule.startTime);
+            } else if (scheduleDates.length > 0) {
+                // All dates are in the past, use the last date
+                const lastDate = scheduleDates[scheduleDates.length - 1];
+                hoursUntil = getHoursUntilClass(lastDate, schedule.startTime);
+            }
         }
 
         if (status === "live") {
@@ -244,14 +267,8 @@ const StudentClassSheduling = () => {
             );
         }
 
-        const parsedDate = parseDateFromDB(schedule.date);
-        const scheduleDateTime = parsedDate
-            ? new Date(`${parsedDate.toISOString().split('T')[0]}T${schedule.startTime}`)
-            : new Date(`${schedule.date}T${schedule.startTime}`);
-        const now = new Date();
-        const hoursUntilClass = Math.floor((scheduleDateTime - now) / (1000 * 60 * 60));
-
-        if (hoursUntilClass < 3) {
+        if (hoursUntil !== null && hoursUntil < 3) {
+            const displayHours = Math.max(0, Math.floor(hoursUntil));
             return (
                 <Button
                     size="sm"
@@ -259,7 +276,7 @@ const StudentClassSheduling = () => {
                     radius="sm"
                     startContent={<Lock size={14} />}
                 >
-                    Starts in {hoursUntilClass}h
+                    Starts in {displayHours}h
                 </Button>
             );
         }
@@ -303,12 +320,52 @@ const StudentClassSheduling = () => {
                 )}
 
                 <div className="flex flex-wrap gap-4 mb-4">
-                    <div className="flex text-[#666666] text-sm items-center gap-2">
-                        {type === 'normal' ? "CreatedAt: " : <CiCalendar color="#666666" size={20} />}
-                        <p className="text-[#666666] text-sm">
-                            {dateFormatter(schedule.date)}
-                        </p>
-                    </div>
+                    {type === 'normal' ? (
+                        // For schedule overview (type='normal'), show the date range from scheduleDates
+                        <>
+                            <div className="flex text-[#666666] text-sm items-center gap-2">
+                                <CiCalendar color="#666666" size={20} />
+                                <p className="text-[#666666] text-sm">
+                                    {schedule.scheduleDates?.length > 0 ? (
+                                        <>
+                                            {new Date(schedule.scheduleDates[0]).toLocaleDateString('en-US', { 
+                                                month: 'short', day: 'numeric', year: 'numeric' 
+                                            })}
+                                            {schedule.scheduleDates.length > 1 && (
+                                                <>
+                                                    {' - '}
+                                                    {new Date(schedule.scheduleDates[schedule.scheduleDates.length - 1]).toLocaleDateString('en-US', { 
+                                                        month: 'short', day: 'numeric', year: 'numeric' 
+                                                    })}
+                                                </>
+                                            )}
+                                            {' '}
+                                            ({schedule.scheduleDates.length} {schedule.scheduleDates.length === 1 ? 'date' : 'dates'})
+                                        </>
+                                    ) : (
+                                        dateFormatter(schedule.date)
+                                    )}
+                                </p>
+                            </div>
+                            <div className="flex text-[#666666] text-sm items-center gap-2">
+                                <CalendarIcon color="#666666" size={18} />
+                                <p className="text-[#666666] text-sm">
+                                    {schedule.scheduleType || 'Recurring'}
+                                    {schedule.repeatInterval && ` (Every ${schedule.repeatInterval} ${schedule.scheduleType === 'daily' ? 'day' : schedule.scheduleType === 'weekly' ? 'week' : 'month'})`}
+                                </p>
+                            </div>
+                        </>
+                    ) : (
+                        // For date-grouped view, show the specific date
+                        <>
+                            <div className="flex text-[#666666] text-sm items-center gap-2">
+                                <CiCalendar color="#666666" size={20} />
+                                <p className="text-[#666666] text-sm">
+                                    {dateFormatter(schedule.date)}
+                                </p>
+                            </div>
+                        </>
+                    )}
                     <div className="flex items-center gap-2">
                         <Clock color="#666666" size={18} />
                         <p className="text-[#666666] text-sm">
@@ -481,7 +538,20 @@ const StudentClassSheduling = () => {
                         <div className="grid grid-cols-2 gap-3">
                             <div className="bg-[#95C4BE33] p-3 rounded-lg text-center">
                                 <p className="text-2xl font-bold text-[#06574C]">
-                                    {scheduleData?.schedules?.filter(s => getStatusText(s) === "upcoming").length || 0}
+                                    {(() => {
+                                        const todayStr = new Date().toISOString().split('T')[0];
+                                        let count = 0;
+                                        scheduleData?.schedules?.forEach(s => {
+                                            const scheduleDates = s.scheduleDates || [];
+                                            const upcomingDates = scheduleDates.filter(d => d >= todayStr);
+                                            if (upcomingDates.length > 0) {
+                                                // Check if any upcoming date is not live
+                                                const hasLiveToday = scheduleDates.includes(todayStr) && getStatusText(s) === 'live';
+                                                if (!hasLiveToday) count++;
+                                            }
+                                        });
+                                        return count;
+                                    })()}
                                 </p>
                                 <p className="text-xs text-gray-600">Upcoming</p>
                             </div>

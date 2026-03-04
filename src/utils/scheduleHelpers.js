@@ -49,25 +49,50 @@ export const formatTime12Hour = (time24) => {
     return `${hour12}:${minutes} ${ampm}`;
 };
 
+/**
+ * Get today's date string in YYYY-MM-DD format (local time)
+ * @returns {string} Today's date string
+ */
+const getTodayStr = () => {
+    const now = new Date();
+    return now.getFullYear() + "-" +
+        String(now.getMonth() + 1).padStart(2, "0") + "-" +
+        String(now.getDate()).padStart(2, "0");
+};
+
+/**
+ * Check if today is in the schedule dates
+ * @param {string[]} scheduleDates - Array of date strings
+ * @returns {boolean}
+ */
 const isTodayInSchedule = (scheduleDates) => {
     if (!Array.isArray(scheduleDates)) return false;
-
-    const todayStr = new Date().toISOString().split("T")[0];
-
+    const todayStr = getTodayStr();
     return scheduleDates.includes(todayStr);
 };
 
 /**
+ * Get the next upcoming date from scheduleDates that is today or in the future
+ * @param {string[]} scheduleDates - Array of date strings
+ * @returns {string|null} Next upcoming date or null
+ */
+const getNextScheduleDate = (scheduleDates) => {
+    if (!Array.isArray(scheduleDates) || scheduleDates.length === 0) return null;
+    const todayStr = getTodayStr();
+    const upcomingDates = scheduleDates.filter(d => d >= todayStr);
+    if (upcomingDates.length === 0) return null;
+    return upcomingDates.sort()[0];
+};
+
+/**
  * Check if a class is currently live (between start and end time)
- * @param {Object} schedule - Schedule object with date, startTime, endTime
+ * @param {Object} schedule - Schedule object with scheduleDates, startTime, endTime
  * @returns {boolean}
  */
 export const isClassLive = (schedule) => {
     if (!schedule) return false;
 
-    const now = new Date();
-
-    const scheduleDates = schedule.schedule_dates;
+    const scheduleDates = schedule.scheduleDates || schedule.schedule_dates;
     if (!isTodayInSchedule(scheduleDates)) return false;
 
     const startTimeStr = schedule.startTime || schedule.start_time;
@@ -75,7 +100,7 @@ export const isClassLive = (schedule) => {
 
     if (!startTimeStr || !endTimeStr) return false;
 
-    const today = new Date().toISOString().split("T")[0];
+    const today = getTodayStr();
 
     const [startHour, startMin] = startTimeStr.split(":");
     const [endHour, endMin] = endTimeStr.split(":");
@@ -83,31 +108,41 @@ export const isClassLive = (schedule) => {
     const startTime = new Date(`${today}T${startHour}:${startMin}:00`);
     const endTime = new Date(`${today}T${endHour}:${endMin}:00`);
 
+    const now = new Date();
     return now >= startTime && now <= endTime;
 };
 
 /**
- * Check if a class has ended
- * @param {Object} schedule - Schedule object with date, endTime
+ * Check if a class has ended (all dates are in the past or today's class time has passed)
+ * @param {Object} schedule - Schedule object with scheduleDates, endTime
  * @returns {boolean}
  */
 export const isClassExpired = (schedule) => {
     if (!schedule) return false;
 
+    const scheduleDates = schedule.scheduleDates || schedule.schedule_dates;
+    if (!scheduleDates || scheduleDates.length === 0) return true;
+
+    const todayStr = getTodayStr();
     const now = new Date();
 
-    const scheduleDates = schedule.schedule_dates;
-    if (!isTodayInSchedule(scheduleDates)) return false;
+    // Check if there are any future dates
+    const futureDates = scheduleDates.filter(d => d > todayStr);
+    if (futureDates.length > 0) return false; // Has future dates, not expired
 
-    const endTimeStr = schedule.endTime || schedule.end_time;
-    if (!endTimeStr) return false;
+    // Only today or past dates remain - check if today's class has ended
+    if (scheduleDates.includes(todayStr)) {
+        const endTimeStr = schedule.endTime || schedule.end_time;
+        if (!endTimeStr) return true;
 
-    const today = new Date().toISOString().split("T")[0];
-    const [endHour, endMin] = endTimeStr.split(":");
+        const [endHour, endMin] = endTimeStr.split(":");
+        const endTime = new Date(`${todayStr}T${endHour}:${endMin}:00`);
 
-    const endTime = new Date(`${today}T${endHour}:${endMin}:00`);
+        return now > endTime;
+    }
 
-    return now > endTime;
+    // All dates are in the past
+    return true;
 };
 
 /**
@@ -122,28 +157,25 @@ export const getStatusColor = (schedule) => {
 };
 
 /**
- * Get status text for display
- * @param {Object} schedule - Schedule object
- * @returns {string} Status text
+ * Get status text for display (for recurring schedules with scheduleDates array)
+ * @param {Object} schedule - Schedule object with scheduleDates, startTime, endTime
+ * @returns {string} Status text: "live", "upcoming", or "completed"
  */
 export const getStatusText = (schedule) => {
-    const scheduleDates = schedule.scheduleDates || [];
+    const scheduleDates = schedule.scheduleDates || schedule.schedule_dates || [];
     if (!scheduleDates.length) return "completed";
 
+    const todayStr = getTodayStr();
     const now = new Date();
-    const todayStr = now.toLocaleDateString("en-CA");
 
-    const [startHour, startMin] = schedule.startTime.split(":").map(Number);
-    const [endHour, endMin] = schedule.endTime.split(":").map(Number);
+    const [startHour, startMin] = (schedule.startTime || "").split(":").map(Number);
+    const [endHour, endMin] = (schedule.endTime || "").split(":").map(Number);
 
-    const lastDateStr = scheduleDates[scheduleDates.length - 1];
-
+    // Check if today is in the schedule
     if (scheduleDates.includes(todayStr)) {
-        const startTime = new Date(todayStr);
-        startTime.setHours(startHour, startMin, 0, 0);
-
-        const endTime = new Date(todayStr);
-        endTime.setHours(endHour, endMin, 0, 0);
+        const [year, month, day] = todayStr.split("-").map(Number);
+        const startTime = new Date(year, month - 1, day, startHour, startMin);
+        const endTime = new Date(year, month - 1, day, endHour, endMin);
 
         if (now >= startTime && now <= endTime) {
             return "live";
@@ -152,9 +184,12 @@ export const getStatusText = (schedule) => {
         if (now < startTime) {
             return "upcoming";
         }
+        // Today's class has ended, but check if there are future dates
     }
 
-    if (todayStr < lastDateStr) {
+    // Check if there are any future dates
+    const futureDates = scheduleDates.filter(d => d > todayStr);
+    if (futureDates.length > 0) {
         return "upcoming";
     }
 
@@ -170,14 +205,7 @@ export const getStatusText = (schedule) => {
  */
 export const getStatusTextForSingleDate = (date, startTime, endTime) => {
     const now = new Date();
-
-    // Get LOCAL today (not UTC)
-    const todayStr =
-        now.getFullYear() +
-        "-" +
-        String(now.getMonth() + 1).padStart(2, "0") +
-        "-" +
-        String(now.getDate()).padStart(2, "0");
+    const todayStr = getTodayStr();
 
     // If today is not the schedule date
     if (date !== todayStr) {
@@ -203,6 +231,25 @@ export const getStatusTextForSingleDate = (date, startTime, endTime) => {
     }
 
     return "completed";
+};
+
+/**
+ * Get hours until class starts for a specific date
+ * @param {string} date - "YYYY-MM-DD"
+ * @param {string} startTime - "HH:mm"
+ * @return {number|null} Hours until class (negative if already started), null if invalid
+ */
+export const getHoursUntilClass = (date, startTime) => {
+    if (!date || !startTime) return null;
+
+    const now = new Date();
+    const [year, month, day] = date.split("-").map(Number);
+    const [startHour, startMin] = startTime.split(":").map(Number);
+
+    const scheduleStart = new Date(year, month - 1, day, startHour, startMin);
+    const hoursUntil = (scheduleStart - now) / (1000 * 60 * 60);
+
+    return hoursUntil;
 };
 
 /**
