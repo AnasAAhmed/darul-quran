@@ -162,7 +162,7 @@ const CoursePlayer = () => {
             {/* Header */}
             <header className="h-16 bg-white border-b flex items-center px-4 justify-between shrink-0 z-10 shadow-sm">
                 <div className="flex items-center gap-3">
-                    <Button variant="light" isIconOnly onPress={() => navigate("/student/dashboard")}>
+                    <Button variant="light" isIconOnly onPress={() =>  navigate(-1)}>
                         <ArrowLeft size={20} />
                     </Button>
                     <div className="flex flex-col">

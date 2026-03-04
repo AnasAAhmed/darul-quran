@@ -90,7 +90,7 @@ const StudentDashboard = () => {
       </div>
       <div>
         <div className="grid grid-cols-12 gap-3 py-4">
-          {error&&
+          {error &&
             <QueryError
               height="300px"
               error={error}
@@ -249,22 +249,19 @@ const StudentDashboard = () => {
               No today classes found.
             </div>
           ) : upcomingClasses.map((item, index) => {
-            const day = (new Date()).getDate();
-            const month = dateObj.toLocaleString('default', { month: 'short' });
+            const today = new Date();
             return (
               <div
-                key={item.id}
+                key={index}
                 className={`${item.meeting_link ? "bg-[#EAF3F2]" : "bg-[#F5E3DA]"
                   } rounded-md`}
               >
                 <div className="flex flex-col md:flex-row gap-4 md:justify-between p-4 md:items-center">
                   <div className="flex flex-col md:flex-row gap-3 md:items-center justify-center">
                     <div className="h-20 w-20 rounded-full shadow-xl flex flex-col items-center justify-center bg-white">
-                      <p className="text-xl text-[#06574C] font-semibold">
-                        {day}
-                      </p>
-                      <p className="text-sm text-[#06574C] font-semibold">
-                        {month}
+                      <p className="text-[16px] text-[#06574C] font-semibold">
+                        {dateFormatter(today)?.split(",")[0]} <br />
+                        {dateFormatter(today)?.split(",")[1]?.split("20")[0]}
                       </p>
                     </div>
                     <div>

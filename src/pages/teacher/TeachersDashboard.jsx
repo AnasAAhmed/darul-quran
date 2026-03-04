@@ -369,8 +369,7 @@ const TeachersDashboard = () => {
               No today classes found.
             </div>
           ) : upcomingClasses.map((item, index) => {
-            const day = (new Date()).getDate();
-            const month = day.toLocaleString('default', { month: 'short' });
+            const today = new Date();
             return (
               <div
                 key={index}
@@ -380,11 +379,9 @@ const TeachersDashboard = () => {
                 <div className="flex flex-col md:flex-row gap-4 md:justify-between p-4 md:items-center">
                   <div className="flex flex-col md:flex-row gap-3 md:items-center justify-center">
                     <div className="h-20 w-20 rounded-full shadow-xl flex flex-col items-center justify-center bg-white">
-                      <p className="text-xl text-[#06574C] font-semibold">
-                        {day}
-                      </p>
-                      <p className="text-sm text-[#06574C] font-semibold">
-                        {month}
+                      <p className="text-[16px] text-[#06574C] font-semibold">
+                        {dateFormatter(today)?.split(",")[0]} <br />
+                        {dateFormatter(today)?.split(",")[1]?.split("20")[0]}
                       </p>
                     </div>
                     <div>
@@ -429,7 +426,7 @@ const TeachersDashboard = () => {
                           <Button
                             startContent={<Video size={20} />}
                             size="sm"
-                            className="bg-green-600 w-32 text-white rounded-md"
+                            color="success"
                             as={Link}
                             to={item.meeting_link}
                             target="_blank"
@@ -520,7 +517,7 @@ const TeachersDashboard = () => {
                 <DrawerHeader className="flex flex-col gap-1 ">
                   Announcements
                 </DrawerHeader>
-                <DrawerBody className="!px-0">
+                <DrawerBody className="px-0!">
                   <Form className="bg-[#95C4BE47] p-3">
                     <CourseSelect label="Select Course" onChange={(val) => setCourse(val)} />
                     <div className="flex gap-3 w-full">
@@ -579,7 +576,7 @@ const TeachersDashboard = () => {
                           className="p-4 bg-white rounded-md my-2 group hover:bg-[#FBF4EC] border-[#D28E3D] border-1 m-3 cursor-pointer"
                         >
                           <div className="flex gap-3 items-center">
-                            <div className="h-10 w-10 flex flex-shrink-0 justify-center items-center group-hover:bg-white bg-[#FBF4EC] rounded-full shadow-xl">
+                            <div className="h-10 w-10 flex shrink-0 justify-center items-center group-hover:bg-white bg-[#FBF4EC] rounded-full shadow-xl">
                               {item.createdBy === "teacher" || item.description?.toLowerCase()?.includes("schedule") ? (
                                 <CiCalendar color="#D28E3D" size={22} />
                               ) : (
@@ -622,7 +619,7 @@ const TeachersDashboard = () => {
                       {files.map((file, index) => (
                         <div
                           key={index}
-                          className="relative w-[80px] h-[60px] rounded-lg border border-gray-200 shadow-sm flex items-center justify-center shrink-0 bg-gray-50 mt-1 mr-1"
+                          className="relative w-20 h-[60px] rounded-lg border border-gray-200 shadow-sm flex items-center justify-center shrink-0 bg-gray-50 mt-1 mr-1"
                         >
                           {file.type.startsWith("image/") ? (
                             <img

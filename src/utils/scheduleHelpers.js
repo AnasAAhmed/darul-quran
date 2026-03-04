@@ -49,6 +49,14 @@ export const formatTime12Hour = (time24) => {
     return `${hour12}:${minutes} ${ampm}`;
 };
 
+const isTodayInSchedule = (scheduleDates) => {
+    if (!Array.isArray(scheduleDates)) return false;
+
+    const todayStr = new Date().toISOString().split("T")[0];
+
+    return scheduleDates.includes(todayStr);
+};
+
 /**
  * Check if a class is currently live (between start and end time)
  * @param {Object} schedule - Schedule object with date, startTime, endTime
@@ -56,27 +64,24 @@ export const formatTime12Hour = (time24) => {
  */
 export const isClassLive = (schedule) => {
     if (!schedule) return false;
+
     const now = new Date();
 
-    // Try parsing DD-M-YY format first, fallback to standard date parsing
-    let classDate = parseDateFromDB(schedule.date);
-    if (!classDate) {
-        classDate = new Date(schedule.date || schedule.createdAt || new Date());
-    }
+    const scheduleDates = schedule.schedule_dates;
+    if (!isTodayInSchedule(scheduleDates)) return false;
 
     const startTimeStr = schedule.startTime || schedule.start_time;
     const endTimeStr = schedule.endTime || schedule.end_time;
 
     if (!startTimeStr || !endTimeStr) return false;
 
-    const [startHour, startMin] = startTimeStr.split(':');
-    const [endHour, endMin] = endTimeStr.split(':');
+    const today = new Date().toISOString().split("T")[0];
 
-    const startTime = new Date(classDate);
-    startTime.setHours(parseInt(startHour), parseInt(startMin), 0);
+    const [startHour, startMin] = startTimeStr.split(":");
+    const [endHour, endMin] = endTimeStr.split(":");
 
-    const endTime = new Date(classDate);
-    endTime.setHours(parseInt(endHour), parseInt(endMin), 0);
+    const startTime = new Date(`${today}T${startHour}:${startMin}:00`);
+    const endTime = new Date(`${today}T${endHour}:${endMin}:00`);
 
     return now >= startTime && now <= endTime;
 };
@@ -88,21 +93,19 @@ export const isClassLive = (schedule) => {
  */
 export const isClassExpired = (schedule) => {
     if (!schedule) return false;
+
     const now = new Date();
 
-    // Try parsing DD-M-YY format first, fallback to standard date parsing
-    let classDate = parseDateFromDB(schedule.date);
-    if (!classDate) {
-        classDate = new Date(schedule.date || schedule.createdAt || new Date());
-    }
+    const scheduleDates = schedule.schedule_dates;
+    if (!isTodayInSchedule(scheduleDates)) return false;
 
     const endTimeStr = schedule.endTime || schedule.end_time;
     if (!endTimeStr) return false;
 
-    const [endHour, endMin] = endTimeStr.split(':');
+    const today = new Date().toISOString().split("T")[0];
+    const [endHour, endMin] = endTimeStr.split(":");
 
-    const endTime = new Date(classDate);
-    endTime.setHours(parseInt(endHour), parseInt(endMin), 0);
+    const endTime = new Date(`${today}T${endHour}:${endMin}:00`);
 
     return now > endTime;
 };

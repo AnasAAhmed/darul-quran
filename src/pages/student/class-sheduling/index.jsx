@@ -94,7 +94,7 @@ const StudentClassSheduling = () => {
 
             schedule.scheduleDates.forEach((scheduleDate) => {
                 // Handle both string dates and object dates
-                const dateStr = typeof scheduleDate === 'string' ? scheduleDate : scheduleDate?.date;
+                const dateStr = scheduleDate;
                 const parsedDate = parseDateFromDB(dateStr);
                 if (!parsedDate || isNaN(parsedDate.getTime())) return;
 
@@ -306,7 +306,7 @@ const StudentClassSheduling = () => {
                     <div className="flex text-[#666666] text-sm items-center gap-2">
                         {type === 'normal' ? "CreatedAt: " : <CiCalendar color="#666666" size={20} />}
                         <p className="text-[#666666] text-sm">
-                            {dateFormatter(schedule.date, true)}
+                            {dateFormatter(schedule.date)}
                         </p>
                     </div>
                     <div className="flex items-center gap-2">
