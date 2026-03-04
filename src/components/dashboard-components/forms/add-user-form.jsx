@@ -223,7 +223,7 @@ const AddUserForm = ({ id, title, desc, userData, isEdit }) => {
         oldRole: userData?.role,
         bio: data?.bio,
         tagline: data?.tagline,
-        experience_years: data?.experience_years,
+        experience_years: data?.experience_years || null,
       };
 
       // Add password only if provided and valid
@@ -241,7 +241,7 @@ const AddUserForm = ({ id, title, desc, userData, isEdit }) => {
       successMessage(res.data.message || "User created successfully");
       navigate("/admin/user-management?role=" + payload.role);
     } catch (error) {
-      errorMessage(error.message );
+      errorMessage(error.message);
     } finally {
       setLoading(false);
     }

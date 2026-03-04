@@ -370,10 +370,10 @@ const TeachersDashboard = () => {
             </div>
           ) : upcomingClasses.map((item, index) => {
             const day = (new Date()).getDate();
-            const month = dateObj.toLocaleString('default', { month: 'short' });
+            const month = day.toLocaleString('default', { month: 'short' });
             return (
               <div
-                key={item.id}
+                key={index}
                 className={`${item.meeting_link ? "bg-[#EAF3F2]" : "bg-[#F5E3DA]"
                   } rounded-md`}
               >

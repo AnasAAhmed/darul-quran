@@ -363,26 +363,28 @@ const TeacherClassSheduling = () => {
                                 {isExpired ? "Ended" : "Locked"}
                             </Button>
                         )}
-                        <Button
-                            radius="sm"
-                            size="md"
-                            variant="bordered"
-                            color="success"
-                            onPress={() => navigate('/teacher/class-scheduling/manage', { state: schedule })}
-                        >
-                            Reschedule
-                        </Button>
-
                         {type === 'normal' && (
-                            <Button
-                                radius="sm"
-                                size="md"
-                                variant="bordered"
-                                color="danger"
-                                onPress={() => handleCancelClass(schedule)}
-                            >
-                                Delete
-                            </Button>
+                            <>
+
+                                <Button
+                                    radius="sm"
+                                    size="md"
+                                    variant="bordered"
+                                    color="success"
+                                    onPress={() => navigate('/teacher/class-scheduling/manage', { state: schedule })}
+                                >
+                                    Reschedule
+                                </Button>
+                                <Button
+                                    radius="sm"
+                                    size="md"
+                                    variant="bordered"
+                                    color="danger"
+                                    onPress={() => handleCancelClass(schedule)}
+                                >
+                                    Delete
+                                </Button>
+                            </>
                         )}
                     </div>
                 </div>
@@ -420,7 +422,7 @@ const TeacherClassSheduling = () => {
             <div className="flex items-center max-sm:flex-wrap gap-2">
                 <Button
                     radius="sm"
-                    size="md"
+                    size="sm"
                     onPress={() => setViewType('normal')}
                     variant={viewType === 'normal' ? 'solid' : 'bordered'}
                     color="success"
@@ -429,7 +431,7 @@ const TeacherClassSheduling = () => {
                 </Button>
                 <Button
                     radius="sm"
-                    size="md"
+                    size="sm"
                     variant={viewType === 'allDates' ? 'solid' : 'bordered'}
                     color="success"
                     onPress={() => setViewType('allDates')}
