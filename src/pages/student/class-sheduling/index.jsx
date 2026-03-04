@@ -18,17 +18,14 @@ import { Clock, Lock, Video, Calendar as CalendarIcon, User, MapPin } from "luci
 import { FaRegAddressCard } from "react-icons/fa";
 import { LuSquareArrowOutUpRight } from "react-icons/lu";
 import { Calendar } from "@heroui/react";
-import { today, getLocalTimeZone, parseDate } from "@internationalized/date";
 import {
     useGetScheduleQuery,
-    useDeleteScheduleMutation,
 } from "../../../redux/api/schedules";
 import { useCreateRescheduleRequestMutation } from "../../../redux/api/reschedule";
 import { RescheduleRequestModal } from "../../../components/schedule/RescheduleRequestModal";
 import { errorMessage, successMessage } from "../../../lib/toast.config";
 import { formatTime12Hour, isClassLive, isClassExpired, getStatusColor, getStatusText, getStatusTextForSingleDate } from "../../../utils/scheduleHelpers";
 import { useSelector } from "react-redux";
-import { s } from "framer-motion/client";
 import { dateFormatter } from "../../../lib/utils";
 
 const StudentClassSheduling = () => {
