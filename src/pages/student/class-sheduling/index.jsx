@@ -12,6 +12,7 @@ import {
     ModalHeader,
     ModalBody,
     ModalFooter,
+    useDisclosure,
 } from "@heroui/react";
 import { CiCalendar } from "react-icons/ci";
 import { Clock, Lock, Video, Calendar as CalendarIcon, User, MapPin } from "lucide-react";
@@ -27,6 +28,7 @@ import { errorMessage, successMessage } from "../../../lib/toast.config";
 import { formatTime12Hour, isClassLive, isClassExpired, getStatusColor, getStatusText, getStatusTextForSingleDate, getHoursUntilClass } from "../../../utils/scheduleHelpers";
 import { useSelector } from "react-redux";
 import { dateFormatter } from "../../../lib/utils";
+import CustomCalendar from "../../../components/teacher/CustomCalendar";
 
 const StudentClassSheduling = () => {
     const [filterStatus, setFilterStatus] = useState("all");
@@ -36,6 +38,8 @@ const StudentClassSheduling = () => {
     const [isCancelModalOpen, setIsCancelModalOpen] = useState(false);
     const [isMarking, setIsMarking] = useState(false);
     const [viewType, setViewType] = useState('allDates');
+    const [selectedDate, setSelectedDate] = useState(null);
+    const [schedulesForSelectedDate, setSchedulesForSelectedDate] = useState([]);
     const { data: scheduleData, isLoading } = useGetScheduleQuery({
         page: "1",
         limit: "100",
@@ -45,6 +49,7 @@ const StudentClassSheduling = () => {
     const [createRescheduleRequest, { isLoading: isRescheduling }] = useCreateRescheduleRequestMutation();
 
     const { user: currentUser } = useSelector((state) => state.user);
+    const { isOpen: isDateModalOpen, onOpen: openDateModal, onOpenChange: closeDateModal } = useDisclosure();
 
     const schedulesDates = useMemo(() => {
         if (!scheduleData?.schedules) return [];
@@ -132,6 +137,28 @@ const StudentClassSheduling = () => {
 
     //formatted dates
     const scheduleDates = Object.keys(schedulesByDate);
+
+    const handleDateClick = (date) => {
+        // date is a JavaScript Date object from CustomCalendar
+        const year = date.getFullYear();
+        const month = date.getMonth() + 1;
+        const day = date.getDate();
+        const dateStr = `${year}-${month}-${day}`;
+
+        setSelectedDate(date);
+
+        // Find schedules for this date
+        const dateKey = date.toLocaleDateString("en-US", {
+            weekday: "long",
+            month: "long",
+            day: "numeric",
+            year: "numeric"
+        });
+
+        const schedules = schedulesByDate[dateKey] || [];
+        setSchedulesForSelectedDate(schedules);
+        openDateModal();
+    };
 
     const handleJoinClass = async (schedule) => {
         if (!currentUser) {
@@ -531,9 +558,9 @@ const StudentClassSheduling = () => {
                 }
 
                 {/* Sidebar - Calendar & Filters */}
-                <div className="col-span-12 lg:col-span-4 space-y-4">
+                <div className="col-span-12 lg:col-span-4 space-y-4 mb-4">
                     {/* Quick Stats Card */}
-                    <div className="bg-white p-4 rounded-lg shadow-sm">
+                    {/* <div className="bg-white p-4 rounded-lg shadow-sm">
                         <h3 className="text-sm font-semibold text-gray-700 mb-3">Schedule Overview</h3>
                         {viewType === 'normal' ?
                             <div className="grid grid-cols-2 gap-3">
@@ -595,41 +622,15 @@ const StudentClassSheduling = () => {
                                 </div>
                             </div>
                         }
+                    </div> */}
+
+                    <div className="bg-white w-full space-y-4 p-4 rounded-lg shadow-sm">
+                        <CustomCalendar
+                            selectedDates={schedulesDates}
+                            onDateClick={handleDateClick}
+                        />
                     </div>
 
-                    {/* Calendar */}
-                    <div className="bg-white p-4 rounded-lg shadow-sm">
-                        <h3 className="text-sm font-semibold text-gray-700 mb-3">Calendar</h3>
-                        <div className="w-full flex justify-center">
-                            <style>{`
-                                [data-selected="true"] {
-                                    background-color: #06574C !important;
-                                    color: white !important;
-                                    border-radius: 9999px !important;
-                                }
-                                [data-hovered="true"] {
-                                    background-color: #95C4BE !important;
-                                    border-radius: 9999px !important;
-                                }
-                            `}</style>
-                            <Calendar
-                                aria-label="Select Date"
-                                classNames={{
-                                    headerWrapper: "bg-[#FBF4EC] w-full",
-                                    gridHeaderRow: "bg-[#FBF4EC] w-full",
-                                    gridBody: "bg-[#FBF4EC] w-full",
-                                    gridWrapper: "bg-[#FBF4EC] w-full",
-                                    root: "w-full",
-                                    cell: "w-full",
-                                    table: "w-full",
-                                }}
-                                isReadOnly
-                                isDateUnavailable={(date) =>
-                                    schedulesDates?.includes(date.toString())
-                                }
-                            />
-                        </div>
-                    </div>
 
                     {/* Filters */}
                     <div className="bg-white p-4 rounded-lg shadow-sm space-y-4">
@@ -655,7 +656,158 @@ const StudentClassSheduling = () => {
                 </div>
             </div>
 
-            {/* Reschedule Request Modal */}
+            <Modal
+                isOpen={isDateModalOpen}
+                onOpenChange={closeDateModal}
+                size="lg"
+                scrollBehavior="inside"
+            >
+                <ModalContent>
+                    <ModalHeader>
+                        <div className="flex flex-col">
+                            <h2 className="text-lg font-semibold text-[#06574C]">
+                                Schedule Details For
+                            </h2>
+                            {selectedDate && (
+                                <p className="text-sm text-gray-600">
+                                    {selectedDate.toLocaleDateString("en-US", {
+                                        weekday: "long",
+                                        month: "long",
+                                        day: "numeric",
+                                        year: "numeric"
+                                    })}
+                                </p>
+                            )}
+                        </div>
+                    </ModalHeader>
+                    <ModalBody>
+                        {schedulesForSelectedDate.length === 0 ? (
+                            <div className="text-center py-8">
+                                <CalendarIcon className="mx-auto mb-4 text-gray-400" size={48} />
+                                <p className="text-gray-500">No classes scheduled for this date</p>
+                            </div>
+                        ) : (
+                            <div className="flex flex-col gap-4">
+                                {schedulesForSelectedDate.map((schedule) => (
+                                    <div
+                                        key={schedule.id}
+                                        className="bg-white border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow"
+                                    >
+                                        <div className="flex flex-wrap gap-2 mb-3">
+                                            {getClassStatusBadge(schedule, 'single')}
+                                            {schedule.courseName && (
+                                                <Chip
+                                                    size="sm"
+                                                    variant="flat"
+                                                    className="bg-[#95C4BE33] text-[#06574C]"
+                                                >
+                                                    Course: {schedule.courseName}
+                                                </Chip>
+                                            )}
+                                        </div>
+                                        <h3 className="text-lg font-bold text-gray-800 mb-2">
+                                            {schedule.title}
+                                        </h3>
+
+                                        {schedule.description && (
+                                            <p className="text-gray-600 text-sm mb-3">
+                                                {schedule.description}
+                                            </p>
+                                        )}
+
+                                        <div className="flex flex-col gap-2 mb-4">
+                                            <div className="flex items-center gap-2 text-gray-600 text-sm">
+                                                <CiCalendar size={18} />
+                                                <span>
+                                                    {dateFormatter(schedule.date)}
+                                                </span>
+                                            </div>
+                                            <div className="flex items-center gap-2 text-gray-600 text-sm">
+                                                <Clock size={18} />
+                                                <span>
+                                                    {formatTime12Hour(schedule.startTime)} - {formatTime12Hour(schedule.endTime)}
+                                                </span>
+                                            </div>
+                                            {schedule.meetingLink && (
+                                                <div className="flex items-center gap-2 text-gray-600 text-sm">
+                                                    <Video size={18} />
+                                                    <span>Zoom Class Available</span>
+                                                </div>
+                                            )}
+                                            {schedule.teacherName && (
+                                                <div className="flex items-center gap-2 text-gray-600 text-sm">
+                                                    <User size={18} />
+                                                    <span>{schedule.teacherName}</span>
+                                                </div>
+                                            )}
+                                        </div>
+
+                                        <Divider className="my-3" />
+
+                                        <div className="flex flex-wrap gap-2">
+                                            {schedule.meetingLink && isClassLive({ ...schedule, scheduleDates: [schedule.date] }) ? (
+                                                <Button
+                                                    size="sm"
+                                                    className="bg-[#1570E8] text-white"
+                                                    startContent={<LuSquareArrowOutUpRight size={16} />}
+                                                    onPress={() => handleJoinClass(schedule)}
+                                                    isLoading={isMarking === schedule.id}
+                                                >
+                                                    Join Class
+                                                </Button>
+                                            ) : (
+                                                <Button
+                                                    size="sm"
+                                                    className="bg-[#9A9A9A] text-white"
+                                                    startContent={<Lock size={16} />}
+                                                    isDisabled
+                                                >
+                                                    Join Locked
+                                                </Button>
+                                            )}
+                                            {canReschedule(schedule) && (
+                                                <Button
+                                                    size="sm"
+                                                    variant="bordered"
+                                                    color="success"
+                                                    onPress={() => {
+                                                        closeDateModal();
+                                                        navigate('/teacher/class-scheduling/manage', { state: schedule });
+                                                    }}
+                                                >
+                                                    Reschedule
+                                                </Button>
+                                            )}
+                                            {canCancel(schedule) && (
+                                                <Button
+                                                    size="sm"
+                                                    variant="bordered"
+                                                    color="danger"
+                                                    onPress={() => {
+                                                        closeDateModal();
+                                                        handleCancelClass(schedule);
+                                                    }}
+                                                >
+                                                    Cancel
+                                                </Button>
+                                            )}
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        )}
+                    </ModalBody>
+                    <ModalFooter>
+                        <Button
+                            variant="flat"
+                            onPress={() => closeDateModal()}
+                        >
+                            Close
+                        </Button>
+                    </ModalFooter>
+                </ModalContent>
+            </Modal>
+
             <RescheduleRequestModal
                 isOpen={isRescheduleModalOpen}
                 onClose={() => {
@@ -667,7 +819,6 @@ const StudentClassSheduling = () => {
                 isSubmitting={isRescheduling}
             />
 
-            {/* Cancel Confirmation Modal */}
             <Modal
                 isOpen={isCancelModalOpen}
                 onClose={() => {

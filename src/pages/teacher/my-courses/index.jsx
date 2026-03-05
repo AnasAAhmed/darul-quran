@@ -1,4 +1,4 @@
-import { Button, Calendar, Chip, Input, Tab, Tabs } from "@heroui/react";
+import { Button, Chip, Input, Tab, Tabs } from "@heroui/react";
 import {
   Clock,
   Download,
@@ -97,23 +97,23 @@ const MyCourses = () => {
       })
       .slice(0, 5) || [];
 
-  const shouldShowZoomButton = upcomingClasses.some((schedule) => {
-    if (!schedule.startTime || !schedule.endTime || !schedule.scheduleDate) return false;
-    const scheduleDateTime = new Date(`${schedule.scheduleDate}T${schedule.startTime}`);
-    const nowTime = new Date();
-    const endTime = new Date(`${schedule.scheduleDate}T${schedule.endTime}`);
+  // const shouldShowZoomButton = upcomingClasses.some((schedule) => {
+  //   if (!schedule.startTime || !schedule.endTime || !schedule.scheduleDate) return false;
+  //   const scheduleDateTime = new Date(`${schedule.scheduleDate}T${schedule.startTime}`);
+  //   const nowTime = new Date();
+  //   const endTime = new Date(`${schedule.scheduleDate}T${schedule.endTime}`);
 
-    return nowTime >= scheduleDateTime && nowTime <= endTime;
-  });
+  //   return nowTime >= scheduleDateTime && nowTime <= endTime;
+  // });
 
-  const activeSchedule = upcomingClasses.find((schedule) => {
-    if (!schedule.startTime || !schedule.endTime || !schedule.scheduleDate) return false;
-    const scheduleDateTime = new Date(`${schedule.scheduleDate}T${schedule.startTime}`);
-    const nowTime = new Date();
-    const endTime = new Date(`${schedule.scheduleDate}T${schedule.endTime}`);
+  // const activeSchedule = upcomingClasses.find((schedule) => {
+  //   if (!schedule.startTime || !schedule.endTime || !schedule.scheduleDate) return false;
+  //   const scheduleDateTime = new Date(`${schedule.scheduleDate}T${schedule.startTime}`);
+  //   const nowTime = new Date();
+  //   const endTime = new Date(`${schedule.scheduleDate}T${schedule.endTime}`);
 
-    return nowTime >= scheduleDateTime && nowTime <= endTime;
-  });
+  //   return nowTime >= scheduleDateTime && nowTime <= endTime;
+  // });
 
   const cardsData = [
     {
@@ -191,12 +191,12 @@ const MyCourses = () => {
     return <FaClipboardList color="#06574C" size={30} />;
   };
 
-  const handleJoinZoom = () => {
-    const link = activeSchedule?.meetingLink || courseData?.course?.meetingLink;
-    if (link) {
-      window.open(link, "_blank");
-    }
-  };
+  // const handleJoinZoom = () => {
+  //   const link = activeSchedule?.meetingLink || courseData?.course?.meetingLink;
+  //   if (link) {
+  //     window.open(link, "_blank");
+  //   }
+  // };
 
   if (courseLoading) {
     return <Loader text="Loading course data..." />;
@@ -211,18 +211,16 @@ const MyCourses = () => {
     />
   }
   return (
-    <div className="bg-white bg-linear-to-t from-[#F1C2AC]/50 to-[#95C4BE]/50 h-scrseen px-2 sm:px-3">
-      <div className="md:flex md:justify-between md:items-center max-md:pb-3 ">
-        <div className="flex flex-wrap items-start">
-          <DashHeading
-            title={courseData?.course?.courseName || "Course Name"}
-            desc={`${courseData?.stats?.totalStudents || 0} Students Enrolled`}
-          />
-          <p className="bg-white capitalize text-[#06574C] mt-8 py-1.5 text-xs  rounded-md text-center font-semibold w-20 max-md:absolute max-md:top-1/10 max-md:left-3/4">
-            {courseData?.course?.status || "Active"}
-          </p>
-        </div>
-        <Button
+    <div className="bg-white bg-linear-to-t from-[#F1C2AC]/50 to-[#95C4BE]/50 min-h-screen px-2 sm:px-3">
+      <div className="flex justify-between ">
+        <DashHeading
+          title={courseData?.course?.courseName || "Course Name"}
+          desc={`${courseData?.stats?.totalStudents || 0} Students Enrolled`}
+        />
+        <p className="bg-white capitalize text-[#06574C] mt-8 py-1.5 text-xs h-8 rounded-md text-center font-semibold w-20 max-md:absolute max-md:top-1/10 max-md:left-3/4">
+          {courseData?.course?.status || "Active"}
+        </p>
+        {/* <Button
           className=" max-md:w-full"
           color="success"
           size="lg"
@@ -234,7 +232,7 @@ const MyCourses = () => {
           {shouldShowZoomButton || activeSchedule?.meetingLink
             ? "Join Zoom"
             : "No Active Session"}
-        </Button>
+        </Button> */}
       </div>
 
       <div className="pb-4 gap-5  overflow-x-auto grid grid-cols-1 sm:grid-cols-4">
@@ -352,7 +350,7 @@ const MyCourses = () => {
         <div className="p-3 flex justify-between items-center ">
           <div>
             <Input
-              className="w-100"
+              className="max-w-100"
               size="md"
               radius="sm"
               placeholder={`Search ${activeTab}...`}
@@ -520,7 +518,6 @@ const MyCourses = () => {
           </div>
         )}
 
-        {/* Students Tab Content */}
         {activeTab === "students" && (
           <div className="flex flex-col gap-3">
             {studentsLoading ? (
@@ -543,10 +540,10 @@ const MyCourses = () => {
                           Enrolled Date
                         </th>
                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                          Progress
+                          Lesson Completed
                         </th>
                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                          Status
+                          Payment Status
                         </th>
                       </tr>
                     </thead>
@@ -597,7 +594,6 @@ const MyCourses = () => {
                   </table>
                 </div>
 
-                {/* Pagination */}
                 {studentsData?.totalPages > 1 && (
                   <div className="flex justify-between items-center px-4 py-3">
                     <div className="text-sm text-gray-500">
@@ -641,7 +637,6 @@ const MyCourses = () => {
           </div>
         )}
 
-        {/* Attendance Tab Content */}
         {activeTab === "attendance" && (
           <div className="flex flex-col gap-3">
             {attendanceLoading ? (

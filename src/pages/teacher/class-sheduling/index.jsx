@@ -18,7 +18,7 @@ import { CiCalendar } from "react-icons/ci";
 import { Clock, Lock, Video, Calendar as CalendarIcon, User, MapPin, PlusIcon } from "lucide-react";
 import { FaRegAddressCard } from "react-icons/fa";
 import { LuSquareArrowOutUpRight } from "react-icons/lu";
-import { Calendar } from "@heroui/react";
+import CustomCalendar from "../../../components/teacher/CustomCalendar";
 import {
     useGetScheduleQuery,
     useDeleteScheduleMutation,
@@ -37,8 +37,11 @@ const TeacherClassSheduling = () => {
     const [selectedSchedule, setSelectedSchedule] = useState(null);
     const [isMarking, setIsMarking] = useState(false);
     const [viewType, setViewType] = useState('normal');
+    const [selectedDate, setSelectedDate] = useState(null);
+    const [schedulesForSelectedDate, setSchedulesForSelectedDate] = useState([]);
 
     const { onOpenChange, isOpen } = useDisclosure()
+    const { isOpen: isDateModalOpen, onOpen: openDateModal, onOpenChange: closeDateModal } = useDisclosure();
 
     const { data: scheduleData, isLoading } = useGetScheduleQuery({
         page: "1",
@@ -211,7 +214,29 @@ const TeacherClassSheduling = () => {
             : new Date(`${schedule.date}T${schedule.startTime}`);
         const now = new Date();
         const hoursUntilClass = (scheduleDateTime - now) / (1000 * 60 * 60);
-        return hoursUntilClass > 0; // Can cancel anytime before class starts
+        return hoursUntilClass > 0;
+    };
+
+    const handleDateClick = (date) => {
+        // date is a JavaScript Date object from CustomCalendar
+        const year = date.getFullYear();
+        const month = date.getMonth() + 1;
+        const day = date.getDate();
+        const dateStr = `${year}-${month}-${day}`;
+
+        setSelectedDate(date);
+
+        // Find schedules for this date
+        const dateKey = date.toLocaleDateString("en-US", {
+            weekday: "long",
+            month: "long",
+            day: "numeric",
+            year: "numeric"
+        });
+
+        const schedules = schedulesByDate[dateKey] || [];
+        setSchedulesForSelectedDate(schedules);
+        openDateModal();
     };
 
     const getClassStatusBadge = (schedule, type = 'single') => {
@@ -306,11 +331,11 @@ const TeacherClassSheduling = () => {
                         {schedule.description}
                     </p>
                 )}
-                <p className="text-[#666666] text-sm mb-4 line-clamp-2">
+                {type === 'normal' &&<p className="text-[#666666] text-sm mb-4 line-clamp-2">
                     {schedule.scheduleDates?.length === 1 ? new Date(schedule.scheduleDates[0]).toDateString() : (new Date(schedule.scheduleDates[0]).toDateString()
                         + ' - to - ' +
                         new Date(schedule.scheduleDates[schedule.scheduleDates?.length - 1]).toDateString())}
-                </p>
+                </p>}
                 <div className="flex flex-wrap gap-4 mb-4">
                     <div className="flex text-[#666666] text-sm items-center gap-2">
                         {type === 'normal' ? "CreatedAt: " : <CiCalendar color="#666666" size={20} />}
@@ -414,26 +439,12 @@ const TeacherClassSheduling = () => {
         { key: "completed", label: "Completed" },
     ];
 
-
     return (
         <div className="h-full relative bg-linear-to-t from-[#F1C2AC]/50 to-[#95C4BE]/50 px-2 sm:px-3 w-full nddo-scrollbar top-0 bottom-0 overflow-auto">
-            <div className="flex items-center max-sm:flex-wrap justify-between gap-2">
-                <DashHeading
-                    title="My Course's Schedules"
-                    desc="View and manage your upcoming live course's schedules"
-                />
-                <Button
-                    startContent={<PlusIcon />}
-                    radius="sm"
-                    size="md"
-                    color="success"
-                    as={Link}
-                    // onPress={() => navigate('/teacher/class-scheduling/manage',{state:})}
-                    to="/teacher/class-scheduling/manage"
-                >
-                    Schedule New
-                </Button>
-            </div>
+            <DashHeading
+                title="My Course's Schedules"
+                desc="View and manage your upcoming live course's schedules"
+            />
             <div className="flex items-center max-sm:flex-wrap gap-2">
                 <Button
                     radius="sm"
@@ -467,12 +478,12 @@ const TeacherClassSheduling = () => {
                         </div>
                     ) : (
                         scheduleDates.map((dateKey) => (
-                            <div key={dateKey} className="mb-6">
+                            <div key={dateKey} className="m b-6">
                                 <DashHeading
                                     title={dateKey}
                                     desc={`${schedulesByDate[dateKey].length} ${schedulesByDate[dateKey].length === 1 ? 'class' : 'classes'} scheduled`}
                                 />
-                                <div className="mt-3">
+                                <div className="mtd-3">
                                     {schedulesByDate[dateKey].map((schedule) => (
                                         <ScheduleCard key={schedule.id} schedule={schedule} />
                                     ))}
@@ -494,13 +505,14 @@ const TeacherClassSheduling = () => {
                             </div>
                         ) : (
                             scheduleData?.schedules?.map((i) => (
-                                <div key={i.id} className="mb-6">
+                                <div key={i.id} className="mdb-6">
                                     <DashHeading
-                                        title={i.scheduleDates?.length === 1 ? new Date(i.scheduleDates[0]).toDateString() : (new Date(i.scheduleDates[0]).toDateString()
+                                        title={"Course: "+i.courseName}
+                                        desc={i.scheduleDates?.length === 1 ? new Date(i.scheduleDates[0]).toDateString() : (new Date(i.scheduleDates[0]).toDateString()
                                             + ' - to - ' +
                                             new Date(i.scheduleDates[i.scheduleDates?.length - 1]).toDateString())}
                                     />
-                                    <div className="mt-3">
+                                    <div className="mt-d3">
                                         <ScheduleCard key={i.id} schedule={i} type="normal" />
                                     </div>
                                 </div>
@@ -510,9 +522,9 @@ const TeacherClassSheduling = () => {
                 }
 
                 {/* Sidebar - Calendar & Filters */}
-                <div className="col-span-12 lg:col-span-4 space-y-4">
+                <div className="col-span-12 lg:col-span-4 space-y-4 mb-4">
                     {/* Quick Stats Card */}
-                    <div className="bg-white p-4 rounded-lg shadow-sm">
+                    {/* <div className="bg-white p-4 rounded-lg shadow-sm">
                         <h3 className="text-sm font-semibold text-gray-700 mb-3">Schedule Overview</h3>
                         {viewType === 'normal' ?
                             <div className="grid grid-cols-2 gap-3">
@@ -574,44 +586,28 @@ const TeacherClassSheduling = () => {
                                 </div>
                             </div>
                         }
-                    </div>
+                    </div> */}
 
-                    {/* Calendar */}
-                    <div className="bg-white p-4 rounded-lg shadow-sm">
-                        <h3 className="text-sm font-semibold text-gray-700 mb-3">Calendar</h3>
-                        <div className="w-full flex justify-center">
-                            <style>{`
-                                [data-selected="true"] {
-                                    background-color: #06574C !important;
-                                    color: white !important;
-                                    border-radius: 9999px !important;
-                                }
-                                [data-hovered="true"] {
-                                    background-color: #95C4BE !important;
-                                    border-radius: 9999px !important;
-                                }
-                            `}</style>
-                            <Calendar
-                                aria-label="Select Date"
-                                classNames={{
-                                    headerWrapper: "bg-[#FBF4EC] w-full",
-                                    gridHeaderRow: "bg-[#FBF4EC] w-full",
-                                    gridBody: "bg-[#FBF4EC] w-full",
-                                    gridWrapper: "bg-[#FBF4EC] w-full",
-                                    root: "w-full",
-                                    cell: "w-full",
-                                    table: "w-full",
-                                }}
-                                isReadOnly
-                                isDateUnavailable={(date) =>
-                                    schedulesDates?.includes(date.toString())
-                                }
-                            />
-                        </div>
+                    <div className="bg-white w-full space-y-4 p-4 rounded-lg shadow-sm">
+                        <Button
+                            startContent={<PlusIcon />}
+                            radius="sm"
+                            size="md"
+                            color="success"
+                            as={Link}
+                            className="w-full"
+                            to="/teacher/class-scheduling/manage"
+                        >
+                            Schedule New
+                        </Button>
+                        <CustomCalendar
+                            selectedDates={schedulesDates}
+                            onDateClick={handleDateClick}
+                        />
                     </div>
 
                     {/* Filters */}
-                    <div className="bg-white p-4 rounded-lg shadow-sm space-y-4">
+                    <div className="bg-white pointer-events-auto p-4 rounded-lg shadow-sm space-y-4">
                         <div>
                             <label className="text-sm font-semibold text-gray-700 mb-2 block">
                                 Filter by Status
@@ -633,6 +629,160 @@ const TeacherClassSheduling = () => {
                     </div>
                 </div>
             </div>
+
+            {/* Modal for showing schedule details when date is clicked */}
+            <Modal
+                isOpen={isDateModalOpen}
+                onOpenChange={closeDateModal}
+                size="lg"
+                scrollBehavior="inside"
+            >
+                <ModalContent>
+                    <ModalHeader>
+                        <div className="flex flex-col">
+                            <h2 className="text-lg font-semibold text-[#06574C]">
+                                Schedule Details For
+                            </h2>
+                            {selectedDate && (
+                                <p className="text-sm text-gray-600">
+                                    {selectedDate.toLocaleDateString("en-US", {
+                                        weekday: "long",
+                                        month: "long",
+                                        day: "numeric",
+                                        year: "numeric"
+                                    })} 
+                                </p>
+                            )}
+                        </div>
+                    </ModalHeader>
+                    <ModalBody>
+                        {schedulesForSelectedDate.length === 0 ? (
+                            <div className="text-center py-8">
+                                <CalendarIcon className="mx-auto mb-4 text-gray-400" size={48} />
+                                <p className="text-gray-500">No classes scheduled for this date</p>
+                            </div>
+                        ) : (
+                            <div className="flex flex-col gap-4">
+                                {schedulesForSelectedDate.map((schedule) => (
+                                    <div
+                                        key={schedule.id}
+                                        className="bg-white border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow"
+                                    >
+                                        <div className="flex flex-wrap gap-2 mb-3">
+                                            {getClassStatusBadge(schedule, 'single')}
+                                            {schedule.courseName && (
+                                                <Chip
+                                                    size="sm"
+                                                    variant="flat"
+                                                    className="bg-[#95C4BE33] text-[#06574C]"
+                                                >
+                                                    Course: {schedule.courseName}
+                                                </Chip>
+                                            )}
+                                        </div>
+                                        <h3 className="text-lg font-bold text-gray-800 mb-2">
+                                            {schedule.title}
+                                        </h3>
+
+                                        {schedule.description && (
+                                            <p className="text-gray-600 text-sm mb-3">
+                                                {schedule.description}
+                                            </p>
+                                        )}
+
+                                        <div className="flex flex-col gap-2 mb-4">
+                                            <div className="flex items-center gap-2 text-gray-600 text-sm">
+                                                <CiCalendar size={18} />
+                                                <span>
+                                                    {dateFormatter(schedule.date)}
+                                                </span>
+                                            </div>
+                                            <div className="flex items-center gap-2 text-gray-600 text-sm">
+                                                <Clock size={18} />
+                                                <span>
+                                                    {formatTime12Hour(schedule.startTime)} - {formatTime12Hour(schedule.endTime)}
+                                                </span>
+                                            </div>
+                                            {schedule.meetingLink && (
+                                                <div className="flex items-center gap-2 text-gray-600 text-sm">
+                                                    <Video size={18} />
+                                                    <span>Zoom Class Available</span>
+                                                </div>
+                                            )}
+                                            {schedule.teacherName && (
+                                                <div className="flex items-center gap-2 text-gray-600 text-sm">
+                                                    <User size={18} />
+                                                    <span>{schedule.teacherName}</span>
+                                                </div>
+                                            )}
+                                        </div>
+
+                                        <Divider className="my-3" />
+
+                                        <div className="flex flex-wrap gap-2">
+                                            {schedule.meetingLink && isClassLive({ ...schedule, scheduleDates: [schedule.date] }) ? (
+                                                <Button
+                                                    size="sm"
+                                                    className="bg-[#1570E8] text-white"
+                                                    startContent={<LuSquareArrowOutUpRight size={16} />}
+                                                    onPress={() => handleJoinClass(schedule)}
+                                                    isLoading={isMarking === schedule.id}
+                                                >
+                                                    Join Class
+                                                </Button>
+                                            ) : (
+                                                <Button
+                                                    size="sm"
+                                                    className="bg-[#9A9A9A] text-white"
+                                                    startContent={<Lock size={16} />}
+                                                    isDisabled
+                                                >
+                                                    Join Locked
+                                                </Button>
+                                            )}
+                                            {canReschedule(schedule) && (
+                                                <Button
+                                                    size="sm"
+                                                    variant="bordered"
+                                                    color="success"
+                                                    onPress={() => {
+                                                        closeDateModal();
+                                                        navigate('/teacher/class-scheduling/manage', { state: schedule });
+                                                    }}
+                                                >
+                                                    Reschedule
+                                                </Button>
+                                            )}
+                                            {canCancel(schedule) && (
+                                                <Button
+                                                    size="sm"
+                                                    variant="bordered"
+                                                    color="danger"
+                                                    onPress={() => {
+                                                        closeDateModal();
+                                                        handleCancelClass(schedule);
+                                                    }}
+                                                >
+                                                    Cancel
+                                                </Button>
+                                            )}
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        )}
+                    </ModalBody>
+                    <ModalFooter>
+                        <Button
+                            variant="flat"
+                            onPress={() => closeDateModal()}
+                        >
+                            Close
+                        </Button>
+                    </ModalFooter>
+                </ModalContent>
+            </Modal>
+
             <Modal
                 isOpen={isOpen}
                 onClose={() => {
