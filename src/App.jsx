@@ -39,6 +39,7 @@ import CourseList from "./pages/teacher/my-courses/CourseList";
 import ErrorBoundary from "./components/globalError";
 import TeacherClassSheduling from "./pages/teacher/class-sheduling";
 import CreaterOrUpdateSchedule from "./pages/teacher/class-sheduling/CreaterOrUpdate";
+import StudentAttendanceList from "./pages/teacher/student-attendance-list";
 
 const Home = lazy(() => import("./pages/Home"));
 const CourseManagement = lazy(() =>
@@ -364,6 +365,14 @@ function App() {
               element={
                 <ProtectedRoute isAuthenticated={isAuthenticated} redirect="/">
                   <StudentAttendance />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/teacher/student-attendance-list"
+              element={
+                <ProtectedRoute isAuthenticated={isAuthenticated} redirect="/">
+                  <StudentAttendanceList />
                 </ProtectedRoute>
               }
             />

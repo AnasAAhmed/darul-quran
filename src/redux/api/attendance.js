@@ -29,6 +29,26 @@ export const attendanceApi = createApi({
             }),
             providesTags: ["attendance"],
         }),
+        getTeacherStudentAttendance: builder.query({
+            query: ({ teacherId, page, limit, search, sort, courseId, status }) => ({
+                url: "/teacher-summary",
+                params: { teacherId, page, limit, search, sort, courseId, status },
+            }),
+            providesTags: ["attendance"],
+        }),
+        getStudentAttendanceList: builder.query({
+            query: ({ page, limit, search, courseId }) => ({
+                url: "/student-list",
+                params: { page, limit, search, courseId },
+            }),
+            providesTags: ["attendance"],
+        }),
+        getIndividualStudentAttendanceHistory: builder.query({
+            query: ({ studentId, courseId }) => ({
+                url: `/history/${studentId}/${courseId}`,
+            }),
+            providesTags: ["attendance"],
+        }),
     }),
 });
 
@@ -36,4 +56,7 @@ export const {
     useGetCourseAttendanceSummaryQuery,
     useGetCourseAttendanceDetailQuery,
     useGetAttendanceStatsQuery,
+    useGetTeacherStudentAttendanceQuery,
+    useGetStudentAttendanceListQuery,
+    useGetIndividualStudentAttendanceHistoryQuery,
 } = attendanceApi;
