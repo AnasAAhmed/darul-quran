@@ -9,16 +9,18 @@ import {
   Input,
   Select,
   SelectItem,
+  Spinner,
 } from "@heroui/react";
 import { BellRing, CheckCircle2, Clock, Search, Check, Trash2, DollarSign, Home, MessageSquare } from "lucide-react";
 import { useGetNotificationsQuery, useMarkAsReadMutation } from "../../redux/api/notifications";
 import { Link } from "react-router-dom";
+import { useSelector } from "react-redux";
 
 const NotificationsPage = () => {
   const [search, setSearch] = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState("");
   const [markLoading, setMarkLoading] = useState(null);
-  
+  const { user } = useSelector(state => state?.user)
   useEffect(() => {
     const timer = setTimeout(() => {
       setDebouncedSearch(search);
@@ -26,7 +28,7 @@ const NotificationsPage = () => {
     return () => clearTimeout(timer);
   }, [search]);
 
-  const { data: notificationData, isLoading, refetch } = useGetNotificationsQuery({ search: debouncedSearch });
+  const { data: notificationData, isFetching, isLoading, refetch } = useGetNotificationsQuery({ search: debouncedSearch });
   const [markAsRead, { isLoading: isLoading2 }] = useMarkAsReadMutation();
 
   const notifications = notificationData?.data || [];
@@ -89,31 +91,36 @@ const NotificationsPage = () => {
                 placeholder="Search Notifications..."
                 startContent={<Search size={18} className="text-gray-400" />}
                 className="w-full md:w-64"
+                endContent={
+                  isFetching ?
+                    <Spinner size="sm" color="success" />
+                    : undefined
+                }
                 size="sm"
+                type="search"
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
               />
               <Button
-                variant="bordered"
-                className="border-gray-200 text-gray-500 font-medium"
-                startContent={<Check size={18} className="text-green-500" />}
+                color="success"
+                startContent={<Check size={18} />}
                 onPress={handleMarkAllAsRead}
                 isLoading={isLoading2}
                 size="sm"
               >
                 Mark All Read
               </Button>
-              <Button
+              {/* <Button
                 className="bg-[#06574C] text-white font-medium"
                 size="sm"
               >
                 Delete Read
-              </Button>
+              </Button> */}
             </div>
           </div>
         </div>
 
-        <div className="space-y-4">
+        <div className="space-y-4 min-h-[80vh]">
           {isLoading ? (
             [1, 2, 3, 4, 5].map((i) => (
               <Skeleton key={i} className="w-full bg-white shadow-sm h-30 rounded-xl" />
@@ -140,8 +147,7 @@ const NotificationsPage = () => {
                           </p>
 
                           <div className="flex flex-wrap items-center gap-3 mt-3 text-sm">
-                            <Link to={notif.url || "#"} className="underline text-gray-600 font-medium hover:text-[#06574C]">View</Link>
-                            {!notif.is_read && (
+                            {notif.url && <Link to={(notif.url || "#").replace("ROLE", user.role)} className="underline text-gray-600 font-medium hover:text-[#06574C]">View</Link>}                            {!notif.is_read && (
                               <>
                                 <span className="text-gray-300">•</span>
                                 <Button
@@ -173,7 +179,7 @@ const NotificationsPage = () => {
               </Card>
             ))
           ) : (
-            <div className="text-center py-20 bg-white rounded-2xl shadow-sm">
+            <div className="text-center py-20  bg-white rounded-2xl shadow-sm">
               <p className="text-gray-500 text-lg">No notifications found</p>
             </div>
           )}
