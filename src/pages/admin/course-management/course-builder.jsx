@@ -1010,7 +1010,7 @@ const CourseBuilder = () => {
                       </div>
 
                       <div className="flex gap-3 items-center py-4">
-                        <Select
+                       {formData.type === "one_time" && <Select
                           size="lg"
                           variant="bordered"
                           label="Access Duration"
@@ -1027,7 +1027,7 @@ const CourseBuilder = () => {
                               {item.label}
                             </SelectItem>
                           ))}
-                        </Select>
+                        </Select>}
                         <Input
                           size="lg"
                           variant="bordered"

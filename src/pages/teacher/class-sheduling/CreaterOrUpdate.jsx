@@ -55,6 +55,8 @@ const CreaterOrUpdateSchedule = () => {
         settings: {
             join_before_host: false,
             auto_recording: false,
+            waiting_room: true,
+
         },
     });
     const [createSchedule, { isLoading: isSubmitting, isError }] = useCreateScheduleMutation();
@@ -140,6 +142,7 @@ const CreaterOrUpdateSchedule = () => {
             settings: {
                 join_before_host: false,
                 auto_recording: false,
+                waiting_room: true,
             },
         });
         setIsEdit(false);
@@ -445,6 +448,7 @@ const CreaterOrUpdateSchedule = () => {
                         value={[
                             ...(formData.settings?.join_before_host ? ['join_before_host'] : []),
                             ...(formData.settings?.auto_recording ? ['auto_recording'] : []),
+                            ...(formData.settings?.waiting_room ? ['waiting_room'] : []),
                         ]}
                         onChange={(values) => {
                             setFormData({
@@ -452,12 +456,14 @@ const CreaterOrUpdateSchedule = () => {
                                 settings: {
                                     join_before_host: values.includes('join_before_host'),
                                     auto_recording: values.includes('auto_recording'),
+                                    waiting_room: values.includes('waiting_room'),
                                 },
                             });
                         }}
                     >
                         <Checkbox value="join_before_host">Allow students to join before host</Checkbox>
                         <Checkbox value="auto_recording">Record session automatically</Checkbox>
+                        <Checkbox value="waiting_room">Participants must be admitted by the host before joining.</Checkbox>
                     </CheckboxGroup>
                 </div>
                 <div className="flex items-center max-sm:flex-wrap gap-3 w-full">
