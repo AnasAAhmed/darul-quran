@@ -374,7 +374,7 @@ const UserManagement = () => {
                 aria-label="Pending approvals table"
                 removeWrapper
                 classNames={{
-                  base: "w-full bg-white my-3 rounded-lg overflow-x-scroll w-full no-scrollbar h-[calc(100vh-380px)]",
+                  base: "w-full bg-white my-3 rounded-lg overflow-x-scroll w-full no-scrollbar  min-h-[50vh]",
                   th: "font-bold p-4 text-md  text-[#333333] capitalize tracking-widest  bg-white",
                   tbody: "overflow-y-scroll no-scrollbar",
                   td: "py-3 items-center whitespace-nowrap",

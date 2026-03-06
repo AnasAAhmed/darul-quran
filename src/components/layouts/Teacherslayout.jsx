@@ -131,7 +131,7 @@ export default function TeachersLayout() {
                                     <PopoverTrigger >
                                         <button
                                             type="button"
-                                            className="relative inline-flex items-center justify-center p-3 border-[#CBD5E1] border-[1px] bg-white rounded-full shadow-sm hover:shadow-md"
+                                            className="relative inline-flex items-center justify-center p-3 border-[#CBD5E1] border bg-white rounded-full shadow-sm hover:shadow-md"
                                             aria-label="Notifications"
                                         >
                                             <TbBell size={20} />
@@ -165,10 +165,10 @@ export default function TeachersLayout() {
                                                     >
                                                         <Link to={(notif.url || "#").replace("ROLE", user?.role)}  className="block w-full p-2 hover:bg-gray-50 transition-colors">
                                                             <div className={`p-3 rounded-lg flex flex-col gap-1 ${!notif.is_read ? 'bg-green-50/50 border-l-4 border-l-[#06574C]' : 'bg-white'}`}>
-                                                                <div className="text-sm font-bold text-gray-900 leading-tight break-words">
+                                                                <div className="text-sm font-bold text-gray-900 leading-tight wrap-break-words">
                                                                     {notif.title}
                                                                 </div>
-                                                                <div className="text-xs text-gray-600 line-clamp-2 leading-relaxed break-words">
+                                                                <div className="text-xs text-gray-600 line-clamp-2 leading-relaxed wrap-break-words">
                                                                     {notif.description}
                                                                 </div>
                                                                 <div className="text-[10px] text-gray-400 mt-1 font-medium">
