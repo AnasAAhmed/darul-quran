@@ -493,7 +493,7 @@ const CourseDetails = () => {
                     {data?.teacher?.email}
                   </p>
                   <p className="text-sm text-gray-600">
-                    {data?.teacher?.tagline} f dgsdg sdgfdsf
+                    {data?.teacher?.tagline}
                   </p>
                 </div>
               </div>
