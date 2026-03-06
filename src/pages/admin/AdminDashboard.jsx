@@ -227,7 +227,7 @@ const AdminDashboard = () => {
                             {classItem.title}
                           </div>
                           <div className="text-xs text-gray-500 mt-0.5 whitespace-nowrap overflow-hidden text-ellipsis max-w-[200px]">
-                            {classItem.description}
+                           Course: {classItem.courseName}
                           </div>
                         </div>
                       </TableCell>

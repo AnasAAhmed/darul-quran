@@ -216,15 +216,15 @@ const UserManagement = () => {
     const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
     const link = document.createElement("a");
     const url = URL.createObjectURL(blob);
-    
+
     link.setAttribute("href", url);
     link.setAttribute("download", `users_${role}_${new Date().toISOString().split('T')[0]}.csv`);
     link.style.visibility = "hidden";
-    
+
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
-    
+
     successMessage("Users exported successfully!");
   };
 
@@ -419,36 +419,38 @@ const UserManagement = () => {
                       </TableCell>
                       <TableCell>
                         <div className="flex items-center gap-2">
-                          {classItem.zoomUserId ? (
-                            <Chip
-                              size="sm"
-                              variant="flat"
-                              className="bg-[#95C4BE33] text-[#06574C]"
-                              startContent={<Video size={14} />}
-                            >
-                              Connected
-                            </Chip>
-                          ) : (
-                            <Chip
-                              size="sm"
-                              variant="flat"
-                              className="bg-gray-200 text-gray-600"
-                            >
-                              Not Synced
-                            </Chip>
-                          )}
-                          {(role === 'teacher' || role === 'admin') && (
-                            <Button
-                              size="sm"
-                              variant="light"
-                              className="text-[#06574C] p-0 min-w-[auto] w-8 h-8"
-                              onPress={() => handleSyncZoom(classItem.id, classItem.zoomUserId, classItem.email)}
-                              isLoading={isSyncing}
-                              title="Sync with Zoom"
-                            >
-                              <Video size={16} />
-                            </Button>
-                          )}
+                          {(role === 'teacher' || role === 'admin') ? (
+                            <>
+                              {classItem.zoomUserId ? (
+                                <Chip
+                                  size="sm"
+                                  variant="flat"
+                                  className="bg-[#95C4BE33] text-[#06574C]"
+                                  startContent={<Video size={14} />}
+                                >
+                                  Connected
+                                </Chip>
+                              ) : (
+                                <Chip
+                                  size="sm"
+                                  variant="flat"
+                                  className="bg-gray-200 text-gray-600"
+                                >
+                                  Not Synced
+                                </Chip>
+                              )}
+                              <Button
+                                size="sm"
+                                variant="light"
+                                className="text-[#06574C] p-0 min-w-auto w-8 h-8"
+                                onPress={() => handleSyncZoom(classItem.id, classItem.zoomUserId, classItem.email)}
+                                isLoading={isSyncing}
+                                title="Sync with Zoom"
+                              >
+                                <Video size={16} />
+                              </Button>
+                            </>
+                          ) : '---'}
                         </div>
                       </TableCell>
                       <TableCell className="flex gap-2">
@@ -463,7 +465,7 @@ const UserManagement = () => {
                         >
                           Edit
                         </Button>
-                        {classItem?.email!==import.meta.env.VITE_PUBLIC_ADMIN_EMAIL && <Button
+                        {classItem?.email !== import.meta.env.VITE_PUBLIC_ADMIN_EMAIL && <Button
                           radius="sm"
                           className="bg-[#06574C] text-white"
                           startContent={<Trash2 size={18} color="white" />}
