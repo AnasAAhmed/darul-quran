@@ -365,7 +365,7 @@ const StudentClassSheduling = () => {
     const ScheduleCard = ({ schedule, type = 'allDates' }) => {
         const isLive = isClassLive(schedule, (type === 'normal' ? 'multiple' : 'single'));
         const isExpired = isClassExpired(schedule);
-        const canJoin = isLive && schedule.meetingLink;
+        const canJoin = isLive;
         const canResched = canReschedule(schedule);
         const canCanc = canCancel(schedule);
 
@@ -507,7 +507,6 @@ const StudentClassSheduling = () => {
                             {isExpired ? "Ended" : "Locked"}
                         </Button>
                          )} 
-
                         {canResched && (
                             <Button
                                 radius="sm"
