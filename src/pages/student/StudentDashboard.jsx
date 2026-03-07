@@ -88,9 +88,8 @@ const StudentDashboard = () => {
           </div>
         </div>
       </div>
-      <div>
-        <div className="grid grid-cols-12 gap-3 py-4">
-          {error &&
+      <div> 
+         {error &&
             <QueryError
               height="300px"
               error={error}
@@ -99,6 +98,8 @@ const StudentDashboard = () => {
               isLoading={isFetching}
             />
           }
+        <div className="grid grid-cols-12 gap-3 py-4">
+        
           {isLoading ? (
             Array.from({ length: 3 }).map((_, index) => (
               <div
