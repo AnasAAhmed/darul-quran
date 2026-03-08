@@ -163,7 +163,7 @@ const CoursePlayer = () => {
             {/* Header */}
             <header className="h-16 bg-white border-b flex items-center px-4 justify-between shrink-0 z-10 shadow-sm">
                 <div className="flex items-center gap-3">
-                    <Button variant="light" isIconOnly onPress={() =>  navigate(-1)}>
+                    <Button variant="light" isIconOnly onPress={() => navigate(-1)}>
                         <ArrowLeft size={20} />
                     </Button>
                     <div className="flex flex-col">
@@ -219,7 +219,13 @@ const CoursePlayer = () => {
                             <p className="whitespace-pre-wrap">
                                 {currentLesson && currentLesson?.description ? currentLesson?.description : !currentLesson?.id ? course?.description : 'No description available for this lesson.'}</p>
                             {currentLesson?.id &&
-                                <Button className="my-3" isLoading={isMarking} size="sm" color="success" onPress={handleVideoEnd}>
+                                <Button
+                                    isDisabled={completedLessons.includes(currentLesson?.id)}
+                                    className="my-3"
+                                    isLoading={isMarking}
+                                    size="sm"
+                                    color="success"
+                                    onPress={handleVideoEnd}>
                                     {completedLessons.includes(currentLesson?.id) ? "Mark Uncomplete" : " Mark Complete"}
                                 </Button>
                             }
@@ -307,8 +313,8 @@ const CoursePlayer = () => {
                                                 <span className="capitalize">
                                                     Type: {lesson?.fileType?.replace("_", " ") || "Video Lesson"}
                                                 </span>
-                                                {lesson?.file?.pages && <span>pages: {lesson.file.pages}</span>}
-                                                {lesson?.file?.duration && lesson?.file?.duration !== "0" && (
+                                                {lesson?.file?.pages > 0 && <span>pages: {lesson.file.pages}</span>}
+                                                {lesson?.file?.duration > 0 && (
                                                     <span>duration: {lesson.file.duration} mins</span>
                                                 )}
                                             </div>
