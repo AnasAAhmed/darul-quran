@@ -146,6 +146,21 @@ export const courseApi = createApi({
             }),
             invalidatesTags: ["reviews", "course"],
         }),
+        submitQuiz: builder.mutation({
+            query: ({ courseId, quizId, answers }) => ({
+                url: "/submit-quiz",
+                method: "POST",
+                body: { courseId, quizId, answers },
+            }),
+            invalidatesTags: ["course"],
+        }),
+        getQuizAttempts: builder.query({
+            query: (quizId) => ({
+                url: `/quiz-attempts/${quizId}`,
+                method: "GET",
+            }),
+            providesTags: ["course"],
+        }),
         deleteReview: builder.mutation({
             query: (reviewId) => ({
                 url: "/delete-review/" + reviewId,
@@ -175,5 +190,7 @@ export const {
     useAddCategoryMutation,
     useGetReviewsQuery,
     useAddRevieworUpdateMutation,
-    useDeleteReviewMutation
+    useDeleteReviewMutation,
+    useSubmitQuizMutation,
+    useGetQuizAttemptsQuery,
 } = courseApi;

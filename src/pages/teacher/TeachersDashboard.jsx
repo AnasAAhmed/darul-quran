@@ -51,10 +51,13 @@ import { useGetAllAnnouncementQuery, useCreateAnnouncementMutation } from "../..
 import QueryError from "../../components/QueryError";
 import CourseSelect from "../../components/select/CourseSelect";
 import { dateFormatter } from "../../lib/utils";
+import QuizModal from "../../components/dashboard-components/forms/QuizModal";
+
 const TeachersDashboard = () => {
   const { user: currentUser } = useSelector((state) => state.user);
 
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
+  const [isQuizModalOpen, setIsQuizModalOpen] = useState(false);
 
   const [placement, setPlacement] = useState("left");
 
@@ -504,10 +507,17 @@ const TeachersDashboard = () => {
             variant="flat"
             startContent={<PlusIcon />}
             className="w-full py-4 bg-[#06574C] text-white font-semibold"
+            onPress={() => setIsQuizModalOpen(true)}
           >
             Create Quiz
           </Button>
         </div>
+
+        <QuizModal 
+          isOpen={isQuizModalOpen} 
+          setIsOpen={setIsQuizModalOpen} 
+          // Not passing courseId, so CourseSelect will be shown in the modal
+        />
 
         <Drawer
           isOpen={isOpen}

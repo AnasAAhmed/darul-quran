@@ -10,6 +10,7 @@ import Loader from "../../../components/Loader";
 import LessonFileViewer from "../../../components/dashboard-components/LessonViewer";
 import RatingStars from "../../../components/RatingStar";
 import QueryError from "../../../components/QueryError";
+import QuizPlayer from "../../../components/dashboard-components/QuizPlayer";
 
 const CoursePlayer = () => {
     const { id } = useParams();
@@ -180,7 +181,19 @@ const CoursePlayer = () => {
             <div className="flex flex-1 overflow-hidden">
                 <div className="flex-1 flex flex-col overflow-y-auto bg-black/5">
                     <div className="bg-black w-full max-h-152 aspect-video shrink-0 relative shadow-lg">
-                        {currentLesson ? (
+                        {currentLesson?.fileType === "quiz" ? (
+                             <div className="absolute inset-0 bg-gray-100 overflow-y-auto">
+                                <QuizPlayer 
+                                    quiz={currentLesson} 
+                                    courseId={id}
+                                    onComplete={(result) => {
+                                        if (result.passed) {
+                                            fetchEnrollment();
+                                        }
+                                    }}
+                                />
+                             </div>
+                        ) : currentLesson ? (
                             <LessonFileViewer
                                 file={currentLesson}
                                 onEnded={handleVideoEnd}
@@ -253,7 +266,7 @@ const CoursePlayer = () => {
                                 const lessonId = lesson.id || lesson.lessonId;
                                 const isCompleted = completedLessons.includes(lessonId);
                                 const isCurrentById = currentLesson && currentLesson.id === lessonId;
-                                const isLocked = !lesson.url;
+                                const isLocked = !lesson.url && lesson.fileType !== "quiz";
                                 const releaseText = isLocked
                                     ? lesson.releasedAt && lesson.releasedAt !== "release_immediately"
                                         ? `Releases in ${lesson.releasedAt} after enrollment`
