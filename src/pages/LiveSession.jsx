@@ -1,7 +1,7 @@
 import { Button, Chip, Divider, Modal, ModalBody, ModalContent, ModalFooter, ModalHeader, Spinner, useDisclosure } from '@heroui/react'
 import { DashHeading } from '../components/dashboard-components/DashHeading'
 import { Plus, ArrowBigLeft, CalendarIcon, Video, Clock, User } from 'lucide-react';
-import { useState, useMemo, useRef } from "react";
+import { useState, useMemo, useRef, lazy } from "react";
 import { Link, useSearchParams } from 'react-router-dom';
 import { useGetSchedulesByMonthQuery } from '../redux/api/schedules';
 import QueryError from '../components/QueryError';

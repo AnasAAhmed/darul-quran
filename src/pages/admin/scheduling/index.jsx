@@ -336,7 +336,11 @@ const Scheduling = () => {
                 <TableCell>
                   <Popover>
                     <PopoverTrigger>
-                      <span className="cursor-pointer font-medium">{dateFormatter(item.scheduleDates[0])} - {dateFormatter(item?.scheduleDates[item.scheduleDates?.length - 1])}</span>
+                      <span className="cursor-pointer font-medium">
+                        {item.scheduleDates?.length > 1 ? `${dateFormatter(item.scheduleDates[0])} - ${dateFormatter(item?.scheduleDates[item.scheduleDates?.length - 1])}`
+                          : dateFormatter(item.scheduleDates[0])
+                        }
+                      </span>
                     </PopoverTrigger>
                     <PopoverContent>
                       <Calendar
@@ -651,7 +655,7 @@ const Scheduling = () => {
                     }
                   />
                 </div>
-                {user?.role!== "teacher" && <TeacherSelect
+                {user?.role !== "teacher" && <TeacherSelect
                   initialValue={formData.teacherId}
                   onChange={(teacherId) => setFormData({ ...formData, teacherId })}
                 />}

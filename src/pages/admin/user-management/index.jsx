@@ -19,6 +19,7 @@ import {
   useDisclosure,
   Spinner,
   Input,
+  Tooltip,
 } from "@heroui/react";
 import { Chip } from "@heroui/react";
 
@@ -75,12 +76,13 @@ const UserManagement = () => {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [selectedUsers, setSelectedUsers] = useState(new Set());
   const [isDeleting, setIsDeleting] = useState(false);
+  const [isSyncing, setIsSyncing] = useState(null);
   const { isOpen: isBulkDeleteOpen, onOpen: onBulkDeleteOpen, onClose: onBulkDeleteClose } = useDisclosure();
 
   const { data, isError, error, isFetching } = useGetAllUsersQuery({ page, limit, status, role, search });
   const [deleteUser] = useDeleteUserMutation()
   const [bulkDeleteUser] = useBulkDeleteUserMutation()
-  const [syncUserWithZoom, { isLoading: isSyncing }] = useSyncUserWithZoomMutation();
+  const [syncUserWithZoom] = useSyncUserWithZoomMutation();
 
   useEffect(() => {
     if (isError) {
@@ -122,6 +124,7 @@ const UserManagement = () => {
   // Sync user with Zoom
   const handleSyncZoom = async (userId, userZoomId, userEmail) => {
     try {
+      setIsSyncing(userId);
       const res = await syncUserWithZoom(userId);
       if (res.error) {
         throw new Error(res.error.data.message || res.error.data.error || "Failed to sync with Zoom");
@@ -130,6 +133,8 @@ const UserManagement = () => {
     } catch (error) {
       console.error("Error syncing with Zoom:", error);
       errorMessage(error.message);
+    } finally {
+      setIsSyncing(null);
     }
   };
 
@@ -439,16 +444,19 @@ const UserManagement = () => {
                                   Not Synced
                                 </Chip>
                               )}
-                              <Button
-                                size="sm"
-                                variant="light"
-                                className="text-[#06574C] p-0 min-w-auto w-8 h-8"
-                                onPress={() => handleSyncZoom(classItem.id, classItem.zoomUserId, classItem.email)}
-                                isLoading={isSyncing}
-                                title="Sync with Zoom"
-                              >
-                                <Video size={16} />
-                              </Button>
+                              {!classItem.zoomUserId && <Tooltip content="Sync teacher with Zoom">
+                                <Button
+                                  size="sm"
+                                  variant="light"
+                                  className="text-[#06574C] p-0 min-w-auto w-8 h-8"
+                                  onPress={() => handleSyncZoom(classItem.id, classItem.zoomUserId, classItem.email)}
+                                  isLoading={isSyncing === classItem.id}
+                                  isDisabled={classItem.zoomUserId}
+                                  title="Sync with Zoom"
+                                >
+                                  <Video size={16} />
+                                </Button>
+                              </Tooltip>}
                             </>
                           ) : '---'}
                         </div>
