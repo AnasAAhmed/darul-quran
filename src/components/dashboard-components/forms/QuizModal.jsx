@@ -3,6 +3,7 @@ import { Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, Button, Input
 import { Trash2 } from "lucide-react";
 import { errorMessage, successMessage } from "../../../lib/toast.config";
 import CourseSelect from "../../select/CourseSelect"; // Import CourseSelect
+import {IntervalInput} from "../../../components/dashboard-components/forms/IntervalInput";
 
 export default function QuizModal({
     isOpen,
@@ -17,6 +18,7 @@ export default function QuizModal({
 
     const [quizData, setQuizData] = useState({
         title: "",
+        duration: "",
         description: "",
         passingScore: 70,
         questions: [{ questionText: "", options: ["", "", "", ""], correctAnswer: 0 }]
@@ -28,6 +30,7 @@ export default function QuizModal({
             if (editingQuiz) {
                 setQuizData({
                     title: editingQuiz.title,
+                    duration: editingQuiz.duration || "",
                     description: editingQuiz.description || "",
                     passingScore: editingQuiz.passingScore || 70,
                     questions: Array.isArray(editingQuiz.questions) ? editingQuiz.questions : [{ questionText: "", options: ["", "", "", ""], correctAnswer: 0 }]
@@ -68,6 +71,7 @@ export default function QuizModal({
     const resetForm = () => {
         setQuizData({
             title: "",
+            duration: "",
             description: "",
             passingScore: 70,
             questions: [{ questionText: "", options: ["", "", "", ""], correctAnswer: 0 }]
@@ -95,6 +99,7 @@ export default function QuizModal({
             if (editingQuiz && handleUpdateFile) {
                 const res = await handleUpdateFile(editingQuiz.id, {
                     title: quizData.title,
+                    duration: quizData.duration,
                     description: quizData.description,
                     passingScore: quizData.passingScore,
                     questions: quizData.questions,
@@ -110,6 +115,7 @@ export default function QuizModal({
                     body: JSON.stringify({
                         courseId: effectiveCourseId,
                         title: quizData.title,
+                        duration: quizData.duration,
                         description: quizData.description,
                         fileType: "quiz",
                         passingScore: quizData.passingScore,
@@ -151,6 +157,22 @@ export default function QuizModal({
                                         />
                                      </div>
                                 )}
+
+                                <div >
+                                    <IntervalInput
+                                        className="w-full "
+                                        initialValue={quizData?.releasedAt}
+                                        onUpdate={(interval) => setQuizData({ ...quizData, releasedAt: interval })}
+                                    />
+                                </div>
+                                <div>
+                                    <Input
+                                        label="Duration (minutes)"
+                                        type="number"
+                                        value={quizData?.duration}
+                                        onValueChange={(val) => setQuizData({ ...quizData, duration: val })}
+                                    />
+                                </div>
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                     <Input
                                         label="Quiz Title"
@@ -173,7 +195,7 @@ export default function QuizModal({
                                 <div className="space-y-6 pt-4 border-t">
                                     <div className="flex justify-between items-center">
                                         <h3 className="text-lg font-semibold">Questions</h3>
-                                        <Button size="sm" color="primary" onPress={handleAddQuestion}>Add Question</Button>
+                                        <Button size="sm" color="success" onPress={handleAddQuestion}>Add Question</Button>
                                     </div>
 
                                     {quizData.questions.map((q, qIndex) => (
