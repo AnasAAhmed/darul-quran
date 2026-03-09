@@ -1,85 +1,155 @@
 import "./App.css";
+
+import { Route, Routes, useLocation, useNavigate } from "react-router-dom";
+import { HeroUIProvider, ToastProvider } from "@heroui/react";
+
+import { lazy, Suspense, useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
+
 import ProtectedRoute from "./components/protected-route";
-import Login from "./pages/auth/Login";
 import AuthLayout from "./components/layouts/AuthLayout";
 import AdminLayout from "./components/layouts/AdminLayout";
-import { Route, Routes, useLocation, useNavigate } from "react-router-dom";
-import {
-  HeroUIProvider,
-  ToastProvider,
-} from "@heroui/react";
-import { lazy, useEffect } from "react";
-import { useDispatch, useSelector } from "react-redux";
 import TeachersLayout from "./components/layouts/Teacherslayout";
-import TeachersDashboard from "./pages/teacher/TeachersDashboard";
-import AdminDashboard from "./pages/admin/AdminDashboard";
-import NoPermissions from "./pages/admin/NoPermissions";
-import MyCourses from "./pages/teacher/my-courses";
-import UploadMaterial from "./pages/teacher/my-courses/uploadmaterial";
-import StudentAttendance from "./pages/teacher/student-attendance";
-import StudentDashboard from "./pages/student/StudentDashboard";
-import MyLearning from "./pages/student/my-learning-joureny";
-import StudentClassSheduling from "./pages/student/class-sheduling";
-import BrowseCourses from "./pages/student/browse-courses";
-import PaymentsInvoices from "./pages/student/payments-invoices";
-import CourseDetails from "./pages/student/browse-courses/course-details";
-import ForgetPassword from "./pages/auth/ForgetPassword";
-import ChangePassword from "./pages/auth/ChangePassword";
+import StudentLayout from "./components/layouts/Studentlayout";
+
+import Loader from "./components/Loader";
+import ErrorBoundary from "./components/globalError";
 import DownloadModal from "./components/dashboard-components/DownloadModal";
-import AddUser from "./pages/admin/user-management/add-user";
-import EditUser from "./pages/admin/user-management/add-user/edituser";
+
 import { showMessage } from "./lib/toast.config";
 import { clearUser, setUser } from "./redux/reducers/user";
-import Loader from "./components/Loader";
-import StudentLayout from "./components/layouts/Studentlayout";
-import SupportTicketsStudent from "./pages/student/supports-tickets/page";
-import SupportTicketsTeacher from "./pages/teacher/supports-tickets/page";
+
 import useDynamicMeta from "./hooks/useDynamicMetadata";
-import CourseList from "./pages/teacher/my-courses/CourseList";
-import ErrorBoundary from "./components/globalError";
-import TeacherClassSheduling from "./pages/teacher/class-sheduling";
-import CreaterOrUpdateSchedule from "./pages/teacher/class-sheduling/CreaterOrUpdate";
-import StudentAttendanceList from "./pages/teacher/student-attendance-list";
-import StudentAttendanceDetails from "./pages/teacher/student-attendance-details";
 
 const Home = lazy(() => import("./pages/Home"));
+
+const Login = lazy(() => import("./pages/auth/Login"));
+const ForgetPassword = lazy(() => import("./pages/auth/ForgetPassword"));
+const ChangePassword = lazy(() => import("./pages/auth/ChangePassword"));
+
+const AdminDashboard = lazy(() => import("./pages/admin/AdminDashboard"));
+const NoPermissions = lazy(() => import("./pages/admin/NoPermissions"));
+
+const TeachersDashboard = lazy(() => import("./pages/teacher/TeachersDashboard"));
+const TeacherAnnouncements = lazy(() => import("./pages/teacher/announcements"));
+const TeacherClassSheduling = lazy(() => import("./pages/teacher/class-sheduling"));
+const CreaterOrUpdateSchedule = lazy(() =>
+  import("./pages/teacher/class-sheduling/CreaterOrUpdate")
+);
+const CourseList = lazy(() => import("./pages/teacher/my-courses/CourseList"));
+const MyCourses = lazy(() => import("./pages/teacher/my-courses"));
+const UploadMaterial = lazy(() =>
+  import("./pages/teacher/my-courses/uploadmaterial")
+);
+const StudentAttendance = lazy(() =>
+  import("./pages/teacher/student-attendance")
+);
+const StudentAttendanceList = lazy(() =>
+  import("./pages/teacher/student-attendance-list")
+);
+const StudentAttendanceDetails = lazy(() =>
+  import("./pages/teacher/student-attendance-details")
+);
+const SupportTicketsTeacher = lazy(() =>
+  import("./pages/teacher/supports-tickets/page")
+);
+
+const StudentDashboard = lazy(() =>
+  import("./pages/student/StudentDashboard")
+);
+const MyLearning = lazy(() =>
+  import("./pages/student/my-learning-joureny")
+);
+const StudentClassSheduling = lazy(() =>
+  import("./pages/student/class-sheduling")
+);
+const BrowseCourses = lazy(() =>
+  import("./pages/student/browse-courses")
+);
+const CourseDetails = lazy(() =>
+  import("./pages/student/browse-courses/course-details")
+);
+const PaymentsInvoices = lazy(() =>
+  import("./pages/student/payments-invoices")
+);
+const SupportTicketsStudent = lazy(() =>
+  import("./pages/student/supports-tickets/page")
+);
+const StudentAnnouncements = lazy(() =>
+  import("./pages/student/announcements")
+);
+const EnrollSuccess = lazy(() =>
+  import("./pages/student/enroll-success")
+);
+const CoursePlayer = lazy(() =>
+  import("./pages/student/course-player")
+);
+const StudentRescheduleRequests = lazy(() =>
+  import("./pages/student/RescheduleRequests")
+);
+
+const AddUser = lazy(() =>
+  import("./pages/admin/user-management/add-user")
+);
+const EditUser = lazy(() =>
+  import("./pages/admin/user-management/add-user/edituser")
+);
+
 const CourseManagement = lazy(() =>
   import("./pages/admin/course-management/index")
-);
-const LiveSession = lazy(() =>
-  import("./pages/LiveSession")
 );
 const Attendance = lazy(() =>
   import("./pages/admin/course-management/Attendance")
 );
-const UserManagement = lazy(() => import("./pages/admin/user-management"));
-const UserDetails = lazy(() =>
-  import("./pages/admin/user-management/users-details")
-);
-const Scheduling = lazy(() => import("./pages/admin/scheduling"));
-const Announcements = lazy(() => import("./pages/admin/announcements"));
-const TeacherAnnouncements = lazy(() => import("./pages/teacher/announcements"));
-const StudentAnnouncements = lazy(() => import("./pages/student/announcements"));
-const PaymentsRefunds = lazy(() => import("./pages/admin/payment-refund"));
-const SupportTickets = lazy(() => import("./pages/admin/support-ticket"));
-const Analytics = lazy(() => import("./pages/admin/analytics"));
-
 const CourseBuilder = lazy(() =>
   import("./pages/admin/course-management/course-builder")
 );
 
-const HelpMessages = lazy(() => import("./pages/admin/help"));
+const UserManagement = lazy(() =>
+  import("./pages/admin/user-management")
+);
+const UserDetails = lazy(() =>
+  import("./pages/admin/user-management/users-details")
+);
+
+const Scheduling = lazy(() =>
+  import("./pages/admin/scheduling")
+);
+const Announcements = lazy(() =>
+  import("./pages/admin/announcements")
+);
+const PaymentsRefunds = lazy(() =>
+  import("./pages/admin/payment-refund")
+);
+const SupportTickets = lazy(() =>
+  import("./pages/admin/support-ticket")
+);
+const Analytics = lazy(() =>
+  import("./pages/admin/analytics")
+);
+
+const HelpMessages = lazy(() =>
+  import("./pages/admin/help")
+);
 const TeacherAndStudentChat = lazy(() =>
   import("./pages/admin/help/TeacherAndStudent")
 );
-const Review = lazy(() => import("./pages/admin/help/review"));
-const Faqs = lazy(() => import("./pages/admin/help/faqs"));
-const EnrollSuccess = lazy(() => import("./pages/student/enroll-success"));
-const CoursePlayer = lazy(() => import("./pages/student/course-player"));
-const RescheduleRequests = lazy(() => import("./pages/RescheduleRequests"));
-const StudentRescheduleRequests = lazy(() => import("./pages/student/RescheduleRequests"));
-const Notifications = lazy(() => import("./pages/notifications"));
+const Review = lazy(() =>
+  import("./pages/admin/help/review")
+);
+const Faqs = lazy(() =>
+  import("./pages/admin/help/faqs")
+);
 
+const LiveSession = lazy(() =>
+  import("./pages/LiveSession")
+);
+const RescheduleRequests = lazy(() =>
+  import("./pages/RescheduleRequests")
+);
+const Notifications = lazy(() =>
+  import("./pages/notifications")
+);
 function App() {
   const navigate = useNavigate();
   const location = useLocation();

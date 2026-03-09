@@ -1,17 +1,24 @@
 import { Button, Chip, Divider, Modal, ModalBody, ModalContent, ModalFooter, ModalHeader, Spinner, useDisclosure } from '@heroui/react'
 import { DashHeading } from '../components/dashboard-components/DashHeading'
-import { Plus, Calendar, ChevronLeft, ChevronRight, ArrowBigLeft, CalendarIcon, Video, Clock, User } from 'lucide-react';
-import { useState, useMemo, useRef, useEffect } from "react";
-import FullCalendar from "@fullcalendar/react";
-import dayGridPlugin from "@fullcalendar/daygrid";
-import interactionPlugin from "@fullcalendar/interaction";
-import { errorMessage } from '../lib/toast.config';
+import { Plus, ArrowBigLeft, CalendarIcon, Video, Clock, User } from 'lucide-react';
+import { useState, useMemo, useRef } from "react";
 import { Link, useSearchParams } from 'react-router-dom';
 import { useGetSchedulesByMonthQuery } from '../redux/api/schedules';
 import QueryError from '../components/QueryError';
 import { formatTime12Hour, getHoursUntilClass, getStatusText, getStatusTextForSingleDate, isClassExpired } from '../utils/scheduleHelpers';
 import { dateFormatter } from '../lib/utils';
 import { CiCalendar } from 'react-icons/ci';
+
+const FullCalendar = lazy(() =>
+    import("@fullcalendar/react")
+);
+
+const dayGridPlugin = lazy(() =>
+    import("@fullcalendar/daygrid")
+);
+const interactionPlugin = lazy(() =>
+    import("@fullcalendar/interaction")
+);
 
 const LiveSession = ({ isTeacher = false }) => {
     const [searchParams] = useSearchParams();
@@ -84,7 +91,7 @@ const LiveSession = ({ isTeacher = false }) => {
                 Array.isArray(schedule.scheduleDates) &&
                 schedule.scheduleDates.includes(dateStr)
             ) || [];
-console.log(filteredSchedules);
+        console.log(filteredSchedules);
 
         const formattedSchedules = filteredSchedules
             ?.filter(Boolean)
