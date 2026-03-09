@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { Button, RadioGroup, Radio, Card, CardBody, CardHeader, Progress, Divider } from "@heroui/react";
 import { Timer, CheckCircle, XCircle, AlertCircle } from "lucide-react";
+import Swal from "sweetalert2";
 import { useSubmitQuizMutation } from "../../redux/api/courses";
 import { successMessage, errorMessage } from "../../lib/toast.config";
 
@@ -14,6 +15,7 @@ const QuizPlayer = ({ quiz, courseId, onComplete }) => {
     const [submitQuiz, { isLoading: isSubmitting }] = useSubmitQuizMutation();
     const containerRef = useRef(null);
     const [isFullscreen, setIsFullscreen] = useState(false);
+    const [quizCancelled, setQuizCancelled] = useState(false);
      
     useEffect(() => {
         if (!isQuizStarted || isSubmitted || timeLeft <= 0) return;
@@ -29,6 +31,55 @@ const QuizPlayer = ({ quiz, courseId, onComplete }) => {
         }, 1000);
         return () => clearInterval(timer);
     }, [isQuizStarted, isSubmitted, timeLeft]);
+
+    // Fullscreen exit detection
+    useEffect(() => {
+        if (!isQuizStarted || isSubmitted || quizCancelled) return;
+
+        const handleFullscreenChange = () => {
+            if (!document.fullscreenElement && isFullscreen) {
+                // Fullscreen was exited
+                setIsFullscreen(false);
+                
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Fullscreen Exited!',
+                    html: `
+                        <div style="text-align: center;">
+                            <p style="margin-bottom: 15px;">You have exited fullscreen mode.</p>
+                            <p style="color: #e74c3c; font-weight: bold;">If you continue, your quiz will be cancelled and you will have to try again.</p>
+                        </div>
+                    `,
+                    showCancelButton: true,
+                    confirmButtonColor: '#06574C',
+                    cancelButtonColor: '#d33',
+                    confirmButtonText: 'Continue Quiz (Go Back to Fullscreen)',
+                    cancelButtonText: 'Cancel Quiz',
+                    allowOutsideClick: false,
+                    allowEscapeKey: false,
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        // User wants to continue quiz - re-enter fullscreen
+                        containerRef.current?.requestFullscreen().catch(() => {
+                            errorMessage('Please enable fullscreen manually to continue');
+                        });
+                        setIsFullscreen(true);
+                    } else {
+                        // User cancelled the quiz
+                        setQuizCancelled(true);
+                        setIsQuizStarted(false);
+                        setIsFullscreen(false);
+                        errorMessage('Quiz cancelled. Please try again.');
+                    }
+                });
+            }
+        };
+
+        document.addEventListener('fullscreenchange', handleFullscreenChange);
+        return () => {
+            document.removeEventListener('fullscreenchange', handleFullscreenChange);
+        };
+    }, [isQuizStarted, isSubmitted, quizCancelled, isFullscreen]);
 
     const formatTime = (seconds) => {
         const m = Math.floor(seconds / 60);
@@ -92,7 +143,30 @@ const QuizPlayer = ({ quiz, courseId, onComplete }) => {
         }
 
         if (!isQuizStarted) {
-            return (
+            return quizCancelled ? (
+                <div className="max-w-3xl w-full mx-auto my-6 px-4">
+                    <Card className="shadow-md">
+                        <CardHeader className="p-6 bg-red-50 border-b flex flex-col items-center">
+                            <h2 className="text-2xl font-bold text-gray-800">{quiz.title}</h2>
+                            <p className="text-red-600 mt-2 text-center font-semibold">Quiz Cancelled</p>
+                        </CardHeader>
+                        <CardBody className="p-8 flex flex-col items-center">
+                            <XCircle className="text-red-500 mb-4" size={64} />
+                            <p className="text-gray-600 mt-2 text-center mb-6">The quiz was cancelled. You can try again when you're ready.</p>
+                            <Button
+                                className="bg-[#06574C] text-white px-8 py-3"
+                                onPress={() => {
+                                    setQuizCancelled(false);
+                                    setIsQuizStarted(true);
+                                    toggleFullscreen();
+                                }}
+                            >
+                                Try Again
+                            </Button>
+                        </CardBody>
+                    </Card>
+                </div>
+            ) : (
                 <div className="max-w-3xl w-full mx-auto my-6 px-4">
                     <Card className="shadow-md">
                         <CardHeader className="p-6 bg-gray-50 border-b flex flex-col items-center">
@@ -114,9 +188,12 @@ const QuizPlayer = ({ quiz, courseId, onComplete }) => {
                                     <p className="text-xl font-bold text-purple-900">{quiz.questions?.length || 0}</p>
                                 </div>
                             </div>
-                            <Button 
+                            <Button
                                 className="bg-[#06574C] text-white px-8 py-6 text-lg font-semibold w-full max-w-sm shadow-lg hover:shadow-xl transition-all"
-                                onPress={() => {setIsQuizStarted(true) ; toggleFullscreen()}}
+                                onPress={async () => {
+                                    setIsQuizStarted(true);
+                                    await toggleFullscreen();
+                                }}
                             >
                                 Start Quiz
                             </Button>

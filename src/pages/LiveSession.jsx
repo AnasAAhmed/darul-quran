@@ -8,17 +8,9 @@ import QueryError from '../components/QueryError';
 import { formatTime12Hour, getHoursUntilClass, getStatusText, getStatusTextForSingleDate, isClassExpired } from '../utils/scheduleHelpers';
 import { dateFormatter } from '../lib/utils';
 import { CiCalendar } from 'react-icons/ci';
-
-const FullCalendar = lazy(() =>
-    import("@fullcalendar/react")
-);
-
-const dayGridPlugin = lazy(() =>
-    import("@fullcalendar/daygrid")
-);
-const interactionPlugin = lazy(() =>
-    import("@fullcalendar/interaction")
-);
+import FullCalendar from "@fullcalendar/react";
+import dayGridPlugin from "@fullcalendar/daygrid";
+import interactionPlugin from "@fullcalendar/interaction";
 
 const LiveSession = ({ isTeacher = false }) => {
     const [searchParams] = useSearchParams();
