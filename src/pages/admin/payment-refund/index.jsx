@@ -324,12 +324,12 @@ const PaymentsRefunds = () => {
 
       <div className="bg-white p-3 my-4 rounded-lg shadow-sm">
         <div className="flex justify-between items-center mb-3">
-          <h1 className="text-xl font-bold">All Payments (History)</h1>
+          <h1 className="text-xl font-bold">Student Payments</h1>
           <Button size="sm" variant="light" onPress={refetchPayments}>Refresh History</Button>
         </div>
         <Table
           isHeaderSticky
-          aria-label="Payment History table"
+          aria-label="Student Payments History table"
           removeWrapper
           classNames={{
             base: "w-full bg-white rounded-lg overflow-x-scroll w-full no-scrollbar mb-3",
