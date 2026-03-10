@@ -1,5 +1,5 @@
 import { DashHeading } from "../../../components/dashboard-components/DashHeading";
-import { useState } from "react";
+import { useState, useMemo, useEffect } from "react";
 import {
   Table,
   TableBody,
@@ -15,6 +15,8 @@ import {
   ModalHeader,
   ModalBody,
   ModalFooter,
+  DateRangePicker,
+  Pagination,
 } from "@heroui/react";
 import {
   BookOpen,
@@ -33,13 +35,36 @@ const AttendanceList = () => {
   const { user } = useSelector((state) => state.user);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedAttendance, setSelectedAttendance] = useState(null);
+  const [dateRange, setDateRange] = useState(null);
+  const [page, setPage] = useState(1);
+
+  const formatDateForApi = (calendarDate) => {
+    if (!calendarDate) return null;
+    return `${calendarDate.year}-${String(calendarDate.month).padStart(2, "0")}-${String(calendarDate.day).padStart(2, "0")}`;
+  };
+
+  const startDate = formatDateForApi(dateRange?.start);
+  const endDate = formatDateForApi(dateRange?.end);
 
   const { data, isLoading } = useGetIndividualStudentAttendanceHistoryQuery(
-    { studentId: user?.id },
+    { studentId: user?.id, startDate, endDate },
     { skip: !user?.id },
   );
 
   const history = data?.history || [];
+
+  const rowsPerPage = 10;
+  const pages = Math.ceil(history.length / rowsPerPage);
+
+  const items = useMemo(() => {
+    const start = (page - 1) * rowsPerPage;
+    const end = start + rowsPerPage;
+    return history.slice(start, end);
+  }, [page, history]);
+
+  useEffect(() => {
+    setPage(1);
+  }, [dateRange]);
 
   const getAttendanceStatus = (item) => {
     let statusColor = "danger";
@@ -91,16 +116,39 @@ const AttendanceList = () => {
   };
 
   return (
-    <div className="bg-white sm:bg-linear-to-t from-[#F1C2AC]/50 to-[#95C4BE]/50 px-2 sm:px-5 pb-8 min-h-screen">
+    <div className="bg-white sm:bg-linear-to-t from-[#F1C2AC]/50 to-[#95C4BE]/50 px-2 sm:px-5 pb-8">
       <div className="pt-4">
         <DashHeading
           title={"Attendance List"}
           desc={"Track your attendance and course progress"}
         />
       </div>
-      <div className="mt-5">
+      <div className="mt-5 flex flex-col items-center">
+        <div className="bg-[#EBD4C9] p-4 rounded-lg my-4 flex max-sm:flex-wrap gap-4 items-end shadow-sm w-full">
+          <DateRangePicker
+            label="Date Range"
+            labelPlacement="outside"
+            size="lg"
+            radius="lg"
+            className="max-w-[300px]"
+            value={dateRange}
+            onChange={setDateRange}
+          />
+          {(dateRange?.start || dateRange?.end) && (
+            <Button
+              size="lg"
+              onPress={() => setDateRange(null)}
+              className="text-2xl"
+              isIconOnly
+              variant="bordered"
+              color="success"
+            >
+              &times;
+            </Button>
+          )}
+        </div>
         {isLoading ? (
-          <div className="flex justify-center p-10">
+          <div className="flex justify-center p-10 w-full">
             <Spinner color="success" size="lg" />
           </div>
         ) : (
@@ -127,7 +175,7 @@ const AttendanceList = () => {
                 </div>
               }
             >
-              {history.map((record, index) => {
+              {items.map((record, index) => {
                 const { statusColor, displayStatus } =
                   getAttendanceStatus(record);
                 return (
@@ -158,7 +206,17 @@ const AttendanceList = () => {
           </Table>
         )}
       </div>
-
+         <div className="flex w-full justify-center mt-4 mb-4">
+                  <Pagination
+                    isCompact
+                    showControls
+                    showShadow
+                    color="success"
+                    page={page}
+                    total={pages}
+                    onChange={(page) => setPage(page)}
+                  />
+                </div>
       {/* Detailed Attendance Modal */}
       <Modal
         isOpen={isModalOpen}
