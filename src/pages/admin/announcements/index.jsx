@@ -334,6 +334,8 @@ const Announcements = () => {
       <div className="bg-[#EBD4C9] flex-wrap gap-2 p-2 sm:p-4 rounded-lg my-3 flex justify-between items-center">
         <div className="flex  items-center gap-2">
           <Select
+            label="Role"
+            labelPlacement="outside"
             className="min-w-[120px]"
             radius="sm"
             selectedKeys={[sendToFilter]}
@@ -352,6 +354,8 @@ const Announcements = () => {
             ))}
           </Select>
           <Select
+            label="Delivery Type"
+            labelPlacement="outside"
             radius="sm"
             className="min-w-[120px]"
             selectedKeys={[deliveryFilter]}

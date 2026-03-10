@@ -570,7 +570,7 @@ const TeachersDashboard = () => {
                         placeholder="Select Delivery"
                       >
                         <SelectItem key={"Email"}>Email</SelectItem>
-                        <SelectItem key={"Notification"}>Notification</SelectItem>
+                        <SelectItem key={"In-App"}>In-App</SelectItem>
                       </Select>
                     </div>
                   </Form>
