@@ -213,7 +213,6 @@ const AddUserForm = ({ id, title, desc, userData, isEdit }) => {
   const handleCitySelect = (key) => {
     // Since city names might not be unique globally, but are within country, we search in availableCities
     const city = availableCities?.find(c => c.city === key);
-successMessage(city?.city)
     if (city?.city) {
       setSelectedCity(city?.city);
       setCityInputValue(city?.city);
