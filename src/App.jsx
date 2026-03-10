@@ -9,6 +9,15 @@ import { useDispatch, useSelector } from "react-redux";
 import ProtectedRoute from "./components/protected-route";
 import AuthLayout from "./components/layouts/AuthLayout";
 import AdminLayout from "./components/layouts/AdminLayout";
+import { Route, Routes, useLocation, useNavigate } from "react-router-dom";
+import {
+  HeroUIProvider,
+  Spinner,
+  ToastProvider,
+  addToast,
+} from "@heroui/react";
+import { lazy, useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import TeachersLayout from "./components/layouts/Teacherslayout";
 import StudentLayout from "./components/layouts/Studentlayout";
 
@@ -18,7 +27,11 @@ import DownloadModal from "./components/dashboard-components/DownloadModal";
 
 import { showMessage } from "./lib/toast.config";
 import { clearUser, setUser } from "./redux/reducers/user";
-
+import { setOnlineUsers, setIncomingMessage } from "./redux/reducers/chat";
+import Loader from "./components/Loader";
+import StudentLayout from "./components/layouts/Studentlayout";
+import SupportTicketsStudent from "./pages/student/supports-tickets/page";
+import SupportTicketsTeacher from "./pages/teacher/supports-tickets/page";
 import useDynamicMeta from "./hooks/useDynamicMetadata";
 import AttendanceList from "./pages/student/attendance-list";
 
@@ -135,12 +148,14 @@ const HelpMessages = lazy(() =>
 const TeacherAndStudentChat = lazy(() =>
   import("./pages/admin/help/TeacherAndStudent")
 );
-const Review = lazy(() =>
-  import("./pages/admin/help/review")
-);
-const Faqs = lazy(() =>
-  import("./pages/admin/help/faqs")
-);
+const Review = lazy(() => import("./pages/admin/help/review"));
+const Faqs = lazy(() => import("./pages/admin/help/faqs"));
+const EnrollSuccess = lazy(() => import("./pages/student/enroll-success"));
+const CoursePlayer = lazy(() => import("./pages/student/course-player"));
+const AdminRescheduleRequests = lazy(() => import("./pages/admin/RescheduleRequests"));
+import { io } from "socket.io-client";
+
+const socket = io(import.meta.env.VITE_PUBLIC_SERVER_URL);
 
 const LiveSession = lazy(() =>
   import("./pages/LiveSession")
@@ -162,7 +177,29 @@ function App() {
 
   const { user, loading, shouldFetch, isAuthenticated } = useSelector(
     (state) => state?.user
-  )
+  );
+  const { incomingMessage, activeChatId } = useSelector((state) => state?.chat ?? {});
+
+  // Toast when new message arrives and user is not viewing that chat
+  useEffect(() => {
+    if (!incomingMessage?.message) return;
+    const isOnChatScreen = pathname.includes("/help/messages") || pathname === "/teacher/chat" || pathname.includes("/help/chat");
+    const isViewingThisChat = isOnChatScreen && activeChatId === incomingMessage.chatId;
+    if (isViewingThisChat) return;
+
+    const msg = incomingMessage.message;
+    const senderName = msg.sender
+      ? [msg.sender.firstName, msg.sender.lastName].filter(Boolean).join(" ").trim() || msg.sender.email || "Someone"
+      : "Someone";
+    const text = (msg.text || "").slice(0, 80);
+    addToast({
+      title: `New message from ${senderName}`,
+      description: text ? (text.length >= 80 ? `${text}…` : text) : "New message",
+      color: "primary",
+      variant: "solid",
+      placement: "bottom-right",
+    });
+  }, [incomingMessage, pathname, activeChatId]);
 
   useEffect(() => {
     async function loadUser() {
@@ -173,11 +210,13 @@ function App() {
         );
 
         const data = await res.json();
-
+        console.log("Data:", data);
         if (res.ok && data.user) {
           dispatch(setUser(data.user));
           if (["/", "/auth/forget-password", "/auth/change-password"].includes(pathname)) {
             const role = data.user.role?.toLowerCase();
+
+
 
             if (role === "admin") {
               navigate("/admin/dashboard", { replace: true });
@@ -186,6 +225,8 @@ function App() {
             } else if (role === "student") {
               navigate("/student/dashboard", { replace: true });
             }
+
+
           }
         } else {
           dispatch(clearUser());
@@ -199,8 +240,34 @@ function App() {
     if (loading || shouldFetch) {
       loadUser();
     }
+
   }, [shouldFetch, user]);
-  if (loading) return (<Loader />);
+
+  useEffect(() => {
+    if (!user?.id) return;
+    socket.emit("user-online", user.id);
+    const onOnlineUsers = (users) => dispatch(setOnlineUsers(users));
+    const onReceiveMessage = (payload) => dispatch(setIncomingMessage(payload));
+    socket.on("update-online-users", onOnlineUsers);
+    socket.on("receive-message", onReceiveMessage);
+    return () => {
+      socket.off("update-online-users", onOnlineUsers);
+      socket.off("receive-message", onReceiveMessage);
+      socket.disconnect();
+    };
+  }, [user?.id]);
+  if (loading) return (
+    <div className="h-screen flex flex-col items-center justify-center">
+      <img
+        src="/icons/darul-quran-logo.png"
+        alt="Darul Quran"
+        className=" w-36 h-36"
+      />
+      <Spinner size="lg" variant="dots" labelColor="success" color="success" />
+    </div>
+  );
+
+
 
   return (
     <HeroUIProvider>
