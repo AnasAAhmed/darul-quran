@@ -210,8 +210,6 @@ function App() {
       <ErrorBoundary>
         <ToastProvider position="top-bottom" />
         <DownloadModal />
-
-        {token}
         <Routes>
           {/* ---------- Auth/Public Layout (NO HEADER/SIDEBAR) ---------- */}
           <Route element={<AuthLayout isAuthenticated={!isAuthenticated} redirect={''} />}>
