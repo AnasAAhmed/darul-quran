@@ -5,6 +5,17 @@ export const notificationApi = createApi({
     baseQuery: fetchBaseQuery({
         baseUrl: import.meta.env.VITE_PUBLIC_SERVER_URL + "/api/notifications",
         credentials: "include",
+        prepareHeaders: (headers, { getState }) => {
+            const tokenFromState = getState().user?.token;
+
+            const finalToken = tokenFromState || localStorage.getItem("token");
+
+            if (finalToken) {
+                headers.set("Authorization", `Bearer ${finalToken}`);
+            }
+
+            return headers;
+        },
     }),
     tagTypes: ["Notification", "Subscription"],
     endpoints: (builder) => ({

@@ -5,6 +5,17 @@ export const enrollmentAdminApi = createApi({
     baseQuery: fetchBaseQuery({
         baseUrl: `${import.meta.env.VITE_PUBLIC_SERVER_URL}/api/enrollment-admin`,
         credentials: "include",
+        prepareHeaders: (headers, { getState }) => {
+            const tokenFromState = getState().user?.token;
+
+            const finalToken = tokenFromState || localStorage.getItem("token");
+
+            if (finalToken) {
+                headers.set("Authorization", `Bearer ${finalToken}`);
+            }
+
+            return headers;
+        },
     }),
     tagTypes: ["enrollment"],
     endpoints: (builder) => ({
