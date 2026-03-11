@@ -198,7 +198,7 @@ const LiveSession = ({ isTeacher = false }) => {
                 <Button as={Link} color='success' variant='bordered' to={isTeacher ? '/teacher/class-scheduling' : '/admin/class-scheduling'} radius="sm" startContent={<ArrowBigLeft size={15} />} >
                     Back
                 </Button>
-                <Button as={Link} to={isTeacher ? '/teacher/class-scheduling?calender=true' : '/admin/scheduling?modal=true'} radius="sm" startContent={<Plus color="white" size={15} />} className="bg-[#06574C] text-white py-4 px-3 sm:px-8">
+                <Button as={Link} to={isTeacher ? '/teacher/class-scheduling?calender=true' : '/admin/class-scheduling?modal=true'} radius="sm" startContent={<Plus color="white" size={15} />} className="bg-[#06574C] text-white py-4 px-3 sm:px-8">
                     Schedule Session
                 </Button>
             </div>
