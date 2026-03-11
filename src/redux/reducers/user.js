@@ -12,7 +12,8 @@ const initialState = {
   user: null,
   loading: true,
   shouldFetch: false,
-  isAuthenticated:false,
+  isAuthenticated: false,
+  token: localStorage.getItem("token") || "",
 };
 
 const userReducer = createSlice({
@@ -23,7 +24,9 @@ const userReducer = createSlice({
       state.user = action.payload;
       state.loading = false;
       state.shouldFetch = false;
-      state.isAuthenticated = true;},
+      state.isAuthenticated = true;
+      state.token = action.payload.token;
+    },
 
 
     clearUser(state) {

@@ -3,7 +3,7 @@ import { Route, Routes, useLocation, useNavigate } from "react-router-dom";
 ;
 import { HeroUIProvider, ToastProvider } from "@heroui/react";
 
-import { lazy,  useEffect } from "react";
+import { lazy, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 
 import ProtectedRoute from "./components/protected-route";
@@ -159,22 +159,26 @@ function App() {
 
   const dispatch = useDispatch();
 
-  const { user, loading, shouldFetch, isAuthenticated } = useSelector(
+  const { user, loading, shouldFetch, isAuthenticated, token } = useSelector(
     (state) => state?.user
   )
 
   useEffect(() => {
     async function loadUser() {
       try {
+        const finalToken = localStorage.getItem("token") || token;
+        const headers = {};
+        if (finalToken) headers["Authorization"] = `Bearer ${finalToken}`;
+
         const res = await fetch(
           import.meta.env.VITE_PUBLIC_SERVER_URL + "/api/auth/me",
-          { credentials: "include" }
+          { credentials: "include", headers }
         );
 
         const data = await res.json();
 
         if (res.ok && data.user) {
-          dispatch(setUser(data.user));
+          dispatch(setUser({ ...data.user, token: data.token }));
           if (["/", "/auth/forget-password", "/auth/change-password"].includes(pathname)) {
             const role = data.user.role?.toLowerCase();
 
@@ -207,7 +211,7 @@ function App() {
         <ToastProvider position="top-bottom" />
         <DownloadModal />
 
-
+        {token}
         <Routes>
           {/* ---------- Auth/Public Layout (NO HEADER/SIDEBAR) ---------- */}
           <Route element={<AuthLayout isAuthenticated={!isAuthenticated} redirect={''} />}>
