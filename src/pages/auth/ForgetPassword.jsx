@@ -54,11 +54,11 @@ const ForgetPassword = () => {
       </div>
 
       {/* RIGHT PANEL */}
-      <div className="flex-1 flex flex-col items-start md:justify-center bg-[#E9E0D6] px-6 sm:px-12 md:px-16 lg:px-24 py-8 lg:py-0 m-0 lg:m-6 lg:rounded-r-lg lg:!ml-0">
+      <div className="flex-1 flex flex-col items-start md:justify-center bg-[#E9E0D6] px-6 sm:px-12 md:px-16 lg:px-24 py-8 lg:py-0 m-0 lg:m-6 lg:rounded-r-lg lg:ml-0!">
         <img
           src="/icons/darul-quran-logo.png"
           alt="Darul Quran"
-          className="w-45 h-45 !self-center md:hidden"
+          className="w-45 h-45 self-center! md:hidden"
         />
 
         <div className="w-full max-w-xl mx-auto lg:mx-16">
