@@ -464,33 +464,33 @@ const AddUserForm = ({ id, title, desc, userData, isEdit }) => {
             </Select>
           </div>
 
-          {/* {!userData?.id && ( */}
-          <div className="py-3">
-            <Input
-              name="password"
-              labelPlacement="outside"
-              variant="bordered"
-              size="lg"
-              label="Password"
-              placeholder={userData?.id ? "Enter user password" : "Edit user password"}
-              isRequired={!userData?.id}
-              errorMessage="Password must be at least 6 characters"
-              validate={validatePassword}
-              description="Minimum 6 characters"
-              type={showPassword ? "text" : "password"}
-              endContent={
-                <span onClick={() => setShowPassword(!showPassword)}>
-                  {showPassword ? (
-                    <EyeOffIcon className="cursor-pointer" size={20} />
-                  ) : (
-                    <EyeIcon className="cursor-pointer" size={20} />
-                  )}
-                </span>
-              }
-              onChange={(e) => setPassword(e.target.value)}
-            />
-          </div>
-          {/* )} */}
+          {!userData?.id && (
+            <div className="py-3">
+              <Input
+                name="password"
+                labelPlacement="outside"
+                variant="bordered"
+                size="lg"
+                label="Password"
+                placeholder={userData?.id ? "Enter user password" : "Edit user password"}
+                isRequired={!userData?.id}
+                errorMessage="Password must be at least 6 characters"
+                validate={validatePassword}
+                description="Minimum 6 characters"
+                type={showPassword ? "text" : "password"}
+                endContent={
+                  <span onClick={() => setShowPassword(!showPassword)}>
+                    {showPassword ? (
+                      <EyeOffIcon className="cursor-pointer" size={20} />
+                    ) : (
+                      <EyeIcon className="cursor-pointer" size={20} />
+                    )}
+                  </span>
+                }
+                onChange={(e) => setPassword(e.target.value)}
+              />
+            </div>
+          )}
 
           <div className="w-full p-3 bg-[#95C4BE33] rounded-lg mt-3 flex items-center justify-between">
             <span className="text-[#06574C] text-sm">Status</span>
