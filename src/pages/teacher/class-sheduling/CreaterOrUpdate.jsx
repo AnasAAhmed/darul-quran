@@ -85,9 +85,9 @@ const CreaterOrUpdateSchedule = () => {
         if (!startTime || !endTime) {
             return { valid: false, message: "Start time and end time are required" };
         }
-        if (!teacherId) {
-            return { valid: false, message: "Please select a teacher" };
-        }
+        // if (!teacherId) {
+        //     return { valid: false, message: "Please select a teacher" };
+        // }
 
         // Time validation
         const start = new Date(`2000-01-01T${startTime}`);

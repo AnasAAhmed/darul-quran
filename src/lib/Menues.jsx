@@ -12,9 +12,14 @@ import {
     UsersIcon,
     Video,
     BellRing,
-    Users2Icon
+    Users2Icon,
+    MessageSquare,
+    MessageCircleMore
 } from 'lucide-react';
-import { FaChalkboardTeacher } from 'react-icons/fa';
+import { FaChalkboardTeacher, FaMedal } from 'react-icons/fa';
+import { IoBook } from 'react-icons/io5';
+import { MdOutlinePayments } from "react-icons/md";
+import { GrSchedules } from "react-icons/gr";
 
 export const adminMenu = [
     { name: 'Dashboard', icon: <HomeIcon />, link: '/admin/dashboard', value: 'dashboard' },
@@ -75,7 +80,7 @@ export const studentMenu = [
     { name: 'Dashboard', icon: <HomeIcon />, link: '/student/dashboard' },
     { name: 'My Learning Journey', icon: <FaChalkboardTeacher />, link: '/student/my-learning' },
     { name: 'Class Schedule', icon: <Video />, link: '/student/class-scheduling' },
-    { name: 'Browse Courses', icon: <Video />, link: '/student/browse-courses' },
+    { name: 'Browse Courses', icon: <IoBook  size={21}/>, link: '/student/browse-courses' },
     // {
     //     name: 'Help and Support',
     //     icon: <FileQuestionIcon />,
@@ -88,10 +93,10 @@ export const studentMenu = [
     //         // { name: 'FAQs', link: '/admin/help/faqs' }
     //     ]
     // },
-    { name: 'Chat Center', icon: <Users2Icon />, link: '/student/help/messages' },
-    { name: 'Payments & Subscriptions', icon: <Users2Icon />, link: '/student/payments' },
-    { name: 'My Reschedule Requests', icon: <Users2Icon />, link: '/student/reschedule-requests' },
-    { name: 'Attendance & Progress', icon: <Users2Icon />, link: '/student/attendance-list' },
+    { name: 'Chat Center', icon: <MessageCircleMore size={20}/>, link: '/student/help/messages' },
+    { name: 'Payments & Subscriptions', icon: <MdOutlinePayments  size={23}/>, link: '/student/payments' },
+    { name: 'My Reschedule Requests', icon: <GrSchedules  size={21}/>, link: '/student/reschedule-requests' },
+    { name: 'Attendance & Progress', icon: <FaMedal size={21} />, link: '/student/attendance-list' },
     { name: 'Support Tickets  ', icon: <TicketsIcon />, link: '/student/support-tickets' },
     { name: "Announcements", icon: <MegaphoneIcon />, link: "/student/announcements" },
     { name: 'Notifications', icon: <BellRing />, link: '/student/notifications' }
