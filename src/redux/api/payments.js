@@ -92,9 +92,10 @@ export const paymentApi = createApi({
         
         // Student: Get my subscriptions
         getMySubscriptions: builder.query({
-            query: (params) => ({
-                url: `/subscriptions${params?.search ? `?search=${params.search}` : ""}`,
+            query: ({search,limit,page}) => ({
+                url: `/subscriptions`,
                 method: "GET",
+                params: {search,limit,page}
             }),
             providesTags: ["Payment"],
         }),

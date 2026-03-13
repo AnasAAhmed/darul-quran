@@ -39,7 +39,9 @@ import { analyticsEvents } from "../../../lib/analytics";
 
 const PaymentsInvoices = () => {
   const [page, setPage] = useState(1);
+  const [page2, setPage2] = useState(1);
   const [limit, setLimit] = useState(10);
+  const [limit2, setLimit2] = useState(10);
   const [refundPage, setRefundPage] = useState(1);
   const [refundLimit, setRefundLimit] = useState(10);
   const [searchQuery, setSearchQuery] = useState("");
@@ -66,7 +68,7 @@ const PaymentsInvoices = () => {
   const [cancelSubscription, { isLoading: cancelLoading }] =
     useCancelSubscriptionMutation();
   const { data: subscriptionData, isFetching: subscriptionLoading } =
-    useGetMySubscriptionsQuery({ search: subSearchQuery });
+    useGetMySubscriptionsQuery({ search: subSearchQuery, limit: limit2, page: page2 });
 
   // Refund Modal State
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
@@ -83,6 +85,8 @@ const PaymentsInvoices = () => {
   const invoices = paymentData?.invoices || [];
   const total = paymentData?.total || 0;
   const totalPages = paymentData?.totalPages || 1;
+  const subscriptionTotal = subscriptionData?.total || 0;
+  const subscriptionTotalPages = subscriptionData?.totalPages || 1;
 
   const refundRequests = refundRequestsData?.refundRequests || [];
   const refundTotal = refundRequestsData?.total || 0;
@@ -473,7 +477,7 @@ const PaymentsInvoices = () => {
           <Input
             placeholder="Search by course name..."
             defaultValue={searchQuery}
-            onValueChange={(e) => debounce(() => setSearchQuery(e), 500)}
+            onValueChange={(e) => debounce(() =>{ setSearchQuery(e);setRefundPage(1)}, 500)}
             onKeyDown={handleSearchKeyDown}
             startContent={<Search size={18} className="text-gray-400" />}
             className="max-w-sm"
@@ -583,7 +587,7 @@ const PaymentsInvoices = () => {
           <Input
             placeholder="Search by course name..."
             defaultValue={subSearchQuery}
-            onValueChange={(e) => debounce(() => setSubSearchQuery(e), 500)}
+            onValueChange={(e) => debounce(() => { setSubSearchQuery(e); setPage2(1); }, 500)}
             startContent={<Search size={18} className="text-gray-400" />}
             className="max-w-sm"
             radius="sm"
@@ -705,26 +709,26 @@ const PaymentsInvoices = () => {
             <Select
               radius="sm"
               className="w-[70px]"
-              selectedKeys={[String(limit)]}
+              selectedKeys={[String(limit2)]}
               placeholder="1"
               onSelectionChange={(keys) => {
                 const newLimit = Number(Array.from(keys)[0]);
-                setLimit(newLimit);
-                setPage(1);
+                setLimit2(newLimit);
+                setPage2(1);
               }}
             >
               {limits.map((limit) => (
                 <SelectItem key={limit.key}>{limit.label}</SelectItem>
               ))}
             </Select>
-            <span className="min-w-56">Out of {total}</span>
+            <span className="min-w-56">Out of {subscriptionTotal}</span>
           </div>
           <Pagination
             className=""
             showControls
             variant="ghost"
-            page={page}
-            total={totalPages}
+            page={page2}
+            total={subscriptionTotalPages}
             onChange={(newPage) => setPage(newPage)}
             classNames={{
               item: "rounded-sm hover:bg-bg-[#06574C]/50",
