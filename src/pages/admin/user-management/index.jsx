@@ -444,14 +444,14 @@ const UserManagement = () => {
                                   Not Synced
                                 </Chip>
                               )}
-                              { <Tooltip content="Sync teacher with Zoom">
+                              {!classItem.zoomUserId && <Tooltip content="Sync teacher with Zoom">
                                 <Button
                                   size="sm"
                                   variant="light"
                                   className="text-[#06574C] p-0 min-w-auto w-8 h-8"
                                   onPress={() => handleSyncZoom(classItem.id, classItem.zoomUserId, classItem.email)}
                                   isLoading={isSyncing === classItem.id}
-                                  // isDisabled={classItem.zoomUserId}
+                                  isDisabled={classItem.zoomUserId}
                                   title="Sync with Zoom"
                                 >
                                   <Video size={16} />
