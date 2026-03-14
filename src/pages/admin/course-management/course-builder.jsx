@@ -592,11 +592,12 @@ const CourseBuilder = () => {
                         <Input
                           size="lg"
                           variant="bordered"
-                          label="Base Course Price (EUR)"
+                          label="Base Course Price (GBP)"
                           type="number"
                           labelPlacement="outside"
-                          placeholder="£  0.00"
+                          placeholder="0.00"
                           isRequired
+                          startContent={'£'}
                           errorMessage="BaseCourse Price is required"
                           className="w-full"
                           value={formData.base_price}

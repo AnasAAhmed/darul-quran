@@ -200,7 +200,7 @@ const CourseManagement = () => {
                   </TableCell>
                   <TableCell>
                     <div className="min-w-0">
-                      <p className="font-medium text-gray-900 truncate">
+                      <p className="font-medium max-w-[220px] text-gray-900 truncate">
                         {classItem?.courseName}
                       </p>
                       <p title={classItem?.description} className="text-xs text-gray-500 mt-0.5 whitespace-normal max-w-[220px] line-clamp-1">

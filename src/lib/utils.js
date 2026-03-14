@@ -135,13 +135,21 @@ export const getScheduleDateTime = (dateStr, timeStr) => {
   return new Date(year, month - 1, day, hours, minutes, 0, 0);
 };
 
-export const isEditable = (dateStr, startTime) => {
+export const isEditable = (dateStr, startTime, endTime) => {
   const scheduleDateTime = getScheduleDateTime(dateStr, startTime);
+  const scheduleEndDateTime = getScheduleDateTime(dateStr, endTime);
+
   const now = new Date();
+
   const hoursUntil = (scheduleDateTime.getTime() - now.getTime()) / (1000 * 60 * 60);
-  return (hoursUntil < 0 || hoursUntil > 4);
+
+  const isLive = now >= scheduleDateTime && now <= scheduleEndDateTime;
+
+  if (isLive) return false;
+
+  return hoursUntil < 0 || hoursUntil > 4;
 };
 
 export const canReschedule = (schedule) => {
-  return schedule.scheduleDates.every(dateStr => isEditable(dateStr, schedule.startTime));
+  return schedule.scheduleDates.every(dateStr => isEditable(dateStr, schedule.startTime,schedule.endTime));
 };
