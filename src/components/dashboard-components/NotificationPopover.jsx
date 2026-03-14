@@ -40,11 +40,11 @@ const NotificationPopover = ({ isHomeMob = false }) => {
     ];
     const handleRoute = () => {
         if (currentUser?.role === "admin") {
-            return ("/admin/notifications-center");
-        } else if (currentUser?.role === "user" && currentUser?.is_hostVerify === 'approved') {
-            return ("/host/notifications-center");
+            return ("/admin/notifications");
+        } else if (currentUser?.role === "student" ) {
+            return ("/student/notifications");
         } else {
-            return ("/guest/notifications-center");
+            return ("/teacher/notifications");
         }
     };
     if (!canAccessNotifications) {

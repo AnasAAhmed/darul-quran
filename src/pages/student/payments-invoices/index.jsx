@@ -342,7 +342,7 @@ const PaymentsInvoices = () => {
                       ).toLocaleDateString()}
                     </TableCell>
                     <TableCell>
-                      €{item.amountPaid || item.amount || 0}
+                      £{item.amountPaid || item.amount || 0}
                     </TableCell>
                     <TableCell>
                       <div className="flex gap-1 items-center">
@@ -518,7 +518,7 @@ const PaymentsInvoices = () => {
                 <TableCell>
                   {dateFormatter(item.requestedAt || item.createdAt, true)}
                 </TableCell>
-                <TableCell>€{item.amount}</TableCell>
+                <TableCell>£{item.amount}</TableCell>
                 <TableCell>
                   <div
                     className="max-w-[250px] text-sm text-gray-600 truncate"

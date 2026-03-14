@@ -363,7 +363,7 @@ const BrowseCourses = () => {
                         </div>
                         <div className="text-end">
                           <p className={`font-bold text-lg ${item.coursePrice === "0" || item.coursePrice === "00" ? "text-[#34A853]" : "text-[#D28E3D]"}`}>
-                            {item.coursePrice === "0" || item.coursePrice === "00" ? "Free" : `€${item.coursePrice}`}
+                            {item.coursePrice === "0" || item.coursePrice === "00" ? "Free" : `£${item.coursePrice}`}
                           </p>
                         </div>
                       </div>

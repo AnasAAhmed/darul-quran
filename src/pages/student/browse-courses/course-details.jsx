@@ -117,7 +117,7 @@ const CourseDetails = () => {
       const paymentData = await paymentRes.json();
 
       if (!paymentData.success) {
-        errorMessage("Payment setup failed: " + paymentData.message);
+        errorMessage(paymentData.message);
         return;
       }
 
@@ -330,9 +330,9 @@ const CourseDetails = () => {
               )}
               <div className="flex justify-between items-center p-3">
                 <div className="flex gap-1 items-center ">
-                  <h1 className="text-2xl font-bold text-[#06574C]">€{course?.coursePrice} </h1>
+                  <h1 className="text-2xl font-bold text-[#06574C]">£{course?.coursePrice} </h1>
                   {course?.discountPercentage > 0 && <h1 className="text-lg  text-[#666666]  line-through">
-                    €{course?.basePrice}
+                    £{course?.basePrice}
                   </h1>}
                 </div>
                 {course?.discountPercentage > 0 && <Button
