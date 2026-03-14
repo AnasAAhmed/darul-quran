@@ -303,6 +303,7 @@ const CreaterOrUpdateSchedule = () => {
             specificStudents: item.specificStudents,
             settings: {
                 join_before_host: item.settings?.join_before_host || false,
+                waiting_room: item.settings?.waiting_room || false,
                 auto_recording: item.settings?.auto_recording || false,
             },
         });
@@ -453,7 +454,6 @@ const CreaterOrUpdateSchedule = () => {
                         <Input
                             type="number"
                             label="Repeat Every (Days)"
-                            min={1}
                             variant="bordered"
                             value={formData.repeatInterval}
                             onChange={(e) =>

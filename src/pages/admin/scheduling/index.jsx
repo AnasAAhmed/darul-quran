@@ -350,6 +350,7 @@ const Scheduling = () => {
       settings: {
         join_before_host: item.settings?.join_before_host || false,
         auto_recording: item.settings?.auto_recording || false,
+        waiting_room: item.settings?.waiting_room || false,
       },
     });
     onOpen();
@@ -527,7 +528,7 @@ const Scheduling = () => {
                     <span className="text-gray-400 text-sm">No Link</span>
                   )}
                   <Button as={Link} to={item.meetingLink} target="_blank" rel="noopener noreferrer" variant="ghost" size="sm" radius="sm" color="primary">
-                      Join
+                    Join
                   </Button>
                 </TableCell>
                 <TableCell>
@@ -849,9 +850,47 @@ const Scheduling = () => {
                       });
                     }}
                   >
-                    {/* <Checkbox value="join_before_host">Allow students to join before host</Checkbox> */}
-                    <Checkbox value="auto_recording">Record session automatically (cloud)</Checkbox>
-                    <Checkbox value="waiting_room">Participants must be admitted by the host before joining.</Checkbox>
+                    <Tooltip
+                      color="success"
+                      content={
+                        formData.settings?.join_before_host
+                          ? 'Unselect "Participants must be admitted by the host before joining." to allow this option'
+                          : "Allow students to join before host"
+                      }
+                      isDisabled={formData.settings?.join_before_host}
+                    >
+                      <span>
+                        <Checkbox
+                          isDisabled={formData.settings?.waiting_room}
+                          value="join_before_host"
+                        >
+                          Allow students to join before host
+                        </Checkbox>
+                      </span>
+                    </Tooltip>
+
+                    <Checkbox value="auto_recording">
+                      Record session automatically (cloud)
+                    </Checkbox>
+
+                    <Tooltip
+                      color="success"
+                      content={
+                        formData.settings?.join_before_host
+                          ? 'Unselect "Allow students to join before host" to allow this option'
+                          : "Participants must be admitted by the host before joining."
+                      }
+                      isDisabled={formData.settings?.waiting_room}
+                    >
+                      <span>
+                        <Checkbox
+                          isDisabled={formData.settings?.join_before_host}
+                          value="waiting_room"
+                        >
+                          Participants must be admitted by the host before joining.
+                        </Checkbox>
+                      </span>
+                    </Tooltip>
                   </CheckboxGroup>
                 </div>
               </ModalBody>

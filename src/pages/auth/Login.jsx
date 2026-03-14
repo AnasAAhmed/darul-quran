@@ -28,7 +28,7 @@ const Login = () => {
 
   const rolesWithEmail = [
     { label: "Admin", key: "admin@admin.com" },
-    { label: "Teacher", key: "teacher@teacher.com" },
+    { label: "Teacher", key: "fayovir175@faxzu.com" },
     { label: "Student", key: "student@student.com" }
   ];
 
