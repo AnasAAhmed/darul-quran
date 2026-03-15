@@ -317,11 +317,11 @@ const CourseBuilder = () => {
 
   const handleSubmit2tab = async () => {
     setLoadingAction(pendingAction);
-    if (files.length === 0) { errorMessage("Please upload at least one file"); return; };
+    // if (files.length === 0) { errorMessage("Please upload at least one file"); return; };
 
-    if (data.previous_lesson === formData.previous_lesson) {
+    // if (data.previous_lesson === formData.previous_lesson) {
       handleSelected("pricing");
-    }
+    // }
     // try {
 
     //   const payload = {
@@ -934,7 +934,7 @@ const CourseBuilder = () => {
                     className="bg-[#06574C] w-full text-white sm:w-35"
                     type="submit"
                     onPress={() => {
-                      if (files.length === 0) { errorMessage("Please upload at least one file"); return; };
+                      // if (files.length === 0) { errorMessage("Please upload at least one file"); return; };
                       handleSelected("pricing");
                     }}
                   >

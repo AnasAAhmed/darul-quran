@@ -416,9 +416,8 @@ const StudentClassSheduling = () => {
                                             {schedule.scheduleDates.length > 1 && (
                                                 <>
                                                     {' - '}
-                                                    {new Date(schedule.scheduleDates[schedule.scheduleDates.length - 1]).toLocaleDateString('en-US', {
-                                                        month: 'short', day: 'numeric', year: 'numeric'
-                                                    })}
+                                                    {schedule?.isDateGenerated ? 'On Going' : new Date(schedule.scheduleDates[schedule.scheduleDates?.length - 1]).toDateString()}
+
                                                 </>
                                             )}
                                             {' '}

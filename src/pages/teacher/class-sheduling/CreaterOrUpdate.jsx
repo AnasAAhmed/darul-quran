@@ -109,19 +109,19 @@ const CreaterOrUpdateSchedule = () => {
         }
 
         if (scheduleType === "daily" || scheduleType === "weekly") {
-            if (!startDate || !endDate) {
-                return { valid: false, message: "Start date and end date are required" };
+            if (!startDate) {
+                return { valid: false, message: "Start date is required" };
             }
 
             const start = new Date(startDate);
-            const end = new Date(endDate);
+            const end = endDate && new Date(endDate);
             const today = new Date();
             today.setHours(0, 0, 0, 0);
 
             if (start < today) {
                 return { valid: false, message: "Start date cannot be in the past" };
             }
-            if (end < start) {
+            if (end && end < start) {
                 return { valid: false, message: "End date must be after start date" };
             }
 
@@ -433,6 +433,7 @@ const CreaterOrUpdateSchedule = () => {
                                 type="date"
                                 label="Start Date"
                                 variant="bordered"
+                                labelPlacement="outside"
                                 isRequired={formData.scheduleType === "daily"}
                                 value={formData.startDate}
                                 onChange={(e) =>
@@ -441,9 +442,9 @@ const CreaterOrUpdateSchedule = () => {
                             />
                             <Input
                                 type="date"
-                                label="End Date"
+                                label="End Date (optional)"
                                 variant="bordered"
-                                isRequired={formData.scheduleType === "daily"}
+                                labelPlacement="outside"
                                 value={formData.endDate}
                                 onChange={(e) =>
                                     setFormData({ ...formData, endDate: e.target.value })

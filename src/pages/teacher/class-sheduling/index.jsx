@@ -291,7 +291,7 @@ const TeacherClassSheduling = () => {
                 {type === 'normal' && <p className="text-[#666666] text-sm mb-4 line-clamp-2">
                     {schedule.scheduleDates?.length === 1 ? new Date(schedule.scheduleDates[0]).toDateString() : (new Date(schedule.scheduleDates[0]).toDateString()
                         + ' - to - ' +
-                        new Date(schedule.scheduleDates[schedule.scheduleDates?.length - 1]).toDateString())}
+                      ( schedule?.isDateGenerated?'On Going': new Date(schedule.scheduleDates[schedule.scheduleDates?.length - 1]).toDateString()))}
                 </p>}
                 <div className="flex flex-wrap gap-4 mb-4">
                     <div className="flex text-[#666666] text-sm items-center gap-2">
@@ -713,7 +713,7 @@ const TeacherClassSheduling = () => {
                                 <div className="bg-gray-50 p-3 rounded-lg mt-3">
                                     <p className="font-semibold text-sm">{selectedSchedule.title}</p>
                                     <p className="text-sm text-gray-600">
-                                        {(parseDateFromDB(selectedSchedule.date) || new Date(selectedSchedule.date)).toLocaleDateString()} at{" "}
+                                        {/* {(parseDateFromDB(selectedSchedule.date) || new Date(selectedSchedule.date)).toLocaleDateString()} at{" "} */}
                                         {formatTime12Hour(selectedSchedule.startTime)}
                                     </p>
                                 </div>

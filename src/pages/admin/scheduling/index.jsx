@@ -154,19 +154,19 @@ const Scheduling = () => {
     }
 
     if (scheduleType === "daily" || scheduleType === "weekly") {
-      if (!startDate || !endDate) {
-        return { valid: false, message: "Start date and end date are required" };
+      if (!startDate) {
+        return { valid: false, message: "Start date is required" };
       }
 
       const start = new Date(startDate);
-      const end = new Date(endDate);
+      const end = endDate && new Date(endDate);
       const today = new Date();
       today.setHours(0, 0, 0, 0);
 
       if (start < today) {
         return { valid: false, message: "Start date cannot be in the past" };
       }
-      if (end < start) {
+      if (end && end < start) {
         return { valid: false, message: "End date must be after start date" };
       }
 
@@ -442,7 +442,7 @@ const Scheduling = () => {
             {/* <TableColumn>Image</TableColumn> */}
             <TableColumn width={200}>Details</TableColumn>
             <TableColumn width={200}>Teacher</TableColumn>
-            <TableColumn width={200}>Dates</TableColumn>
+            <TableColumn width={200}>Dates<small>(Latest 30)</small></TableColumn>
             <TableColumn width={200}>Time</TableColumn>
             <TableColumn width={200}>Schedule Type</TableColumn>
             <TableColumn width={200}>Class Type</TableColumn>
@@ -466,7 +466,7 @@ const Scheduling = () => {
                     <div className="font-medium text-gray-900 max-w-[200px] truncate">{item.title}</div>
                     <div title={item.description || 'No description'} className="text-xs cursor-pointer text-gray-500 mt-0.5 max-w-[200px] truncate"> {item.description || 'No description'}</div>
                     <div className="text-xs text-[#06574C] mt-1">{item.courseName || 'General Session'}</div>
-                  </div> 
+                  </div>
                 </TableCell>
                 <TableCell>
                   <div className="flex-col flex">
@@ -699,13 +699,14 @@ const Scheduling = () => {
                         label="Start Date"
                         variant="bordered"
                         value={formData.startDate}
+                        isRequired
                         onChange={(e) =>
                           setFormData({ ...formData, startDate: e.target.value })
                         }
                       />
                       <Input
                         type="date"
-                        label="End Date"
+                        label="End Date (optional)"
                         variant="bordered"
                         value={formData.endDate}
                         onChange={(e) =>
@@ -737,6 +738,7 @@ const Scheduling = () => {
                         label="Start Date"
                         variant="bordered"
                         value={formData.startDate}
+                        isRequired
                         onChange={(e) =>
                           setFormData({ ...formData, startDate: e.target.value })
                         }
@@ -749,6 +751,7 @@ const Scheduling = () => {
                         onChange={(e) =>
                           setFormData({ ...formData, endDate: e.target.value })
                         }
+                        isRequired={false}
                       />
                     </div>
 
