@@ -22,7 +22,7 @@ export const IntervalInput = ({
     toolTipContent,
     inputWidth = 80,
     className = 'flex flex-col sm:flex-row sm:items-center gap-2',
-    units = ["hour", "day", "month"],
+    units = ["hour", "day", "month",'year'],
     releasedImmediately = true,
 }) => {
     const [initialNumber, setInitialNumber] = useState({ number: 0, unit: '' });
@@ -33,10 +33,11 @@ export const IntervalInput = ({
         if (initialValue) {
             const { number, unit } = parseInterval(initialValue);
             setInitialNumber({ number, unit });
-            setNumberValue(number);
-            setUnitValue(unit);
+            setNumberValue(number || 0);
+            setUnitValue(unit || (releasedImmediately ? "released_immediately" : units[0]));
         }
-    }, [initialValue]);
+    }, [initialValue, releasedImmediately, units]);
+    
     const handleUpdate = () => {
         if (unitValue === "released_immediately") {
             onUpdate("null");
@@ -44,7 +45,7 @@ export const IntervalInput = ({
         }
         if (!numberValue || !unitValue) return;
         if ((numberValue === initialNumber.number) && (unitValue === initialNumber.unit)) return;
-        if ((unitValue === initialNumber.unit) && (numberValue === initialNumber.number)) return;
+        
         const interval = `${numberValue} ${numberValue < 2 ? unitValue?.replace('s', '') : unitValue}`;
         onUpdate(interval);
     };

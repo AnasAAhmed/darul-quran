@@ -561,34 +561,35 @@ const StudentClassSheduling = () => {
             />
 
             <div className="grid grid-cols-12 gap-4 items-start mt-4">
-                {viewType === 'allDates' ? <div className="col-span-12 lg:col-span-8">
-                    {isLoading ? (
-                        <div className="flex justify-center items-center py-20">
-                            <Spinner size="lg" color="success" />
-                        </div>
-                    ) : scheduleDates.length === 0 ? (
-                        <div className="bg-white rounded-lg p-8 text-center">
-                            <CalendarIcon className="mx-auto mb-4 text-gray-400" size={48} />
-                            <p className="text-gray-500">No classes scheduled</p>
-                        </div>
-                    ) : (
-                        scheduleDates.map((dateKey) => (
-                            <div key={dateKey} className="mb-6">
-                                <DashHeading
-                                    title={dateKey}
-                                    desc={`${schedulesByDate[dateKey].length} ${schedulesByDate[dateKey].length === 1 ? 'class' : 'classes'} scheduled`}
-                                />
-                                <div className="mt-3">
-                                    {schedulesByDate[dateKey].map((schedule) => (
-                                        <ScheduleCard key={schedule.id} schedule={schedule} />
-                                    ))}
-                                </div>
+                {viewType === 'allDates' ?
+                    <div className="col-span-12 order-2 lg:order-1 lg:col-span-8">
+                        {isLoading ? (
+                            <div className="flex justify-center items-center py-20">
+                                <Spinner size="lg" color="success" />
                             </div>
-                        ))
-                    )}
-                </div>
+                        ) : scheduleDates.length === 0 ? (
+                            <div className="bg-white rounded-lg p-8 text-center">
+                                <CalendarIcon className="mx-auto mb-4 text-gray-400" size={48} />
+                                <p className="text-gray-500">No classes scheduled</p>
+                            </div>
+                        ) : (
+                            scheduleDates.map((dateKey) => (
+                                <div key={dateKey} className="mb-6">
+                                    <DashHeading
+                                        title={dateKey}
+                                        desc={`${schedulesByDate[dateKey].length} ${schedulesByDate[dateKey].length === 1 ? 'class' : 'classes'} scheduled`}
+                                    />
+                                    <div className="mt-3">
+                                        {schedulesByDate[dateKey].map((schedule) => (
+                                            <ScheduleCard key={schedule.id} schedule={schedule} />
+                                        ))}
+                                    </div>
+                                </div>
+                            ))
+                        )}
+                    </div>
                     :
-                    <div className="col-span-12 lg:col-span-8">
+                    <div className="col-span-12 order-2 lg:order-1 lg:col-span-8">
                         {isLoading ? (
                             <div className="flex justify-center items-center py-20">
                                 <Spinner size="lg" color="success" />
@@ -616,7 +617,7 @@ const StudentClassSheduling = () => {
                 }
 
                 {/* Sidebar - Calendar & Filters */}
-                <div className="col-span-12 sm:sticky top-2  lg:col-span-4 space-y-4 mb-4">
+                <div className="col-span-12 sm:sticky top-2 order-1 lg:order-2  lg:col-span-4 space-y-4 mb-4">
                     {/* Quick Stats Card */}
                     {/* <div className="bg-white p-4 rounded-lg shadow-sm">
                         <h3 className="text-sm font-semibold text-gray-700 mb-3">Schedule Overview</h3>

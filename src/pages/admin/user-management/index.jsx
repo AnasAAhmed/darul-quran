@@ -25,7 +25,7 @@ import { Chip } from "@heroui/react";
 
 import { DashHeading } from "../../../components/dashboard-components/DashHeading";
 import {
-  ListFilterPlusIcon,
+  MessageCircle,
   Plus,
   SquarePen,
   Trash2,
@@ -35,19 +35,20 @@ import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { AnimatePresence } from "motion/react";
 import * as motion from "motion/react-client";
 import { dateFormatter, debounce } from "../../../lib/utils";
-import { errorMessage, showMessage, successMessage } from "../../../lib/toast.config";
+import { errorMessage, successMessage } from "../../../lib/toast.config";
 import { useBulkDeleteUserMutation, useDeleteUserMutation, useGetAllUsersQuery, useSyncUserWithZoomMutation } from "../../../redux/api/user";
 import { Video } from "lucide-react";
+import { useSelector } from "react-redux";
 
 const UserManagement = () => {
   const [searchParams, setSearchParams] = useSearchParams();
+  const { user } = useSelector(state => state.user);
   const statuses = [
     { key: "all", label: "All Status" },
     { key: "true", label: "Active" },
     { key: "false", label: "Inactive" },
   ];
 
-  const filters = [{ key: "all", label: "Filter" }];
   const header = [
     { key: "User", label: "User" },
     { key: "Role", label: "Role" },
@@ -371,7 +372,7 @@ const UserManagement = () => {
               transition={{ duration: 0.6, ease: "easeInOut" }}
             >
               <Table
-                //    isHeaderSticky
+                align="center"
                 isHeaderSticky
                 selectionMode={data?.total > 0 ? "multiple" : undefined}
                 selectedKeys={selectedUsers}
@@ -423,7 +424,7 @@ const UserManagement = () => {
                         </Button>
                       </TableCell>
                       <TableCell>
-                        <div className="flex items-center gap-2">
+                        <div className="flex items-center justify-center gap-2">
                           {(role === 'teacher') ? (
                             <>
                               {classItem.zoomUserId ? (
@@ -469,6 +470,23 @@ const UserManagement = () => {
                         >
                           View Details
                         </Button>
+                        {classItem.id !== user?.id && <Button
+                          // size="sm"
+                          radius="sm"
+                          className="bg-[#06574C] text-white font-medium px-4"
+                          startContent={<MessageCircle size={16} />}
+                          onPress={() =>
+                            router("/admin/help/messages", {
+                              state: {
+                                startChatWith: classItem.id,
+                                receiverName: [classItem?.firstName, classItem?.lastName].filter(Boolean).join(" ").trim() || "Teacher",
+                                receiverRole: "teacher",
+                              },
+                            })
+                          }
+                        >
+                          Chat
+                        </Button>}
                         <Button
                           variant="bordered"
                           radius="sm"

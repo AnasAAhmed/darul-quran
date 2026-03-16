@@ -195,15 +195,17 @@ const CourseManagement = () => {
                     <Image src={classItem.thumbnail}
                       width={50}
                       height={50}
+                      fallbackSrc={'https://user-images.githubusercontent.com/237508/90246627-ecbda400-de2c-11ea-8bfb-b4307bfb975d.png'}
                       alt={classItem.courseName}
+                      isBlurred
                       className="rounded-lg shrink-0" />
                   </TableCell>
                   <TableCell>
                     <div className="min-w-0">
-                      <p className="font-medium max-w-[220px] text-gray-900 truncate">
+                      <p title={classItem?.courseName} className="font-medium cursor-pointer max-w-[220px] text-gray-900 truncate">
                         {classItem?.courseName}
                       </p>
-                      <p title={classItem?.description} className="text-xs text-gray-500 mt-0.5 whitespace-normal max-w-[220px] line-clamp-1">
+                      <p title={classItem?.description} className="text-xs cursor-pointer text-gray-500 mt-0.5 whitespace-normal max-w-[220px] line-clamp-1">
                         {classItem?.description}
                       </p>
                     </div>

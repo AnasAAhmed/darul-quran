@@ -288,7 +288,7 @@ const TeachersDashboard = () => {
                     </div>
 
                     <div className="p-3 space-y-3">
-                      <h3 title={item.courseName} className="text-base font-semibold text-[#060606] line-clamp-2 min-h-[2rem]">
+                      <h3 title={item.courseName} className="text-base font-semibold text-[#060606] line-clamp-2 min-h-8">
                         {item.courseName}
                       </h3>
                       <p className="text-sm text-[#666666] line-clamp-2 h-10">{item.description}</p>

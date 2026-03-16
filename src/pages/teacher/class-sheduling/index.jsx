@@ -438,7 +438,7 @@ const TeacherClassSheduling = () => {
                 </Button>
             </div>
             <div className="grid grid-cols-12 gap-4 items-start mt-4">
-                {viewType === 'allDates' ? <div className="col-span-12 lg:col-span-8">
+                {viewType === 'allDates' ? <div className="col-span-12 lg:col-span-8 order-2 lg:order-1">
                     {isLoading ? (
                         <div className="flex justify-center items-center py-20">
                             <Spinner size="lg" color="success" />
@@ -465,7 +465,7 @@ const TeacherClassSheduling = () => {
                     )}
                 </div>
                     :
-                    <div className="col-span-12 lg:col-span-8">
+                    <div className="col-span-12 lg:col-span-8 order-2 lg:order-1">
                         {isLoading ? (
                             <div className="flex justify-center items-center py-20">
                                 <Spinner size="lg" color="success" />
@@ -494,7 +494,7 @@ const TeacherClassSheduling = () => {
                 }
 
                 {/* Sidebar - Calendar & Filters */}
-                <div className="col-span-12 sm:sticky top-2 lg:col-span-4 space-y-4 mb-4">
+                <div className="col-span-12 sm:sticky order-1 lg:order-2 top-2 lg:col-span-4 space-y-4 mb-4">
 
                     <div className="bg-white w-full space-y-4 p-4 rounded-lg shadow-sm">
                         <Button

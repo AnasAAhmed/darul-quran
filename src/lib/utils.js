@@ -122,11 +122,55 @@ export const parseInterval = (interval) => {
     const hour = interval.split(":")[0];
     return { number: Number(hour), unit: "hour" };
   }
-  const [num, unit] = interval.split(" ");
-  return {
-    number: Number(num),
-    unit: unit?.toLowerCase()?.replace("s", ""),
+  
+  const parts = interval.toLowerCase().split(/\s+/);
+  const result = { number: "", unit: "" };
+  
+  const unitMap = {
+    'year': 'year', 'years': 'year', 'yr': 'year', 'yrs': 'year',
+    'mon': 'month', 'mons': 'month', 'month': 'month', 'months': 'month',
+    'day': 'day', 'days': 'day', 'd': 'day',
+    'hour': 'hour', 'hours': 'hour', 'hr': 'hour', 'hrs': 'hour', 'h': 'hour',
+    'minute': 'minute', 'minutes': 'minute', 'min': 'minute', 'mins': 'minute', 'm': 'minute',
+    'second': 'second', 'seconds': 'second', 'sec': 'second', 'secs': 'second', 's': 'second'
   };
+  
+  for (let i = 0; i < parts.length; i += 2) {
+    const num = parts[i];
+    const rawUnit = parts[i + 1];
+    
+    if (!num || !rawUnit) continue;
+    
+    const unit = unitMap[rawUnit] || rawUnit.replace("s", "");
+    
+    if (!unit) continue;
+    
+    if (unit === 'year' && !result.number) {
+      result.number = Number(num);
+      result.unit = 'year';
+    } else if (unit === 'month' && !result.number) {
+      result.number = Number(num);
+      result.unit = 'month';
+    } else if (unit === 'day' && !result.number) {
+      result.number = Number(num);
+      result.unit = 'day';
+    } else if (unit === 'hour' && !result.number) {
+      result.number = Number(num);
+      result.unit = 'hour';
+    } else if (unit === 'minute' && !result.number) {
+      result.number = Number(num);
+      result.unit = 'minute';
+    }
+  }
+  
+  if (!result.number) {
+    const [num, rawUnit] = interval.split(" ");
+    const unit = unitMap[rawUnit?.toLowerCase()] || rawUnit?.toLowerCase()?.replace("s", "");
+    result.number = Number(num);
+    result.unit = unit;
+  }
+  
+  return result;
 };
 
 export const getScheduleDateTime = (dateStr, timeStr) => {
