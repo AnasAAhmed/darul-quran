@@ -406,7 +406,9 @@ const Analytics = () => {
                   .map((item, index) => (
                     <div key={index} className="mb-4">
                       <div className="flex justify-between items-center py-1">
-                        <span className="font-medium">{item.title}</span>
+                        <span className="font-medium line-clamp-1">
+                          {item.title}
+                        </span>
                         <span className="text-gray-600">{item.value}</span>
                       </div>
                       <Progress
@@ -433,7 +435,7 @@ const Analytics = () => {
                     <div key={index} className="mb-4">
                       <div className="flex justify-between items-center py-1">
                         <span className="text-gray-600">{item.value}</span>
-                        <span className="font-medium text-right flex-1">
+                        <span className="font-medium text-right flex-1 line-clamp-1">
                           {item.title}
                         </span>
                       </div>
