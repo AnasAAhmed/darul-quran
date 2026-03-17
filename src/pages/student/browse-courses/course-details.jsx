@@ -348,8 +348,8 @@ const CourseDetails = () => {
                   <Button
                     radius="sm"
                     size="sm"
-                    className="w-full bg-[#06574C] text-white"
-                    onPress={() => navigate("/student/dashboard")}
+                    onPress={handleEnroll}
+                    isLoading={enrolling}
                   >
                     Update Enrollment
                   </Button>
