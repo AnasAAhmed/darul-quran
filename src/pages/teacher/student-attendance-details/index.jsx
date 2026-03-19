@@ -164,9 +164,9 @@ const StudentAttendanceDetails = () => {
                     onChange={setDateRange}
                 />
                 {(dateRange?.start || dateRange?.end) &&
-                 <Button size="lg" onPress={()=>setDateRange(null)} className="text-2xl" isIconOnly variant="bordered" color="success">
-                    &times;
-                </Button>}
+                    <Button size="lg" onPress={() => setDateRange(null)} className="text-2xl" isIconOnly variant="bordered" color="success">
+                        &times;
+                    </Button>}
             </div>
 
             {/* Main Attendance Table - Simplified View */}
@@ -201,7 +201,14 @@ const StudentAttendanceDetails = () => {
                                     </div>
                                 </TableCell>
                                 <TableCell>
-                                    {renderStatusChip(item)}
+                                    <Chip
+                                        size="sm"
+                                        variant="flat"
+                                        color={item.status === 'present' ? 'success' : 'danger'}
+                                        className="font-semibold px-2 capitalize"
+                                    >
+                                        {item.status}
+                                    </Chip>
                                 </TableCell>
                                 <TableCell>
                                     <Button
@@ -299,12 +306,12 @@ const StudentAttendanceDetails = () => {
                                             <div className="ml-6 space-y-2">
                                                 <div className="flex items-center gap-3">
                                                     <Chip
-                                                        size="md"
+                                                        size="sm"
                                                         variant="flat"
-                                                        color={getAttendanceStatus(selectedAttendance).statusColor}
-                                                        className="font-semibold"
+                                                        color={selectedAttendance.status === 'present' ? 'success' : 'danger'}
+                                                        className="font-semibold px-2 capitalize"
                                                     >
-                                                        {getAttendanceStatus(selectedAttendance).displayStatus}
+                                                        {selectedAttendance.status}
                                                     </Chip>
                                                 </div>
                                                 {selectedAttendance.joinedAt && (

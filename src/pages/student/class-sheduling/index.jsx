@@ -43,7 +43,7 @@ const StudentClassSheduling = () => {
     const [schedulesForSelectedDate, setSchedulesForSelectedDate] = useState([]);
     const { data: scheduleData, isLoading, isFetching, refetch, error } = useGetScheduleQuery({
         page: "1",
-        limit: "100",
+        limit: "10",
         status: filterStatus === "all" ? undefined : filterStatus,
     });
 

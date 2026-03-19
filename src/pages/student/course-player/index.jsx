@@ -201,12 +201,12 @@ const CoursePlayer = () => {
                         ) : (
                             <LessonFileViewer
                                 file={{
-                                    url: course?.video,
+                                    url: course?.video||course?.thumbnail,
                                     thumbnailUrl: course?.thumbnail,
-                                    fileType: "video/mp4",
+                                    fileType:course?.video?"video/mp4":"image/png",
                                 }}
                                 autoPlay={false}
-                            // onEnded={handleVideoEnd}
+                                onEnded={handleVideoEnd}
                             />
                         )}
 

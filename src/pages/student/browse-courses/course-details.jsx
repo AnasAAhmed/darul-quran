@@ -348,6 +348,7 @@ const CourseDetails = () => {
                   <Button
                     radius="sm"
                     size="sm"
+                    className="w-full bg-[#06574C] text-white"
                     onPress={handleEnroll}
                     isLoading={enrolling}
                   >
