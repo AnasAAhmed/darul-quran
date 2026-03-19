@@ -200,7 +200,7 @@ const UserSelect = ({ onChange, courseId, initialValues = [], label, placeholder
                                         </div>
 
                                         <div>
-                                            {user.subscriptionId ? (
+                                            {user.enrollmentId ? (
                                                 <p className="text-xs text-green-500 font-semibold">
                                                     Enrolled Student 
                                                 </p>
