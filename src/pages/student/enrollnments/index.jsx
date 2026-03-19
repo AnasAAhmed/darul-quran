@@ -22,6 +22,7 @@ import { XIcon } from "lucide-react";
 
 const Enrollments = () => {
   const [selectedStatus, setSelectedStatus] = useState("all");
+  const [selectedPaymentStatus, setSelectedPaymentStatus] = useState("");
   const [dateRange, setDateRange] = useState(null);
   const [page, setPage] = useState(1);
 
@@ -30,10 +31,11 @@ const Enrollments = () => {
     startDate: dateRange?.start ? `${dateRange.start.year}-${String(dateRange.start.month).padStart(2, '0')}-${String(dateRange.start.day).padStart(2, '0')}` : undefined,
     endDate: dateRange?.end ? `${dateRange.end.year}-${String(dateRange.end.month).padStart(2, '0')}-${String(dateRange.end.day).padStart(2, '0')}` : undefined,
     page: page,
+    paymentStatus: selectedPaymentStatus,
     limit: 10
   });
 
-//   console.log(data);
+  //   console.log(data);
 
   return (
     <div className="bg-white sm:bg-linear-to-t from-[#F1C2AC]/50 to-[#95C4BE]/50 px-2 sm:px-3 pb-3">
@@ -57,13 +59,13 @@ const Enrollments = () => {
             setPage(1);
           }}
         />
-      {dateRange && <Button
+        {dateRange && <Button
           color="success"
           size="sm"
           radius="lg"
           isIconOnly
           onPress={() => setDateRange(null)}
-          startContent={<XIcon  size={16}/>}
+          startContent={<XIcon size={16} />}
         />}
         <Select
           label="Status"
@@ -79,9 +81,27 @@ const Enrollments = () => {
           }}
         >
           <SelectItem key="all">All</SelectItem>
-          <SelectItem key="completed">Completed</SelectItem>
+          <SelectItem key="active">Active</SelectItem>
+          <SelectItem key="expired">Expired</SelectItem>
+          <SelectItem key="inactive">In Active</SelectItem>
+        </Select>
+        <Select
+          label="Payment Status"
+          placeholder="Select a payment status"
+          labelPlacement="inside"
+          size="sm"
+          radius="lg"
+          className="sm:max-w-[200px]"
+          selectedKeys={[selectedPaymentStatus]}
+          onSelectionChange={(keys) => {
+            setSelectedPaymentStatus(Array.from(keys)[0]);
+            setPage(1);
+          }}
+        >
+          <SelectItem key="all">All</SelectItem>
+          <SelectItem key="completed">Paid</SelectItem>
           <SelectItem key="refunded">Refunded</SelectItem>
-        </Select>   
+        </Select>
       </div>
 
       <div className="mt-4">
@@ -100,12 +120,13 @@ const Enrollments = () => {
           <TableHeader>
             <TableColumn>Thumbnail</TableColumn>
             <TableColumn>Course Name</TableColumn>
+            <TableColumn>Status</TableColumn>
             <TableColumn>Payment Status</TableColumn>
             <TableColumn>Enrolled At</TableColumn>
             <TableColumn>Expired At</TableColumn>
           </TableHeader>
-          <TableBody 
-          loadingState={(isLoading || isFetching) ? "loading" : "idle"}
+          <TableBody
+            loadingState={(isLoading || isFetching) ? "loading" : "idle"}
             loadingContent={<Spinner color="success" size="lg" label="Loading..." />}
             emptyContent={
               <div className="flex flex-col items-center justify-center p-8">
@@ -120,17 +141,22 @@ const Enrollments = () => {
                     src={enrollment.thumbnail}
                     alt={enrollment.courseName}
                     width={50}
-                      height={50}
-                      className="rounded-lg shrink-0" />
-                      : <Skeleton
+                    height={50}
+                    className="rounded-lg shrink-0" />
+                    : <Skeleton
                       className="rounded-lg bg-gray-300 w-12 h-12 shrink-0" />}
-                   
+
                 </TableCell>
-                <TableCell>{enrollment.courseName}</TableCell>
+                <TableCell title={enrollment.courseName} className="truncate max-w-56">{enrollment.courseName}</TableCell>
+                <TableCell
+                  className={`capitalize`}
+                >
+                  {enrollment.status}
+                </TableCell>
                 <TableCell
                   className={`capitalize ${enrollment.paymentStatus === "completed" ? "text-success" : "text-danger"}`}
                 >
-                  {enrollment.paymentStatus}
+                  {enrollment.paymentStatus === 'completed' ? "Paid" : enrollment.paymentStatus}
                 </TableCell>
                 <TableCell>{dateFormatter(enrollment.enrolledAt, true)}</TableCell>
                 <TableCell>
