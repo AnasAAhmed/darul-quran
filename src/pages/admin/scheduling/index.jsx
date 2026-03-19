@@ -37,6 +37,7 @@ import { errorMessage, successMessage } from "../../../lib/toast.config";
 import { canReschedule, dateFormatter, debounce, limits } from "../../../lib/utils";
 import TeacherSelect from "../../../components/select/TeacherSelect";
 import UserSelect from "../../../components/select/UserSelect";
+import ManualEnrollmentModal from "../../../components/modals/ManualEnrollmentModal";
 import { useCreateScheduleMutation, useDeleteScheduleMutation, useGetScheduleQuery, useUpdateScheduleMutation } from "../../../redux/api/schedules";
 import CourseSelect from "../../../components/select/CourseSelect";
 import Swal from "sweetalert2";
@@ -47,6 +48,12 @@ const Scheduling = () => {
   const [searchParams] = useSearchParams();
   const [deleteLoading, setDeleteLoading] = useState(null);
   const [copiedId, setCopiedId] = useState(null);
+  const [unenrolledStudents, setUnenrolledStudents] = useState([]);
+  const {
+    isOpen: isEnrollModalOpen,
+    onOpen: onEnrollModalOpen,
+    onOpenChange: onEnrollModalChange
+  } = useDisclosure();
 
   // Pagination & Filtering (Basic Implementation)
   const [statusFilter, setStatusFilter] = useState("all");
@@ -240,6 +247,15 @@ const Scheduling = () => {
       return;
     }
 
+    if (formData.sessionMode === 'one-on-one') {
+      const unenrolled = formData.selectedUsers?.filter(u => !u.subscriptionId);
+      if (unenrolled?.length > 0) {
+        setUnenrolledStudents(unenrolled);
+        onEnrollModalOpen();
+        return;
+      }
+    }
+
     try {
       let response;
       const payload = {
@@ -312,6 +328,7 @@ const Scheduling = () => {
       repeatInterval: 0,
       weeklyDays: [],
       specificStudentIds: [],
+      selectedUsers: [],
       settings: {
         join_before_host: false,
         auto_recording: false,
@@ -347,6 +364,7 @@ const Scheduling = () => {
       weeklyDays: item.weeklyDays || [],
       specificStudentIds: item.specificStudents,
       specificStudents: item.specificStudents,
+      selectedUsers: [], // Will be populated by UserSelect's internal logic
       settings: {
         join_before_host: item.settings?.join_before_host || false,
         auto_recording: item.settings?.auto_recording || false,
@@ -817,7 +835,7 @@ const Scheduling = () => {
                   <UserSelect
                     courseId={formData.courseId}
                     initialValues={formData?.specificStudentIds}
-                    onChange={(specificStudentIds) => setFormData({ ...formData, specificStudentIds })}
+                    onChange={(ids, users) => setFormData({ ...formData, specificStudentIds: ids, selectedUsers: users })}
                   />
                 )}
 
@@ -906,6 +924,19 @@ const Scheduling = () => {
           )}
         </ModalContent>
       </Modal>
+
+      <ManualEnrollmentModal
+        isOpen={isEnrollModalOpen}
+        onOpenChange={onEnrollModalChange}
+        unenrolledStudents={unenrolledStudents}
+        courseId={formData.courseId}
+        onEnrollmentSuccess={() => {
+          // Update selectedUsers to mark them as enrolled
+          const updatedUsers = formData.selectedUsers.map(u => ({ ...u, subscriptionId: true }));
+          setFormData({ ...formData, selectedUsers: updatedUsers });
+          successMessage("Now you can proceed with scheduling");
+        }}
+      />
     </div>
   );
 };

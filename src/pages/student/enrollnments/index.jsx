@@ -14,6 +14,7 @@ import {
   TableHeader,
   TableRow,
   Pagination,
+  Skeleton,
 } from "@heroui/react";
 import { useGetEnrollmentsQuery } from "../../../redux/api/enrollmentAdmin";
 import { dateFormatter } from "../../../lib/utils";
@@ -115,12 +116,14 @@ const Enrollments = () => {
             {data?.enrollments?.map((enrollment) => (
               <TableRow key={enrollment.id}>
                 <TableCell>
-                  <Image
+                  {enrollment.thumbnail ? <Image
                     src={enrollment.thumbnail}
                     alt={enrollment.courseName}
                     width={50}
                       height={50}
                       className="rounded-lg shrink-0" />
+                      : <Skeleton
+                      className="rounded-lg bg-gray-300 w-12 h-12 shrink-0" />}
                    
                 </TableCell>
                 <TableCell>{enrollment.courseName}</TableCell>
@@ -129,7 +132,7 @@ const Enrollments = () => {
                 >
                   {enrollment.paymentStatus}
                 </TableCell>
-                <TableCell>{dateFormatter(enrollment.enrolledAt)}</TableCell>
+                <TableCell>{dateFormatter(enrollment.enrolledAt, true)}</TableCell>
                 <TableCell>
                   {enrollment.cancelledAt
                     ? dateFormatter(enrollment.cancelledAt, true)

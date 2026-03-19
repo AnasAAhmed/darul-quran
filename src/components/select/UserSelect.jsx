@@ -67,7 +67,7 @@ const UserSelect = ({ onChange, courseId, initialValues = [], label, placeholder
 
         setSelectedIds(newSelectedIds);
         setSelectedUsers(newSelectedUsers);
-        onChange?.(newSelectedIds?.map(Number));
+        onChange?.(newSelectedIds?.map(Number), newSelectedUsers);
     };
 
     const removeUser = (userId, e) => {
@@ -76,14 +76,14 @@ const UserSelect = ({ onChange, courseId, initialValues = [], label, placeholder
         const newSelectedUsers = selectedUsers.filter(u => u.id !== userId);
         setSelectedIds(newSelectedIds);
         setSelectedUsers(newSelectedUsers);
-        onChange?.(newSelectedIds?.map(Number));
+        onChange?.(newSelectedIds?.map(Number), newSelectedUsers);
     };
 
     const clearAll = (e) => {
         e.stopPropagation();
         setSelectedIds([]);
         setSelectedUsers([]);
-        onChange?.([]);
+        onChange?.([], []);
     };
 
     const filteredUsers = data.users?.filter(
@@ -195,6 +195,18 @@ const UserSelect = ({ onChange, courseId, initialValues = [], label, placeholder
                                             {user.email && (
                                                 <p className="text-xs text-gray-500 truncate">
                                                     {user.email}
+                                                </p>
+                                            )}
+                                        </div>
+
+                                        <div>
+                                            {user.subscriptionId ? (
+                                                <p className="text-xs text-green-500 font-semibold">
+                                                    Enrolled Student 
+                                                </p>
+                                            ) : (
+                                                <p className="text-xs text-red-500 font-semibold">
+                                                    Not Enrolled Student
                                                 </p>
                                             )}
                                         </div>

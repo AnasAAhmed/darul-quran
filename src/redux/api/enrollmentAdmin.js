@@ -54,6 +54,14 @@ export const enrollmentAdminApi = createApi({
             }),
             providesTags: ["enrollment"],
         }),
+        createManualEnrollment: builder.mutation({
+            query: (data) => ({
+                url: "/manual-enroll",
+                method: "POST",
+                body: data,
+            }),
+            invalidatesTags: ["enrollment"],
+        }),
     }),
 });
 
@@ -63,4 +71,5 @@ export const {
     useGetStudentCourseProgressQuery,
     useGetEnrollmentStatsQuery,
     useGetEnrollmentsQuery,
+    useCreateManualEnrollmentMutation,
 } = enrollmentAdminApi;
