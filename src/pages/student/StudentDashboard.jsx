@@ -149,7 +149,7 @@ const StudentDashboard = () => {
                 key={item.id}
                 className="col-span-12 md:col-span-6 lg:col-span-4 "
               >
-                <div className="w-full bg-white rounded-lg border shadow-sm hover:shadow-md transition-all">
+                <div className="w-full bg-white rounded-lg shadow-md hover:shadow-md transition-all">
                   <div className="h-48 overflow-hidden rounded-t-lg bg-gray-100">
                     <VideoPlayer
                       src={item.video}
@@ -162,17 +162,24 @@ const StudentDashboard = () => {
                       {item.courseName}
                     </h1>
 
-                    <div className="flex justify-between items-center text-sm text-[#6B7280]">
+                    <div className="flex justify-between items-center text-sm text-black">
                       <div className="flex gap-1 items-center ">
-                        {<FaRegAddressCard size={18} />}{" "}
+                        {<FaRegAddressCard size={16} />}{" "}
                         {item.teacherName || "Instructor"}
-                      </div>
+                      </div> 
                       <div className="flex gap-1 items-center ">
-                        {<CiCalendar size={18} />}{" "}
-                        {new Date(item.enrolledAt).toLocaleDateString()}
+                        <span className="text-xs font-semibold text-success">Enrolled At :</span>
+                        {<CiCalendar size={16} />}{" "}
+                        {dateFormatter(item.enrolledAt , true)}
                       </div>
                     </div>
-
+                    <div className="flex justify-between items-center text-sm text-black">
+                      <div className="flex gap-1 items-center ">
+                        <span className="text-xs font-semibold text-success">Expires At :</span>
+                        {<CiCalendar size={16} />}{" "}
+                        {item?.cancelledAt || item?.cancelledat ? dateFormatter(item?.cancelledAt || item?.cancelledat , true) : "Live Time"}
+                      </div>
+                    </div>
                     <div>
                       <Button
                         size="md"
