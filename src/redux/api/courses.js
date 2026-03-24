@@ -179,6 +179,12 @@ export const courseApi = createApi({
             }),
             invalidatesTags: ["reviews", "course"],
         }),
+        getCourseRelatedData: builder.query({
+            query: (id) => ({
+                url: `/course-related-data/${id}`,
+                method: "GET",
+            }),
+        }),
     }),
 });
 
@@ -204,4 +210,5 @@ export const {
     useDeleteReviewMutation,
     useSubmitQuizMutation,
     useGetQuizAttemptsQuery,
+    useGetCourseRelatedDataQuery,
 } = courseApi;

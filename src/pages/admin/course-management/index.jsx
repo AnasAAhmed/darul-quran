@@ -3,9 +3,15 @@ import {
   Button,
   Image,
   Input,
+  Modal,
+  ModalContent,
+  ModalHeader,
+  ModalBody,
+  ModalFooter,
   Pagination,
   Select,
   SelectItem,
+  Skeleton,
   Spinner,
   Table,
   TableBody,
@@ -13,15 +19,16 @@ import {
   TableColumn,
   TableHeader,
   TableRow,
+  useDisclosure,
 } from "@heroui/react";
-import { ListFilterIcon, Plus, Trash2 } from "lucide-react";
-import CourseForm from "../../../components/dashboard-components/forms/CourseForm";
-import { use, useEffect, useState } from "react";
+import { Plus, Trash2 } from "lucide-react";
+import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { useDeleteCourseMutation, useGetAllCategoriesQuery, useGetAllCoursesQuery } from "../../../redux/api/courses";
+import { useDeleteCourseMutation, useGetAllCategoriesQuery, useGetAllCoursesQuery, useGetCourseRelatedDataQuery } from "../../../redux/api/courses";
 import { errorMessage } from "../../../lib/toast.config";
 import { debounce } from "../../../lib/utils";
 import Swal from "sweetalert2";
+import QueryError from "../../../components/QueryError";
 
 const CourseManagement = () => {
 
@@ -51,7 +58,6 @@ const CourseManagement = () => {
     { key: "draft", label: "Draft" },
     { key: "published", label: "Published" },
   ];
-  const filters = [{ key: "all", label: "Filter" }];
   const limits = [
     { key: "6", label: "6" },
     { key: "10", label: "10" },
@@ -60,31 +66,67 @@ const CourseManagement = () => {
     { key: "40", label: "40" },
     { key: "50", label: "50" },
   ];
-  const [open, setOpen] = useState(false);
   const [deleteLoading, setDeleteLoading] = useState(false);
   const [deletingId, setDeletingId] = useState(null);
   const navigate = useNavigate();
-  const handleDelete = async (id) => {
-    const { isConfirmed } = await Swal.fire({
-      title: "Are you sure?",
-      text: "You won't be able to revert this!",
-      icon: "warning",
-      showCancelButton: true,
-      confirmButtonColor: "#06574C",
-      cancelButtonColor: "#d33",
-      confirmButtonText: "Yes, delete it!",
-    })
-    if (!isConfirmed) return;
-    setOpen(true);
-    setDeleteLoading(true);
-    setDeletingId(id);
+
+  // Delete confirmation modal state
+  const deleteModal = useDisclosure();
+  const [selectedDeleteId, setSelectedDeleteId] = useState(null);
+  const [relatedData, setRelatedData] = useState(null);
+  const [isLoadingRelatedData, setIsLoadingRelatedData] = useState(false);
+  const [loadError, setLoadError] = useState(null);
+
+  // Open delete confirmation modal and load related data
+  const handleOpenDeleteModal = async (id) => {
+    setSelectedDeleteId(id);
+    setRelatedData(null);
+    setLoadError(null);
+    setIsLoadingRelatedData(true);
+    deleteModal.onOpen();
 
     try {
-      const res = await deleteProduct(id);
+      const response = await fetch(
+        `${import.meta.env.VITE_PUBLIC_SERVER_URL}/api/course/course-related-data/${id}`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+          credentials: "include",
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error("Failed to fetch related data");
+      }
+
+      const data = await response.json();
+      setRelatedData(data);
+    } catch (error) {
+      console.error("Error fetching related data:", error);
+      setLoadError(error.message);
+    } finally {
+      setIsLoadingRelatedData(false);
+    }
+  };
+
+  // Confirm and execute deletion
+  const handleConfirmDelete = async () => {
+    if (!selectedDeleteId) return;
+
+    setDeleteLoading(true);
+    setDeletingId(selectedDeleteId);
+
+    try {
+      const res = await deleteProduct(selectedDeleteId);
       if (res.error) {
         throw new Error(res.error.message || "Failed to delete course");
       }
-      setOpen(false);
+      deleteModal.onClose();
+      setSelectedDeleteId(null);
+      setRelatedData(null);
     } catch (error) {
       console.error("Delete error:", error);
       errorMessage(error?.message);
@@ -92,6 +134,14 @@ const CourseManagement = () => {
       setDeleteLoading(false);
       setDeletingId(null);
     }
+  };
+
+  // Close modal and reset state
+  const handleCloseDeleteModal = () => {
+    deleteModal.onClose();
+    setSelectedDeleteId(null);
+    setRelatedData(null);
+    setLoadError(null);
   };
 
   const handleEdit = (id) => {
@@ -192,7 +242,7 @@ const CourseManagement = () => {
               {data?.courses?.map((classItem) => (
                 <TableRow key={classItem.id}>
                   <TableCell >
-                    <Image src={classItem.thumbnail}
+                    <Image src={classItem.thumbnail ?? ''}
                       width={50}
                       height={50}
                       fallbackSrc={'https://user-images.githubusercontent.com/237508/90246627-ecbda400-de2c-11ea-8bfb-b4307bfb975d.png'}
@@ -268,12 +318,13 @@ const CourseManagement = () => {
                       Edit
                     </Button>
                     <Button
-                      color="success"
+                      color="danger"
+                      variant="bordered"
                       isLoading={deletingId === classItem.id}
                       isDisabled={deletingId === classItem.id}
-                      onPress={() => handleDelete(classItem.id)}
+                      onPress={() => handleOpenDeleteModal(classItem.id)}
                     >
-                      Delete
+                      <Trash2 size={18} />
                     </Button>
                   </TableCell>
                 </TableRow>
@@ -317,6 +368,186 @@ const CourseManagement = () => {
           }}
         />
       </div>
+
+      {/* Delete Confirmation Modal */}
+      <Modal
+        isOpen={deleteModal.isOpen}
+        onOpenChange={handleCloseDeleteModal}
+        size="lg"
+        isDismissable={false}
+        isKeyboardDismissDisabled={true}
+      >
+        <ModalContent>
+          {(onClose) => (
+            <>
+              <ModalHeader className="flex flex-col gap-1">
+                <span className="text-xl font-bold text-danger flex items-center gap-2">
+                  <Trash2 size={24} />
+                  Delete Course
+                </span>
+              </ModalHeader>
+              <ModalBody className="py-4">
+                {isLoadingRelatedData ? (
+                  // Skeleton Loading
+                  <div className="space-y-4">
+                    <div className="space-y-2">
+                      <Skeleton className="h-6 w-3/4 rounded" />
+                      <Skeleton className="h-4 w-full rounded" />
+                      <Skeleton className="h-4 w-5/6 rounded" />
+                    </div>
+                    <div className="space-y-2 pt-2">
+                      <Skeleton className="h-5 w-1/2 rounded" />
+                      <Skeleton className="h-4 w-2/3 rounded ml-4" />
+                      <Skeleton className="h-4 w-1/2 rounded ml-4" />
+                    </div>
+                    <div className="space-y-2 pt-2">
+                      <Skeleton className="h-5 w-1/3 rounded" />
+                      <Skeleton className="h-4 w-1/2 rounded ml-4" />
+                    </div>
+                  </div>
+                ) : loadError ? (
+                  // Error State
+                  <div className="text-center py-8">
+                    <p className="text-danger font-semibold mb-2">Failed to load related data</p>
+                    <p className="text-sm text-gray-500">{loadError}</p>
+                  </div>
+                ) : relatedData ? (
+                  // Related Data Display
+                  <div className="space-y-4">
+                    <div className="bg-danger/10 rounded-lg p-4">
+                      <p className="text-sm text-gray-700 mb-3">
+                        You are about to delete:
+                      </p>
+                      <p className="font-bold text-lg text-gray-900">
+                        {relatedData?.courseName || "This Course"}
+                      </p>
+                    </div>
+
+                    <div>
+                      <p className="font-semibold text-gray-800 mb-3 flex items-center gap-2">
+                        <span className="text-danger">⚠</span>
+                        This will also permanently remove:
+                      </p>
+
+                      <div className="space-y-3 ml-2">
+                        {relatedData?.relatedData?.schedules > 0 && (
+                          <div className="flex items-center gap-2">
+                            <span className="w-2 h-2 bg-danger rounded-full" />
+                            <span className="text-sm text-gray-700">
+                              <strong className="font-semibold text-danger">
+                                {relatedData.relatedData.schedules}
+                              </strong>{" "}
+                              Schedule{relatedData.relatedData.schedules > 1 ? 's' : ''}
+                            </span>
+                          </div>
+                        )}
+
+                        {relatedData?.relatedData?.enrollments?.count > 0 && (
+                          <div className="flex items-start gap-2">
+                            <span className="w-2 h-2 bg-danger rounded-full mt-1.5" />
+                            <div className="text-sm text-gray-700">
+                              <span className="font-semibold text-danger">
+                                {relatedData.relatedData.enrollments.count}
+                              </span>{" "}
+                              Enrollment{relatedData.relatedData.enrollments.count > 1 ? 's' : ''}
+                              <div className="text-xs text-gray-500 ml-4 mt-1">
+                                Active: <strong className="text-success">{relatedData.relatedData.enrollments.activeCount}</strong>
+                                {" • "}
+                                Inactive: <strong className="text-gray-600">{relatedData.relatedData.enrollments.inactiveCount}</strong>
+                              </div>
+                            </div>
+                          </div>
+                        )}
+
+                        {relatedData?.relatedData?.subscriptions?.count > 0 && (
+                          <div className="flex items-start gap-2">
+                            <span className="w-2 h-2 bg-danger rounded-full mt-1.5" />
+                            <div className="text-sm text-gray-700">
+                              <span className="font-semibold text-danger">
+                                {relatedData.relatedData.subscriptions.count}
+                              </span>{" "}
+                              Subscription{relatedData.relatedData.subscriptions.count > 1 ? 's' : ''}
+                              <div className="text-xs text-gray-500 ml-4 mt-1">
+                                Active: <strong className="text-success">{relatedData.relatedData.subscriptions.activeCount}</strong>
+                                {" • "}
+                                Inactive: <strong className="text-gray-600">{relatedData.relatedData.subscriptions.inactiveCount}</strong>
+                              </div>
+                            </div>
+                          </div>
+                        )}
+
+                        {relatedData?.relatedData?.attendance > 0 && (
+                          <div className="flex items-center gap-2">
+                            <span className="w-2 h-2 bg-danger rounded-full" />
+                            <span className="text-sm text-gray-700">
+                              <strong className="font-semibold text-danger">
+                                {relatedData.relatedData.attendance}
+                              </strong>{" "}
+                              Attendance Record{relatedData.relatedData.attendance > 1 ? 's' : ''}
+                            </span>
+                          </div>
+                        )}
+
+                        {relatedData?.relatedData?.courseFiles > 0 && (
+                          <div className="flex items-center gap-2">
+                            <span className="w-2 h-2 bg-danger rounded-full" />
+                            <span className="text-sm text-gray-700">
+                              <strong className="font-semibold text-danger">
+                                {relatedData.relatedData.courseFiles}
+                              </strong>{" "}
+                              Course File{relatedData.relatedData.courseFiles > 1 ? 's' : ''}
+                            </span>
+                          </div>
+                        )}
+
+                        {!relatedData?.relatedData || (
+                          relatedData.relatedData.schedules === 0 &&
+                          !relatedData.relatedData.enrollments?.count &&
+                          !relatedData.relatedData.subscriptions?.count &&
+                          relatedData.relatedData.attendance === 0 &&
+                          relatedData.relatedData.courseFiles === 0
+                        ) && (
+                            <div className="flex items-center gap-2">
+                              <span className="text-success">✓</span>
+                              <span className="text-sm text-gray-700">
+                                No related data found for this course
+                              </span>
+                            </div>
+                          )}
+                      </div>
+                    </div>
+
+                    <div className="bg-warning/10 rounded-lg p-3 mt-2">
+                      <p className="text-xs text-warning-dark font-medium">
+                        ⚠ This action cannot be undone!
+                      </p>
+                    </div>
+                  </div>
+                ) : null}
+              </ModalBody>
+              <ModalFooter className="border-t border-gray-200">
+                <Button
+                  color="default"
+                  variant="light"
+                  onPress={handleCloseDeleteModal}
+                  isDisabled={deleteLoading}
+                >
+                  Cancel
+                </Button>
+                <Button
+                  color="danger"
+                  onPress={handleConfirmDelete}
+                  isLoading={deleteLoading}
+                  isDisabled={isLoadingRelatedData || loadError !== null || !relatedData}
+                  startContent={!deleteLoading && <Trash2 size={16} />}
+                >
+                  {deleteLoading ? "Deleting..." : "Delete"}
+                </Button>
+              </ModalFooter>
+            </>
+          )}
+        </ModalContent>
+      </Modal>
     </div>
   );
 };

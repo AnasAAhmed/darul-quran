@@ -96,7 +96,7 @@ const CourseBuilder = () => {
   const { data: categoriesData, isError: categoriesError, error: categoriesErrorData } = useGetAllCategoriesQuery();
   //mutations/actions
   const [addCourse] = useAddCourseMutation();
-  const [updateCourse] = useUpdateCourseMutation();
+  const [updateCourse, { error: updateCourseError }] = useUpdateCourseMutation();
   const [deleteCategory] = useDeleteCategoryMutation();
   const [addCategory, { isLoading: isAddingCategory }] = useAddCategoryMutation();
   // const [quizzes, setQuizzes] = useState([]); 
@@ -228,7 +228,7 @@ const CourseBuilder = () => {
       { title: "Difficulty Level:", desc: formData?.difficulty_level || "Add Difficulty Level" },
       { title: "Price:", desc: (formData?.base_price - ((formData?.discount_percentage * formData?.base_price) / 100)) + "£" || "Add Price" },
       { title: "Type:", desc: formData?.type?.replace("_", " ") || "Add Type" },
-      { title: "Duration:", desc: formData?.duration === "null" ? 'Ongoing' :`${parseInterval(formData?.duration).number} ${parseInterval(formData?.duration).unit}` || "Add Duration" },
+      { title: "Duration:", desc: formData?.duration === "null" ? 'Ongoing' : `${parseInterval(formData?.duration).number} ${parseInterval(formData?.duration).unit}` || "Add Duration" },
       formData?.type === "live" && { title: "Subscription - Interval:", desc: `${parseInterval(formData?.interval).number} ${parseInterval(formData?.interval).unit}` || "Add Subscription - Interval" },
     ];
   }, [categoriesData, formData]);
@@ -347,34 +347,47 @@ const CourseBuilder = () => {
     // }
   };
 
-  // handle submit 3rd tab
   const handleSubmit3tab = async (e) => {
     if (e) e.preventDefault();
+
     setLoadingAction(pendingAction);
-    // if (formData?.status === 'published' && files.length === 0) {
-    //   errorMessage("Please add at least one file to publish the course.");
-    //   return;
-    // };
-
+    const payload = {
+      courseName: formData.course_name,
+      category: formData.category_id,
+      difficultyLevel: formData.difficulty_level,
+      description: formData.description,
+      coursePrice: formData.course_price,
+      teacherId: formData.teacher_id,
+      accessDuration: formData.access_duration,
+      previousLesson: formData.previous_lesson,
+      enrollNumber: formData.enroll_number,
+      duration: formData.duration,
+      interval: formData.interval || null,
+      type: formData.type,
+      basePrice: formData.base_price,
+      discountPercentage: formData.discount_percentage,
+      status: formData.status,
+      isFree: formData.is_free,
+    }
     try {
+      const data = await updateCourse({
+        id: courseId,
+        data: payload,
+      }).unwrap();
 
-      const payload = {
-        ...formData,
-        is_free: formData.is_free,
-      };
+      successMessage(data?.message);
+      navigate("/admin/courses-management");
 
-      const response = await updateCourse({ id: courseId, data: payload });
-
-      const data = response.data;
-      if (data.success) {
-        successMessage("Course Updated Successfully");
-        navigate("/admin/courses-management");
-      } else {
-        errorMessage(data.message || "Failed to update course");
-      }
     } catch (error) {
-      console.error(error);
-      errorMessage(error?.message || "Failed to update course");
+      console.error("Update error:", error);
+
+      const message =
+        error?.data?.message ||
+        error?.data?.error ||
+        error?.error ||
+        "Failed to update course";
+
+      errorMessage(message);
     } finally {
       setLoadingAction(null);
       setPendingAction(null);
@@ -598,6 +611,7 @@ const CourseBuilder = () => {
                           labelPlacement="outside"
                           placeholder="0.00"
                           isRequired
+                          isDisabled={formData.is_free}
                           startContent={'£'}
                           errorMessage="BaseCourse Price is required"
                           className="w-full"
@@ -615,12 +629,26 @@ const CourseBuilder = () => {
                           placeholder="15%"
                           endContent={'%'}
                           max={100}
+                          isDisabled={formData.is_free}
                           errorMessage="Discount Percentage is must be between 0 and 100"
                           className="w-full"
                           value={formData.discount_percentage}
                           onChange={(e) =>
                             handleChange("discount_percentage", e.target.value)
                           }
+                        />
+                      </div>
+                      <div className="flex items-center gap-3">
+                        <p className="text-md text-[#06574C]">
+                          {formData.is_free ? "Free" : "Paid"}
+                        </p>
+                        <Switch
+                          color="success"
+                          aria-label="Free or Paid course"
+                          isSelected={!formData.is_free}
+                          onValueChange={(val) => {
+                            handleChange("is_free", !val);
+                          }}
                         />
                       </div>
                       <div className="pt-6">
@@ -991,23 +1019,7 @@ const CourseBuilder = () => {
                             Choose between paid or free course
                           </h1>
                         </div>
-                        <div className="flex items-center gap-3">
-                          <p className="text-md text-[#06574C]">
-                            {formData.is_free ? "Free" : "Paid"}
-                          </p>
-                          <Switch
-                            color="success"
-                            aria-label="Free or Paid course"
-                            isSelected={!formData.is_free}
-                            onValueChange={(val) => {
-                              handleChange("is_free", !val);
-                              // If switching to free, set price to 0
-                              if (val === false) {
-                                handleChange("course_price", "0");
-                              }
-                            }}
-                          />
-                        </div>
+
                       </div>
 
                       <div className="flex gap-3 items-center py-4">
