@@ -27,20 +27,23 @@ const DEFAULT_UNITS = ["hour", "day", "month", 'year'];
  * @param {String} props.className
  * @param {String[]} props.units
  * @param {Boolean} props.releasedImmediately
+ * @param {String} props.nullableValueLabel
+ * @param {String} props.nullableValue
  */
 export const IntervalInput = ({
     initialValue,
     onUpdate,
     label = "Released Interval",
+    nullableValueLabel = "Released Interval",
     toolTipContent,
     inputWidth = 80,
     className = 'flex flex-col sm:flex-row sm:items-center gap-2',
     units = DEFAULT_UNITS,
-    releasedImmediately = true,
+    nullableValue = "released_immediately"
 }) => {
     const [initialNumber, setInitialNumber] = useState({ number: 0, unit: '' });
     const [numberValue, setNumberValue] = useState(0);
-    const [unitValue, setUnitValue] = useState(releasedImmediately ? "released_immediately" : units[0]);
+    const [unitValue, setUnitValue] = useState(nullableValue ? nullableValue : units[0]);
 
     useEffect(() => {
         if (initialValue) {
@@ -49,19 +52,19 @@ export const IntervalInput = ({
             if (number !== numberValue || unit !== unitValue) {
                 setInitialNumber({ number, unit });
                 setNumberValue(number || 0);
-                setUnitValue(unit || (releasedImmediately ? "released_immediately" : units[0]));
+                setUnitValue(unit || (nullableValue ? nullableValue : units[0]));
             }
         }
     }, [initialValue]);
-    
+
     const handleUpdate = () => {
-        if (unitValue === "released_immediately") {
+        if (unitValue === nullableValue) {
             onUpdate("null");
             return;
         }
         if (!numberValue || !unitValue) return;
         if ((numberValue === initialNumber.number) && (unitValue === initialNumber.unit)) return;
-        
+
         const unit = numberValue > 1 ? `${unitValue}s` : unitValue;
         const interval = `${numberValue} ${unit}`;
         onUpdate(interval);
@@ -79,7 +82,7 @@ export const IntervalInput = ({
 
 
             <div className="flex flex-wrap sm:flex-nowrap items-center gap-2 flex-1">
-                <input
+                {unitValue != nullableValue && <input
                     type="number"
                     style={{ width: `${inputWidth}px` }}
                     className="p-2 border disabled:opacity-45 disabled:cursor-not-allowed border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-[#406c65] focus:border-[#406c65] transition-colors text-sm"
@@ -90,7 +93,7 @@ export const IntervalInput = ({
                     max={unitValue === "hour" ? 24 : 31}
                     onChange={(e) => setNumberValue(Number(e.target.value))}
                     onBlur={handleUpdate}
-                />
+                />}
 
                 <select
                     className="p-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-1 focus:ring-[#406c65] focus:border-[#406c65] transition-colors"
@@ -108,8 +111,8 @@ export const IntervalInput = ({
                             {unit}(s)
                         </option>
                     ))}
-                    {releasedImmediately && <option className="capitalize" value={'released_immediately'}>
-                        Released immediately
+                    {nullableValue && nullableValueLabel && <option className="capitalize" value={nullableValue}>
+                        {nullableValueLabel}
                     </option>}
                 </select>
             </div>

@@ -226,9 +226,9 @@ const CourseBuilder = () => {
       { title: "Title:", desc: formData?.course_name || "Add Tittle" },
       { title: "Category:", desc: categoriesData?.categories?.find((category) => category.id === formData?.category_id)?.categoryName || formData?.category_name || "Add Category" },
       { title: "Difficulty Level:", desc: formData?.difficulty_level || "Add Difficulty Level" },
-      { title: "Price:",  desc: (formData?.base_price - ((formData?.discount_percentage * formData?.base_price) / 100)) + "£" || "Add Price" },
+      { title: "Price:", desc: (formData?.base_price - ((formData?.discount_percentage * formData?.base_price) / 100)) + "£" || "Add Price" },
       { title: "Type:", desc: formData?.type?.replace("_", " ") || "Add Type" },
-      { title: "Duration:", desc: `${parseInterval(formData?.duration).number} ${parseInterval(formData?.duration).unit}` || "Add Duration" },
+      { title: "Duration:", desc: formData?.duration === "null" ? 'Ongoing' :`${parseInterval(formData?.duration).number} ${parseInterval(formData?.duration).unit}` || "Add Duration" },
       formData?.type === "live" && { title: "Subscription - Interval:", desc: `${parseInterval(formData?.interval).number} ${parseInterval(formData?.interval).unit}` || "Add Subscription - Interval" },
     ];
   }, [categoriesData, formData]);
@@ -303,7 +303,7 @@ const CourseBuilder = () => {
         } else {
           handleSelected("content");
         }
-        
+
       } else {
         errorMessage(response?.error?.data?.message || response?.error?.data?.error || "Something went wrong");
       }
@@ -321,7 +321,7 @@ const CourseBuilder = () => {
     // if (files.length === 0) { errorMessage("Please upload at least one file"); return; };
 
     // if (data.previous_lesson === formData.previous_lesson) {
-      handleSelected("pricing");
+    handleSelected("pricing");
     // }
     // try {
 
@@ -670,9 +670,10 @@ const CourseBuilder = () => {
                         label="Course duration"
                         inputWidth={140}
                         className="mt-3"
+                        nullableValue="on_going"
+                        nullableValueLabel="Ongoing"
                         initialValue={formData?.duration}
                         onUpdate={(interval) => handleChange("duration", interval)}
-                        releasedImmediately={false}
                       />
                       {formData?.type === 'live' &&
                         <IntervalInput
@@ -682,7 +683,6 @@ const CourseBuilder = () => {
                           className="mt-3"
                           initialValue={formData?.interval}
                           onUpdate={(interval) => handleChange("interval", interval)}
-                          releasedImmediately={false}
                           units={["week", "month"]}
                         />
                       }
@@ -1011,7 +1011,7 @@ const CourseBuilder = () => {
                       </div>
 
                       <div className="flex gap-3 items-center py-4">
-                       {formData.type === "one_time" && <Select
+                        {formData.type === "one_time" && <Select
                           size="lg"
                           variant="bordered"
                           label="Access Duration"

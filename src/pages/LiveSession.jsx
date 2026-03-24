@@ -203,7 +203,7 @@ const LiveSession = ({ isTeacher = false }) => {
                 </Button>
             </div>
 
-            <div className="p-4 bg-white rounded-lg shadow mb-6">
+            <div className="p-4 bg-white min-h-[60vh] rounded-lg shadow mb-6">
                 {isLoading ? (
                     <div className="flex justify-center items-center py-12">
                         <Spinner size="lg" variant="dots" labelColor="success" color="success" />

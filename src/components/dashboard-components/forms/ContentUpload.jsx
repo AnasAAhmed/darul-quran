@@ -1,8 +1,8 @@
 import { useState, useEffect } from "react";
 
-import {  Trash2, Eye, Clock, Menu, Edit, List, Loader, File,  ExternalLink, Plus } from "lucide-react";
+import { Trash2, Eye, Clock, Menu, Edit, List, Loader, File, ExternalLink, Plus } from "lucide-react";
 import FileDropzone from "../dropzone";
-import { Button} from "@heroui/react";
+import { Button } from "@heroui/react";
 import { PiFile, PiFilePdf } from "react-icons/pi";
 import { errorMessage, successMessage } from "../../../lib/toast.config";
 import { Link } from "react-router-dom";
@@ -235,11 +235,11 @@ export default function Videos({ files, setFiles, courseId }) {
                                         }}
                                     />
                                     <div className="flex flex-wrap items-center gap-4 text-sm text-gray-600">
-                                        {document?.file?.size && <span className="inline-flex items-center gap-1">{((document.file.size / 1024) / 1024).toLocaleString()} MB</span>}
-                                        {document.file?.duration && <span className="inline-flex items-center gap-1">
+                                        {document?.file?.size > 0 && <span className="inline-flex items-center gap-1">{((document.file.size / 1024) / 1024).toLocaleString()} MB</span>}
+                                        {document.file?.duration > 0 && <span className="inline-flex items-center gap-1">
                                             <Clock className="size-3.5" /> {document.file.duration.toLocaleString() || 0}ms duration
                                         </span>}
-                                        {document?.views && <span className="inline-flex items-center gap-1">
+                                        {document?.views > 0 && <span className="inline-flex items-center gap-1">
                                             <Eye className="h-4 w-4" /> {document?.views.toLocaleString()} views
                                         </span>}
                                         <span className="inline-flex items-center gap-1">{document.status}</span>
@@ -425,11 +425,11 @@ export function PdfAndNotes({ files, setFiles, courseId }) {
                                         }}
                                     />
                                     <div className="flex flex-wrap items-center gap-4 text-sm text-gray-600">
-                                        {document?.file?.size && <span className="inline-flex items-center gap-1">{((document.file.size / 1024) / 1024).toLocaleString()} MB</span>}
-                                        {document.file?.pages && <span className="inline-flex items-center gap-1">
+                                        {document?.file?.size > 0 && <span className="inline-flex items-center gap-1">{((document.file.size / 1024) / 1024).toLocaleString()} MB</span>}
+                                        {document.file?.pages > 0 && <span className="inline-flex items-center gap-1">
                                             <File className="size-3.5" /> {document.file.pages.toLocaleString() || 0} pages
                                         </span>}
-                                        {document?.views && <span className="inline-flex items-center gap-1">
+                                        {document?.views > 0 && <span className="inline-flex items-center gap-1">
                                             <Eye className="h-4 w-4" /> {document?.views.toLocaleString() || 0} views
                                         </span>}
                                         <span className="inline-flex items-center gap-1">{document.status}</span>
@@ -614,11 +614,11 @@ export function Assignments({ files, setFiles, courseId }) {
                                         }}
                                     />
                                     <div className="flex flex-wrap items-center gap-4 text-sm text-gray-600">
-                                        {document?.file?.size && <span className="inline-flex items-center gap-1">{((document.file.size / 1024) / 1024).toLocaleString()} MB</span>}
-                                        {document.file?.pages && <span className="inline-flex items-center gap-1">
+                                        {document?.file?.size > 0 && <span className="inline-flex items-center gap-1">{((document.file.size / 1024) / 1024).toLocaleString()} MB</span>}
+                                        {document.file?.pages > 0 && <span className="inline-flex items-center gap-1">
                                             <File className="size-3.5" /> {document.file.pages.toLocaleString() || 0} pages
                                         </span>}
-                                        {document?.views && <span className="inline-flex items-center gap-1">
+                                        {document?.views > 0 && <span className="inline-flex items-center gap-1">
                                             <Eye className="h-4 w-4" /> {document?.views.toLocaleString() || 0} views
                                         </span>}
                                         <span className="inline-flex items-center gap-1">{document.status}</span>
@@ -708,7 +708,7 @@ export function Quizzes({ files = [], setFiles, courseId }) {
         if (isUpdate) {
             setFiles(prev => prev.map(f => f.id === savedQuiz.id ? savedQuiz : f));
         } else {
-             setFiles(prev => [...prev, savedQuiz]);
+            setFiles(prev => [...prev, savedQuiz]);
         }
     };
 
@@ -785,7 +785,7 @@ export function Quizzes({ files = [], setFiles, courseId }) {
                 editingQuiz={editingQuiz}
                 onSaveSuccess={onSaveSuccess}
                 handleUpdateFile={handleUpdateFile}
-                
+
             />
         </div>
     );

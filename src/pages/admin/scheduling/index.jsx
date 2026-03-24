@@ -450,7 +450,7 @@ const Scheduling = () => {
           isHeaderSticky
           aria-label="Example static collection table"
           classNames={{
-            base: "w-full bg-white rounded-lg min-h-[55vh] overflow-x-scroll w-full no-scrollbar max-sh-[500px] shadow-md",
+            base: "w-full bg-white rounded-lg min-h-[55vh] overflow-x-scroll w-full no-scrollbfar max-sh-[500px] shadow-md",
             th: "font-bold bg-[#EBD4C9] p-4 text-md text-[#333333] capitalize tracking-widest ",
             td: "py-3 items-center whitespace-nowrap",
             tr: "border-b border-default-200",
