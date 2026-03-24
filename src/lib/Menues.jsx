@@ -26,7 +26,7 @@ export const adminMenu = [
     {
         name: 'Courses Management',
         icon: <BookIcon />,
-        // link: '/admin/courses-management',
+        link: '/admin/courses-management',
         value: 'courses-management',
         children: [
             { name: 'All Courses', link: '/admin/courses-management', value: 'all-courses' },

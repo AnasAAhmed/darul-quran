@@ -173,9 +173,9 @@ const Sidebar = ({ isSidebarOpen, setIsSidebarOpen }) => {
               <li key={idx}>
                 <div
                   className={`
-      relative flex items-center rounded-md justify-between px-6 pgy-3 cursor-pointer transition-all
-      ${isActiveParent ? 'text-[#1a5850]' : 'text-[#b8d4d0] hover:bg-white/5'}
-    `}
+                     relative flex items-center rounded-md justify-between px-6 pgy-3 cursor-pointer transition-all
+                     ${isActiveParent ? 'text-[#1a5850]' : 'text-[#b8d4d0] hover:bg-white/5'}
+                   `}
                 >
                   <Link
                     to={item.link}
