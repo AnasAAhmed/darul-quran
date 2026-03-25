@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { useGetAllCoursesForSelectQuery, useGetCourseByIdQuery } from "../../redux/api/courses";
+import { useGetAllCoursesForSelectQuery } from "../../redux/api/courses";
 import { debounce } from "../../lib/utils";
 import { X, Search, ChevronDown, BookOpen } from "lucide-react";
 import { Spinner } from "@heroui/react";
@@ -42,29 +42,16 @@ const CourseSelect = ({
         initialValue
     });
 
-    // Fetch initial course by ID directly
-    const hasInitialValue = initialValue !== undefined && initialValue !== null && initialValue !== '';
-    const { data: initialCourseData } = useGetCourseByIdQuery(initialValue || '', {
-        skip: !hasInitialValue || selectedCourse !== null
-    });
-
-    // Set initial course from direct ID fetch
+    // Find initial course from the list by matching ID
     useEffect(() => {
-        if (initialCourseData?.course && !selectedCourse) {
-            setSelectedCourse(initialCourseData.course);
-            setSelectedId(initialCourseData.course.id);
-        }
-    }, [initialCourseData]);
-
-    // Also try to find initial course from the list query results
-    useEffect(() => {
-        if (selectedId !== null && data.courses?.length > 0 && !selectedCourse) {
-            const found = data.courses.find(c => c.id === selectedId);
+        if (initialValue !== undefined && initialValue !== null && initialValue !== '' && data.courses?.length > 0 && !selectedCourse) {
+            const found = data.courses.find(c => c.id === initialValue);
             if (found) {
                 setSelectedCourse(found);
+                setSelectedId(found.id);
             }
         }
-    }, [data.courses, selectedId]);
+    }, [data.courses, initialValue]);
 
     // Sync with initialValue changes
     useEffect(() => {

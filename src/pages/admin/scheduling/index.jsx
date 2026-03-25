@@ -77,7 +77,7 @@ const Scheduling = () => {
   const [formData, setFormData] = useState({
     title: "",
     description: "",
-    teacherId: "",
+    teacherId: null,
     meetingLink: '',
     courseId: '',
     scheduleType: "daily",
@@ -328,7 +328,7 @@ const Scheduling = () => {
       startTime: '',
       endTime: '',
       description: '',
-      teacherId: '',
+      teacherId: null,
       meetingLink: '',
       courseId: '',
       scheduleType: '',
@@ -361,8 +361,8 @@ const Scheduling = () => {
       startTime: item.startTime,
       endTime: item.endTime,
       description: item.description,
-      teacherId: item.teacherId ? String(item.teacherId) : '',
-      courseId: item.courseId ? String(item.courseId) : '',
+      teacherId: item.teacherId ? item.teacherId: null,
+      courseId: item.courseId ? item.courseId: null,
       meetingLink: item.meetingLink,
       scheduleType: item.scheduleType,
       sessionMode: item.specificStudents?.length > 0 ? 'one-on-one' : 'all',
@@ -599,7 +599,7 @@ const Scheduling = () => {
                           radius="sm"
                           variant="bordered"
                           className="border-[#06574C] text-[#06574C]"
-                          isDisabled={!canReschedule(item)}
+                          // isDisabled={!canReschedule(item)}
                           startContent={<CalendarIcon size={18} />}
                           size="sm"
                           onPress={() => openEditModal(item)}

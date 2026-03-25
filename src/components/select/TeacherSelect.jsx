@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { useGetAllTeachersQuery, useGetUserByIdQuery } from "../../redux/api/user";
+import { useGetAllTeachersQuery } from "../../redux/api/user";
 import { debounce } from "../../lib/utils";
 import { X, Search, ChevronDown, Users } from "lucide-react";
 import { Spinner } from "@heroui/react";
@@ -38,35 +38,17 @@ const TeacherSelect = ({
         initialValue
     });
 
-    // Fetch initial teacher(s) by ID if we have initialValue but no selectedTeachers yet
-    const hasInitialValue = initialValue !== undefined && initialValue !== null && initialValue !== '';
-    const initialIdToFetch = hasInitialValue && (Array.isArray(initialValue) ? initialValue[0] : initialValue);
-    const { data: initialTeacherData } = useGetUserByIdQuery(initialIdToFetch || '', {
-        skip: !hasInitialValue || selectedTeachers.length > 0
-    });
-
-
-    // Set initial teacher from direct ID fetch
+    // Find initial teacher(s) from the list by matching ID
     useEffect(() => {
-        if (initialTeacherData?.user && selectedTeachers.length === 0) {
-            const teacher = initialTeacherData.user;
+        if (initialValue !== undefined && initialValue !== null && initialValue !== '' && data.user?.length > 0 && selectedTeachers.length === 0) {
             const ids = Array.isArray(initialValue) ? initialValue : [initialValue];
-            const initialTeachers = [teacher];
-
-            setSelectedIds(ids);
-            setSelectedTeachers(initialTeachers);
-        }
-    }, [initialTeacherData]);
-
-    // Also try to find initial teachers from the list query results
-    useEffect(() => {
-        if (selectedIds.length > 0 && data.user?.length > 0 && selectedTeachers.length === 0) {
-            const found = data.user.filter(t => selectedIds.includes(t.id));
+            const found = data.user.filter(t => ids.includes(t.id));
             if (found.length > 0) {
+                setSelectedIds(ids);
                 setSelectedTeachers(found);
             }
         }
-    }, [data.user, selectedIds]);
+    }, [data.user, initialValue]);
 
     useEffect(() => {
         if (initialValue !== undefined && initialValue !== null && initialValue !== '') {

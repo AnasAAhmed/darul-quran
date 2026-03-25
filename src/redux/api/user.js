@@ -76,11 +76,11 @@ export const userAPI = createApi({
                 error ? [] : ['user']
         }),
         getAllUserForSelect: builder.query({
-            query: ({ page, limit, search, courseId, enrolledStudents }) => ({
+            query: ({ page, limit, search, courseId, enrolledStudents,initialValues }) => ({
                 url: "/getAllUserForSelect",
                 method: "GET",
                 params: {
-                    page, limit, search, courseId, enrolledStudents
+                    page, limit, search, courseId, enrolledStudents,initialValues
                 },
             }),
             providesTags: ["user"],

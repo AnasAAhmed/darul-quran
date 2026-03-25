@@ -26,6 +26,7 @@ const UserSelect = ({ onChange, courseId, initialValues = [], label, placeholder
         limit,
         search: searchValue,
         courseId,
+        initialValues: initialValues?.join(',')
     }, { skip: !courseId });
 
     useEffect(() => {
@@ -140,11 +141,11 @@ const UserSelect = ({ onChange, courseId, initialValues = [], label, placeholder
                                 Clear all
                             </button>
                         )}
-                       {isLoading?
-                       <Spinner size="sm" color="success"/>
-                       : <ChevronDown
-                            className={`w-5 h-5 text-gray-400 transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`}
-                        />}
+                        {isLoading ?
+                            <Spinner size="sm" color="success" />
+                            : <ChevronDown
+                                className={`w-5 h-5 text-gray-400 transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`}
+                            />}
                     </div>
                 </div>
             </div>
@@ -202,7 +203,7 @@ const UserSelect = ({ onChange, courseId, initialValues = [], label, placeholder
                                         <div>
                                             {user.enrollmentId ? (
                                                 <p className="text-xs text-green-500 font-semibold">
-                                                    Enrolled Student 
+                                                    Enrolled Student
                                                 </p>
                                             ) : (
                                                 <p className="text-xs text-red-500 font-semibold">
