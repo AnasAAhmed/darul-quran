@@ -29,6 +29,7 @@ import {
   Pagination,
   Image,
   Tooltip,
+  Avatar,
 } from "@heroui/react";
 import { CalendarIcon, Copy, Trash2, PlusIcon, User } from "lucide-react";
 
@@ -1028,9 +1029,13 @@ const EnrolledStudentsList = ({ courseId }) => {
     <div className="flex flex-col gap-3">
       {data.users.map((student) => (
         <div key={student.id} className="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-50 border border-transparent hover:border-gray-100 transition-all">
-          <div className="w-10 h-10 rounded-full bg-linear-to-br from-[#95C4BE] to-[#06574C] flex items-center justify-center text-white font-semibold">
-            {student.firstName?.[0]}{student.lastName?.[0]}
-          </div>
+          <Avatar  
+            name={`${student.firstName || ""} ${student.lastName || ""}`.trim() || undefined} 
+            src={student.avatar} 
+            className="w-12 h-12 shrink-0 shadow-lg"
+            color="success"
+            showFallback
+          />
           <div className="flex flex-col">
             <span className="font-semibold text-gray-900">{student.firstName} {student.lastName}</span>
             <span className="text-xs text-gray-500">{student.email}</span>
