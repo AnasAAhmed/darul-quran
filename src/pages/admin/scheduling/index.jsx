@@ -41,6 +41,7 @@ import ManualEnrollmentModal from "../../../components/modals/ManualEnrollmentMo
 import { useCreateScheduleMutation, useDeleteScheduleMutation, useGetScheduleQuery, useUpdateScheduleMutation } from "../../../redux/api/schedules";
 import CourseSelect from "../../../components/select/CourseSelect";
 import Swal from "sweetalert2";
+import { useGetAllUserForSelectQuery } from "../../../redux/api/user";
 import { Link, useSearchParams } from "react-router-dom";
 import { useSelector } from "react-redux";
 
@@ -54,6 +55,12 @@ const Scheduling = () => {
     onOpen: onEnrollModalOpen,
     onOpenChange: onEnrollModalChange
   } = useDisclosure();
+  const {
+    isOpen: isEnrolledUsersModalOpen,
+    onOpen: onEnrolledUsersModalOpen,
+    onOpenChange: onEnrolledUsersModalChange
+  } = useDisclosure();
+  const [selectedCourseForEnrolled, setSelectedCourseForEnrolled] = useState(null);
 
   // Pagination & Filtering (Basic Implementation)
   const [statusFilter, setStatusFilter] = useState("all");
@@ -462,7 +469,7 @@ const Scheduling = () => {
             <TableColumn width={200}>Details</TableColumn>
             <TableColumn width={200}>Teacher</TableColumn>
             <TableColumn width={200}>Dates<small>(Latest 30)</small></TableColumn>
-            <TableColumn width={200}>Student</TableColumn>
+            <TableColumn width={200}>Students</TableColumn>
             <TableColumn width={200}>Time</TableColumn>
             <TableColumn width={200}>Schedule Type</TableColumn>
             <TableColumn width={200}>Class Type</TableColumn>
@@ -532,7 +539,15 @@ const Scheduling = () => {
                       ))}
                     </div>
                   ) : (
-                    <span className="text-gray-400 text-sm italic">All Students</span>
+                    <span
+                      className="text-[#06574C] text-sm italic cursor-pointer underline hover:text-[#06574C]/80"
+                      onClick={() => {
+                        setSelectedCourseForEnrolled(item.courseId);
+                        onEnrolledUsersModalOpen();
+                      }}
+                    >
+                     For All Students
+                    </span>
                   )}
                 </TableCell>
                 <TableCell>
@@ -960,6 +975,58 @@ const Scheduling = () => {
           successMessage("Now you can proceed with scheduling");
         }}
       />
+
+      <Modal
+        isOpen={isEnrolledUsersModalOpen}
+        onOpenChange={onEnrolledUsersModalChange}
+        size="md"
+        scrollBehavior="inside"
+      >
+        <ModalContent>
+          {(onClose) => (
+            <>
+              <ModalHeader className="flex flex-col gap-1 text-[#06574C]">
+                Enrolled Students
+              </ModalHeader>
+              <ModalBody>
+                <EnrolledStudentsList courseId={selectedCourseForEnrolled} />
+              </ModalBody>
+              <ModalFooter>
+                <Button color="danger" variant="light" onPress={onClose}>
+                  Close
+                </Button>
+              </ModalFooter>
+            </>
+          )}
+        </ModalContent>
+      </Modal>
+    </div>
+  );
+};
+
+const EnrolledStudentsList = ({ courseId }) => {
+  const { data, isFetching } = useGetAllUserForSelectQuery(
+    { courseId, enrolledStudents: true, limit: 100, page: 1 },
+    { skip: !courseId }
+  );
+
+  if (isFetching) return <div className="flex justify-center p-4"><Spinner color="success" /></div>;
+
+  if (!data?.users?.length) return <div className="text-center p-4 text-gray-500 text-sm">No students enrolled in this course yet.</div>;
+
+  return (
+    <div className="flex flex-col gap-3">
+      {data.users.map((student) => (
+        <div key={student.id} className="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-50 border border-transparent hover:border-gray-100 transition-all">
+          <div className="w-10 h-10 rounded-full bg-linear-to-br from-[#95C4BE] to-[#06574C] flex items-center justify-center text-white font-semibold">
+            {student.firstName?.[0]}{student.lastName?.[0]}
+          </div>
+          <div className="flex flex-col">
+            <span className="font-semibold text-gray-900">{student.firstName} {student.lastName}</span>
+            <span className="text-xs text-gray-500">{student.email}</span>
+          </div>
+        </div>
+      ))}
     </div>
   );
 };
