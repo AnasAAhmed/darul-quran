@@ -15,6 +15,8 @@ import StudentLayout from "./components/layouts/Studentlayout";
 import ErrorBoundary from "./components/globalError";
 import DownloadModal from "./components/dashboard-components/DownloadModal";
 
+const Profile = lazy(() => import("./pages/profile"));
+
 import { showMessage } from "./lib/toast.config";
 import { clearUser, setUser } from "./redux/reducers/user";
 import { setOnlineUsers, setIncomingMessage, setChats, updateMessageDelivery, setMessagesReadInChat, updateChatPreview } from "./redux/reducers/chat";
@@ -525,6 +527,14 @@ function App() {
                 </ProtectedRoute>
               }
             />
+            <Route
+              path="/admin/profile"
+              element={
+                <ProtectedRoute isAuthenticated={isAuthenticated} redirect="/">
+                  <Profile />
+                </ProtectedRoute>
+              }
+            />
           </Route>
           {/* <Route element={<ChatLayout />}>
           </Route> */}
@@ -639,6 +649,14 @@ function App() {
               element={
                 <ProtectedRoute isAuthenticated={isAuthenticated} redirect="/">
                   <Notifications />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/teacher/profile"
+              element={
+                <ProtectedRoute isAuthenticated={isAuthenticated} redirect="/">
+                  <Profile />
                 </ProtectedRoute>
               }
             />
@@ -762,6 +780,14 @@ function App() {
               element={
                 <ProtectedRoute isAuthenticated={isAuthenticated} redirect="/">
                   <Notifications />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/student/profile"
+              element={
+                <ProtectedRoute isAuthenticated={isAuthenticated} redirect="/">
+                  <Profile />
                 </ProtectedRoute>
               }
             />

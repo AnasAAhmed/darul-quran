@@ -123,6 +123,14 @@ export const userAPI = createApi({
                 responseHandler: (response) => response.text(),
             }),
         }),
+        updateProfile: builder.mutation({
+            query: (data) => ({
+                url: `/update-profile`,
+                method: "PATCH",
+                body: data,
+            }),
+            invalidatesTags: ["user", "userDetails"],
+        }),
     })
 })
 
@@ -140,4 +148,5 @@ export const {
     useGetUserInvoicesQuery,
     useGetEnrollmentDetailsQuery,
     useExportInvoicesToCsvMutation,
+    useUpdateProfileMutation,
 } = userAPI;

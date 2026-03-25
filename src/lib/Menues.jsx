@@ -14,7 +14,8 @@ import {
     BellRing,
     Users2Icon,
     MessageSquare,
-    MessageCircleMore
+    MessageCircleMore,
+    UserIcon
 } from 'lucide-react';
 import { FaChalkboardTeacher, FaMedal } from 'react-icons/fa';
 import { IoBook, IoCashOutline } from 'react-icons/io5';
@@ -42,6 +43,7 @@ export const adminMenu = [
     { name: 'Support Tickets', icon: <TicketIcon />, link: '/admin/tickets', value: 'support-tickets' },
     { name: 'Analytics', icon: <ChartBarIcon />, link: '/admin/analytics', value: 'analytics' },
     { name: 'Notifications', icon: <BellRing />, link: '/admin/notifications', value: 'notifications' },
+    { name: 'Profile', icon: <UserIcon />, link: '/admin/profile', value: 'profile' },
     { name: 'Reschedule Requests', icon: <CalendarPlus />, link: '/admin/reschedule-requests' },
     {
         name: 'Help and Support',
@@ -75,6 +77,7 @@ export const teacherMenu = [
     { name: 'Support Tickets  ', icon: <TicketsIcon />, link: '/teacher/support-tickets' },
     { name: 'Announcements', icon: <MegaphoneIcon />, link: '/teacher/announcements' },
     { name: 'Notifications', icon: <BellRing />, link: '/teacher/notifications' },
+    { name: 'Profile', icon: <UserIcon />, link: '/teacher/profile' },
 ];
 
 export const studentMenu = [
@@ -101,5 +104,6 @@ export const studentMenu = [
     { name: 'Attendance & Progress', icon: <FaMedal size={21} />, link: '/student/attendance-list' },
     { name: 'Support Tickets  ', icon: <TicketsIcon />, link: '/student/support-tickets' },
     { name: "Announcements", icon: <MegaphoneIcon />, link: "/student/announcements" },
-    { name: 'Notifications', icon: <BellRing />, link: '/student/notifications' }
+    { name: 'Notifications', icon: <BellRing />, link: '/student/notifications' },
+    { name: 'Profile', icon: <UserIcon />, link: '/student/profile' }
 ];

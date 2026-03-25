@@ -20,6 +20,7 @@ import {
   Spinner,
   Input,
   Tooltip,
+  User,
 } from "@heroui/react";
 import { Chip } from "@heroui/react";
 
@@ -403,14 +404,19 @@ const UserManagement = () => {
                   {(classItem) => (
                     <TableRow key={classItem.id}>
                       <TableCell className="px-4">
-                        <div>
-                          <div className="font-medium text-gray-900">
-                            {classItem.firstName} {classItem.lastName}
-                          </div>
-                          <div className="text-xs text-gray-500 mt-0.5">
-                            {classItem.email}
-                          </div>
-                        </div>
+                        <User
+                          avatarProps={{
+                            src: classItem.avatar || `https://ui-avatars.com/api/?name=${classItem.firstName || "U"}&background=random`,
+                            size: "sm",
+                            className: "shrink-0"
+                          }}
+                          name={`${classItem.firstName || ""} ${classItem.lastName || ""}`.trim() || "User"}
+                          description={classItem.email}
+                          classNames={{
+                            name: "font-medium text-gray-900",
+                            description: "text-xs text-gray-500 mt-0.5",
+                          }}
+                        />
                       </TableCell>
                       <TableCell>
                         <Button className="text-sm p-2 rounded-md bg-[#FBF4EC] text-[#D28E3D]">
