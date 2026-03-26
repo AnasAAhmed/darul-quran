@@ -21,13 +21,13 @@ import {
   TableRow,
   useDisclosure,
 } from "@heroui/react";
+import { IoStarSharp } from "react-icons/io5";
 import { Plus, Trash2 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useDeleteCourseMutation, useGetAllCategoriesQuery, useGetAllCoursesQuery, useGetCourseRelatedDataQuery } from "../../../redux/api/courses";
 import { errorMessage } from "../../../lib/toast.config";
 import { debounce } from "../../../lib/utils";
-import Swal from "sweetalert2";
 import QueryError from "../../../components/QueryError";
 
 const CourseManagement = () => {
@@ -283,7 +283,7 @@ const CourseManagement = () => {
 
                   <TableCell className="text-center">
                     <span className="font-medium">
-                      £{classItem?.coursePrice}
+                      {classItem?.isFree ? 'Free' : `£${classItem?.coursePrice}`}
                     </span>
                   </TableCell>
 
@@ -301,7 +301,8 @@ const CourseManagement = () => {
 
                   <TableCell>
                     <div className="min-w-0 flex items-center">
-                      <Link to={'/admin/help/reviews?id=' + classItem?.id} className="font-medium truncate max-w-[220px] block">
+                      <Link to={'/admin/help/reviews?id=' + classItem?.id} className="font-medium flex gap-1 items-center truncate max-w-[220px] ">
+                        {classItem?.rating>0 && <IoStarSharp size={18} color="#FDD835" />}
                         {classItem?.rating || "No ratings"}
                       </Link>
                     </div>

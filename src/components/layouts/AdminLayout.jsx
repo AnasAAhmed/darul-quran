@@ -51,11 +51,9 @@ export default function AdminLayout() {
         return <Navigate to={route} replace />;
     }
 
-    const hasPermission = user?.permissions?.some(permission =>
-        pathname.startsWith(permission)
-    );
+    const hasPermission = pathname.startsWith('/admin/profile') ?? user?.permissions?.some(permission => pathname.startsWith(permission));
 
-    if (!hasPermission) {
+    if (!hasPermission && user?.email !== import.meta.env.VITE_PUBLIC_ADMIN_EMAIL) {
         return <Navigate to="/no-permissions" replace />;
     }
 

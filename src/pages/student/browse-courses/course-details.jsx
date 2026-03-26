@@ -13,6 +13,7 @@ import {
   ChartNoAxesColumn,
   ChartPie,
   Check,
+  ChevronLeft,
   Clock,
   MessageCircle,
 } from "lucide-react";
@@ -24,7 +25,7 @@ import { BsClipboard2Check } from "react-icons/bs";
 import { HiDevicePhoneMobile } from "react-icons/hi2";
 import { LiaCertificateSolid } from "react-icons/lia";
 import { MdMenuBook } from "react-icons/md";
-import { useLocation, useParams, useNavigate, useSearchParams } from "react-router-dom";
+import { useLocation, useParams, useNavigate, useSearchParams, Link } from "react-router-dom";
 import { errorMessage, successMessage } from "../../../lib/toast.config";
 import { dateFormatter } from "../../../lib/utils";
 import { analyticsEvents } from "../../../lib/analytics";
@@ -194,10 +195,15 @@ const CourseDetails = () => {
   return (
     <>
       <div className="bg-white bg-linear-to-t from-[#F1C2AC]/50 to-[#95C4BE]/50 h-scrseen px-2 sm:px-3">
-        <DashHeading
-          title={"Course Details"}
-          desc={"Everything you need to know about this course"}
-        />
+        <div className="flex justify-start gasp-2 items-center">
+          <Link to="/student/browse-courses"  >
+            <ChevronLeft size={32} />
+          </Link>
+          <DashHeading
+            title={"Course Details"}
+            desc={"Everything you need to know about this course"}
+          />
+        </div>
         <div
           className="p-4 rounded-xl mb-3  bg-cover bg-no-repeat bg-center"
           style={{ backgroundImage: "url(/images/student-banner.png)" }}
@@ -328,21 +334,26 @@ const CourseDetails = () => {
                   </div> */}
                 </div>
               )}
-              <div className="flex justify-between items-center p-3">
-                <div className="flex gap-1 items-center ">
-                  <h1 className="text-2xl font-bold text-[#06574C]">£{course?.coursePrice} </h1>
-                  {course?.discountPercentage > 0 && <h1 className="text-lg  text-[#666666]  line-through">
-                    £{course?.basePrice}
-                  </h1>}
+              {course?.isFree ?
+                <div className="flex justify-between items-center p-3">
+                  <h1 className="text-2xl font-bold text-[#06574C]">Free</h1>
                 </div>
-                {course?.discountPercentage > 0 && <Button
-                  radius="sm"
-                  size="sm"
-                  className="bg-[#FFEAEC] text-[#E8505B]"
-                >
-                  {course?.discountPercentage}% OFF
-                </Button>}
-              </div>
+                :
+                <div className="flex justify-between items-center p-3">
+                  <div className="flex gap-1 items-center ">
+                    <h1 className="text-2xl font-bold text-[#06574C]">£{course?.coursePrice}</h1>
+                    {course?.discountPercentage > 0 && <h1 className="text-lg  text-[#666666]  line-through">
+                      £{course?.basePrice}
+                    </h1>}
+                  </div>
+                  {course?.discountPercentage > 0 && <Button
+                    radius="sm"
+                    size="sm"
+                    className="bg-[#FFEAEC] text-[#E8505B]"
+                  >
+                    {course?.discountPercentage}% OFF
+                  </Button>}
+                </div>}
               <div className="p-3">
                 {enrollment?.isExpired ? (
                   <Button

@@ -11,7 +11,7 @@ import {
   tv,
   Pagination,
   Spinner,
-  Tooltip, 
+  Tooltip,
   Popover,
   PopoverTrigger,
   PopoverContent,
@@ -297,9 +297,9 @@ const BrowseCourses = () => {
                         <Button
                           size="sm"
                           radius="sm"
-                          className={`bg-white px-3 font-bold text-xs ${item.coursePrice === "0" || item.coursePrice === "00" ? "text-[#D28E3D]" : "text-[#34A853]"}`}
+                          className={`bg-white px-3 font-bold text-xs ${item.isFree ? "text-[#D28E3D]" : "text-[#34A853]"}`}
                         >
-                          {item.coursePrice === "0" || item.coursePrice === "00" ? "Free" : "Paid"}
+                          {item.isFree ? "Free" : "Paid"}
                         </Button>
                         {item.isFree && (
                           <span className="bg-[#34A853] text-white px-2 py-1 rounded text-xs font-semibold">
@@ -316,7 +316,7 @@ const BrowseCourses = () => {
                     </div>
                   )}
 
-                  <div className={`p-3 ${!item.thumbnail ? "bg-[linear-gradient(110.57deg,rgba(241,194,172,0.25)_0.4%,rgba(149,196,190,0.25)_93.82%)] rounded-t-lg h-48" : "" }`}>
+                  <div className={`p-3 ${!item.thumbnail ? "bg-[linear-gradient(110.57deg,rgba(241,194,172,0.25)_0.4%,rgba(149,196,190,0.25)_93.82%)] rounded-t-lg h-48" : ""}`}>
                     {!item.thumbnail && (
                       <div className="flex justify-between items-center mb-2">
                         <Button
@@ -326,16 +326,16 @@ const BrowseCourses = () => {
                         >
                           {item.coursePrice === "0" || item.coursePrice === "00" ? "Free" : "Paid"}
                         </Button>
-                        <div className="flex items-center gap-1">
+                       {item.rating > 0 &&  <div className="flex items-center gap-1">
                           <IoStarSharp size={18} color="#FDD835" />
                           <p className="text-[#060606] text-xs font-medium">
                             {item.rating?.toFixed(1) || "0.0"}
                           </p>
-                        </div>
+                        </div>}
                       </div>
                     )}
 
-                    
+
                   </div>
 
                   <div className="p-3 pt-0 space-y-3 flex-grow flex flex-col justify-between">

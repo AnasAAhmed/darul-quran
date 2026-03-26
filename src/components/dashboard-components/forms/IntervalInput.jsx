@@ -59,7 +59,7 @@ export const IntervalInput = ({
 
     const handleUpdate = () => {
         if (unitValue === nullableValue) {
-            onUpdate("null");
+            onUpdate(null);
             return;
         }
         if (!numberValue || !unitValue) return;

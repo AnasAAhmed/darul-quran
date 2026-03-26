@@ -228,7 +228,7 @@ const CourseBuilder = () => {
       { title: "Difficulty Level:", desc: formData?.difficulty_level || "Add Difficulty Level" },
       { title: "Price:", desc: (formData?.base_price - ((formData?.discount_percentage * formData?.base_price) / 100)) + "£" || "Add Price" },
       { title: "Type:", desc: formData?.type?.replace("_", " ") || "Add Type" },
-      { title: "Duration:", desc: formData?.duration === "null" ? 'Ongoing' : `${parseInterval(formData?.duration).number} ${parseInterval(formData?.duration).unit}` || "Add Duration" },
+      { title: "Duration:", desc: formData?.duration === null ? 'Ongoing' : `${parseInterval(formData?.duration).number} ${parseInterval(formData?.duration).unit}` || "Add Duration" },
       formData?.type === "live" && { title: "Subscription - Interval:", desc: `${parseInterval(formData?.interval).number} ${parseInterval(formData?.interval).unit}` || "Add Subscription - Interval" },
     ];
   }, [categoriesData, formData]);
@@ -314,37 +314,6 @@ const CourseBuilder = () => {
       setLoadingAction(null);
       setPendingAction(null);
     }
-  };
-
-  const handleSubmit2tab = async () => {
-    setLoadingAction(pendingAction);
-    // if (files.length === 0) { errorMessage("Please upload at least one file"); return; };
-
-    // if (data.previous_lesson === formData.previous_lesson) {
-    handleSelected("pricing");
-    // }
-    // try {
-
-    //   const payload = {
-    //     previous_lesson: formData.previous_lesson,
-    //   };
-
-    //   const response = await updateCourse({ id: courseId, data: payload });
-
-    //   const data = response.data;
-    //   if (data.success) {
-    //     successMessage("Course Files Updated  Successfully");
-    //     handleSelected("pricing");
-    //   } else {
-    //     errorMessage(data.message || "Failed to update course");
-    //   }
-    // } catch (error) {
-    //   console.error(error);
-    //   errorMessage(error?.message || "Failed to update course");
-    // } finally {
-    //   setLoadingAction(null);
-    //   setPendingAction(null);
-    // }
   };
 
   const handleSubmit3tab = async (e) => {
@@ -638,7 +607,7 @@ const CourseBuilder = () => {
                           }
                         />
                       </div>
-                      <div className="flex items-center gap-3">
+                      <div className="flex items-center pt-2 gap-3">
                         <p className="text-md text-[#06574C]">
                           {formData.is_free ? "Free" : "Paid"}
                         </p>
