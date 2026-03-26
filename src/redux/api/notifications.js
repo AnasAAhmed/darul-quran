@@ -86,29 +86,42 @@ export const notificationApi = createApi({
                 body: data,
             }),
             async onQueryStarted({ id, is_read }, { dispatch, queryFulfilled, getState }) {
-                if (!id) return;
-
                 const state = getState();
                 const queries = state.notificationApi?.queries || {};
 
-                // Update all cached getNotifications queries that contain this notification
                 const patches = [];
+
                 Object.entries(queries).forEach(([key, queryState]) => {
                     if (queryState?.endpointName !== 'getNotifications' || !queryState?.originalArgs) return;
-                    
+
                     const arg = queryState.originalArgs;
+
                     const patchResult = dispatch(
                         notificationApi.util.updateQueryData('getNotifications', arg, (draft) => {
-                            const notification = draft.data?.find((n) => n.id === id);
+                            if (!draft.data) return;
+
+                            if (!id) {
+                                draft.data.forEach((n) => {
+                                    n.is_read = true;
+                                });
+
+                                if (arg.is_read === 'false') {
+                                    draft.data = [];
+                                }
+
+                                return;
+                            }
+                            const notification = draft.data.find((n) => n.id === id);
                             if (notification) {
                                 notification.is_read = true;
                             }
-                            // Also remove from list if filtering by unread
+
                             if (arg.is_read === 'false') {
                                 draft.data = draft.data.filter((n) => n.id !== id);
                             }
                         })
                     );
+
                     patches.push(patchResult);
                 });
 
@@ -117,7 +130,7 @@ export const notificationApi = createApi({
                 } catch {
                     patches.forEach((patch) => patch.undo());
                 }
-            },
+            }
         }),
 
         // Delete read notifications
