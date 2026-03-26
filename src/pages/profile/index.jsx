@@ -7,7 +7,7 @@ import { api } from "../../services/api";
 import { successMessage, errorMessage } from "../../lib/toast.config";
 import FileDropzone from "../../components/dashboard-components/dropzone";
 import { uploadFiles } from "../../lib/uploadthing";
-import { Camera, Edit3 } from "lucide-react";
+import { Camera, Edit3, Eye, EyeOff } from "lucide-react";
 import NotificationPermission from "../../components/NotificationPermission";
 
 const ProfilePage = () => {
@@ -28,6 +28,13 @@ const ProfilePage = () => {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [isChangingPassword, setIsChangingPassword] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
+  const [isVisibleCurrent, setIsVisibleCurrent] = useState(false);
+  const [isVisibleNew, setIsVisibleNew] = useState(false);
+  const [isVisibleConfirm, setIsVisibleConfirm] = useState(false);
+
+  const toggleVisibilityCurrent = () => setIsVisibleCurrent(!isVisibleCurrent);
+  const toggleVisibilityNew = () => setIsVisibleNew(!isVisibleNew);
+  const toggleVisibilityConfirm = () => setIsVisibleConfirm(!isVisibleConfirm);
 
   useEffect(() => {
     if (user) {
@@ -98,7 +105,7 @@ const ProfilePage = () => {
       setConfirmPassword("");
     } catch (error) {
       console.error(error);
-      errorMessage(error?.response?.data?.message || "Failed to update password");
+      // Global error handler in axios service handles message
     } finally {
       setIsChangingPassword(false);
     }
@@ -256,32 +263,59 @@ const ProfilePage = () => {
          <Input
             label="Current Password"
             labelPlacement="outside"
-            type="password"
-            placeholder="*************"
+            type={isVisibleCurrent ? "text" : "password"}
+            placeholder="Enter current password"
             value={currentPassword}
             onChange={(e) => setCurrentPassword(e.target.value)}
-            variant="flat"
+            variant="bordered"
             classNames={flatInputClassNames}
+            endContent={
+              <button className="focus:outline-none" type="button" onClick={toggleVisibilityCurrent}>
+                {isVisibleCurrent ? (
+                  <EyeOff className="text-xl text-gray-500 pointer-events-none" />
+                ) : (
+                  <Eye className="text-xl text-gray-500 pointer-events-none" />
+                )}
+              </button>
+            }
          />
          <Input
             label="New Password"
             labelPlacement="outside"
-            type="password"
-            placeholder="*************"
+            type={isVisibleNew ? "text" : "password"}
+            placeholder="Enter new password"
             value={newPassword}
             onChange={(e) => setNewPassword(e.target.value)}
-            variant="flat"
+            variant="bordered"
             classNames={flatInputClassNames}
+            endContent={
+              <button className="focus:outline-none" type="button" onClick={toggleVisibilityNew}>
+                {isVisibleNew ? (
+                  <EyeOff className="text-xl text-gray-500 pointer-events-none" />
+                ) : (
+                  <Eye className="text-xl text-gray-500 pointer-events-none" />
+                )}
+              </button>
+            }
          />
          <Input
             label="Confirm Password"
             labelPlacement="outside"
-            type="password"
-            placeholder="*************"
+            type={isVisibleConfirm ? "text" : "password"}
+            placeholder="Enter confirm password"
             value={confirmPassword}
             onChange={(e) => setConfirmPassword(e.target.value)}
-            variant="flat"
+            variant="bordered"
             classNames={flatInputClassNames}
+            endContent={
+              <button className="focus:outline-none" type="button" onClick={toggleVisibilityConfirm}>
+                {isVisibleConfirm ? (
+                  <EyeOff className="text-xl text-gray-500 pointer-events-none" />
+                ) : (
+                  <Eye className="text-xl text-gray-500 pointer-events-none" />
+                )}
+              </button>
+            }
          />
          
          <div className="flex justify-end mt-4 w-full">

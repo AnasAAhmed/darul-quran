@@ -42,6 +42,8 @@ export const api = {
 
     put: (endpoint, data, config = {}) => axiosInstance.put(endpoint, data, config),
 
+    patch: (endpoint, data, config = {}) => axiosInstance.patch(endpoint, data, config),
+
     delete: (endpoint, config = {}) => axiosInstance.delete(endpoint, config),
 
     // File Upload Helper (Let Axios determine Content-Type)
