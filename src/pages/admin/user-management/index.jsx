@@ -54,6 +54,7 @@ const UserManagement = () => {
     { key: "User", label: "User" },
     { key: "Role", label: "Role" },
     { key: "Date", label: "Join Date" },
+    { key: "lastActive", label: "Last Active" },
     { key: "Status", label: "Status" },
     { key: "Zoom", label: "Zoom" },
     { key: "Action", label: "Action", style: "text-center" },
@@ -424,6 +425,7 @@ const UserManagement = () => {
                         </Button>
                       </TableCell>
                       <TableCell>{dateFormatter(classItem.createdAt)}</TableCell>
+                      <TableCell>{classItem.lastActive ? dateFormatter(classItem.lastActive, true) : "No Activity"}</TableCell>
                       <TableCell>
                         <Button className={`text-sm p-2 rounded-md ${classItem.isActive === true ? "bg-[#95C4BE33] text-[#06574C]" : "bg-[#FBF4EC] text-[#D28E3D]"} `}>
                           {classItem.isActive == true ? "Active" : "Inactive"}

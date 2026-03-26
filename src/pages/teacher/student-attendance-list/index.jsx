@@ -65,7 +65,7 @@ const StudentAttendanceList = () => {
   };
 
   return (
-    <div className="bg-white sm:bg-linear-to-t from-[#F1C2AC]/50 to-[#95C4BE]/50 px-2 sm:px-5 pb-8 min-h-screen">
+    <div className="bg-white sm:bg-linear-to-t from-[#F1C2AC]/50 to-[#95C4BE]/50 px-2 sm:px-5 pb-8">
       <DashHeading
         title={"Student Attendance List"}
         desc={"Comprehensive view of student attendance across courses"}
@@ -92,7 +92,7 @@ const StudentAttendanceList = () => {
           aria-label="Student Attendance Table"
           removeWrapper
           classNames={{
-            base: "w-full overflow-x-auto h-[calc(100vh-400px)] no-scrollbar",
+            base: "w-full overflow-x-auto no-scrollbar",
             th: "bg-[#FBF4EC] text-black font-bold py-4 px-6 text-sm uppercase tracking-wider",
             td: "py-4 px-6 border-b border-gray-50",
             tr: "hover:bg-gray-50/50 transition-colors",

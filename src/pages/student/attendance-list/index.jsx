@@ -73,8 +73,9 @@ const AttendanceList = () => {
     let isLate = false;
     let isEarly = false;
 
-    if (item.status === "present") {
+    if (item.status === "Attended" || item.status === "present") {
       statusColor = "success";
+      displayStatus = "Present";
 
       if (item.joinedAt && item.startTime) {
         const joinedTime = new Date(item.joinedAt);
@@ -103,7 +104,9 @@ const AttendanceList = () => {
       } else if (item.joinedAt) {
         notes = `Joined at ${new Date(item.joinedAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}`;
       }
-    } else if (item.status === "Missed" || !item.status) {
+    } else if (item.status === "Missed" || item.status === "absent" || !item.status) {
+      statusColor = "danger";
+      displayStatus = item.status === "absent" ? "Absent" : (item.status || "Missed");
       notes = "No attendance recorded";
     }
 
