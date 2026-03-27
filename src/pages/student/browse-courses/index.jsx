@@ -136,7 +136,7 @@ const BrowseCourses = () => {
             endContent={<IoSearchOutline size={20} color="#06574C" />}
           />
           <div className="flex gap-2 items-center w-full md:w-fit">
-            <Popover placement="bottom-end" showArrow offset={10}>
+            <Popover placement="right-end" showArrow offset={10}>
               <PopoverTrigger>
                 <Button
                   variant="bordered"
