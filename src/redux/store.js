@@ -12,6 +12,7 @@ import { rescheduleApi } from "./api/reschedule";
 import { supportTicketApi } from "./api/supportTickets";
 import { paymentApi } from "./api/payments";
 import { analyticsApi } from "./api/analytics";
+import { faqAPI } from "./api/faq";
 import chatReducer from "./reducers/chat";
 
 
@@ -29,6 +30,7 @@ export const store = configureStore({
     [supportTicketApi.reducerPath]: supportTicketApi.reducer,
     [paymentApi.reducerPath]: paymentApi.reducer,
     [analyticsApi.reducerPath]: analyticsApi.reducer,
+    [faqAPI.reducerPath]: faqAPI.reducer,
     user: userReducer,
     chat: chatReducer,
   },
@@ -46,6 +48,7 @@ export const store = configureStore({
     supportTicketApi.middleware,
     paymentApi.middleware,
     analyticsApi.middleware,
+    faqAPI.middleware,
   ],
 });
 

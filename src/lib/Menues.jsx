@@ -77,6 +77,7 @@ export const teacherMenu = [
     { name: 'Support Tickets  ', icon: <TicketsIcon />, link: '/teacher/support-tickets' },
     { name: 'Announcements', icon: <MegaphoneIcon />, link: '/teacher/announcements' },
     { name: 'Notifications', icon: <BellRing />, link: '/teacher/notifications' },
+    { name: 'FAQs', icon: <FileQuestionIcon />, link: '/teacher/faqs' },
     { name: 'Profile', icon: <UserIcon />, link: '/teacher/profile' },
 ];
 
@@ -105,5 +106,6 @@ export const studentMenu = [
     { name: 'Support Tickets  ', icon: <TicketsIcon />, link: '/student/support-tickets' },
     { name: "Announcements", icon: <MegaphoneIcon />, link: "/student/announcements" },
     { name: 'Notifications', icon: <BellRing />, link: '/student/notifications' },
+    { name: 'FAQs', icon: <FileQuestionIcon />, link: '/student/faqs' },
     { name: 'Profile', icon: <UserIcon />, link: '/student/profile' }
 ];

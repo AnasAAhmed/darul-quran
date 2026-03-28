@@ -40,6 +40,7 @@ const StudentAttendanceDetails = lazy(() =>
 );
 const TeachersDashboard = lazy(() => import("./pages/teacher/TeachersDashboard"));
 const TeacherAnnouncements = lazy(() => import("./pages/teacher/announcements"));
+const TeacherFaqs = lazy(() => import("./pages/teacher/faqs"));
 const TeacherClassSheduling = lazy(() => import("./pages/teacher/class-sheduling"));
 const CreaterOrUpdateSchedule = lazy(() =>
   import("./pages/teacher/class-sheduling/CreaterOrUpdate")
@@ -80,6 +81,7 @@ const SupportTicketsStudent = lazy(() =>
 const StudentAnnouncements = lazy(() =>
   import("./pages/student/announcements")
 );
+const StudentFaqs = lazy(() => import("./pages/student/faqs"));
 const EnrollSuccess = lazy(() =>
   import("./pages/student/enroll-success")
 );
@@ -637,6 +639,14 @@ function App() {
               }
             />
             <Route
+              path="/teacher/faqs"
+              element={
+                <ProtectedRoute isAuthenticated={isAuthenticated} redirect="/">
+                  <TeacherFaqs />
+                </ProtectedRoute>
+              }
+            />
+            <Route
               path="/teacher/reschedule-requests"
               element={
                 <ProtectedRoute isAuthenticated={isAuthenticated} redirect="/">
@@ -764,6 +774,14 @@ function App() {
               element={
                 <ProtectedRoute isAuthenticated={isAuthenticated} redirect="/">
                   <StudentAnnouncements />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/student/faqs"
+              element={
+                <ProtectedRoute isAuthenticated={isAuthenticated} redirect="/">
+                  <StudentFaqs />
                 </ProtectedRoute>
               }
             />
