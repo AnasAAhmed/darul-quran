@@ -557,7 +557,7 @@ const Scheduling = () => {
                         onEnrolledUsersModalOpen();
                       }}
                     >
-                      For All Students
+                      Enrolled Students
                     </span>
                   )}
                 </TableCell>
