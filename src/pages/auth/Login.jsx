@@ -1,5 +1,6 @@
 import {
   Button,
+  Checkbox,
   Form,
   Input,
   Select,
@@ -19,6 +20,7 @@ const Login = () => {
 
   const [email, setEmail] = useState("admin@admin.com");
   const [password, setPassword] = useState("password123");
+  const [rememberMe, setRememberMe] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   // const { isOpen, onOpen, onClose } = useDisclosure();
   const dispatch = useDispatch();
@@ -39,7 +41,7 @@ const Login = () => {
     setLoading(true);
 
     try {
-      const data = await api.post("/auth/login", { email, password });
+      const data = await api.post("/auth/login", { email, password, rememberMe });
 
       // If successful (api.post throws on error)
       dispatch(setUser(data.user));
@@ -122,8 +124,8 @@ const Login = () => {
             </div>
             <div className="w-full space-y-2">
               <p className="text-sm lg:text-base text-[#3F3F44]">
-                Your email or phone number
-              </p>
+               Enter Your Email
+               </p>
               <Input
                 className="rounded-md"
                 placeholder="youremail@guru.com"
@@ -159,6 +161,19 @@ const Login = () => {
                 }
                 onChange={(e) => setPassword(e.target.value)}
               />
+            </div>
+            <div className="w-full">
+              <Checkbox
+                isSelected={rememberMe}
+                onValueChange={setRememberMe}
+                size="sm"
+                color="success"
+                classNames={{
+                  label: "text-[#3F3F44] text-sm lg:text-base",
+                }}
+              >
+                Remember Me
+              </Checkbox>
             </div>
             {/* <Link to=""> */}
             <div className="flex max-sm:flex-wrap gap-3 w-full  ">
