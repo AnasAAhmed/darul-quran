@@ -1,41 +1,44 @@
-import { useEffect, useRef, useState } from 'react';
-import { AnimatePresence, motion } from 'framer-motion';
+import { useEffect, useRef, useState } from "react";
+import { AnimatePresence, motion } from "framer-motion";
+import { ChevronDown } from "lucide-react";
+import { Link, useLocation } from "react-router-dom";
 import {
-  ChevronDown
-} from 'lucide-react';
-import { Link, useLocation } from 'react-router-dom';
-import { Dropdown, DropdownItem, DropdownMenu, DropdownTrigger, Spinner, User } from '@heroui/react';
-import { MdLogout } from 'react-icons/md';
-import { errorMessage, successMessage } from '../../lib/toast.config';
-import { useDispatch } from 'react-redux';
-import { clearUser } from '../../redux/reducers/user';
+  Dropdown,
+  DropdownItem,
+  DropdownMenu,
+  DropdownTrigger,
+  Spinner,
+  User,
+} from "@heroui/react";
+import { MdLogout } from "react-icons/md";
+import { errorMessage, successMessage } from "../../lib/toast.config";
+import { useDispatch } from "react-redux";
+import { clearUser } from "../../redux/reducers/user";
 import { useSelector } from "react-redux";
-import { adminMenu, studentMenu, teacherMenu } from '../../lib/Menues';
+import { adminMenu, studentMenu, teacherMenu } from "../../lib/Menues";
 
 const Sidebar = ({ isSidebarOpen, setIsSidebarOpen }) => {
-
   const [expandedItems, setExpandedItems] = useState([0, 6]);
   const { pathname } = useLocation();
   const sideBarRef = useRef(null);
   const dispatch = useDispatch();
   const { user } = useSelector((state) => state.user);
 
-
   // ===== role detection from pathname =====
   const getRoleFromPath = (pathname) => {
-    if (pathname.startsWith('/admin')) return 'admin';
-    if (pathname.startsWith('/teacher')) return 'teacher';
-    return 'guest'; // fallback
+    if (pathname.startsWith("/admin")) return "admin";
+    if (pathname.startsWith("/teacher")) return "teacher";
+    return "guest"; // fallback
   };
   const role = getRoleFromPath(pathname);
 
   //removing not allowed links and child links for sub-admin
   const filteredAdminMenu = adminMenu
-    .map(tab => {
+    .map((tab) => {
       let filteredChildren = [];
       if (tab.children) {
-        filteredChildren = tab.children.filter(
-          child => user?.permissions?.includes(child.link)
+        filteredChildren = tab.children.filter((child) =>
+          user?.permissions?.includes(child.link),
         );
       }
       if (
@@ -53,15 +56,23 @@ const Sidebar = ({ isSidebarOpen, setIsSidebarOpen }) => {
     .filter(Boolean);
 
   // Decide which menu to show based on role
-  const finalAdminMenu = user?.email === import.meta.env.VITE_PUBLIC_ADMIN_EMAIL ? adminMenu : filteredAdminMenu
+  const finalAdminMenu =
+    user?.email === import.meta.env.VITE_PUBLIC_ADMIN_EMAIL
+      ? adminMenu
+      : filteredAdminMenu;
   const menuItems =
-    role === 'admin' ? finalAdminMenu : role === 'teacher' ? teacherMenu : studentMenu;
+    role === "admin"
+      ? finalAdminMenu
+      : role === "teacher"
+        ? teacherMenu
+        : studentMenu;
 
   // If a child route is active, auto expand that parent
   useEffect(() => {
     menuItems.forEach((item, idx) => {
       if (item.children?.some((child) => child.link === pathname)) {
-        if (!expandedItems.includes(idx)) setExpandedItems((prev) => [...prev, idx]);
+        if (!expandedItems.includes(idx))
+          setExpandedItems((prev) => [...prev, idx]);
       }
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -69,7 +80,7 @@ const Sidebar = ({ isSidebarOpen, setIsSidebarOpen }) => {
 
   const toggleExpand = (index) => {
     setExpandedItems((prev) =>
-      prev.includes(index) ? prev.filter((i) => i !== index) : [...prev, index]
+      prev.includes(index) ? prev.filter((i) => i !== index) : [...prev, index],
     );
     setIsSidebarOpen(true);
   };
@@ -80,9 +91,10 @@ const Sidebar = ({ isSidebarOpen, setIsSidebarOpen }) => {
   };
 
   useEffect(() => {
-    const handleEsc = (e) => e.key === 'Escape' && setIsSidebarOpen(!isSidebarOpen);
-    window.addEventListener('keydown', handleEsc);
-    return () => window.removeEventListener('keydown', handleEsc);
+    const handleEsc = (e) =>
+      e.key === "Escape" && setIsSidebarOpen(!isSidebarOpen);
+    window.addEventListener("keydown", handleEsc);
+    return () => window.removeEventListener("keydown", handleEsc);
   }, [isSidebarOpen, setIsSidebarOpen]);
 
   useEffect(() => {
@@ -93,11 +105,11 @@ const Sidebar = ({ isSidebarOpen, setIsSidebarOpen }) => {
       if (startX > 80 && startX - endX > 70) setIsSidebarOpen(false);
       if (startX < 40 && endX - startX > 70) setIsSidebarOpen(true);
     };
-    window.addEventListener('touchstart', start);
-    window.addEventListener('touchend', end);
+    window.addEventListener("touchstart", start);
+    window.addEventListener("touchend", end);
     return () => {
-      window.removeEventListener('touchstart', start);
-      window.removeEventListener('touchend', end);
+      window.removeEventListener("touchstart", start);
+      window.removeEventListener("touchend", end);
     };
   }, [setIsSidebarOpen]);
 
@@ -108,9 +120,9 @@ const Sidebar = ({ isSidebarOpen, setIsSidebarOpen }) => {
       }
     };
 
-    document.addEventListener('mousedown', handleClickOutside);
+    document.addEventListener("mousedown", handleClickOutside);
     return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener("mousedown", handleClickOutside);
     };
   }, []);
 
@@ -119,10 +131,13 @@ const Sidebar = ({ isSidebarOpen, setIsSidebarOpen }) => {
   const handleLogut = async () => {
     setLoggingOut(true);
     try {
-      const res = await fetch(import.meta.env.VITE_PUBLIC_SERVER_URL + `/api/auth/logout`, {
-        method: "POST",
-        credentials: "include",
-      });
+      const res = await fetch(
+        import.meta.env.VITE_PUBLIC_SERVER_URL + `/api/auth/logout`,
+        {
+          method: "POST",
+          credentials: "include",
+        },
+      );
       const data = await res.json();
 
       if (!res.ok) throw new Error(data?.message || "Logout failed");
@@ -140,18 +155,27 @@ const Sidebar = ({ isSidebarOpen, setIsSidebarOpen }) => {
   };
 
   return (
-    <div ref={sideBarRef} className="w-full z-5 h-full bg-[#1a5850] text-white flex flex-col">
+    <div
+      ref={sideBarRef}
+      className="w-full z-5 h-full bg-[#1a5850] text-white flex flex-col"
+    >
       <div
-        className="p-3 sm:p-6 sm: mx-auto border-b border-white/10 cursor-pointer"
+        className="px-3 py-2 flex justify-start  border-white/10 cursor-pointer border-b"
         onClick={() => setIsSidebarOpen(!isSidebarOpen)}
       >
         {isSidebarOpen ? (
-          <img
-            src="/icons/logo.png"
-            onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-            alt="Darul Quran"
-            className=" w-36 h-36"
-          />
+          <div className="flex items-center gap-2">
+            <img
+              src="/icons/logo-icon.png"
+              onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+              alt="Darul Quran"
+              className=" w-14 h-12"
+            />
+        <div className="flex flex-col gap-0">
+          <span className="text-md font-normal leading-5 tracking-wider italic">Darul Quran</span>
+          <span className="text-md font-normal leading-5 tracking-wider italic">Lecturer</span>
+        </div>
+          </div>
         ) : (
           <img
             src="/icons/logo-icon.png"
@@ -161,20 +185,86 @@ const Sidebar = ({ isSidebarOpen, setIsSidebarOpen }) => {
           />
         )}
       </div>
+     <div className="mt-8">
+       <Dropdown
+        showArrow
+        className="mx-3 w-full"
+        classNames={{
+          base: "before:bg-default-200", // change arrow background
+          content:
+            "py-1 px-1 border border-default-200 bg-linear-to-br from-white to-default-200 dark:from-default-50 dark:to-black",
+        }}
+      >
+        <DropdownTrigger className="mx-2 shadow-lg shadow-white/10">
+          <div className="px-2 py-3 cursor-pointer border rounded-md border-white/10">
+            <div className="flex items-center gap-3 px-2">
+              <User
+                avatarProps={{
+                  src: user?.avatar,
+                  alt: "user",
+                  size: "sm",
+                  className: "shrink-0",
+                }}
+                name={user?.firstName + " " + user?.lastName}
+                classNames={{
+                  description: "text-gray-300 wrap-break-word line-clamp-1 w-40 overflow-hidden",
+                  name: "text-gray-300 wrap-break-word line-clamp-1 w-40 overflow-hidden",
+                }}
+                description={
+                  user?.email +
+                  (user?.role === "admin" ? " - " + user?.role : "")
+                }
+              />
+              {/*
+              <div className="w-10 h-10 rounded-full bg-linear-to-br from-pink-400 to-orange-300 flex items-center justify-center text-white font-bold">
+                JP
+              </div>
+              <div className="flex-1 min-w-0">
+                <div className="text-sm font-medium truncate">{user?.firstName}</div>
+                <div className="text-xs text-[#b8d4d0] truncate">{user?.email}</div>
+              </div> */}
+              <ChevronDown className="w-5 h-5 text-[#b8d4d0] shrink-0" />
+            </div>
+          </div>
+        </DropdownTrigger>
+        <DropdownMenu
+          aria-label="Dropdown menu with description"
+          variant="faded"
+        >
+          <DropdownItem
+            className="hover:text-white! text-[#323232] hover:bg-[#406C65]!"
+            startContent={
+              loggingOut ? (
+                <Spinner color="success" />
+              ) : (
+                <span className="w-5">
+                  <MdLogout size={18} />
+                </span>
+              )
+            }
+            onClick={handleLogut}
+            disabled={loggingOut}
+          >
+            Logout
+          </DropdownItem>
+        </DropdownMenu>
+      </Dropdown>
+     </div>
 
       <div className="flex-1 overflow-y-auto no-scrollbar py-4">
         <ul className="space-y-1 mx-2">
           {menuItems.map((item, idx) => {
             const isActiveParent =
               pathname.startsWith(item.link) ||
-              (item.children && item.children.some((child) => child.link === pathname));
+              (item.children &&
+                item.children.some((child) => child.link === pathname));
 
             return (
               <li key={idx}>
                 <div
                   className={`
                      relative flex items-center rounded-md justify-between px-6 pgy-3 cursor-pointer transition-all
-                     ${isActiveParent ? 'text-[#1a5850]' : 'text-[#b8d4d0] hover:bg-white/5'}
+                     ${isActiveParent ? "text-[#1a5850]" : "text-[#b8d4d0] hover:bg-white/5"}
                    `}
                 >
                   <Link
@@ -206,8 +296,9 @@ const Sidebar = ({ isSidebarOpen, setIsSidebarOpen }) => {
                       >
                         <ChevronDown
                           size={16}
-                          className={`transition-transform duration-200 ${expandedItems.includes(idx) ? "rotate-180" : ""
-                            }`}
+                          className={`transition-transform duration-200 ${
+                            expandedItems.includes(idx) ? "rotate-180" : ""
+                          }`}
                         />
                       </button>
                     )}
@@ -247,10 +338,11 @@ const Sidebar = ({ isSidebarOpen, setIsSidebarOpen }) => {
                           <Link
                             to={child.link}
                             className={`block pl-14 pr-6 py-2 text-sm transition-colors 
-                ${pathname === child.link
-                                ? "text-white"
-                                : "text-[#b8d4d0] hover:text-white"
-                              }
+                ${
+                  pathname === child.link
+                    ? "text-white"
+                    : "text-[#b8d4d0] hover:text-white"
+                }
               `}
                           >
                             {child.name}
@@ -265,51 +357,6 @@ const Sidebar = ({ isSidebarOpen, setIsSidebarOpen }) => {
           })}
         </ul>
       </div>
-
-      <Dropdown
-        showArrow
-        classNames={{
-          base: "before:bg-default-200", // change arrow background
-          content:
-            "py-1 px-1 border border-default-200 bg-linear-to-br from-white to-default-200 dark:from-default-50 dark:to-black",
-        }}
-      >
-        <DropdownTrigger>
-          <div className="p-4 cursor-pointer border-t border-white/10">
-            <div className="flex items-center gap-3 px-2"> <User
-              avatarProps={{ src: user?.avatar, alt: "user", size: "md", className: "shrink-0" }}
-              name={user?.firstName + " " + user?.lastName}
-              classNames={{ description: "text-gray-300 wrap-break-word" }}
-              description={user?.email + (user?.role === 'admin' ? (" - " + user?.role) : "")}
-            />
-              {/*
-              <div className="w-10 h-10 rounded-full bg-linear-to-br from-pink-400 to-orange-300 flex items-center justify-center text-white font-bold">
-                JP
-              </div>
-              <div className="flex-1 min-w-0">
-                <div className="text-sm font-medium truncate">{user?.firstName}</div>
-                <div className="text-xs text-[#b8d4d0] truncate">{user?.email}</div>
-              </div> */}
-              <ChevronDown className="w-5 h-5 text-[#b8d4d0] shrink-0" />
-            </div>
-          </div>
-        </DropdownTrigger>
-        <DropdownMenu aria-label="Dropdown menu with description" variant="faded">
-          <DropdownItem
-            className="hover:text-white! text-[#323232] hover:bg-[#406C65]!"
-            startContent={
-              loggingOut ? <Spinner color='success' /> : <span className="w-5">
-                <MdLogout size={18} />
-              </span>
-            }
-            onClick={handleLogut}
-            disabled={loggingOut}
-          >
-            Logout
-          </DropdownItem>
-        </DropdownMenu>
-      </Dropdown>
-
     </div>
   );
 };
