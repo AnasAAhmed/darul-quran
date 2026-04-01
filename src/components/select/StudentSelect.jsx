@@ -15,7 +15,7 @@ import AddStudentModal from "../modals/AddStudentModal";
  */
 const StudentSelect = ({ onChange, initialValues = [], label, placeholder = "Select students...", limit = 20 }) => {
     const [searchValue, setSearchValue] = useState("");
-    const [selectedIds, setSelectedIds] = useState(initialValues);
+    const [selectedIds, setSelectedIds] = useState(initialValues?.map(Number) || []);
     const [isOpen, setIsOpen] = useState(false);
     const [selectedUsers, setSelectedUsers] = useState([]);
     const containerRef = useRef(null);
@@ -26,16 +26,24 @@ const StudentSelect = ({ onChange, initialValues = [], label, placeholder = "Sel
         page: 1,
         limit,
         search: searchValue,
+        initialValues: initialValues?.join(',')
     });
-
     useEffect(() => {
         if (initialValues?.length > 0 && data.users) {
-            const initialSelected = data.users?.filter(u => initialValues.includes(u.id));
+            const initialSelected = data.users?.filter(u => initialValues?.map(Number).includes(Number(u.id)));
             if (initialSelected?.length > 0) {
                 setSelectedUsers(initialSelected);
             }
         }
-    }, [data.users]);
+    }, [data.users, initialValues]);
+    
+    useEffect(() => {
+        if (initialValues?.length > 0) {
+            setSelectedIds(initialValues.map(Number));
+        } else {
+            setSelectedIds([]);
+        }
+    }, [initialValues]);
 
     useEffect(() => {
         const handleClickOutside = (event) => {
@@ -61,14 +69,14 @@ const StudentSelect = ({ onChange, initialValues = [], label, placeholder = "Sel
     };
 
     const toggleUser = (user) => {
-        const isSelected = selectedIds.includes(user.id);
+        const isSelected = selectedIds.includes(Number(user.id));
         let newSelectedIds, newSelectedUsers;
 
         if (isSelected) {
-            newSelectedIds = selectedIds?.filter(id => id !== user.id);
+            newSelectedIds = selectedIds?.filter(id => Number(id) !== Number(user.id));
             newSelectedUsers = selectedUsers?.filter(u => u.id !== user.id);
         } else {
-            newSelectedIds = [...selectedIds, user.id];
+            newSelectedIds = [...selectedIds, Number(user.id)];
             newSelectedUsers = [...selectedUsers, user];
         }
 
@@ -79,7 +87,7 @@ const StudentSelect = ({ onChange, initialValues = [], label, placeholder = "Sel
 
     const removeUser = (userId, e) => {
         e.stopPropagation();
-        const newSelectedIds = selectedIds.filter(id => id !== userId);
+        const newSelectedIds = selectedIds.filter(id => Number(id) !== Number(userId));
         const newSelectedUsers = selectedUsers.filter(u => u.id !== userId);
         setSelectedIds(newSelectedIds);
         setSelectedUsers(newSelectedUsers);
@@ -94,7 +102,7 @@ const StudentSelect = ({ onChange, initialValues = [], label, placeholder = "Sel
     };
 
     const filteredUsers = data.users?.filter(
-        user => !selectedIds.includes(user.id)
+        user => !selectedIds?.some(id => id && Number(id) === Number(user.id))
     );
 
     return (

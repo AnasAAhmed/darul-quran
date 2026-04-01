@@ -36,10 +36,10 @@ export const userAPI = createApi({
             providesTags: ["user"],
         }),
         getStudents: builder.query({
-            query: ({ page, limit, search }) => ({
+            query: ({ page, limit, search, initialValues }) => ({
                 url: "/getStudents",
                 method: "GET",
-                params: { page, limit, search }
+                params: { page, limit, search, initialValues }
             }),
             providesTags: ["user"],
         }),

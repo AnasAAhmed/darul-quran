@@ -25,7 +25,7 @@ const TeacherSelect = ({
     courseTeacherId,
 }) => {
     const [searchValue, setSearchValue] = useState("");
-    const [selectedIds, setSelectedIds] = useState(Array.isArray(initialValue) ? initialValue : (initialValue ? [initialValue] : []));
+    const [selectedIds, setSelectedIds] = useState(Array.isArray(initialValue) ? initialValue.map(Number) : (initialValue ? [Number(initialValue)] : []));
     const [selectedTeachers, setSelectedTeachers] = useState([]);
     const [isOpen, setIsOpen] = useState(false);
     const containerRef = useRef(null);
@@ -42,7 +42,7 @@ const TeacherSelect = ({
     useEffect(() => {
         if (initialValue !== undefined && initialValue !== null && initialValue !== '' && data.user?.length > 0 && selectedTeachers.length === 0) {
             const ids = Array.isArray(initialValue) ? initialValue : [initialValue];
-            const found = data.user.filter(t => ids.includes(t.id));
+            const found = data.user.filter(t => ids.map(Number).includes(Number(t.id)));
             if (found.length > 0) {
                 setSelectedIds(ids);
                 setSelectedTeachers(found);
@@ -52,7 +52,7 @@ const TeacherSelect = ({
 
     useEffect(() => {
         if (initialValue !== undefined && initialValue !== null && initialValue !== '') {
-            const newIds = Array.isArray(initialValue) ? initialValue : [initialValue];
+            const newIds = (Array.isArray(initialValue) ? initialValue : [initialValue]).map(Number);
             setSelectedIds(newIds);
         } else {
             setSelectedIds([]);
@@ -79,14 +79,14 @@ const TeacherSelect = ({
 
     const toggleTeacher = (teacher) => {
         if (isMultiple) {
-            const isSelected = selectedIds.includes(teacher.id);
+            const isSelected = selectedIds.some(id => Number(id) === Number(teacher.id));
             let newSelectedIds, newSelectedTeachers;
 
             if (isSelected) {
-                newSelectedIds = selectedIds.filter(id => id !== teacher.id);
+                newSelectedIds = selectedIds.filter(id => Number(id) !== Number(teacher.id));
                 newSelectedTeachers = selectedTeachers.filter(t => t.id !== teacher.id);
             } else {
-                newSelectedIds = [...selectedIds, teacher.id];
+                newSelectedIds = [...selectedIds, Number(teacher.id)];
                 newSelectedTeachers = [...selectedTeachers, teacher];
             }
 
@@ -94,7 +94,7 @@ const TeacherSelect = ({
             setSelectedTeachers(newSelectedTeachers);
             onChange?.(isMultiple ? newSelectedIds.map(Number) : newSelectedIds[0]);
         } else {
-            setSelectedIds([teacher.id]);
+            setSelectedIds([Number(teacher.id)]);
             setSelectedTeachers([teacher]);
             onChange?.(Number(teacher.id));
             setIsOpen(false);
@@ -103,11 +103,11 @@ const TeacherSelect = ({
 
     const removeTeacher = (teacherId, e) => {
         e.stopPropagation();
-        const newSelectedIds = selectedIds.filter(id => id !== teacherId);
+        const newSelectedIds = selectedIds.filter(id => Number(id) !== Number(teacherId));
         const newSelectedTeachers = selectedTeachers.filter(t => t.id !== teacherId);
         setSelectedIds(newSelectedIds);
         setSelectedTeachers(newSelectedTeachers);
-        onChange?.(isMultiple ? newSelectedIds.map(Number) : newSelectedIds[0]);
+        onChange?.(isMultiple ? newSelectedIds.map(Number) : (newSelectedIds[0] ? Number(newSelectedIds[0]) : null));
     };
 
     const clearAll = (e) => {
@@ -119,7 +119,7 @@ const TeacherSelect = ({
 
     // Show assigned teacher in dropdown even if it's currently selected, as requested
     const filteredTeachers = data.user?.filter(
-        teacher => !selectedIds.includes(Number(teacher.id)) || Number(teacher.id) === Number(courseTeacherId)
+        teacher => !selectedIds.some(id => id && Number(id) === Number(teacher.id)) || (courseTeacherId && Number(teacher.id) === Number(courseTeacherId))
     );
 
     return (

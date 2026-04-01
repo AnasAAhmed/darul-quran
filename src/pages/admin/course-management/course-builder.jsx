@@ -99,6 +99,7 @@ const CourseBuilder = () => {
   const [files, setFiles] = useState([]);
   const [loadingAction, setLoadingAction] = useState(null);
   const [pendingAction, setPendingAction] = useState(null);
+  const [selectedStudents, setSelectedStudents] = useState([]);
   //query/fetch
   const {
     data = {},
@@ -150,6 +151,7 @@ const CourseBuilder = () => {
           status: course.status || "draft",
           videoDuration: course.videoDuration || "",
           is_free: course.isFree || false,
+          student_ids: course.studentIds || [],
           video_count: course.videoCount || 0,
           type: course.type || "one_time",
           interval: course.interval || "",
@@ -233,6 +235,7 @@ const CourseBuilder = () => {
     discount_percentage: 0,
     type: "one_time",
     teacher_id: null,
+    student_ids: [],
     access_duration: "",
     previous_lesson: 0,
     enroll_number: "",
@@ -729,8 +732,8 @@ const CourseBuilder = () => {
                       </div>
                       <div className="my-4">
                         <StudentSelect
-                          onChange={(id) => handleChange("student_ids", id)}
-                          initialValue={formData.student_ids}
+                          onChange={(ids) => handleChange("student_ids", ids)}
+                          initialValues={formData.student_ids || []}
                         />
                       </div>
                       
