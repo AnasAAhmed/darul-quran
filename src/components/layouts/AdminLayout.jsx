@@ -2,14 +2,19 @@ import { Navigate, Outlet, useLocation } from "react-router-dom";
 import Sidebar from "../dashboard-components/sidebar";
 import { Suspense, useEffect, useState } from "react";
 import { AnimatePresence, motion } from 'framer-motion'
-import { Input, } from "@heroui/react";
-import { MenuIcon, Plus, Search, SidebarClose, SidebarOpen } from "lucide-react";
-import { useSelector } from "react-redux";
+import { Dropdown, DropdownItem, DropdownMenu, DropdownTrigger, Input, Spinner, User, } from "@heroui/react";
+import { ChevronDown, MenuIcon, Plus, Search, SidebarClose, SidebarOpen } from "lucide-react";
+import { useDispatch, useSelector } from "react-redux";
 import Loader from "../Loader";
 import NotificationPopover from "../dashboard-components/NotificationPopover";
+import { MdLogout } from "react-icons/md";
+import { clearUser } from "../../redux/reducers/user";
+import { errorMessage, successMessage } from "../../lib/toast.config";
+import LogoutToggule from "../dashboard-components/LogoutToggule";
 
 export default function AdminLayout() {
     const { user, loading } = useSelector((s) => s?.user);
+    const dispatch = useDispatch();
 
     const { pathname } = useLocation()
 
@@ -57,6 +62,34 @@ export default function AdminLayout() {
         return <Navigate to="/no-permissions" replace />;
     }
 
+    // const [loggingOut, setLoggingOut] = useState(false);
+    
+    //   const handleLogout = async () => {
+    //     setLoggingOut(true);
+    //     try {
+    //       const res = await fetch(
+    //         import.meta.env.VITE_PUBLIC_SERVER_URL + `/api/auth/logout`,
+    //         {
+    //           method: "POST",
+    //           credentials: "include",
+    //         },
+    //       );
+    //       const data = await res.json();
+    
+    //       if (!res.ok) throw new Error(data?.message || "Logout failed");
+    
+    //       successMessage(data?.message || "Logout successful");
+    //       dispatch(clearUser());
+    //       localStorage.removeItem("token");
+    //       // location.href = '/'
+    //     } catch (error) {
+    //       console.log(error);
+    //       errorMessage(error.message);
+    //     } finally {
+    //       setLoggingOut(false);
+    //     }
+    //   };
+    
     return (
         <main className="flex h-screen w-screen overflow-hidden bg-gray-50">
 
@@ -150,7 +183,63 @@ export default function AdminLayout() {
                                     placeholder="Search here..."
                                 />
                             </div>
+                            {/* <Dropdown
+                                showArrow
+                                className="mx-3 w-full"
+                                classNames={{
+                                    base: "before:bg-default-200", // change arrow background
+                                    content:
+                                        "py-1 px-1 border border-default-200 bg-linear-to-br from-white to-default-200 dark:from-default-50 dark:to-black",
+                                }}
+                            >
+                                <DropdownTrigger className="mx-2 shadow-lg shadow-[#1a5850]/10">
+                                    <div className="px-2 py-1.5 cursor-pointer border rounded-full border-[#1a5850]/10 hover:bg-[#1a5850]/5 transition-colors">
+                                        <div className="flex items-center gap-3 px-1">
+                                            <User
+                                                avatarProps={{
+                                                    src: user?.avatar,
+                                                    alt: "user",
+                                                    size: "sm",
+                                                    className: "shrink-0",
+                                                }}
+                                                name={user?.firstName + " " + user?.lastName}
+                                                classNames={{
+                                                    description: "text-gray-500 wrap-break-word line-clamp-1 w-32 overflow-hidden",
+                                                    name: "text-gray-700 font-semibold wrap-break-word line-clamp-1 w-32 overflow-hidden",
+                                                }}
+                                                description={
+                                                    user?.email
+                                                }
+                                            />
 
+                                            <ChevronDown className="w-4 h-4 text-gray-400 shrink-0" />
+                                        </div>
+                                    </div>
+                                </DropdownTrigger>
+                                <DropdownMenu
+                                    aria-label="User Options"
+                                    variant="faded"
+                                >
+                                    <DropdownItem
+                                        key="logout"
+                                        className="hover:text-white! text-[#323232] hover:bg-[#406C65]!"
+                                        startContent={
+                                            loggingOut ? (
+                                                <Spinner color="success" size="sm" />
+                                            ) : (
+                                                <span className="w-5">
+                                                    <MdLogout size={18} />
+                                                </span>
+                                            )
+                                        }
+                                        onClick={handleLogout}
+                                        disabled={loggingOut}
+                                    >
+                                        Logout
+                                    </DropdownItem>
+                                </DropdownMenu>
+                            </Dropdown> */}
+                            <LogoutToggule />
                         </div>
                     </header>}
                 <Suspense fallback={<Loader />}>

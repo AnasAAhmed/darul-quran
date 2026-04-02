@@ -2,11 +2,13 @@ import { Navigate, Outlet, useLocation } from "react-router-dom";
 import Sidebar from "../dashboard-components/sidebar";
 import { Suspense, useEffect, useState } from "react";
 import { AnimatePresence, motion } from 'framer-motion'
-import { Input } from "@heroui/react";
-import { MenuIcon, Plus, Search, SidebarClose, SidebarOpen } from "lucide-react";
+import { Dropdown, DropdownItem, DropdownMenu, DropdownTrigger, Input, Spinner, User } from "@heroui/react";
+import { ChevronDown, MenuIcon, Plus, Search, SidebarClose, SidebarOpen } from "lucide-react";
 import { useSelector } from "react-redux";
 import Loader from "../Loader";
 import NotificationPopover from "../dashboard-components/NotificationPopover";
+import { MdLogout } from "react-icons/md";
+import LogoutToggule from "../dashboard-components/LogoutToggule";
 
 export default function StudentLayout() {
     const { user, loading } = useSelector((s) => s?.user);
@@ -145,7 +147,7 @@ export default function StudentLayout() {
                                         placeholder="Search here..."
                                     />
                                 </div>
-
+                                     <LogoutToggule />
                             </div>
                         </header>}
                     <Suspense fallback={<Loader />}>

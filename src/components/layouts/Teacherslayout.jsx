@@ -7,6 +7,7 @@ import { MenuIcon, Plus, Search, SidebarClose, SidebarOpen } from "lucide-react"
 import { useSelector } from "react-redux";
 import Loader from "../Loader";
 import NotificationPopover from "../dashboard-components/NotificationPopover";
+import LogoutToggule from "../dashboard-components/LogoutToggule";
 
 export default function TeachersLayout() {
     const { user, loading } = useSelector((s) => s?.user);
@@ -147,7 +148,7 @@ export default function TeachersLayout() {
                                         placeholder="Search here..."
                                     />
                                 </div>
-
+                                <LogoutToggule />
                             </div>
                         </header>}
                     <Suspense fallback={<Loader />}>
