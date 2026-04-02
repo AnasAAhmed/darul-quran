@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { ChevronDown } from "lucide-react";
+import { ChevronDown, Settings } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 import {
   Dropdown,
@@ -28,7 +28,8 @@ const Sidebar = ({ isSidebarOpen, setIsSidebarOpen }) => {
   const getRoleFromPath = (pathname) => {
     if (pathname.startsWith("/admin")) return "admin";
     if (pathname.startsWith("/teacher")) return "teacher";
-    return "guest"; // fallback
+    if (pathname.startsWith("/student")) return "student";
+    return "student"; // fallback for dashboard or other student routes
   };
   const role = getRoleFromPath(pathname);
 
@@ -60,16 +61,21 @@ const Sidebar = ({ isSidebarOpen, setIsSidebarOpen }) => {
     user?.email === import.meta.env.VITE_PUBLIC_ADMIN_EMAIL
       ? adminMenu
       : filteredAdminMenu;
-  const menuItems =
+    const menuItems =
     role === "admin"
       ? finalAdminMenu
       : role === "teacher"
         ? teacherMenu
         : studentMenu;
 
+  // Filter out the Profile item from the main list
+  const baseMenuItems = menuItems.filter(item => item.name !== "Profile");
+  const profileLink = `/${role}/profile`;
+  const isActiveProfile = pathname === profileLink;
+
   // If a child route is active, auto expand that parent
   useEffect(() => {
-    menuItems.forEach((item, idx) => {
+    baseMenuItems.forEach((item, idx) => {
       if (item.children?.some((child) => child.link === pathname)) {
         if (!expandedItems.includes(idx))
           setExpandedItems((prev) => [...prev, idx]);
@@ -126,34 +132,6 @@ const Sidebar = ({ isSidebarOpen, setIsSidebarOpen }) => {
     };
   }, []);
 
-  const [loggingOut, setLoggingOut] = useState(false);
-
-  const handleLogut = async () => {
-    setLoggingOut(true);
-    try {
-      const res = await fetch(
-        import.meta.env.VITE_PUBLIC_SERVER_URL + `/api/auth/logout`,
-        {
-          method: "POST",
-          credentials: "include",
-        },
-      );
-      const data = await res.json();
-
-      if (!res.ok) throw new Error(data?.message || "Logout failed");
-
-      successMessage(data?.message || "Logout successful");
-      dispatch(clearUser());
-      localStorage.removeItem("token");
-      // location.href = '/'
-    } catch (error) {
-      console.log(error);
-      errorMessage(error.message);
-    } finally {
-      setLoggingOut(false);
-    }
-  };
-
   return (
     <div
       ref={sideBarRef}
@@ -185,75 +163,10 @@ const Sidebar = ({ isSidebarOpen, setIsSidebarOpen }) => {
           />
         )}
       </div>
-     {/* <div className="mt-8">
-       <Dropdown
-        showArrow
-        className="mx-3 w-full"
-        classNames={{
-          base: "before:bg-default-200", // change arrow background
-          content:
-            "py-1 px-1 border border-default-200 bg-linear-to-br from-white to-default-200 dark:from-default-50 dark:to-black",
-        }}
-      >
-        <DropdownTrigger className="mx-2 shadow-lg shadow-white/10">
-          <div className="px-2 py-3 cursor-pointer border rounded-md border-white/10">
-            <div className="flex items-center gap-3 px-2">
-              <User
-                avatarProps={{
-                  src: user?.avatar,
-                  alt: "user",
-                  size: "sm",
-                  className: "shrink-0",
-                }}
-                name={user?.firstName + " " + user?.lastName}
-                classNames={{
-                  description: "text-gray-300 wrap-break-word line-clamp-1 w-40 overflow-hidden",
-                  name: "text-gray-300 wrap-break-word line-clamp-1 w-40 overflow-hidden",
-                }}
-                description={
-                  user?.email +
-                  (user?.role === "admin" ? " - " + user?.role : "")
-                }
-              />
-              {
-              <div className="w-10 h-10 rounded-full bg-linear-to-br from-pink-400 to-orange-300 flex items-center justify-center text-white font-bold">
-                JP
-              </div>
-              <div className="flex-1 min-w-0">
-                <div className="text-sm font-medium truncate">{user?.firstName}</div>
-                <div className="text-xs text-[#b8d4d0] truncate">{user?.email}</div>
-              </div> 
-              <ChevronDown className="w-5 h-5 text-[#b8d4d0] shrink-0" />
-            </div>
-          </div>
-        </DropdownTrigger>
-        <DropdownMenu
-          aria-label="Dropdown menu with description"
-          variant="faded"
-        >
-          <DropdownItem
-            className="hover:text-white! text-[#323232] hover:bg-[#406C65]!"
-            startContent={
-              loggingOut ? (
-                <Spinner color="success" />
-              ) : (
-                <span className="w-5">
-                  <MdLogout size={18} />
-                </span>
-              )
-            }
-            onClick={handleLogut}
-            disabled={loggingOut}
-          >
-            Logout
-          </DropdownItem>
-        </DropdownMenu>
-      </Dropdown>
-     </div> */}
 
       <div className="flex-1 overflow-y-auto no-scrollbar py-4">
         <ul className="space-y-1 mx-2">
-          {menuItems.map((item, idx) => {
+          {baseMenuItems.map((item, idx) => {
             const isActiveParent =
               pathname.startsWith(item.link) ||
               (item.children &&
@@ -357,6 +270,46 @@ const Sidebar = ({ isSidebarOpen, setIsSidebarOpen }) => {
           })}
         </ul>
       </div>
+
+      <div className="py-2 px-2 border-t border-white/10">
+        <div
+          className={`
+            relative flex items-center rounded-md justify-between px-6 py-1 cursor-pointer transition-all
+            ${isActiveProfile ? "text-[#1a5850]" : "text-[#b8d4d0] hover:bg-white/5"}
+          `}
+        >
+          <Link
+            to={profileLink}
+            onClick={handleCloseMobile}
+            className="flex items-center gap-3 py-3 flex-1 z-10"
+          >
+            <span className="w-5 h-5">
+              <Settings size={20} />
+            </span>
+            {isSidebarOpen && (
+              <span className="text-sm font-medium">Settings</span>
+            )}
+          </Link>
+
+          <AnimatePresence>
+            {isActiveProfile && (
+              <motion.span
+                layoutId="active-rail"
+                className="absolute left-0 top-0 h-full w-full bg-[#d9ebe8] rounded-md"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{
+                  type: "spring",
+                  stiffness: 300,
+                  damping: 28,
+                }}
+              />
+            )}
+          </AnimatePresence>
+        </div>
+      </div>
+
     </div>
   );
 };

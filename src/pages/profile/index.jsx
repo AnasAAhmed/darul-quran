@@ -137,7 +137,7 @@ const ProfilePage = () => {
       {/* Header */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-[#2A5C54]">Profile</h1>
+          <h1 className="text-3xl font-bold text-[#2A5C54]">Settings</h1>
           <p className="text-sm text-gray-500 mt-1">Manage your personal details</p>
         </div>
         <NotificationPermission />
