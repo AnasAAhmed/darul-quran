@@ -128,6 +128,7 @@ const NotificationsPage = () => {
               />
               <Select
                 aria-label="Filter by read status"
+                size="sm"
                 className="max-w-[180px]"
                 defaultSelectedKeys={new Set([isReadSort])}
                 onSelectionChange={(keys) => {

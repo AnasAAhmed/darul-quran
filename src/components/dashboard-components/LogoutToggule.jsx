@@ -1,7 +1,8 @@
 import { Dropdown, DropdownItem, DropdownMenu, DropdownTrigger, Spinner, User } from "@heroui/react";
-import { ChevronDown } from "lucide-react";
+import { ChevronDown, Settings } from "lucide-react";
 import { useState } from "react";
 import { MdLogout } from "react-icons/md";
+import { Link, useLocation } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { errorMessage, successMessage } from "../../lib/toast.config";
 import { clearUser } from "../../redux/reducers/user";
@@ -9,7 +10,17 @@ import { clearUser } from "../../redux/reducers/user";
 export default function LogoutToggule() {
     const { user } = useSelector((s) => s?.user);
     const dispatch = useDispatch();
+    const { pathname } = useLocation();
      const [loggingOut, setLoggingOut] = useState(false);
+
+      const getRoleFromPath = (pathname) => {
+        if (pathname.startsWith("/admin")) return "admin";
+        if (pathname.startsWith("/teacher")) return "teacher";
+        if (pathname.startsWith("/student")) return "student";
+        return "student"; // fallback for dashboard or other student routes
+      };
+      const role = getRoleFromPath(pathname);
+      const profileLink = `/${role}/profile`;
         
           const handleLogout = async () => {
             setLoggingOut(true);
@@ -74,6 +85,19 @@ export default function LogoutToggule() {
                                     aria-label="User Options"
                                     variant="faded"
                                 >
+                                    <DropdownItem
+                                        key="profile"
+                                        as={Link}
+                                        to={profileLink}
+                                        className="hover:text-white! text-[#323232] hover:bg-[#406C65]!"
+                                        startContent={
+                                            <span className="w-5">
+                                                <Settings size={18} />
+                                            </span>
+                                        }
+                                    >
+                                        Settings
+                                    </DropdownItem>
                                     <DropdownItem
                                         key="logout"
                                         className="hover:text-white! text-[#323232] hover:bg-[#406C65]!"
