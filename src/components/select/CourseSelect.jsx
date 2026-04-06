@@ -10,7 +10,7 @@ import { Spinner } from "@heroui/react";
  * @param {Number} props.initialValue
  * @param {String} props.label
  * @param {String} props.placeholder
- * @param {'published'|'draft'|'all'} props.status
+ * @param {string} props.status - Comma-separated course statuses (e.g., 'published,private') or 'all' (default: 'all')
  * @param {'live'|'one_time'|'all'} props.type
  * @param {Boolean} props.isDisabled
  * @param {Number} props.limit - API limit per request (default 20)
@@ -199,6 +199,9 @@ const CourseSelect = ({
                                             </p>
                                             <p className="text-xs text-gray-500 capitalize">
                                                 {course.status}
+                                            </p>
+                                            <p className="text-xs text-gray-500 capitalize">
+                                                {course.type}
                                             </p>
                                         </div>
 

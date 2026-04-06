@@ -378,7 +378,7 @@ const CreaterOrUpdateSchedule = () => {
                 <CourseSelect
                     initialValue={formData.courseId}
                     onChange={(courseId) => setFormData({ ...formData, courseId })}
-                    status="published"
+                    status="published,private"
                     type="live"
                     isDisabled={isEdit}
                 />
