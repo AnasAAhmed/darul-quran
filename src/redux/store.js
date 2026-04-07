@@ -16,6 +16,21 @@ import { faqAPI } from "./api/faq";
 import chatReducer from "./reducers/chat";
 
 
+export const apiRegistry = {
+  userAPI,
+  courseApi,
+  notificationApi,
+  dashboardApi,
+  announcementAPI,
+  scheduleApi,
+  attendanceApi,
+  enrollmentAdminApi,
+  rescheduleApi,
+  supportTicketApi,
+  paymentApi,
+  analyticsApi,
+  faqAPI
+};
 export const store = configureStore({
   reducer: {
     [userAPI.reducerPath]: userAPI.reducer,

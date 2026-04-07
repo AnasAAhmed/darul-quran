@@ -48,7 +48,7 @@ const CreaterOrUpdateSchedule = () => {
         // recurring
         startDate: "",
         endDate: "",
-        repeatInterval: 0,
+        repeatInterval: 1,
         weeklyDays: [],
         specificStudentIds: [],
         // Zoom settings
@@ -264,7 +264,7 @@ const CreaterOrUpdateSchedule = () => {
             courseId: '',
             scheduleType: '',
             sessionMode: 'all',
-            repeatInterval: 0,
+            repeatInterval: 1,
             weeklyDays: [],
             specificStudentIds: [],
             settings: {
@@ -455,6 +455,7 @@ const CreaterOrUpdateSchedule = () => {
                         <Input
                             type="number"
                             label="Repeat Every (Days)"
+                            min={1}
                             variant="bordered"
                             value={formData.repeatInterval}
                             onChange={(e) =>

@@ -145,6 +145,7 @@ import AttendanceList from "./pages/student/attendance-list";
 import { BiChat, BiPaperclip } from "react-icons/bi";
 import NotFoundPage from "./components/NotFound";
 import Enrollments from "./pages/student/enrollnments";
+import MultiApiDevTools from "./components/CachedManager";
 
 const socket = io(import.meta.env.VITE_PUBLIC_SERVER_URL);
 
@@ -326,6 +327,7 @@ function App() {
       <ErrorBoundary>
         <ToastProvider position="top-bottom" />
         <DownloadModal />
+        {import.meta.env.VITE_NODE_ENV === 'development' && <MultiApiDevTools />}
         <Routes>
           <Route path="*" element={<NotFoundPage />} />
           {/* ---------- Auth/Public Layout (NO HEADER/SIDEBAR) ---------- */}

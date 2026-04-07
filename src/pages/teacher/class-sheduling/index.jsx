@@ -17,6 +17,7 @@ import {
   Tabs,
   Tab,
   Textarea,
+  Input,
 } from "@heroui/react";
 import { CiCalendar } from "react-icons/ci";
 import {
@@ -214,7 +215,7 @@ const TeacherClassSheduling = () => {
 
   const handleAddNote = (schedule, date) => {
     setSelectedSchedule(schedule);
-    const noteDate = date || new Date().toISOString().split("T")[0];
+    const noteDate = date;
     setSelectedNoteDate(noteDate);
     setNoteText(schedule?.notes?.[noteDate] || "");
     openNoteModal();
@@ -223,6 +224,8 @@ const TeacherClassSheduling = () => {
   const handleSaveNote = async () => {
     try {
       if (!selectedSchedule) return;
+      if (!selectedSchedule?.scheduleDates?.includes(selectedNoteDate)) { errorMessage("Invalid date selected, The date should exist in the schedule or within 30 days from start date"); return };
+      if (!noteText) { errorMessage("Note content is required"); return };
       const res = await addScheduleNote({
         id: selectedSchedule.id,
         note: noteText,
@@ -242,8 +245,8 @@ const TeacherClassSheduling = () => {
     const parsedDate = parseDateFromDB(schedule.date);
     const scheduleDateTime = parsedDate
       ? new Date(
-          `${parsedDate.toISOString().split("T")[0]}T${schedule.startTime}`,
-        )
+        `${parsedDate.toISOString().split("T")[0]}T${schedule.startTime}`,
+      )
       : new Date(`${schedule.date}T${schedule.startTime}`);
     const now = new Date();
     const hoursUntilClass = (scheduleDateTime - now) / (1000 * 60 * 60);
@@ -372,18 +375,11 @@ const TeacherClassSheduling = () => {
             size="sm"
             color="success"
             radius="sm"
-            onPress={() => handleAddNote(schedule, schedule.date)}
+            onPress={() => handleAddNote(schedule, (type === "normal" ? null : schedule.date))}
           >
             {schedule?.notes?.[schedule.date] ? "Update Note" : "Add Note"}
           </Button>
         </div>
-
-        {schedule?.notes?.[schedule.date] && (
-          <div className="bg-amber-50 border-l-4 border-success p-3 mb-3 rounded-r-md">
-            <p className="text-sm font-semibold text-amber-800 mb-1">Schedule Note:</p>
-            <p className="text-sm text-amber-900">{schedule.notes[schedule.date]}</p>
-          </div>
-        )}
 
         <h2 className="text-xl font-bold text-gray-800 mb-2">
           {schedule.title}
@@ -393,15 +389,11 @@ const TeacherClassSheduling = () => {
             {schedule.description}
           </p>
         )}
-        {type === "normal" && schedule?.scheduleType !== "once" ? (
+        {type === "normal" && (
           <p className="text-[#666666] text-sm mb-4 line-clamp-2">
             {schedule.scheduleDates?.length === 1
-              ? new Date(schedule.scheduleDates[0]).toDateString()
-              : `${new Date(schedule.scheduleDates[0]).toDateString()} - to - ${schedule?.isDateGenerated ? "On Going" : new Date(schedule.scheduleDates[schedule.scheduleDates.length - 1]).toDateString()}`}
-          </p>
-        ) : (
-          <p className="text-[#666666] text-sm mb-4 line-clamp-2">
-            {new Date(schedule.startDate).toDateString()}
+              ? dateFormatter(schedule.scheduleDates[0])
+              : `${dateFormatter(schedule.scheduleDates[0])} - to - ${schedule?.isDateGenerated ? "On Going" : dateFormatter(schedule.scheduleDates[schedule.scheduleDates.length - 1])}`}
           </p>
         )}
         <div className="flex flex-wrap gap-4 mb-4">
@@ -412,7 +404,7 @@ const TeacherClassSheduling = () => {
               <CiCalendar color="#666666" size={20} />
             )}
             <p className="text-[#666666] text-sm">
-              {dateFormatter(schedule.date, true)}
+              {dateFormatter(schedule.createdAt)}
             </p>
           </div>
           <div className="flex items-center gap-2">
@@ -423,17 +415,23 @@ const TeacherClassSheduling = () => {
             </p>
           </div>
         </div>
-        {/* {type === 'normal' &&
-                    <Calendar
-                        size="sm"
-                        variant="underlined"
-                        color='success'
-                        isReadOnly
-                        isDateUnavailable={(date) =>
-                            schedule?.scheduleDates?.includes(date.toString())
-                        }
-                    />
-                } */}
+
+        {schedule.notes && type !== "normal" ? schedule?.notes?.[schedule.date] && (
+          <div className="bg-amber-50 border-l-4 border-success p-3 mb-3 rounded-r-md">
+            <p className="text-sm font-semibold text-amber-800 mb-1">Schedule Note:</p>
+            <p className="text-sm text-amber-900">{dateFormatter(schedule.notes[schedule.date])}</p>
+          </div>
+        ) :
+          <details>
+            <summary className="cursor-pointer text-[#406c65] hover:opacity-80 italic underline flex">All Notes</summary>
+            {Object.keys(schedule.notes).map((date) => (
+              <div className="bg-amber-50 flex items-center gap-1 flex-wrap border-l-4 border-success p-3 mb-3 rounded-r-md">
+                <p className="text-sm font-semibold text-amber-800 msb-1">{dateFormatter(date)}:</p>
+                <p className="text-sm text-amber-900">{schedule.notes[date]}</p>
+              </div>
+            ))}
+          </details>
+        }
 
         <Divider className="my-4" />
 
@@ -607,10 +605,10 @@ const TeacherClassSheduling = () => {
                       i.scheduleDates?.length === 1
                         ? new Date(i.scheduleDates[0]).toDateString()
                         : new Date(i.scheduleDates[0]).toDateString() +
-                          " - to - " +
-                          new Date(
-                            i.scheduleDates[i.scheduleDates?.length - 1],
-                          ).toDateString()
+                        " - to - " +
+                        new Date(
+                          i.scheduleDates[i.scheduleDates?.length - 1],
+                        ).toDateString()
                     }
                   />
                   <div className="mt-d3">
@@ -752,6 +750,11 @@ const TeacherClassSheduling = () => {
                           {formatTime12Hour(schedule.endTime)}
                         </span>
                       </div>
+                      {schedule.notes && schedule?.notes?.["2026-04-07"] &&
+                        <div className="bg-amber-50 border-l-4 border-success p-3 mb-3 rounded-r-md">
+                          <p className="text-sm font-semibold text-amber-800 mb-1">Schedule Note:</p>
+                          <p className="text-sm text-amber-900">{schedule.notes[schedule.date]}</p>
+                        </div>}
                       {schedule.meetingLink && (
                         <div className="flex items-center gap-2 text-gray-600 text-sm">
                           <Video size={18} />
@@ -896,9 +899,22 @@ const TeacherClassSheduling = () => {
             </h2>
           </ModalHeader>
           <ModalBody>
-            <p className="text-sm text-gray-500 mb-2">
-              Date: {selectedNoteDate && new Date(selectedNoteDate).toLocaleDateString()}
-            </p>
+            {selectedNoteDate ?
+              <p className="text-sm flex gap-3 w-full items-center text-gray-500 mb-2">
+                <span className="mt-0.5">  Date: {new Date(selectedNoteDate).toLocaleDateString()}</span>
+                <span className="text-xl text-[#406c65] cursor-pointer" onClick={() => setSelectedNoteDate(null)}>&times;</span>
+              </p> :
+              <Input
+                type="date"
+                label="Date"
+                variant="bordered"
+                value={selectedNoteDate}
+                isRequired
+                onChange={(e) =>
+                  setSelectedNoteDate(e.target.value?.split("T")[0])
+                }
+              />
+            }
             <Textarea
               label="Note"
               placeholder="Enter your note here..."

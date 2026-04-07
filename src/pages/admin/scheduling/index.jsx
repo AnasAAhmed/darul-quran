@@ -95,7 +95,7 @@ const Scheduling = () => {
     // recurring
     startDate: "",
     endDate: "",
-    repeatInterval: 0,
+    repeatInterval: 1,
     weeklyDays: [],
     specificStudentIds: [],
     // Zoom settings
@@ -334,7 +334,7 @@ const Scheduling = () => {
       courseId: '',
       scheduleType: '',
       sessionMode: 'all',
-      repeatInterval: 0,
+      repeatInterval: 1,
       weeklyDays: [],
       specificStudentIds: [],
       selectedUsers: [],
@@ -469,7 +469,7 @@ const Scheduling = () => {
             {/* <TableColumn>Image</TableColumn> */}
             <TableColumn width={200}>Details</TableColumn>
             <TableColumn width={200}>Teacher</TableColumn>
-            <TableColumn width={200}>Dates<small>(Latest 30)</small></TableColumn>
+            <TableColumn width={200}>Dates<small>(Future 30)</small></TableColumn>
             <TableColumn width={200}>Students</TableColumn>
             <TableColumn width={200}>Time</TableColumn>
             <TableColumn width={200}>Schedule Type</TableColumn>
@@ -785,6 +785,7 @@ const Scheduling = () => {
                       label="Repeat Every (Days)"
                       variant="bordered"
                       value={formData.repeatInterval}
+                      min={1}
                       onChange={(e) =>
                         setFormData({
                           ...formData,

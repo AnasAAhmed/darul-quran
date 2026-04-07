@@ -423,20 +423,18 @@ const StudentClassSheduling = () => {
                     </p>
                 )}
 
-                {type === 'normal' && schedule?.scheduleType !== 'once' ? (
+                {type === 'normal' && (
                     <p className="text-[#666666] text-sm mb-4 line-clamp-2">
                         {schedule.scheduleDates?.length === 1
-                            ? new Date(schedule.scheduleDates[0]).toDateString()
-                            : `${new Date(schedule.scheduleDates[0]).toDateString()} - to - ${schedule?.isDateGenerated ? 'On Going' : new Date(schedule.scheduleDates[schedule.scheduleDates.length - 1]).toDateString()}`}
+                            ? dateFormatter(schedule.scheduleDates[0])
+                            : `${dateFormatter(schedule.scheduleDates[0])} - to - ${schedule?.isDateGenerated ? 'On Going' : dateFormatter(schedule.scheduleDates[schedule.scheduleDates.length - 1])}`}
                     </p>
-                ) : (
-                    <p className="text-[#666666] text-sm mb-4 line-clamp-2">{new Date(schedule.startDate).toDateString()}</p>
                 )}
                 <div className="flex flex-wrap gap-4 mb-4">
                     <div className="flex text-[#666666] text-sm items-center gap-2">
                         {type === 'normal' ? "CreatedAt: " : <CiCalendar color="#666666" size={20} />}
                         <p className="text-[#666666] text-sm">
-                            {dateFormatter(schedule.date, true)}
+                            {dateFormatter(schedule.date)}
                         </p>
                     </div>
                     <div className="flex items-center gap-2">
@@ -460,6 +458,24 @@ const StudentClassSheduling = () => {
                         }}
                     />
                 } */}
+
+                {schedule.notes && type !== "normal" ? schedule?.notes?.[schedule.date] && (
+                    <div className="bg-amber-50 border-l-4 border-success p-3 mb-3 rounded-r-md">
+                        <p className="text-sm font-semibold text-amber-800 mb-1">Schedule Note:</p>
+                        <p className="text-sm text-amber-900">{schedule.notes[schedule.date]}</p>
+                    </div>
+                ) :
+                    <details>
+                        <summary className="cursor-pointer text-[#406c65] hover:opacity-80 italic underline flex">All Notes</summary>
+                        {Object.keys(schedule.notes).map((date) => (
+                            <div className="bg-amber-50 flex items-center gap-1 flex-wrap border-l-4 border-success p-3 mb-3 rounded-r-md">
+                                <p className="text-sm font-semibold text-amber-800 msb-1">{dateFormatter(date)}:</p>
+                                <p className="text-sm text-amber-900">{schedule.notes[date]}</p>
+                            </div>
+                        ))}
+                    </details>
+                }
+
                 <Divider className="my-4" />
 
                 <div className="flex flex-col md:flex-row gap-4 justify-between items-center">
@@ -556,16 +572,16 @@ const StudentClassSheduling = () => {
             />
 
             <div className="flex items-center max-sm:flex-wrap gap-2">
-                    <Tabs
-                      color="success"
-                      variant="underlined"
-                      selectedKey={viewType}
-                      onSelectionChange={setViewType}
-                    >
-                      <Tab key="normal" title="View Schedule By Course" />
-                      <Tab key="allDates" title="View Schedule By Date" />
-                    </Tabs>
-                  </div>
+                <Tabs
+                    color="success"
+                    variant="underlined"
+                    selectedKey={viewType}
+                    onSelectionChange={setViewType}
+                >
+                    <Tab key="normal" title="View Schedule By Course" />
+                    <Tab key="allDates" title="View Schedule By Date" />
+                </Tabs>
+            </div>
 
             <div className="grid grid-cols-12 gap-4 items-start mt-4">
                 {viewType === 'allDates' ?
@@ -804,6 +820,11 @@ const StudentClassSheduling = () => {
                                                     {formatTime12Hour(schedule.startTime)} - {formatTime12Hour(schedule.endTime)}
                                                 </span>
                                             </div>
+                                            {schedule.notes && schedule?.notes?.["2026-04-07"] &&
+                                                <div className="bg-amber-50 border-l-4 border-success p-3 mb-3 rounded-r-md">
+                                                    <p className="text-sm font-semibold text-amber-800 mb-1">Schedule Note:</p>
+                                                    <p className="text-sm text-amber-900">{schedule.notes[schedule.date]}</p>
+                                                </div>}
                                             {schedule.meetingLink && (
                                                 <div className="flex items-center gap-2 text-gray-600 text-sm">
                                                     <Video size={18} />

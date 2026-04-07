@@ -254,17 +254,13 @@ const CourseDetails = () => {
                         radius="sm"
                         className="bg-[#06574C] text-white font-medium px-4"
                         startContent={<MessageCircle size={16} />}
-                        onPress={() =>
-                          navigate("/student/help/messages", {
-                            state: {
-                              startChatWith: data?.teacher?.id ?? teacherId,
-                              receiverName: [data?.teacher?.firstName, data?.teacher?.lastName].filter(Boolean).join(" ").trim() || "Teacher",
-                              receiverRole: "teacher",
-                            },
-                          })
-                        }
+                        to={"/student/help/messages"}
+                        as={Link}
+                        // onPress={() =>
+                        //   navigate("/student/help/messages")
+                        // }
                       >
-                        Chat with teacher
+                        Chat with Amin
                       </Button>
                     )}
                   </div>
@@ -557,7 +553,7 @@ const CourseDetails = () => {
               <div className="flex gap-6 text-md text-gray-600 mb-4">
                 <div className="flex items-center gap-1">
                   <FaStar className="text-yellow-400" />
-                  <span>{data?.teacher?.rating} Teacher Rating</span>
+                  <span>{data?.teacher?.rating?.toFixed(1)} Teacher Rating</span>
                 </div>
 
                 <div className="flex items-center gap-1">

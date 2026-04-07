@@ -30,8 +30,8 @@ const Login = () => {
 
   const rolesWithEmail = [
     { label: "Admin", key: "admin@admin.com" },
-    { label: "Teacher", key: "dawoodhashmi53@gmail.com" },
-    { label: "Student", key: "bafes68939@smkanba.com" }
+    { label: "Teacher", key: "dawoodhashmi197@gmail.com" },
+    { label: "Student", key: "dawoodhashmi2006@gmail.com" }
   ];
 
   const handleLogin = async (e) => {
@@ -83,7 +83,7 @@ const Login = () => {
           src="/icons/logo.png"
           alt="Darul Quran"
           className=" w-56 h-56 top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 absolute"
-          />
+        />
       </div>
       <div className="flex-1 flex flex-col max-sm:items-center items-start md:justify-center bg-[#E9E0D6] ml-0! px-6 sm:px-12 md:px-16 lg:px-24 py-8 lg:py-0 m-0 lg:m-6 lg:rounded-r-lg ">
         <img
@@ -116,6 +116,7 @@ const Login = () => {
                   setEmail(keys[0]);
                 }}
                 items={rolesWithEmail}
+                isDisabled={!(rolesWithEmail.map((item) => item.key)?.includes(email))}
               >
                 {(item) => (
                   <SelectItem key={item.key} value={item.key} textValue={item.label}>{item.label}</SelectItem>
@@ -124,8 +125,8 @@ const Login = () => {
             </div>
             <div className="w-full space-y-2">
               <p className="text-sm lg:text-base text-[#3F3F44]">
-               Enter Your Email
-               </p>
+                Enter Your Email
+              </p>
               <Input
                 className="rounded-md"
                 placeholder="youremail@guru.com"
