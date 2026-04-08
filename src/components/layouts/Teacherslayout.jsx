@@ -36,7 +36,7 @@ export default function TeachersLayout() {
     }, [isMobile, window.innerWidth]);
 
 
-    const shouldHeaderOnRoutes = pathname.includes("help") || pathname.includes("chat");
+    const shouldHeaderOnRoutes = pathname.includes(null) || pathname.includes(null);
     if (loading) return <Loader />;
 
     if (user && user.role?.toLowerCase() !== "teacher") {
@@ -121,7 +121,7 @@ export default function TeachersLayout() {
                             </button>
                             <div className="flex  items-center gap-2">
                                 <div className="relative flex items-center gap-2">
-                                    
+
 
                                     <input
                                         type="search"

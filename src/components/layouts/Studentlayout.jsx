@@ -52,7 +52,7 @@ export default function StudentLayout() {
   }, [isMobile, window.innerWidth]);
 
   const shouldHeaderOnRoutes =
-    pathname.includes("help") || pathname.includes("chat");
+    pathname.includes(null) || pathname.includes(null);
   if (loading) return <Loader />;
 
   if (user && user.role?.toLowerCase() !== "student") {
@@ -99,9 +99,8 @@ export default function StudentLayout() {
         </motion.aside>
 
         <div
-          className={`flex relative flex-col flex-1 h-full overflow-auto transition-all duration-300 ${
-            isSidebarOpen ? "lg:ml-0" : "lg:ml-0"
-          }`}
+          className={`flex relative flex-col flex-1 h-full overflow-auto transition-all duration-300 ${isSidebarOpen ? "lg:ml-0" : "lg:ml-0"
+            }`}
         >
           {shouldHeaderOnRoutes ? (
             <button

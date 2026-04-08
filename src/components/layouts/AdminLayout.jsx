@@ -54,7 +54,7 @@ export default function AdminLayout() {
   }, [isMobile, window.innerWidth]);
 
   const shouldHeaderOnRoutes =
-    pathname.includes("help") || pathname.includes("chat");
+    pathname.includes(null) || pathname.includes(null);
   if (loading) return <Loader />;
   if (!user) {
     return <Navigate to={"/"} replace />;
@@ -141,9 +141,8 @@ export default function AdminLayout() {
       </motion.aside>
 
       <div
-        className={`flex relative flex-col flex-1 h-full overflow-auto transition-all duration-300 ${
-          isSidebarOpen ? "lg:ml-0" : "lg:ml-0"
-        }`}
+        className={`flex relative flex-col flex-1 h-full overflow-auto transition-all duration-300 ${isSidebarOpen ? "lg:ml-0" : "lg:ml-0"
+          }`}
       >
         {shouldHeaderOnRoutes ? (
           <button
@@ -185,7 +184,7 @@ export default function AdminLayout() {
               {isSidebarOpen ? <Plus className="rotate-45" /> : <MenuIcon />}
             </button>
             <div className="flex relative items-center gap-2">
-              
+
               <div className="relative flex items-center gap-2">
                 <input
                   type="search"
