@@ -378,7 +378,7 @@ const UsersDetails = () => {
                 classNames={{
                   base: "bg-white rounded-lg overflow-x-scroll no-scrollbar",
                   th: "font-bold p-4 text-md text-[#333333] capitalize tracking-widest bg-[#EBD4C936]",
-                  td: "py-3 ",
+                  td: "py-3",
                   tr: "border-b border-default-200 cursor-pointer ",
                 }}
               >
@@ -399,19 +399,19 @@ const UsersDetails = () => {
                           <div className="font-medium text-gray-900">
                             {enrollment.courseName || "Course"}
                           </div>
-                          <div className="text-xs text-gray-500 mt-0.5">
+                          <div className="text-xs text-gray-500 mt-0.5 line-clamp-1">
                             {enrollment.courseDescription || ""}
                           </div>
                         </div>
                       </TableCell>
                       <TableCell>
-                        <div className="flex flex-row items-center gap-2">
+                        <div className="flex flex-row items-center gap-3">
                           <Progress
                             classNames={{ indicator: "bg-[#95C4BE]" }}
                             value={enrollment.attendanceRate || 0}
                             size="sm"
                           />
-                          <div className="flex flex-col">
+                          <div className="flex flex-col flex-nowrap whitespace-nowrap">
                             <h1 className="font-semibold text-sm">
                               {enrollment.attendanceRate || 0}%
                             </h1>
@@ -421,7 +421,7 @@ const UsersDetails = () => {
                           </div>
                         </div>
                       </TableCell>
-                      <TableCell className="flex flex-col">
+                      <TableCell className="">
                         <h1 className="font-semibold text-sm">
                           {enrollment.teacherName || "TBD"}
                         </h1>
@@ -523,7 +523,7 @@ const UsersDetails = () => {
                 classNames={{
                   base: "bg-white rounded-lg overflow-x-scroll no-scrollbar",
                   th: "font-bold p-4 text-md text-[#333333] capitalize tracking-widest bg-[#EBD4C936] border-t border-default-200",
-                  td: "py-3",
+                  td: "py-3 truncate",
                   tr: "border-b border-default-200",
                 }}
               >
@@ -551,11 +551,11 @@ const UsersDetails = () => {
                         <h1 className="font-semibold text-sm">
                           {invoice.courseName || "Course"}
                         </h1>
-                        <h1 className="text-xs text-[#9A9A9A]">
+                        <h1 className="text-xs text-[#9A9A9A] line-clamp-2">
                           {invoice.courseDescription || ""}
                         </h1>
                       </TableCell>
-                      <TableCell className="flex flex-col">
+                      <TableCell className="">
                         <h1 className="font-semibold text-sm">{invoice.amount}</h1>
                       </TableCell>
                       <TableCell>
@@ -615,7 +615,7 @@ const UsersDetails = () => {
                 </div>
                 <div>
                   <span className="text-sm text-[#06574C] font-bold">
-                    View all Transactions
+                    <Link to="/admin/payments">View all Transactions</Link>
                   </span>
                 </div>
               </div>

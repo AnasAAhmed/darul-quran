@@ -61,7 +61,7 @@ const Sidebar = ({ isSidebarOpen, setIsSidebarOpen }) => {
     user?.email === import.meta.env.VITE_PUBLIC_ADMIN_EMAIL
       ? adminMenu
       : filteredAdminMenu;
-    const menuItems =
+  const menuItems =
     role === "admin"
       ? finalAdminMenu
       : role === "teacher"
@@ -138,21 +138,21 @@ const Sidebar = ({ isSidebarOpen, setIsSidebarOpen }) => {
       className="w-full z-5 h-full bg-[#1a5850] text-white flex flex-col"
     >
       <div
-        className="px-3 py-2 flex justify-start  border-white/10 cursor-pointer border-b"
+        className="px-3 py-2 flex justify-center  border-white/10 cursor-pointer border-b"
         onClick={() => setIsSidebarOpen(!isSidebarOpen)}
       >
         {isSidebarOpen ? (
           <div className="flex items-center gap-2">
             <img
-              src="/icons/logo-icon.png"
+              src="/icons/logo.png"
               onClick={() => setIsSidebarOpen(!isSidebarOpen)}
               alt="Darul Quran"
-              className=" w-14 h-12"
+              className=" w-24 h-24"
             />
-        <div className="flex flex-col gap-0">
-          <span className="text-md font-normal leading-5 tracking-wider italic">Darul Quran</span>
-          <span className="text-md font-normal leading-5 tracking-wider italic">Lecturer</span>
-        </div>
+            {/* <div className="flex flex-col gap-0">
+              <span className="text-md font-normal leading-5 tracking-wider italic">Darul Quran</span>
+              <span className="text-md font-normal leading-5 tracking-wider italic">Lecturer</span>
+            </div> */}
           </div>
         ) : (
           <img
@@ -209,9 +209,8 @@ const Sidebar = ({ isSidebarOpen, setIsSidebarOpen }) => {
                       >
                         <ChevronDown
                           size={16}
-                          className={`transition-transform duration-200 ${
-                            expandedItems.includes(idx) ? "rotate-180" : ""
-                          }`}
+                          className={`transition-transform duration-200 ${expandedItems.includes(idx) ? "rotate-180" : ""
+                            }`}
                         />
                       </button>
                     )}
@@ -251,11 +250,10 @@ const Sidebar = ({ isSidebarOpen, setIsSidebarOpen }) => {
                           <Link
                             to={child.link}
                             className={`block pl-14 pr-6 py-2 text-sm transition-colors 
-                ${
-                  pathname === child.link
-                    ? "text-white"
-                    : "text-[#b8d4d0] hover:text-white"
-                }
+                ${pathname === child.link
+                                ? "text-white"
+                                : "text-[#b8d4d0] hover:text-white"
+                              }
               `}
                           >
                             {child.name}
@@ -271,7 +269,7 @@ const Sidebar = ({ isSidebarOpen, setIsSidebarOpen }) => {
         </ul>
       </div>
 
-      <div className="py-2 px-2 border-t border-white/10">
+      {/* <div className="py-2 px-2 border-t border-white/10">
         <div
           className={`
             relative flex items-center rounded-md justify-between px-6 py-1 cursor-pointer transition-all
@@ -308,7 +306,7 @@ const Sidebar = ({ isSidebarOpen, setIsSidebarOpen }) => {
             )}
           </AnimatePresence>
         </div>
-      </div>
+      </div> */}
 
     </div>
   );

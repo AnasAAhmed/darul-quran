@@ -34,12 +34,12 @@ export const IntervalInput = ({
     initialValue,
     onUpdate,
     label = "Released Interval",
-    nullableValueLabel = "Released immediately",
+    nullableValueLabel = "",
     toolTipContent,
     inputWidth = 80,
     className = 'flex flex-col sm:flex-row sm:items-center gap-2',
     units = DEFAULT_UNITS,
-    nullableValue = "released_immediately"
+    nullableValue = ""
 }) => {
     const [initialNumber, setInitialNumber] = useState({ number: 0, unit: '' });
     const [numberValue, setNumberValue] = useState(0);

@@ -114,7 +114,7 @@ const MyCourses = () => {
 
   //   return nowTime >= scheduleDateTime && nowTime <= endTime;
   // });
-
+  // console.log(courseData?.course?.duration);
   const cardsData = [
     {
       title: "Total Materials",
@@ -155,7 +155,7 @@ const MyCourses = () => {
     {
       id: 1,
       name: "Duration",
-      title: courseData?.course?.duration || "N/A",
+      title: (courseData?.course?.duration === null ? "On going" : courseData?.course?.duration),
     },
     {
       id: 2,

@@ -385,7 +385,7 @@ const UserManagement = () => {
                   base: "w-full bg-white my-3 rounded-lg overflow-x-scroll w-full no-scrollbar  min-h-[50vh]",
                   th: "font-bold p-4 text-md  text-[#333333] capitalize tracking-widest  bg-white",
                   tbody: "overflow-y-scroll no-scrollbar",
-                  td: "py-3 items-center whitespace-nowrap",
+                  td: "py-3 items-center whitespace-nowrap truncate",
                   tr: "border-b border-default-200 ",
                 }}
               >
@@ -415,7 +415,7 @@ const UserManagement = () => {
                           description={classItem.email}
                           classNames={{
                             name: "font-medium text-gray-900",
-                            description: "text-xs text-gray-500 mt-0.5",
+                            description: "text-xs text-gray-500 mt-0.5 truncate",
                           }}
                         />
                       </TableCell>

@@ -7,6 +7,7 @@ import { PiFilePdf } from "react-icons/pi";
 import Videos, {
   Assignments,
   PdfAndNotes,
+  Quizzes,
 } from "../../../components/dashboard-components/forms/ContentUpload";
 import { GoLightBulb, GoRocket } from "react-icons/go";
 import { useEffect, useState } from "react";
@@ -20,7 +21,7 @@ const UploadMaterial = () => {
   const courseIdFromQuery = searchParams.get("courseId");
   const [files, setFiles] = useState([]);
   const [courseId, setCourseId] = useState(courseIdFromQuery || null);
-  const { data, error, isLoading, refetch } = useGetCourseFilesQuery({ courseId, page: 1, search: "", includeCourse: false }, { skip: !courseId  });
+  const { data, error, isLoading, refetch } = useGetCourseFilesQuery({ courseId, page: 1, search: "", includeCourse: false }, { skip: !courseId });
   useEffect(() => {
     if (data?.results) {
       setFiles(data?.results);
@@ -44,7 +45,7 @@ const UploadMaterial = () => {
     },
     {
       title: "Quizzes",
-      value: 0,
+      value: (files?.filter((f) => f.fileType === "quiz")).length || 0,
       icon: <GoLightBulb color="#06574C" size={22} />,
       // changeText: "12%",
       changeColor: "text-[#E8505B]",
@@ -105,52 +106,61 @@ const UploadMaterial = () => {
           />
         </div>
       </div>}
-      <Videos
-        courseId={courseId}
-        files={files}
-        setFiles={setFiles}
-      />
-      <PdfAndNotes
-        courseId={courseId}
-        files={files}
-        setFiles={setFiles}
-      />
-      <Assignments
-        courseId={courseId}
-        files={files}
-        setFiles={setFiles}
-      />
 
-      <div className="p-5 my-5 bg-[#95C4BE33] rounded-md flex justify-between items-center">
-        <div>
-          <h1 className="text-[#06574C] font-medium text-lg">
-            Ready to publish?
-          </h1>
-          <h1 className="text-[#06574C] font-medium text-sm">
-            Review your materials before making them available to students
-          </h1>
+      <>
+        <Videos
+          courseId={courseId}
+          files={files}
+          setFiles={setFiles}
+        />
+        <PdfAndNotes
+          courseId={courseId}
+          files={files}
+          setFiles={setFiles}
+        />
+        <Assignments
+          courseId={courseId}
+          files={files}
+          setFiles={setFiles}
+        />
+        {courseId && (<Quizzes
+          courseId={courseId}
+          files={files}
+          setFiles={setFiles}
+        />
+        )}
+        <div className="p-5 my-5 bg-[#95C4BE33] rounded-md flex justify-between items-center">
+          <div>
+            <h1 className="text-[#06574C] font-medium text-lg">
+              Ready to publish?
+            </h1>
+            <h1 className="text-[#06574C] font-medium text-sm">
+              Review your materials before making them available to students
+            </h1>
+          </div>
         </div>
-      </div>
-      <div className="p-3 my-5 flex flex-col md:flex-row md:justify-end gap-3">
-        <Button
-          variant="bordered"
-          size="lg"
-          radius="sm"
-          color="success"
-          startContent={<IoEyeOutline size={20} />}
-        >
-          Preview All
-        </Button>
-        <Button
-          size="lg"
-          radius="sm"
-          variant="flat"
-          className="bg-[#06574C] text-white"
-          startContent={<GoRocket size={20} />}
-        >
-          Pusblish Course
-        </Button>
-      </div>
+        <div className="p-3 my-5 flex flex-col md:flex-row md:justify-end gap-3">
+          <Button
+            variant="bordered"
+            size="lg"
+            radius="sm"
+            color="success"
+            startContent={<IoEyeOutline size={20} />}
+          >
+            Preview All
+          </Button>
+          <Button
+            size="lg"
+            radius="sm"
+            variant="flat"
+            className="bg-[#06574C] text-white"
+            startContent={<GoRocket size={20} />}
+          >
+            Pusblish Course
+          </Button>
+        </div>
+      </>
+
     </div>
   );
 };
