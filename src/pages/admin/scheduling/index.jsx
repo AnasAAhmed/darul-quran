@@ -35,7 +35,7 @@ import { CalendarIcon, Copy, Trash2, PlusIcon, User, Bell } from "lucide-react";
 
 import { getStatusColor, getStatusText, formatTime12Hour } from "../../../utils/scheduleHelpers";
 import { errorMessage, successMessage } from "../../../lib/toast.config";
-import { canReschedule, dateFormatter, debounce, limits } from "../../../lib/utils";
+import { canReschedule, dateFormatter, debounce, limits, validateSchedule } from "../../../lib/utils";
 import TeacherSelect from "../../../components/select/TeacherSelect";
 import UserSelect from "../../../components/select/UserSelect";
 import ManualEnrollmentModal from "../../../components/modals/ManualEnrollmentModal";
