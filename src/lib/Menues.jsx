@@ -63,18 +63,18 @@ export const adminMenu = [
     icon: <CalendarIcon />,
     link: "/admin/class-scheduling",
     value: "class-scheduling",
-    children: [
-      {
-        name: "All Schedule",
-        icon: <CalendarPlus />,
-        link: "/admin/class-scheduling",
-      },
-       {
-        name: "Reschedule Requests",
-        icon: <CalendarPlus />,
-        link: "/admin/reschedule-requests",
-      },
-    ]
+    // children: [
+    //   {
+    //     name: "All Schedule",
+    //     icon: <CalendarPlus />,
+    //     link: "/admin/class-scheduling",
+    //   },
+    //    {
+    //     name: "Reschedule Requests",
+    //     icon: <CalendarPlus />,
+    //     link: "/admin/reschedule-requests",
+    //   },
+    // ]
   },
   {
     name: "Student Attendance List",
@@ -201,13 +201,13 @@ export const teacherMenu = [
   // },
 
   {
-    name: "Schedules Center",
+    name: "Class Schedule",
     icon: <MegaphoneIcon />,
     link: "/teacher/class-scheduling",
-    children: [
-      { name: "Class Schedule", link: "/teacher/class-scheduling" },
-      { name: "Reschedule Requests", link: "/teacher/reschedule-requests" },
-    ],
+    // children: [
+    //   { name: "Class Schedule", link: "/teacher/class-scheduling" },
+    //   { name: "Reschedule Requests", link: "/teacher/reschedule-requests" },
+    // ],
   },
 
   {

@@ -31,7 +31,7 @@ import {
   Tooltip,
   Avatar,
 } from "@heroui/react";
-import { CalendarIcon, Copy, Trash2, PlusIcon, User } from "lucide-react";
+import { CalendarIcon, Copy, Trash2, PlusIcon, User, Bell } from "lucide-react";
 
 import { getStatusColor, getStatusText, formatTime12Hour } from "../../../utils/scheduleHelpers";
 import { errorMessage, successMessage } from "../../../lib/toast.config";
@@ -45,6 +45,7 @@ import Swal from "sweetalert2";
 import { useGetAllUserForSelectQuery } from "../../../redux/api/user";
 import { Link, useSearchParams } from "react-router-dom";
 import { useSelector } from "react-redux";
+import { useApproveRescheduleRequestMutation, useGetRescheduleRequestsQuery, useRejectRescheduleRequestMutation } from "../../../redux/api/reschedule";
 
 const Scheduling = () => {
   const [searchParams] = useSearchParams();
@@ -61,7 +62,22 @@ const Scheduling = () => {
     onOpen: onEnrolledUsersModalOpen,
     onOpenChange: onEnrolledUsersModalChange
   } = useDisclosure();
+  const {
+    isOpen: isRescheduleModalOpen,
+    onOpen: openRescheduleModal,
+    onOpenChange: closeRescheduleModal,
+  } = useDisclosure();
   const [selectedCourseForEnrolled, setSelectedCourseForEnrolled] = useState(null);
+
+  // Reschedule requests state
+  const [selectedSchedule, setSelectedSchedule] = useState(null);
+  const [selectedScheduleId, setSelectedScheduleId] = useState(null);
+  const [reschedulePage, setReschedulePage] = useState(1);
+  const [rescheduleStatusFilter, setRescheduleStatusFilter] = useState("all");
+  const [selectedRescheduleRequest, setSelectedRescheduleRequest] = useState(null);
+  const [isResponseModalOpen, setIsResponseModalOpen] = useState(false);
+  const [adminResponse, setAdminResponse] = useState("");
+  const [actionType, setActionType] = useState(null);
 
   // Pagination & Filtering (Basic Implementation)
   const [statusFilter, setStatusFilter] = useState("all");
@@ -112,9 +128,19 @@ const Scheduling = () => {
     search,
     status: statusFilter
   }, { skip: isCalenderView });
+  // Fetch reschedule requests for teacher's classes
+  const { data: rescheduleData, isFetching: isRescheduleLoading, refetch: refetchReschedules } = useGetRescheduleRequestsQuery({
+    page: reschedulePage.toString(),
+    limit: "50",
+    status: rescheduleStatusFilter,
+    scheduleId: selectedScheduleId,
+  }, { skip: !selectedScheduleId });
+
   const [createSchedule, { isLoading: isSubmitting, isError }] = useCreateScheduleMutation();
   const [updateSchedule, { isLoading: isUpdating, isError: isError2 }] = useUpdateScheduleMutation();
   const [deleteSchedule, { isError: isError3 }] = useDeleteScheduleMutation();
+  const [approveRequest, { isLoading: isApproving }] = useApproveRescheduleRequestMutation();
+  const [rejectRequest, { isLoading: isRejecting }] = useRejectRescheduleRequestMutation();
   // console.log(data);
   useEffect(() => {
     if (isOpenModalOnLoad) {
@@ -124,129 +150,6 @@ const Scheduling = () => {
 
   if (isCalenderView) return null;
 
-  const validateSchedule = () => {
-    const {
-      title,
-      startTime,
-      endTime,
-      scheduleType,
-      date,
-      startDate,
-      endDate,
-      repeatInterval,
-      weeklyDays,
-      teacherId,
-      courseId
-    } = formData;
-
-    // Required fields
-    if (!title || !title.trim()) {
-      return { valid: false, message: "Session title is required" };
-    }
-    if (!startTime || !endTime) {
-      return { valid: false, message: "Start time and end time are required" };
-    }
-    if (!teacherId) {
-      return { valid: false, message: "Please select a teacher" };
-    }
-
-    // Time validation
-    const start = new Date(`2000-01-01T${startTime}`);
-    const end = new Date(`2000-01-01T${endTime}`);
-    if (end <= start) {
-      return { valid: false, message: "End time must be after start time" };
-    }
-
-    if (scheduleType === "once") {
-      if (!date) {
-        return { valid: false, message: "Please select a date for one-time session" };
-      }
-      const selectedDate = new Date(date);
-      const today = new Date();
-      today.setHours(0, 0, 0, 0);
-      if (selectedDate < today) {
-        return { valid: false, message: "Cannot schedule a session in the past" };
-      }
-    }
-
-    if (scheduleType === "daily" || scheduleType === "weekly") {
-      if (!startDate) {
-        return { valid: false, message: "Start date is required" };
-      }
-
-      const start = new Date(startDate);
-      const end = endDate && new Date(endDate);
-      const today = new Date();
-      today.setHours(0, 0, 0, 0);
-
-      if (start < today) {
-        return { valid: false, message: "Start date cannot be in the past" };
-      }
-      if (end && end < start) {
-        return { valid: false, message: "End date must be after start date" };
-      }
-
-      const dateRangeDays = Math.ceil((end - start) / (1000 * 60 * 60 * 24)) + 1;
-
-      if (scheduleType === "daily") {
-        const interval = repeatInterval && repeatInterval > 0 ? repeatInterval : 1;
-        const maxSessions = Math.ceil(dateRangeDays / interval);
-
-        if (maxSessions > 365) {
-          return {
-            valid: false,
-            message: `This schedule would create ${maxSessions} sessions. Please reduce the date range or increase the repeat interval to avoid excessive sessions.`
-          };
-        }
-
-        if (dateRangeDays > 365 && interval === 1) {
-          return { valid: false, message: "Daily schedules cannot exceed 1 year. Please reduce the date range." };
-        }
-      }
-
-      if (scheduleType === "weekly") {
-        if (!weeklyDays || weeklyDays.length === 0) {
-          return { valid: false, message: "Please select at least one day of the week" };
-        }
-
-        const interval = repeatInterval && repeatInterval > 0 ? repeatInterval : 1;
-
-        const weeksRange = Math.ceil((end - start) / (1000 * 60 * 60 * 24 * 7));
-
-        if (interval > weeksRange && weeksRange > 0) {
-          return {
-            valid: false,
-            message: `Repeat interval (${interval} weeks) is longer than your date range (${weeksRange} week(s)). This will create only 1 session. Please adjust your dates or interval.`
-          };
-        }
-
-        const estimatedSessions = Math.ceil(weeksRange / interval) * weeklyDays.length;
-
-        if (estimatedSessions > 200) {
-          return {
-            valid: false,
-            message: `This schedule would create approximately ${estimatedSessions} sessions. Please reduce the date range, decrease selected days, or increase the repeat interval.`
-          };
-        }
-
-        if (estimatedSessions === 0) {
-          return {
-            valid: false,
-            message: "No valid session dates will be generated. Please check your selected days and date range."
-          };
-        }
-
-        if (interval >= 4 && weeksRange < 8) {
-          return {
-            valid: false,
-            message: `With a ${interval}-week interval and only ${weeksRange} weeks range, you'll get very few sessions. Consider reducing the interval or extending the date range.`
-          };
-        }
-      }
-    }
-
-    return { valid: true, message: "" };
-  };
 
   const handleSubmit = async () => {
     // Run comprehensive validation
@@ -397,7 +300,77 @@ const Scheduling = () => {
     { key: "live", label: "Live" },
   ];
 
+  // Reschedule request handlers
+  const handleViewRescheduleRequests = (schedule) => {
+    setSelectedSchedule(schedule);
+    setSelectedRescheduleRequest(null);
+    setSelectedScheduleId(schedule?.id);
+    setAdminResponse("");
+    setIsResponseModalOpen(false);
+    openRescheduleModal();
+  };
 
+  const handleApproveClick = async (request) => {
+    setSelectedRescheduleRequest(request);
+    setActionType("approve");
+    setAdminResponse(`Your reschedule request has been approved. We will create a separate session for you and notify you with the new schedule details.`);
+    setIsResponseModalOpen(true);
+  };
+
+  const handleRejectClick = (request) => {
+    setSelectedRescheduleRequest(request);
+    setActionType("reject");
+    setAdminResponse("");
+    setIsResponseModalOpen(true);
+  };
+
+  const handleSubmitRescheduleResponse = async () => {
+    if (!selectedRescheduleRequest) return;
+
+    if (actionType === "reject" && (!adminResponse || adminResponse.trim().length === 0)) {
+      errorMessage("Please provide a reason for rejection");
+      return;
+    }
+
+    try {
+      if (actionType === "approve") {
+        await approveRequest({
+          id: selectedRescheduleRequest.id,
+          adminResponse,
+        }).unwrap();
+        successMessage("Reschedule request approved successfully");
+      } else {
+        await rejectRequest({
+          id: selectedRescheduleRequest.id,
+          adminResponse,
+        }).unwrap();
+        successMessage("Reschedule request rejected");
+      }
+      setIsResponseModalOpen(false);
+      setSelectedRescheduleRequest(null);
+      setAdminResponse("");
+      refetchReschedules();
+    } catch (error) {
+      errorMessage(error?.data?.message || "Failed to process request");
+    }
+  };
+
+  const getStatusColor = (status) => {
+    const colors = {
+      pending: "warning",
+      approved: "success",
+      rejected: "danger",
+      cancelled: "default",
+    };
+    return colors[status] || "default";
+  };
+
+  const getPendingRequestsCount = (scheduleId) => {
+    if (!rescheduleData?.requests) return 0;
+    return rescheduleData.requests.filter(
+      (req) => req.scheduleId === scheduleId && req.status === "pending"
+    ).length;
+  };
 
   return (
     <div className="bg-white bg-linear-to-t from-[#F1C2AC]/50 to-[#95C4BE]/50 px-2 sm:px-3 ">
@@ -609,6 +582,28 @@ const Scheduling = () => {
                         </Button>
                       </span>
                     </Tooltip>
+                    <Button
+                      radius="sm"
+                      size="md"
+                      variant="bordered"
+                      color="warning"
+                      onPress={() => handleViewRescheduleRequests(item)}
+                      startContent={
+                        <div className="relative">
+                          <Bell size={16} />
+                          {getPendingRequestsCount(item.id) > 0 && (
+                            <span className="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] rounded-full w-4 h-4 flex items-center justify-center">
+                              {getPendingRequestsCount(item.id)}
+                            </span>
+                          )}
+                        </div>
+                      }
+                    >
+                      View Requests
+                      {getPendingRequestsCount(item.id) > 0 && (
+                        <span className="ml-1">({getPendingRequestsCount(item.id)})</span>
+                      )}
+                    </Button>
                     <Button
                       radius="sm"
                       className="bg-[#06574C] text-white"
@@ -991,6 +986,236 @@ const Scheduling = () => {
               </ModalFooter>
             </>
           )}
+        </ModalContent>
+      </Modal>
+      {/* Reschedule Requests Modal */}
+      <Modal
+        isOpen={isRescheduleModalOpen}
+        onOpenChange={closeRescheduleModal}
+        size="5xl"
+        scrollBehavior="inside"
+      >
+        <ModalContent>
+          <ModalHeader>
+            <div className="flex flex-col">
+              <h2 className="text-lg font-semibold text-[#06574C]">
+                Reschedule Requests for: {selectedSchedule?.title}
+              </h2>
+              <p className="text-sm text-gray-600">
+                Course: {selectedSchedule?.courseName}
+              </p>
+            </div>
+          </ModalHeader>
+          <ModalBody>
+            {/* Filters */}
+            <div className="bg-gray-50 rounded-lg p-3 mb-3 flex justify-between items-center">
+              <Select
+                label="Filter by Status"
+                selectedKeys={[rescheduleStatusFilter]}
+                onChange={(e) => {
+                  setRescheduleStatusFilter(e.target.value);
+                  setReschedulePage(1);
+                }}
+                className="max-w-xs"
+                size="sm"
+              >
+                <SelectItem key="all" value="all">All Requests</SelectItem>
+                <SelectItem key="pending" value="pending">Pending</SelectItem>
+                <SelectItem key="approved" value="approved">Approved</SelectItem>
+                <SelectItem key="rejected" value="rejected">Rejected</SelectItem>
+                <SelectItem key="cancelled" value="cancelled">Cancelled</SelectItem>
+              </Select>
+
+              <Button
+                size="sm"
+                variant="flat"
+                onPress={() => refetchReschedules()}
+                className="bg-[#06574C] text-white"
+              >
+                Refresh
+              </Button>
+            </div>
+
+            <div className="bg-white rounded-lg shadow-md overflow-hidden">
+              <Table
+                removeWrapper
+                isHeaderSticky
+                aria-label="Reschedule Requests Table"
+                classNames={{
+                  base: "w-full bg-white rounded-lg min-h-[30vh] overflow-x-scroll w-full no-scrollbar max-h-[400px] shadow-md",
+                  th: "font-bold bg-[#EBD4C9] p-3 text-sm text-[#333333] capitalize tracking-widest ",
+                  td: "py-3 items-center whitespace-nowrap",
+                  tr: "border-b border-default-200",
+                }}
+              >
+                <TableHeader>
+                  <TableColumn key="student">Student</TableColumn>
+                  <TableColumn key="requestedSchedule">Requested Schedule</TableColumn>
+                  <TableColumn key="reason">Reason</TableColumn>
+                  <TableColumn key="status">Status</TableColumn>
+                  <TableColumn key="requestedAt">Requested At</TableColumn>
+                  <TableColumn key="actions" align="center">Actions</TableColumn>
+                </TableHeader>
+                <TableBody
+                  loadingContent={<Spinner color="success" />}
+                  loadingState={isRescheduleLoading ? 'loading' : 'idle'}
+                  emptyContent={
+                    <div className="text-center py-10">
+                      <CalendarIcon className="mx-auto mb-4 text-gray-400" size={48} />
+                      <p className="text-gray-500 text-lg">No reschedule requests found</p>
+                    </div>
+                  }
+                  items={rescheduleData?.requests?.filter(req => req.scheduleId === selectedSchedule?.id) || []}
+                >
+                  {(request) => (
+                    <TableRow key={request.id}>
+                      <TableCell>
+                        <div>
+                          <p className="font-medium text-sm">{request.studentName}</p>
+                          <p className="text-xs text-gray-500">{request.studentEmail}</p>
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        <div className="text-sm">
+                          <p className="font-medium text-[#06574C]">
+                            {new Date(request.requestedDate).toLocaleDateString()}
+                          </p>
+                          <p className="text-gray-500">
+                            {formatTime12Hour(request.requestedStartTime)} -{" "}
+                            {formatTime12Hour(request.requestedEndTime)}
+                          </p>
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        <p className="text-sm max-w-xs truncate" title={request.reason}>
+                          {request.reason || "-"}
+                        </p>
+                      </TableCell>
+                      <TableCell>
+                        <Chip size="sm" variant="flat" color={getStatusColor(request.status)}>
+                          {request.status}
+                        </Chip>
+                      </TableCell>
+                      <TableCell>
+                        <p className="text-sm">
+                          {new Date(request.requestedAt).toLocaleDateString()}
+                        </p>
+                      </TableCell>
+                      <TableCell>
+                        <div className="flex gap-2 justify-center">
+                          {request.status === "pending" && (
+                            <>
+                              <Button
+                                size="sm"
+                                color="success"
+                                variant="flat"
+                                onPress={() => handleApproveClick(request)}
+                              >
+                                Approve
+                              </Button>
+                              <Button
+                                size="sm"
+                                color="danger"
+                                variant="flat"
+                                onPress={() => handleRejectClick(request)}
+                              >
+                                Reject
+                              </Button>
+                            </>
+                          )}
+                          {request.status !== "pending" && (
+                            <Chip size="sm" variant="flat">
+                              {request.status}
+                            </Chip>
+                          )}
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  )}
+                </TableBody>
+              </Table>
+
+              {rescheduleData?.totalPages > 1 && (
+                <div className="flex justify-center mt-4 p-4">
+                  <Pagination
+                    total={rescheduleData.totalPages}
+                    page={reschedulePage}
+                    onChange={setReschedulePage}
+                    color="primary"
+                    showControls
+                  />
+                </div>
+              )}
+            </div>
+          </ModalBody>
+          <ModalFooter>
+            <Button variant="flat" onPress={() => closeRescheduleModal()}>
+              Close
+            </Button>
+          </ModalFooter>
+        </ModalContent>
+      </Modal>
+
+      {/* Reschedule Request Response Modal */}
+      <Modal
+        isOpen={isResponseModalOpen}
+        onClose={() => setIsResponseModalOpen(false)}
+        size="md"
+      >
+        <ModalContent>
+          <ModalHeader>
+            <h2 className="text-lg font-semibold">
+              {actionType === "approve" ? "Approve Request" : "Reject Request"}
+            </h2>
+          </ModalHeader>
+          <ModalBody>
+            {selectedRescheduleRequest && (
+              <div className="mb-4">
+                <p className="text-sm text-gray-600 mb-2">
+                  <strong>Student:</strong> {selectedRescheduleRequest.studentName}
+                </p>
+                <p className="text-sm text-gray-600 mb-2">
+                  <strong>Requested Schedule:</strong> {new Date(selectedRescheduleRequest.requestedDate).toLocaleDateString()}
+                </p>
+                <div className="bg-gray-50 p-3 rounded-lg">
+                  <p className="text-xs text-gray-500 mb-1">Requested Time:</p>
+                  <p className="text-sm font-medium">
+                    {formatTime12Hour(selectedRescheduleRequest.requestedStartTime)} -{" "}
+                    {formatTime12Hour(selectedRescheduleRequest.requestedEndTime)}
+                  </p>
+                </div>
+              </div>
+            )}
+
+            <Textarea
+              label={actionType === "approve" ? "Approval Message" : "Rejection Reason"}
+              placeholder={
+                actionType === "approve"
+                  ? "Add a message for the student (optional)"
+                  : "Please provide a reason for rejection"
+              }
+              value={adminResponse}
+              onChange={(e) => setAdminResponse(e.target.value)}
+              minRows={4}
+              isRequired={actionType === "reject"}
+            />
+          </ModalBody>
+          <ModalFooter>
+            <Button
+              variant="flat"
+              onPress={() => setIsResponseModalOpen(false)}
+              isDisabled={isApproving || isRejecting}
+            >
+              Cancel
+            </Button>
+            <Button
+              color={actionType === "approve" ? "success" : "danger"}
+              onPress={handleSubmitRescheduleResponse}
+              isLoading={isApproving || isRejecting}
+            >
+              {isApproving || isRejecting ? "Processing..." : actionType === "approve" ? "Approve" : "Reject"}
+            </Button>
+          </ModalFooter>
         </ModalContent>
       </Modal>
     </div>
