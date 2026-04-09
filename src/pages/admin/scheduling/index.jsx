@@ -74,7 +74,7 @@ const Scheduling = () => {
   // Modal State
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
   const [isEdit, setIsEdit] = useState(false);
-  const [ defultTeacher, setdefultTeacher] = useState("");
+  const [defultTeacher, setdefultTeacher] = useState("");
   const [formData, setFormData] = useState({
     title: "",
     description: "",
@@ -362,13 +362,13 @@ const Scheduling = () => {
       startTime: item.startTime,
       endTime: item.endTime,
       description: item.description,
-      teacherId: item.teacherId ? item.teacherId: null,
-      courseId: item.courseId ? item.courseId: null,
+      teacherId: item.teacherId ? item.teacherId : null,
+      courseId: item.courseId ? item.courseId : null,
       meetingLink: item.meetingLink,
       scheduleType: item.scheduleType,
       sessionMode: item.specificStudents?.length > 0 ? 'one-on-one' : 'all',
-      startDate: item?.scheduleDates[0],
-      endDate: item?.scheduleDates[1],
+      startDate: item?.startDate?.split("T")[0] || null,
+      endDate: item?.endDate?.split("T")[0] || null,
       repeatInterval: item.repeatInterval,
       weeklyDays: item.weeklyDays || [],
       specificStudentIds: item.specificStudents,
@@ -707,8 +707,10 @@ const Scheduling = () => {
                 />
                 <CourseSelect
                   initialValue={formData.courseId}
-                  onSelect={(course) => { setFormData({ ...formData, courseId: course?.id }); 
-                  setdefultTeacher(course?.teacherId) }}
+                  onSelect={(course) => {
+                    setFormData({ ...formData, courseId: course?.id });
+                    setdefultTeacher(course?.teacherId)
+                  }}
                   status="published"
                   type="live"
                   isDisabled={isEdit}
@@ -756,7 +758,7 @@ const Scheduling = () => {
                   />
                 )}
 
-                {formData.scheduleType === "daily" && (
+                {(formData.scheduleType === "daily" || formData.scheduleType === "weekly") && (
                   <>
                     <div className="flex gap-3">
                       <Input
@@ -779,48 +781,27 @@ const Scheduling = () => {
                         }
                       />
                     </div>
-
-                    <Input
-                      type="number"
-                      label="Repeat Every (Days)"
-                      variant="bordered"
-                      value={formData.repeatInterval}
-                      min={1}
-                      onChange={(e) =>
-                        setFormData({
-                          ...formData,
-                          repeatInterval: Number(e.target.value),
-                        })
-                      }
-                    />
                   </>
+                )}
+                {formData.scheduleType === "daily" && (
+
+                  <Input
+                    type="number"
+                    label="Repeat Every (Days)"
+                    variant="bordered"
+                    value={formData.repeatInterval}
+                    min={1}
+                    onChange={(e) =>
+                      setFormData({
+                        ...formData,
+                        repeatInterval: Number(e.target.value),
+                      })
+                    }
+                  />
                 )}
 
                 {formData.scheduleType === "weekly" && (
                   <>
-                    <div className="flex gap-3">
-                      <Input
-                        type="date"
-                        label="Start Date"
-                        variant="bordered"
-                        value={formData.startDate}
-                        isRequired
-                        onChange={(e) =>
-                          setFormData({ ...formData, startDate: e.target.value })
-                        }
-                      />
-                      <Input
-                        type="date"
-                        label="End Date"
-                        variant="bordered"
-                        value={formData.endDate}
-                        onChange={(e) =>
-                          setFormData({ ...formData, endDate: e.target.value })
-                        }
-                        isRequired={false}
-                      />
-                    </div>
-
                     <Input
                       type="number"
                       label="Repeat Every (Weeks)"
@@ -1030,9 +1011,9 @@ const EnrolledStudentsList = ({ courseId }) => {
     <div className="flex flex-col gap-3">
       {data.users.map((student) => (
         <div key={student.id} className="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-50 border border-transparent hover:border-gray-100 transition-all">
-          <Avatar  
-            name={`${student.firstName || ""} ${student.lastName || ""}`.trim() || undefined} 
-            src={student.avatar} 
+          <Avatar
+            name={`${student.firstName || ""} ${student.lastName || ""}`.trim() || undefined}
+            src={student.avatar}
             className="w-12 h-12 shrink-0 shadow-lg"
             color="success"
             showFallback

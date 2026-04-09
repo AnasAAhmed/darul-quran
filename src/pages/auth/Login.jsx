@@ -115,8 +115,8 @@ const Login = () => {
                   const keys = [...k];
                   setEmail(keys[0]);
                 }}
+                className={`${!(rolesWithEmail.map((item) => item.key)?.includes(email))?'opacity-40':""}`}
                 items={rolesWithEmail}
-                isDisabled={!(rolesWithEmail.map((item) => item.key)?.includes(email))}
               >
                 {(item) => (
                   <SelectItem key={item.key} value={item.key} textValue={item.label}>{item.label}</SelectItem>
