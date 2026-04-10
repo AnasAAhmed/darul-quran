@@ -67,7 +67,7 @@ const CreaterOrUpdateSchedule = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        const validation = validateSchedule();
+        const validation = validateSchedule(formData);
         if (!validation.valid) {
             errorMessage(validation.message);
             return;
