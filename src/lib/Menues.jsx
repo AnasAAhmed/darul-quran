@@ -232,11 +232,26 @@ export const studentMenu = [
   { name: "Dashboard", icon: <HomeIcon />, link: "/student/dashboard" },
   // { name: 'My Learning Journey', icon: <FaChalkboardTeacher size={22}/>, link: '/student/my-learning' },
   // { name: 'Enrollments', icon: <IoCashOutline size={22}/>, link: '/student/enrollments' },
+
   {
-    name: "Class Schedule",
+    name: "Schedule Sessions",
     icon: <Video />,
     link: "/student/class-scheduling",
+    children: [
+      { name: "Class Schedule", link: "/student/class-scheduling" },
+      { name: "My Reschedule Requests", link: "/student/reschedule-requests", }
+    ],
   },
+  // {
+  //   name: "Class Schedule",
+  //   icon: <Video />,
+  //   link: "/student/class-scheduling",
+  // },
+  // {
+  //   name: "My Reschedule Requests",
+  //   icon: <GrSchedules size={21} />,
+  //   link: "/student/reschedule-requests",
+  // },
   {
     name: "Browse Courses",
     icon: <IoBook size={21} />,
@@ -259,19 +274,17 @@ export const studentMenu = [
     icon: <MdOutlinePayments size={23} />,
     link: "/student/payments",
   },
-  {
-    name: "My Reschedule Requests",
-    icon: <GrSchedules size={21} />,
-    link: "/student/reschedule-requests",
-  },
   // { name: 'Attendance & Progress', icon: <FaMedal size={21} />, link: '/student/attendance-list' },
   {
-    name: "Announcements",
-    icon: <MegaphoneIcon />,
-    link: "/student/announcements",
+    name: "Notifications & Announcements",
+    icon: <BellRing />,
+    link: "/student/notifications",
+    children: [
+      { name: "Notifications", link: "/student/notifications" },
+      { name: "Announcements", link: "/student/announcements" },
+    ],
   },
-  { name: "Notifications", icon: <BellRing />, link: "/student/notifications" },
-
+  // { name: "Notifications", icon: <BellRing />, link: "/student/notifications" },
   {
     name: "Chat & Support",
     icon: <MessageCircleMore size={20} />,

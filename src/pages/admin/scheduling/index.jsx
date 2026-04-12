@@ -957,11 +957,14 @@ const Scheduling = () => {
         unenrolledStudents={unenrolledStudents}
         courseId={formData.courseId}
         onEnrollmentSuccess={() => {
-          // Update selectedUsers to mark them as enrolled
-          const updatedUsers = formData.selectedUsers.map(u => ({ ...u, subscriptionId: true }));
-          setFormData({ ...formData, selectedUsers: updatedUsers });
-          successMessage("Now you can proceed with scheduling");
+          const updatedUsers = formData.selectedUsers.map(u => ({
+            ...u,
+            enrollmentId: true
+          }));
 
+          setFormData({ ...formData, selectedUsers: updatedUsers });
+
+          successMessage("Now you can proceed with scheduling");
         }}
       />
 

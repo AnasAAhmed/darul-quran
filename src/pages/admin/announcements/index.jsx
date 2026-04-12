@@ -22,7 +22,8 @@ import {
   Switch,
   Tooltip,
   Form,
-  Spinner, 
+  Spinner,
+  Skeleton,
 } from "@heroui/react";
 import { useSelector } from "react-redux";
 import {
@@ -397,9 +398,9 @@ const Announcements = () => {
                         />
                       </div>
                     ) : (
-                      <div className="w-12 h-12 rounded-lg bg-gray-50 flex items-center justify-center shrink-0 border border-dashed border-gray-200">
-                        <span className="text-xl opacity-30">🖼️</span>
-                      </div>
+                      <Skeleton
+                        className="w-12 h-12 rounded-lg overflow-hidden shrink-0 border border-gray-100 shadow-sm"
+                      />
                     )}
                     <div className="flex-1 min-w-0">
                       <p className="font-semibold text-gray-900 line-clamp-1">
@@ -485,11 +486,11 @@ const Announcements = () => {
             placeholder="1"
             aria-label="Items per page"
             onSelectionChange={(keys) => {
-               const val = Array.from(keys)[0];
-               if (val) {
-                 setLimit(Number(val));
-                 setPage(1); // Reset to first page when limit changes
-               }
+              const val = Array.from(keys)[0];
+              if (val) {
+                setLimit(Number(val));
+                setPage(1); // Reset to first page when limit changes
+              }
             }}
           >
             {limits.map((limit) => (
@@ -566,7 +567,7 @@ const Announcements = () => {
                         <label
                           htmlFor="banner-upload"
                           className="flex flex-col items-center justify-center w-full h-28 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:border-[#06574C] hover:bg-[#06574C]/5 transition-colors"
-                        > 
+                        >
                           <span className="text-sm text-gray-500">Click to upload banner image</span>
                           <span className="text-xs text-gray-400 mt-0.5">PNG, JPG, WEBP up to 5MB</span>
                         </label>
