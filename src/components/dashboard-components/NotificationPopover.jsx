@@ -65,11 +65,11 @@ const NotificationPopover = ({ isHomeMob = false }) => {
                         <FaRegBell
                             className={(isHome.includes(pathname) && !isHomeMob)
                                 ? "text-white"
-                                : " text-[#406C65]"
+                                : (unreadCount > 0 || unreadNotifications.length > 0) ? "text-red-600" : " text-[#406C65]"
                             }
                             size={20}
                         />
-                        {(unreadCount || unreadNotifications.length) > 0 && < span className="pointer-events-none absolute -top-1 -right-0.5 flex items-center justify-center min-w-[18px] h-[18px] px-1.2 rounded-full bg-[#637381] text-white text-[10px] font-semibold leading-none ring-2 ring-white z-10">
+                        {(unreadCount || unreadNotifications.length) > 0 && < span className="pointer-events-none absolute -top-1 -right-0.5 flex items-center justify-center min-w-[18px] h-[18px] px-1.2 rounded-full bg-red-600 text-white text-[10px] font-semibold leading-none ring-2 ring-white z-10">
                             {unreadCount || unreadNotifications.length}
                         </span>}
                     </button>
