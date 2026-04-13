@@ -553,7 +553,7 @@ const CourseDetails = () => {
               <div className="flex gap-6 text-md text-gray-600 mb-4">
                 <div className="flex items-center gap-1">
                   <FaStar className="text-yellow-400" />
-                  <span>{data?.teacher?.rating?.toFixed(1)} Teacher Rating</span>
+                  <span>{Number(data?.teacher?.rating || 0).toFixed(1)} Teacher Rating</span>
                 </div>
 
                 <div className="flex items-center gap-1">
