@@ -43,7 +43,7 @@ const ChangePassword = () => {
     try {
       setLoading(true);
 
-      const data = await api.post("/admin/change-password", { token, email, password });
+      const data = await api.post("/auth/change-password", { token, email, password });
 
       // check for additional success flags if typical structure is { success: true }
       // api.post returns data directly. If status was not 2xx, it would have thrown.
@@ -74,7 +74,7 @@ const ChangePassword = () => {
         msg.toLowerCase().includes('invalid') ||
         msg.toLowerCase().includes('token')) {
         // Additional navigation for this specific error
-        navigate("/forgot-password");
+        navigate("/auth/forget-password");
       }
 
       setError(msg);
