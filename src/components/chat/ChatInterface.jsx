@@ -43,6 +43,7 @@ export default function ChatInterface({
   const [isOpen, setIsOpen] = useState(true);
   const [contactModalOpen, setContactModalOpen] = useState(false);
   const [blockModalOpen, setBlockModalOpen] = useState(false);
+  const [blocking, setBlocking] = useState(false);
   const [reportModalOpen, setReportModalOpen] = useState(false);
   const [teacherStudentInfoModalOpen, setTeacherStudentInfoModalOpen] = useState(false);
   const [mutedChats, setMutedChats] = useState(() => {
@@ -188,16 +189,42 @@ export default function ChatInterface({
     });
   };
 
-  const handleBlock = () => {
-    setBlockModalOpen(false);
-    addToast({
-      title: "User blocked",
-      description: "They can no longer start new conversations with you.",
-      color: "warning",
-      variant: "solid",
-      placement: "bottom-right",
-    });
-    if (setSelectedChat) setSelectedChat(null);
+  const handleBlock = async () => {
+    setBlocking(true);
+    const finalToken = localStorage.getItem("token");
+    const headers = {};
+    if (finalToken) headers["Authorization"] = `Bearer ${finalToken}`;
+    const url = `${API}/api/chat/${chatId}/block`;
+    try {
+
+      const res = await fetch(url, {
+        method: "PATCH",
+        credentials: "include", headers
+      })
+      const data = await res.json()
+      if (!res.ok) {
+        throw new Error(data?.message)
+      }
+      addToast({
+        title: data?.message,
+        description: data?.block ? "They can no longer start new conversations with you." : "You can start new conversations with this user.",
+        color: "warning",
+        variant: "solid",
+        placement: "bottom-right",
+      });
+      setBlockModalOpen(false);
+      if (setSelectedChat) setSelectedChat(null);
+    } catch (error) {
+      addToast({
+        title: error?.message,
+        color: "danger",
+        variant: "solid",
+        placement: "bottom-right",
+      });
+    } finally {
+      setBlocking(false);
+
+    }
   };
 
   const handleReport = () => {
@@ -320,6 +347,9 @@ export default function ChatInterface({
           }),
         });
         const data = await res.json();
+        if (!res.ok) {
+          throw new Error(data?.message || data?.error)
+        }
         if (data.success && data.data?.message) {
           const serverMsg = data.data.message;
           setMessages((prev) => prev.map((m) => (m.tempId === tempId ? serverMsg : m)));
@@ -344,6 +374,12 @@ export default function ChatInterface({
           if (attachmentData) setAttachedAttachment(attachmentData);
         }
       } catch (err) {
+        addToast({
+          title: err?.message,
+          color: "danger",
+          variant: "solid",
+          placement: "bottom-right",
+        });
         setMessages((prev) => prev.filter((m) => m.tempId !== tempId));
         setMessage(textToSend);
         if (attachmentData) setAttachedAttachment(attachmentData);
@@ -387,7 +423,7 @@ export default function ChatInterface({
 
   return (
     <div
-      className={`flex flex-col duration-300 transition-transform ${isOpen ? "max-md:translate-x-0" : "max-md:translate-x-[120%]"} max-md:fixed md:flex-1 w-full h-screen bg-[#d2ebe5]`}
+      className={`flex flex-col duration-300 transition-transform ${isOpen ? "max-md:translate-x-0" : "max-md:translate-x-[120%]"} max-md:fixed md:flex-1 w-full h-[calc(100vh-64px)] bg-[#d2ebe5]`}
     >
       {/* Header */}
       <div className="border-b border-gray-300 px-4 py-3 flex items-center justify-between shrink-0">
@@ -491,6 +527,7 @@ export default function ChatInterface({
         className="flex-1 overflow-y-auto px-4 pb-4 space-y-4"
         onScroll={handleScroll}
         ref={messagesTopRef}
+        style={{ paddingBottom: showInputArea ? '100px' : '16px' }}
       >
         {loadingOlder && (
           <div className="flex justify-center py-2">
@@ -563,7 +600,7 @@ export default function ChatInterface({
           </ModalBody>
           <ModalFooter>
             <Button variant="light" onPress={() => setBlockModalOpen(false)}>Cancel</Button>
-            <Button color="danger" onPress={handleBlock}>Block</Button>
+            <Button isLoading={blocking} color="danger" onPress={handleBlock}>Block</Button>
           </ModalFooter>
         </ModalContent>
       </Modal>
@@ -598,23 +635,25 @@ export default function ChatInterface({
       )}
 
       {showInputArea && (
-        <ChatInput
-          message={message}
-          onMessageChange={setMessage}
-          attachedAttachment={attachedAttachment}
-          onFileSelect={handleFileSelect}
-          onRemoveAttachment={handleRemoveAttachment}
-          onSend={sendMessage}
-          sending={sending}
-          disabled={false}
-          onInvalidFile={() =>
-            addToast({
-              title: "Only images and videos are allowed",
-              color: "warning",
-              placement: "bottom-right",
-            })
-          }
-        />
+        <div className="sticky bottom-0 left-0 right-0 bg-[#d2ebe5] px-4 py-3 border-t border-gray-300 shadow-lg z-10">
+          <ChatInput
+            message={message}
+            onMessageChange={setMessage}
+            attachedAttachment={attachedAttachment}
+            onFileSelect={handleFileSelect}
+            onRemoveAttachment={handleRemoveAttachment}
+            onSend={sendMessage}
+            sending={sending}
+            disabled={false}
+            onInvalidFile={() =>
+              addToast({
+                title: "Only images and videos are allowed",
+                color: "warning",
+                placement: "bottom-right",
+              })
+            }
+          />
+        </div>
       )}
     </div>
   );
