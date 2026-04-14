@@ -268,8 +268,8 @@ const CourseBuilder = () => {
         title: "Price:",
         desc:
           formData?.base_price -
-            (formData?.discount_percentage * formData?.base_price) / 100 +
-            "£" || "Add Price",
+          (formData?.discount_percentage * formData?.base_price) / 100 +
+          "£" || "Add Price",
       },
       { title: "Type:", desc: formData?.type?.replace("_", " ") || "Add Type" },
       {
@@ -278,7 +278,7 @@ const CourseBuilder = () => {
           formData?.duration === null
             ? "Ongoing"
             : `${parseInterval(formData?.duration).number} ${parseInterval(formData?.duration).unit}` ||
-              "Add Duration",
+            "Add Duration",
       },
       formData?.type === "live" && {
         title: "Subscription - Interval:",
@@ -375,8 +375,8 @@ const CourseBuilder = () => {
       } else {
         errorMessage(
           response?.error?.data?.message ||
-            response?.error?.data?.error ||
-            "Something went wrong",
+          response?.error?.data?.error ||
+          "Something went wrong",
         );
       }
     } catch (error) {
@@ -736,7 +736,7 @@ const CourseBuilder = () => {
                           initialValues={formData.student_ids || []}
                         />
                       </div>
-                      
+
                       <div className="pt-6">
                         <Select
                           placeholder="Select Type"
@@ -1209,7 +1209,7 @@ const CourseBuilder = () => {
                             {formData.status === "published"
                               ? "Your course is visible to students"
                               : formData.status === "private"
-                                ? "Your course is private (only you can see it)"
+                                ? "Your course is private (only admin , assigned students or assigned teachers can see it)"
                                 : "Your course is saved as draft"}
                           </h1>
                         </div>
