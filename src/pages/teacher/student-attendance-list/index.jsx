@@ -1,4 +1,4 @@
-import { 
+import {
   Input,
   Select,
   SelectItem,
@@ -65,25 +65,25 @@ const StudentAttendanceList = () => {
   };
 
   return (
-    <div className="bg-white sm:bg-linear-to-t from-[#F1C2AC]/50 to-[#95C4BE]/50 px-2 sm:px-5 pb-8">
+    <div className="bg-linear-to-t from-[#F1C2AC]/50 to-[#95C4BE]/50 px-2 sm:px-5 pb-8">
       <DashHeading
         title={"Student Attendance List"}
         desc={"Comprehensive view of student attendance across courses"}
-      /> 
-      
+      />
+
       <div className="bg-[#EBD4C9] p-4 rounded-lg my-4 flex flex-wrap gap-4 items-end shadow-sm w-full">
-        
-          <Input
-            label="Search Student"
-            placeholder="Search by name, email or course..."
-            labelPlacement="outside"
-            size="lg"
-            radius="lg"  
-            className="w-full sm:max-w-[350px]"
-            startContent={<IoSearchOutline className="text-gray-400" size={20} />}
-            value={search}
-            onValueChange={setSearch}
-          /> 
+
+        <Input
+          label="Search Student"
+          placeholder="Search by name, email or course..."
+          labelPlacement="outside"
+          size="lg"
+          radius="lg"
+          className="w-full sm:max-w-[350px]"
+          startContent={<IoSearchOutline className="text-gray-400" size={20} />}
+          value={search}
+          onValueChange={setSearch}
+        />
 
       </div>
 
@@ -91,9 +91,10 @@ const StudentAttendanceList = () => {
         <Table
           aria-label="Student Attendance Table"
           removeWrapper
+          isHeaderSticky
           classNames={{
             base: "w-full overflow-x-auto no-scrollbar max-h-[calc(100vh-200px)] min-h-[calc(100vh-350px)]",
-            th: "bg-[#FBF4EC] text-black font-bold py-4 px-6 text-sm uppercase tracking-wider",
+            th: "bg-[#EBD4C9] text-black font-bold py-4 px-6 text-sm uppercase tracking-wider",
             td: "py-4 px-6 border-b border-gray-50",
             tr: "hover:bg-gray-50/50 transition-colors",
           }}
@@ -103,7 +104,7 @@ const StudentAttendanceList = () => {
               <TableColumn key={column.uid}>{column.name}</TableColumn>
             )}
           </TableHeader>
-          <TableBody 
+          <TableBody
             items={attendanceData}
             isLoading={isLoading}
             loadingState={isLoading ? "loading" : "idle"}
@@ -124,21 +125,21 @@ const StudentAttendanceList = () => {
                   </div>
                 </TableCell>
                 <TableCell className="font-medium text-gray-800">
-                    <span className="text-[#06574C] font-semibold">{item.attendedSessions}</span> 
-                    <span className="text-gray-400 mx-1">/</span> 
-                    <span className="text-gray-600">{item.totalSessions} Sessions</span>
+                  <span className="text-[#06574C] font-semibold">{item.attendedSessions}</span>
+                  <span className="text-gray-400 mx-1">/</span>
+                  <span className="text-gray-600">{item.totalSessions} Sessions</span>
                 </TableCell>
                 <TableCell className="text-gray-600">
-                    <div className="flex flex-col">
-                        <span className="font-medium text-sm text-gray-700">
-                            {item.latestAttendance ? dateFormatter(item.latestAttendance) : "No Activity"}
-                        </span>
-                        {item.latestAttendance && (
-                            <span className="text-[10px] text-gray-500 font-medium">
-                                {new Date(item.latestAttendance).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                            </span>
-                        )}
-                    </div>
+                  <div className="flex flex-col">
+                    <span className="font-medium text-sm text-gray-700">
+                      {item.latestAttendance ? dateFormatter(item.latestAttendance) : "No Activity"}
+                    </span>
+                    {item.latestAttendance && (
+                      <span className="text-[10px] text-gray-500 font-medium">
+                        {new Date(item.latestAttendance).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                      </span>
+                    )}
+                  </div>
                 </TableCell>
                 <TableCell>
                   <div className="flex items-center gap-2">
@@ -168,7 +169,7 @@ const StudentAttendanceList = () => {
         </Table>
 
         {totalPages > 1 && (
-          <div className="flex justify-between items-center p-6 border-t border-gray-100 bg-[#FBF4EC]/30">
+          <div className="flex justify-between items-center p-6 border-t border-gray-100 bg-[#EBD4C9]">
             <span className="text-sm text-gray-500 font-medium">
               Showing {(page - 1) * limit + 1} to {Math.min(page * limit, totalItems)} of {totalItems} students
             </span>

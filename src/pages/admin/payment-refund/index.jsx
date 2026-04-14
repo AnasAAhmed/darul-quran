@@ -167,7 +167,7 @@ const PaymentsRefunds = () => {
   };
 
   return (
-    <div className="bg-white sm:bg-linear-to-t from-[#F1C2AC]/50 to-[#95C4BE]/50 px-2 sm:px-5 pb-10 h-screen overflow-y-auto">
+    <div className="bg-linear-to-t from-[#F1C2AC]/50 to-[#95C4BE]/50 px-2 sm:px-5 pb-10 h-screen overflow-y-auto">
       <DashHeading
         title={"Payment & Refund"}
         desc={"Keep track of all payments and refunds with transparency and ease"}
@@ -177,7 +177,7 @@ const PaymentsRefunds = () => {
       <div className="bg-white p-3 my-4 rounded-lg shadow-sm">
         <div className="flex flex-col md:flex-row gap-3 md:justify-between md:items-center">
           <h1 className="text-xl font-bold text-red-600">Refund Requests</h1>
-          <div className="flex gap-2 max-md:flex-wrap">
+          <div className="flex flex-col md:flex-row gap-2 max-md:w-full">
             <Input
               placeholder="Search by student/course..."
               defaultValue={searchQuery}
@@ -191,7 +191,7 @@ const PaymentsRefunds = () => {
             <Select
               selectedKeys={[statusFilter]}
               onSelectionChange={(keys) => setStatusFilter(Array.from(keys)[0] || 'all')}
-              className="max-w-48"
+              className="max-sm:w-full w-48"
               size="sm"
               radius="sm"
             >

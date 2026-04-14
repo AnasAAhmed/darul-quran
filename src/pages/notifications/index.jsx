@@ -111,7 +111,7 @@ const NotificationsPage = () => {
               desc="Stay updated with the latest platform activities and alerts."
             />
 
-            <div className="flex justify-end flex-row flex-wrap items-end gap-3">
+            <div className="flex justify-end max-md:justify-start flex-row flex-wrap items-end gap-3">
               <Input
                 placeholder="Search Notifications..."
                 startContent={<Search size={18} className="text-gray-400" />}

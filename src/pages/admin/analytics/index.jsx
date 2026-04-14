@@ -48,7 +48,7 @@ const Analytics = () => {
     { key: "draft", label: "Draft" },
     { key: "published", label: "Published" },
   ];
-   const roles = [
+  const roles = [
     { key: "all", label: "All" },
     { key: "admin", label: "Admin" },
     { key: "teacher", label: "Teacher" },
@@ -305,7 +305,7 @@ const Analytics = () => {
       </div>
       {/* <div> */}
       <AnalyticsCards data={cardsData} isLoading={isLoading} />
-      <div className="grid grid-cols-12 gap-3 my-3 px-3 md:px-0">
+      <div className="grid grid-cols-12 gap-3 my-3 md:px-0">
         {isLoading ? (
           <Skeleton className="col-span-12 md:col-span-6 w-full h-[400px] bg-white rounded-lg p-4 shadow-sm" />
         ) : (
