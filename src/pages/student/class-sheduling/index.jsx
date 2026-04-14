@@ -244,30 +244,65 @@ const StudentClassSheduling = () => {
         const scheduleDates = schedule.scheduleDates?.length > 0
             ? schedule.scheduleDates
             : (schedule.date ? [schedule.date] : []);
-        const todayStr = new Date().toISOString().split('T')[0];
-        const upcomingDates = scheduleDates.filter(d => d >= todayStr);
+        
+        if (scheduleDates.length === 0) return false;
+
+        const now = new Date();
+        const todayStr = now.toISOString().split('T')[0];
+        
+        // Normalize dates to YYYY-MM-DD format for comparison
+        const normalizedDates = scheduleDates.map(d => {
+            try {
+                const dateObj = new Date(d);
+                if (isNaN(dateObj.getTime())) return d; // Return as-is if invalid
+                return dateObj.toISOString().split('T')[0];
+            } catch {
+                return d;
+            }
+        });
+        
+        // Get all upcoming dates (today or in the future)
+        const upcomingDates = normalizedDates.filter(d => d >= todayStr);
 
         if (upcomingDates.length === 0) return false;
 
-        // Use the next upcoming date
-        const nextDate = upcomingDates.sort()[0];
-        const hoursUntil = getHoursUntilClass(nextDate, schedule.startTime);
-        return hoursUntil > 4;
+        // Check if ALL upcoming sessions are more than 4 hours away
+        return upcomingDates.every(dateStr => {
+            const hoursUntil = getHoursUntilClass(dateStr, schedule.startTime);
+            return hoursUntil === null || hoursUntil > 4;
+        });
     };
 
     const canCancel = (schedule) => {
         const scheduleDates = schedule.scheduleDates?.length > 0
             ? schedule.scheduleDates
             : (schedule.date ? [schedule.date] : []);
-        const todayStr = new Date().toISOString().split('T')[0];
-        const upcomingDates = scheduleDates.filter(d => d >= todayStr);
+        
+        if (scheduleDates.length === 0) return false;
+
+        const now = new Date();
+        const todayStr = now.toISOString().split('T')[0];
+        
+        // Normalize dates to YYYY-MM-DD format for comparison
+        const normalizedDates = scheduleDates.map(d => {
+            try {
+                const dateObj = new Date(d);
+                if (isNaN(dateObj.getTime())) return d;
+                return dateObj.toISOString().split('T')[0];
+            } catch {
+                return d;
+            }
+        });
+        
+        const upcomingDates = normalizedDates.filter(d => d >= todayStr);
 
         if (upcomingDates.length === 0) return false;
 
-        // Use the next upcoming date
-        const nextDate = upcomingDates.sort()[0];
-        const hoursUntil = getHoursUntilClass(nextDate, schedule.startTime);
-        return hoursUntil > 0; // Can cancel anytime before class starts
+        // Can cancel if any upcoming session is more than 0 hours away (before it starts)
+        return upcomingDates.some(dateStr => {
+            const hoursUntil = getHoursUntilClass(dateStr, schedule.startTime);
+            return hoursUntil === null || hoursUntil > 0;
+        });
     };
 
     const getClassStatus = (schedule, type = 'single') => {

@@ -573,7 +573,7 @@ const Scheduling = () => {
                           radius="sm"
                           variant="bordered"
                           className="border-[#06574C] text-[#06574C]"
-                          // isDisabled={!canReschedule(item)}
+                          isDisabled={!canReschedule(item)}
                           startContent={<CalendarIcon size={18} />}
                           size="sm"
                           onPress={() => openEditModal(item)}
