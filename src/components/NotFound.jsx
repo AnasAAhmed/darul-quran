@@ -8,16 +8,8 @@ const navigate = useNavigate()
                 <h6 className='text-lg md:text-2xl font-medium text-fontColor font-poppins'>
                     Oops! Page not found
                 </h6>
-                <h1 className='text-xl tracking-[-18px]	text-center flex justify-start md:justify-center w-full md:text-9xl font-bold mt-1 text-fontColor poppins-bold'>
-                    <span className=''>
-                        4
-                    </span>
-                    <span>
-                        0
-                    </span>
-                    <span>
-                        4
-                    </span>
+                <h1 className='text-3xl trackisng-[-18px]	text-center flex justify-center w-full md:text-9xl font-bold mt-1 text-fontColor poppins-bold'>
+                 404
 
                 </h1>
                 <p className='text-lg md:text-xl  text-center  font-normal text-fontColor font-poppins'>
