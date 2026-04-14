@@ -820,13 +820,13 @@ const Scheduling = () => {
                         setFormData({ ...formData, weeklyDays: val })
                       }
                     >
-                      <Checkbox value="1">Sunday</Checkbox>
-                      <Checkbox value="2">Monday</Checkbox>
-                      <Checkbox value="3">Tuesday</Checkbox>
-                      <Checkbox value="4">Wednesday</Checkbox>
-                      <Checkbox value="5">Thursday</Checkbox>
-                      <Checkbox value="6">Friday</Checkbox>
-                      <Checkbox value="7">Saturday</Checkbox>
+                      <Checkbox value="1">Monday</Checkbox>
+                      <Checkbox value="2">Tuesday</Checkbox>
+                      <Checkbox value="3">Wednesday</Checkbox>
+                      <Checkbox value="4">Thursday</Checkbox>
+                      <Checkbox value="5">Friday</Checkbox>
+                      <Checkbox value="6">Saturday</Checkbox>
+                      <Checkbox value="7">Sunday</Checkbox>
                     </CheckboxGroup>
                   </>
                 )}
