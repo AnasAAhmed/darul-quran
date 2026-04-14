@@ -30,8 +30,8 @@ const pageDescriptions = {
   "/teacher/dashboard": "Teacher dashboard with overview",
   "/teacher/courses": "View and manage your assigned courses",
   "/teacher/courses/upload-material": "Upload course materials and resources",
-  "/teacher/student-attendance": "Mark and track student attendance",
-  "/teacher/attendance-list": "Student attendance progress overview",
+  "/teacher/student-attendance": "Progress Overview, Track student Course progress",
+  "/teacher/attendance-list": "Student attendance overview",
   "/teacher/class-scheduling": "View your class schedule",
   "/teacher/chat": "Chat center for communication",
   "/teacher/announcements": "View announcements",
@@ -230,9 +230,9 @@ const PageSearch = () => {
                           {page.description}
                         </div>
                       )}
-                      <div className="text-xs text-gray-400 mt-0.5 font-mono">
+                      {/* <div className="text-xs text-gray-400 mt-0.5 font-mono">
                         {page.link}
-                      </div>
+                      </div> */}
                     </div>
                   </button>
                 ))}

@@ -17,10 +17,9 @@ import {
   MessageCircleMore,
   UserIcon,
 } from "lucide-react";
-import { FaChalkboardTeacher, FaMedal } from "react-icons/fa";
-import { IoBook, IoCashOutline } from "react-icons/io5";
+import { RiProgress3Line } from "react-icons/ri";
+import { IoBook } from "react-icons/io5";
 import { MdOutlinePayments } from "react-icons/md";
-import { GrSchedules } from "react-icons/gr";
 
 export const adminMenu = [
   {
@@ -173,15 +172,15 @@ export const teacherMenu = [
     ],
   },
   {
-    name: "Attendance",
+    name: "Student Attendance",
     icon: <CalendarIcon />,
-    link: "/teacher/student-attendance",
-    children: [
-      { name: "Attendance Progress", link: "/teacher/student-attendance" },
-      { name: "Student Attendance List", link: "/teacher/attendance-list" },
-    ],
+    link: "/teacher/attendance-list",
+    // children: [
+    //   { name: "Progress Overview", link: "/teacher/student-attendance" },
+    //   { name: "Student Attendance", link: "/teacher/attendance-list" },
+    // ],
   },
-  // { name: 'Student Attendance', icon: <CalendarIcon />, link: '/teacher/student-attendance' },
+  { name: 'Course Progress', icon: <RiProgress3Line size={24} />, link: '/teacher/student-attendance' },
   // { name: 'Student Attendance List', icon: <Users2Icon />, link: '/teacher/attendance-list' },
   // {
   //   name: "Class Schedule",
@@ -211,7 +210,7 @@ export const teacherMenu = [
   },
 
   {
-    name: "Alerts Center",
+    name: "Alert Center",
     icon: <BellRing />,
     link: "/teacher/announcements",
     children: [

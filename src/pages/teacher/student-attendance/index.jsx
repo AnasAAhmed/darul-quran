@@ -114,8 +114,8 @@ const StudentAttendance = () => {
   return (
     <div className="bg-white sm:bg-linear-to-t from-[#F1C2AC]/50 to-[#95C4BE]/50 px-2 sm:px-5">
       <DashHeading
-        title={"Attendance & Progress"}
-        desc={"Track student attendance and course progress"}
+        title={"Progress Overview"}
+        desc={"Track student Course progress"}
       />
 
       {/* Filters */}
