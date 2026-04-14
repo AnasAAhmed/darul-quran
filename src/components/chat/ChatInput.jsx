@@ -68,12 +68,13 @@ export default function ChatInput({
           onChange={(e) => onMessageChange(e.target.value)}
           onKeyDown={(e) => e.key === "Enter" && !e.shiftKey && onSend()}
           placeholder="Message"
+          disabled={disabled}
           className="flex-1 min-w-0 py-2 text-sm bg-transparent border-none outline-none placeholder-gray-400"
         />
         <button
           type="button"
           onClick={onSend}
-          disabled={!canSend || sending}
+          disabled={!canSend || sending||disabled}
           className="shrink-0 p-2 rounded-full bg-teal-600 text-white hover:bg-teal-700 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
           aria-label="Send"
         >

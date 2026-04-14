@@ -27,6 +27,7 @@ export default function ChatInterface({
   otherUser,
   currentUserId,
   setSelectedChat,
+  fetchChats,
   onChatCreated,
   // Admin view: observe teacher-student chat (read-only, no input)
   adminViewMode = false,
@@ -212,6 +213,7 @@ export default function ChatInterface({
         variant: "solid",
         placement: "bottom-right",
       });
+      fetchChats?.()
       setBlockModalOpen(false);
       if (setSelectedChat) setSelectedChat(null);
     } catch (error) {
@@ -307,6 +309,17 @@ export default function ChatInterface({
   };
 
   const sendMessage = async () => {
+    // Prevent sending if chat is blocked by other user
+    if (legacyChat?.isBlocked && legacyChat?.blockedBy !== currentUserId) {
+      addToast({
+        title: "Cannot send messages",
+        description: "This conversation has been blocked by the other party.",
+        color: "warning",
+        placement: "bottom-right",
+      });
+      return;
+    }
+    
     const text = message.trim();
     const ready = attachedAttachment && attachedAttachment.url && !attachedAttachment.uploading;
     const hasAttachment = !!ready;
@@ -505,7 +518,15 @@ export default function ChatInterface({
                 <ul className="py-1">
                   <li><button type="button" onClick={() => setContactModalOpen(true)} className="flex items-center gap-3 w-full text-left px-3 py-2 text-[15px] hover:bg-gray-100 rounded-lg"><FiPhone className="text-lg" /> Contact Info</button></li>
                   <li><button type="button" onClick={toggleMute} className="flex items-center gap-3 w-full text-left px-3 py-2 text-[15px] hover:bg-gray-100 rounded-lg"><FiBellOff className="text-lg" /> {isMuted ? "Unmute" : "Mute"}</button></li>
-                  <li><button type="button" onClick={() => setBlockModalOpen(true)} className="flex items-center gap-3 w-full text-left px-3 py-2 text-[15px] text-red-500 hover:bg-gray-100 rounded-lg"><FiUserX className="text-lg" /> Block</button></li>
+                  <li><button
+                    type="button"
+                    onClick={() => setBlockModalOpen(true)}
+                    disabled={(legacyChat?.isBlocked && legacyChat?.blockedBy != currentUserId)}
+                    className="flex items-center gap-3 w-full text-left px-3 py-2 text-[15px] text-red-500 hover:bg-gray-100 rounded-lg"><FiUserX className="text-lg" />
+                    {(legacyChat?.isBlocked && legacyChat?.blockedBy == currentUserId) ?
+                      "Unblock" :
+                      legacyChat?.isBlocked ? "Blocked" : "Block"}
+                  </button></li>
                   <li><button type="button" onClick={() => setReportModalOpen(true)} className="flex items-center gap-3 w-full text-left px-3 py-2 text-[15px] text-red-500 hover:bg-gray-100 rounded-lg"><FiFlag className="text-lg" /> Report</button></li>
                   <li><button type="button" className="flex items-center gap-3 w-full text-left px-3 py-2 text-[15px] hover:bg-gray-100 rounded-lg" onClick={handleBack}><FiXCircle className="text-lg" /> Close Chat</button></li>
                 </ul>
@@ -521,6 +542,31 @@ export default function ChatInterface({
           </Popover>
         </div>
       </div>
+
+      {/* Blocked Banner */}
+      {legacyChat?.isBlocked && (
+        <div className="bg-red-50 border-b border-red-200 px-4 py-3 shrink-0">
+          <div className="flex items-start gap-3">
+            <div className="w-10 h-10 rounded-full bg-red-100 flex items-center justify-center shrink-0">
+              <FiUserX size={20} className="text-red-600" />
+            </div>
+            <div className="flex-1">
+              <h4 className="font-semibold text-sm text-red-800 mb-1">
+                {legacyChat?.blockedBy == currentUserId 
+                  ? "You blocked this conversation" 
+                  : legacyChat?.blockedByName 
+                    ? `${legacyChat.blockedByName} blocked this conversation`
+                    : "This conversation is blocked"}
+              </h4>
+              <p className="text-xs text-red-700">
+                {legacyChat?.blockedBy == currentUserId 
+                  ? "You can unblock this user from the menu to resume messaging." 
+                  : "You cannot send messages in this conversation. The user who blocked this conversation can unblock it."}
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Messages */}
       <div
@@ -594,13 +640,17 @@ export default function ChatInterface({
       {/* Block confirmation */}
       <Modal isOpen={blockModalOpen} onOpenChange={setBlockModalOpen}>
         <ModalContent>
-          <ModalHeader>Block user?</ModalHeader>
+          <ModalHeader>{(legacyChat?.isBlocked && legacyChat?.blockedBy == currentUserId) ?
+                      "Unblock" :
+                      legacyChat?.isBlocked ? "Blocked" : "Block"} user?</ModalHeader>
           <ModalBody>
             <p>This user will no longer be able to start new conversations with you. You can unblock them later from settings.</p>
           </ModalBody>
           <ModalFooter>
             <Button variant="light" onPress={() => setBlockModalOpen(false)}>Cancel</Button>
-            <Button isLoading={blocking} color="danger" onPress={handleBlock}>Block</Button>
+            <Button isLoading={blocking} color="danger" onPress={handleBlock}>{(legacyChat?.isBlocked && legacyChat?.blockedBy == currentUserId) ?
+                      "Unblock" :
+                      legacyChat?.isBlocked ? "Blocked" : "Block"}</Button>
           </ModalFooter>
         </ModalContent>
       </Modal>
@@ -644,7 +694,7 @@ export default function ChatInterface({
             onRemoveAttachment={handleRemoveAttachment}
             onSend={sendMessage}
             sending={sending}
-            disabled={false}
+            disabled={legacyChat?.isBlocked}
             onInvalidFile={() =>
               addToast({
                 title: "Only images and videos are allowed",

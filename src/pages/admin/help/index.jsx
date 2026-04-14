@@ -42,24 +42,24 @@ export default function HelpMessages() {
     if (reduxChats.length > 0) setChatsLocal(reduxChats);
   }, [reduxChats]);
 
-  useEffect(() => {
-    async function fetchChats() {
-      try {
-        const finalToken = localStorage.getItem("token") || token;
-        const headers = {};
-        if (finalToken) headers["Authorization"] = `Bearer ${finalToken}`;
-        const res = await fetch(`${API}/api/chat`, { credentials: "include", headers });
-        const data = await res.json();
-        if (res.ok && data.chats) {
-          setChatsLocal(data.chats);
-          dispatch(setChats(data.chats));
-        }
-      } catch (err) {
-        console.error("Failed to fetch chats", err);
-      } finally {
-        setLoading(false);
+  async function fetchChats() {
+    try {
+      const finalToken = localStorage.getItem("token") || token;
+      const headers = {};
+      if (finalToken) headers["Authorization"] = `Bearer ${finalToken}`;
+      const res = await fetch(`${API}/api/chat`, { credentials: "include", headers });
+      const data = await res.json();
+      if (res.ok && data.chats) {
+        setChatsLocal(data.chats);
+        dispatch(setChats(data.chats));
       }
+    } catch (err) {
+      console.error("Failed to fetch chats", err);
+    } finally {
+      setLoading(false);
     }
+  }
+  useEffect(() => {
     if (currentUser?.id) fetchChats();
   }, [currentUser?.id, dispatch]);
 
@@ -327,12 +327,13 @@ export default function HelpMessages() {
           )}
         </div>
       </div>
-
       {selectedChat && selectedOtherUser && currentUser ? (
         <ChatInterface
           chatId={selectedChat.id}
           otherUser={selectedOtherUser}
           currentUserId={currentUser.id}
+          chat={selectedChat}
+          fetchChats={fetchChats}
           setSelectedChat={setSelectedChatAndSyncUrl}
           onChatCreated={handleChatCreated}
         />
