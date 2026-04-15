@@ -38,6 +38,7 @@ import { Swiper, SwiperSlide } from "swiper/react";
 import { Autoplay, Navigation, Pagination } from "swiper/modules";
 import { useUpdateAnnouncementMutation } from "../../redux/api/announcements";
 import { successMessage, errorMessage } from "../../lib/toast.config";
+import { useState } from "react";
 
 const AdminDashboard = () => {
   const {
@@ -48,20 +49,34 @@ const AdminDashboard = () => {
   } = useGetAdminDashboardQuery();
   const { user: currentUser } = useSelector((state) => state.user);
   const [updateAnnouncement, { isLoading: isUpdating }] = useUpdateAnnouncementMutation();
-
+  const [loadingId, setLoadingId] = useState(null);
+  const [swiperRef, setSwiperRef] = useState(null);
   const handleToggleActive = async (id, currentStatus) => {
     try {
+      setLoadingId(id);
+
+      // ⛔ stop slider while updating
+      swiperRef?.autoplay?.stop();
+
       await updateAnnouncement({
         id,
         data: { isFeatured: !currentStatus },
       }).unwrap();
-      successMessage(`Announcement ${!currentStatus ? "activated" : "deactivated"} successfully`);
+
+      successMessage(
+        `Announcement ${!currentStatus ? "activated" : "deactivated"} successfully`
+      );
+
       refetch();
     } catch (err) {
       errorMessage(err?.data?.message || "Failed to update status");
+    } finally {
+      setLoadingId(null);
+
+      // ▶️ resume slider
+      swiperRef?.autoplay?.start();
     }
   };
-
   const data = dashboardData?.data || {};
   const stats = data.stats || {};
 
@@ -115,7 +130,7 @@ const AdminDashboard = () => {
     <div className="bg-white sm:bg-linear-to-t from-[#F1C2AC]/50 to-[#95C4BE]/50 h-scrseen px-2 sm:px-3">
       {/* banner slider */}
       <div className="mt-3 w-full rounded-lg overflow-hidden cursor-grab">
-        <Swiper
+        <Swiper onSwiper={setSwiperRef}
           spaceBetween={30}
           centeredSlides={true}
           autoplay={{
@@ -160,13 +175,13 @@ const AdminDashboard = () => {
                         >
                           View Announcements
                         </Button>
-                        <div className="flex items-center gap-2 bg-white/20 px-3 py-1.5 rounded-full backdrop-blur-sm border border-white/30">
+                        <div className="flex items-center gap-2 bg-white/20 px-3 py-1.5 rounded-full backdrop-blur-sm border border-white/30 cursor-pointer">
                           <span className="text-white text-sm font-semibold">Active:</span>
                           <Switch
                             isSelected={item.isFeatured}
                             size="sm"
                             color="success"
-                            aria-label={`Toggle announcement ${item.id} active`}
+                            isDisabled={loadingId === item.id}
                             onValueChange={() => handleToggleActive(item.id, item.isFeatured)}
                           />
                         </div>
