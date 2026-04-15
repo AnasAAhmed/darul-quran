@@ -304,6 +304,22 @@ const Announcements = () => {
     });
   };
 
+  const handleApproval = async (id, value) => {
+    try {
+      const res = await updateAnnouncement({
+        id,
+        data: { is_admin_approved: value },
+      }).unwrap();
+      if (res.success) {
+        successMessage(res.message);
+      } else {
+        errorMessage(res.message);
+      }
+    } catch (error) {
+      errorMessage(error?.data?.message || "Failed to approve announcement");
+    }
+  };
+
   return (
     <div className="bg-linear-to-t from-[#F1C2AC]/50 to-[#95C4BE]/50 px-2 sm:px-3">
       <DashHeading
@@ -378,6 +394,7 @@ const Announcements = () => {
             <TableColumn width={200} className="bg-[#EBD4C9]/30">Title / Description</TableColumn>
 
             <TableColumn width={120} className="bg-[#EBD4C9]/30">Created By</TableColumn>
+            <TableColumn width={120} className="bg-[#EBD4C9]/30">Approval</TableColumn>
             <TableColumn width={120} className="bg-[#EBD4C9]/30">Send To</TableColumn>
             <TableColumn width={150} className="bg-[#EBD4C9]/30">Delivery Type</TableColumn>
             <TableColumn width={180} className="bg-[#EBD4C9]/30">Date Sent</TableColumn>
@@ -424,6 +441,24 @@ const Announcements = () => {
                     </p>
                   </div>
                 </TableCell>
+                {announcement.createdBy === "teacher" ?
+                  <TableCell>
+                    <div className="flex-col flex">
+                      <p
+                        className={`p-2 w-full text-center rounded-md bg-[#FBF4EC] text-[#D28E3D] capitalize`}
+                      >
+                        <Switch
+                          isSelected={announcement.is_admin_approved}
+                          onValueChange={(value) => handleApproval(announcement.id, value)}
+                        >
+                          {announcement.is_admin_approved ? "Approved" : "Pending"}
+                        </Switch>
+                      </p>
+                    </div>
+                  </TableCell> :
+                  <TableCell>
+                    Already Approved
+                  </TableCell>}
                 <TableCell>
                   <div className="flex-col flex">
                     <p
