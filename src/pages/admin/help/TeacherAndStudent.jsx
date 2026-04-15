@@ -45,8 +45,8 @@ export default function TeacherAndStudentChat() {
         <div className="shrink-0 border-b border-gray-100 px-4 py-6 sm:px-6">
           <div className="flex items-center justify-between mb-6">
             <div className="flex items-center gap-2">
-              <h1 className="text-2xl font-extrabold text-gray-900">Teacher & Student Chat</h1>
-              <span className="inline-flex items-center justify-center px-2 py-1 rounded-full bg-teal-50 text-xs font-semibold text-teal-700">
+              <h1 className="text-xl font-extrabold text-gray-900">Teacher & Student Chat</h1>
+              <span className="inline-flex items-center justify-center px-2 py-1 rounded-full bg-teal-50 text-xs font-semibold text-teal-700 border border-teal-200 shrink-0 shadow-sm">
                 {chats.length}
               </span>
             </div>
@@ -114,8 +114,11 @@ export default function TeacherAndStudentChat() {
           adminViewMode
           chatId={selectedChat.id}
           adminTeacherId={selectedChat.teacherId}
+          isTeacherAndStudent
           adminTeacherName={[selectedChat.teacherFirstName, selectedChat.teacherLastName].filter(Boolean).join(" ") || selectedChat.teacherEmail || "Teacher"}
+          adminTeacherEmail={selectedChat.teacherEmail || "—"}
           adminStudentName={[selectedChat.studentFirstName, selectedChat.studentLastName].filter(Boolean).join(" ") || selectedChat.studentEmail || "Student"}
+          adminStudentEmail={selectedChat.studentEmail || "—"}
           setSelectedData={setSelectedChat}
           showInput={false}
         />

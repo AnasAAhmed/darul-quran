@@ -33,7 +33,9 @@ export default function ChatInterface({
   adminViewMode = false,
   adminTeacherId = null,
   adminTeacherName = "",
+  adminTeacherEmail = "",
   adminStudentName = "",
+  adminStudentEmail = "",
 }) {
   const [message, setMessage] = useState("");
   const [messages, setMessages] = useState([]);
@@ -518,7 +520,7 @@ export default function ChatInterface({
                 <ul className="py-1">
                   <li><button type="button" onClick={() => setContactModalOpen(true)} className="flex items-center gap-3 w-full text-left px-3 py-2 text-[15px] hover:bg-gray-100 rounded-lg"><FiPhone className="text-lg" /> Contact Info</button></li>
                   <li><button type="button" onClick={toggleMute} className="flex items-center gap-3 w-full text-left px-3 py-2 text-[15px] hover:bg-gray-100 rounded-lg"><FiBellOff className="text-lg" /> {isMuted ? "Unmute" : "Mute"}</button></li>
-                  <li><button
+                  {currentUser.role !== "student" && <li><button
                     type="button"
                     onClick={() => setBlockModalOpen(true)}
                     disabled={(legacyChat?.isBlocked && legacyChat?.blockedBy != currentUserId)}
@@ -526,8 +528,8 @@ export default function ChatInterface({
                     {(legacyChat?.isBlocked && legacyChat?.blockedBy == currentUserId) ?
                       "Unblock" :
                       legacyChat?.isBlocked ? "Blocked" : "Block"}
-                  </button></li>
-                  {currentUser === "admin" && <li><button type="button" onClick={() => setReportModalOpen(true)} className="flex items-center gap-3 w-full text-left px-3 py-2 text-[15px] text-red-500 hover:bg-gray-100 rounded-lg"><FiFlag className="text-lg" /> Report</button></li>}
+                  </button></li>}
+                  {currentUser.role !== "admin" && <li><button type="button" onClick={() => setReportModalOpen(true)} className="flex items-center gap-3 w-full text-left px-3 py-2 text-[15px] text-red-500 hover:bg-gray-100 rounded-lg"><FiFlag className="text-lg" /> Report</button></li>}
                   <li><button type="button" className="flex items-center gap-3 w-full text-left px-3 py-2 text-[15px] hover:bg-gray-100 rounded-lg" onClick={handleBack}><FiXCircle className="text-lg" /> Close Chat</button></li>
                 </ul>
               ) : (
@@ -669,20 +671,32 @@ export default function ChatInterface({
         </ModalContent>
       </Modal>
 
-      {/* Teacher / Student Info (legacy teacher-student view) */}
-      {isTeacherAndStudent && legacyChat && (
+      {/* Teacher / Student Info (legacy teacher-student view or admin view) */}
+      {((isTeacherAndStudent && legacyChat) || isAdminView) ? (
         <Modal isOpen={teacherStudentInfoModalOpen} onOpenChange={setTeacherStudentInfoModalOpen}>
           <ModalContent>
-            <ModalHeader>Conversation</ModalHeader>
+            <ModalHeader>Conversation Info</ModalHeader>
             <ModalBody>
-              <div className="space-y-3">
-                <p><span className="font-medium">Teacher:</span> {legacyChat.teacher_name || "—"}</p>
-                <p><span className="font-medium">Student:</span> {legacyChat.student_name || "—"}</p>
+              <div className="space-y-4">
+                <div className="space-y-2">
+                  <h3 className="font-semibold text-sm text-teal-700">Teacher</h3>
+                  <div className="pl-3 space-y-1">
+                    <p><span className="font-medium">Name:</span> {isAdminView ? adminTeacherName : (legacyChat?.teacher_name || "—")}</p>
+                    <p><span className="font-medium">Email:</span> {isAdminView ? adminTeacherEmail : (legacyChat?.teacher_email || "—")}</p>
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <h3 className="font-semibold text-sm text-amber-700">Student</h3>
+                  <div className="pl-3 space-y-1">
+                    <p><span className="font-medium">Name:</span> {isAdminView ? adminStudentName : (legacyChat?.student_name || "—")}</p>
+                    <p><span className="font-medium">Email:</span> {isAdminView ? adminStudentEmail : (legacyChat?.student_email || "—")}</p>
+                  </div>
+                </div>
               </div>
             </ModalBody>
           </ModalContent>
         </Modal>
-      )}
+      ) : null}
 
       {showInputArea && (
         <div className="sticky bottom-0 left-0 right-0 bg-[#d2ebe5] px-4 py-3 border-t border-gray-300 shadow-lg z-10">
