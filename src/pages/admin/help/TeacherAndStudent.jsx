@@ -119,6 +119,7 @@ export default function TeacherAndStudentChat() {
           adminTeacherEmail={selectedChat.teacherEmail || "—"}
           adminStudentName={[selectedChat.studentFirstName, selectedChat.studentLastName].filter(Boolean).join(" ") || selectedChat.studentEmail || "Student"}
           adminStudentEmail={selectedChat.studentEmail || "—"}
+          isRestricted={selectedChat.isRestricted || false}
           setSelectedData={setSelectedChat}
           showInput={false}
         />

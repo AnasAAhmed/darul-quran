@@ -36,6 +36,8 @@ export default function ChatInterface({
   adminTeacherEmail = "",
   adminStudentName = "",
   adminStudentEmail = "",
+  // Restriction state
+  isRestricted = false,
 }) {
   const [message, setMessage] = useState("");
   const [messages, setMessages] = useState([]);
@@ -55,6 +57,9 @@ export default function ChatInterface({
       return raw ? JSON.parse(raw) : [];
     } catch { return []; }
   });
+  const [restrictModalOpen, setRestrictModalOpen] = useState(false);
+  const [restricting, setRestricting] = useState(false);
+  const [chatRestricted, setChatRestricted] = useState(isRestricted);
   const navigate = useNavigate();
   const messagesEndRef = useRef(null);
   const messagesTopRef = useRef(null);
@@ -104,6 +109,10 @@ export default function ChatInterface({
           setMessages([]);
         }
         setHasMoreOlder(!!data.hasMore);
+        // Update restriction status from API response
+        if (data.isRestricted !== undefined) {
+          setChatRestricted(data.isRestricted);
+        }
       })
       .catch(() => {
         if (!cachedMessages?.length) setMessages([]);
@@ -245,14 +254,54 @@ export default function ChatInterface({
     });
   };
 
-  const handleRestrict = () => {
-    addToast({
-      title: "Restrict conversation",
-      description: "Contact an admin to restrict this chat.",
-      color: "warning",
-      variant: "solid",
-      placement: "bottom-right",
-    });
+  const handleRestrict = async () => {
+    if (!isAdminView) {
+      addToast({
+        title: "Restrict conversation",
+        description: "Contact an admin to restrict this chat.",
+        color: "warning",
+        variant: "solid",
+        placement: "bottom-right",
+      });
+      return;
+    }
+    setRestricting(true);
+    const finalToken = localStorage.getItem("token");
+    const headers = {};
+    if (finalToken) headers["Authorization"] = `Bearer ${finalToken}`;
+    const url = `${API}/api/chat/${chatId}/restrict`;
+    try {
+      const res = await fetch(url, {
+        method: "PATCH",
+        credentials: "include",
+        headers
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        throw new Error(data?.message || "Failed to restrict chat");
+      }
+      setChatRestricted(data.isRestricted);
+      addToast({
+        title: data.isRestricted ? "Chat restricted" : "Chat unrestricted",
+        description: data.isRestricted 
+          ? "Teacher and student can no longer send messages in this chat."
+          : "Chat has been unrestricted. Teacher and student can now send messages.",
+        color: "success",
+        variant: "solid",
+        placement: "bottom-right",
+      });
+      setRestrictModalOpen(false);
+      fetchChats?.();
+    } catch (error) {
+      addToast({
+        title: error?.message || "Failed to restrict chat",
+        color: "danger",
+        variant: "solid",
+        placement: "bottom-right",
+      });
+    } finally {
+      setRestricting(false);
+    }
   };
 
   const deleteUploadedFile = async (url) => {
@@ -311,6 +360,17 @@ export default function ChatInterface({
   };
 
   const sendMessage = async () => {
+    // Prevent sending if chat is restricted by admin
+    if (chatRestricted) {
+      addToast({
+        title: "Cannot send messages",
+        description: "This conversation has been restricted by an admin.",
+        color: "warning",
+        placement: "bottom-right",
+      });
+      return;
+    }
+
     // Prevent sending if chat is blocked by other user
     if (legacyChat?.isBlocked && legacyChat?.blockedBy !== currentUserId) {
       addToast({
@@ -536,7 +596,7 @@ export default function ChatInterface({
                 <ul className="py-1">
                   <li><button type="button" onClick={() => setTeacherStudentInfoModalOpen(true)} className="flex items-center gap-3 w-full text-left px-3 py-2 text-[15px] hover:bg-gray-100 rounded-lg"><FiEye className="text-lg" /> Teacher Info</button></li>
                   <li><button type="button" onClick={() => setTeacherStudentInfoModalOpen(true)} className="flex items-center gap-3 w-full text-left px-3 py-2 text-[15px] hover:bg-gray-100 rounded-lg"><FiPhone className="text-lg" /> Student Info</button></li>
-                  <li><button type="button" onClick={handleRestrict} className="flex items-center gap-3 w-full text-left px-3 py-2 text-[15px] text-red-600 hover:bg-gray-100 rounded-lg"><FiLock className="text-lg" /> Restrict</button></li>
+                  {isAdminView && <li><button type="button" onClick={() => setRestrictModalOpen(true)} className="flex items-center gap-3 w-full text-left px-3 py-2 text-[15px] text-red-600 hover:bg-gray-100 rounded-lg"><FiLock className="text-lg" /> {chatRestricted ? "Unrestrict" : "Restrict"}</button></li>}
                   <li><button type="button" className="flex items-center gap-3 w-full text-left px-3 py-2 text-[15px] hover:bg-gray-100 rounded-lg" onClick={handleBack}><FiXCircle className="text-lg" /> Close Chat</button></li>
                 </ul>
               )}
@@ -564,6 +624,29 @@ export default function ChatInterface({
                 {legacyChat?.blockedBy == currentUserId
                   ? "You can unblock this user from the menu to resume messaging."
                   : "You cannot send messages in this conversation. The user who blocked this conversation can unblock it."}
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Restricted Banner */}
+      {chatRestricted && (
+        <div className="bg-orange-50 border-b border-orange-200 px-4 py-3 shrink-0">
+          <div className="flex items-start gap-3">
+            <div className="w-10 h-10 rounded-full bg-orange-100 flex items-center justify-center shrink-0">
+              <FiLock size={20} className="text-orange-600" />
+            </div>
+            <div className="flex-1">
+              <h4 className="font-semibold text-sm text-orange-800 mb-1">
+                {isAdminView 
+                  ? "This chat has been restricted"
+                  : "Admin has restricted this chat"}
+              </h4>
+              <p className="text-xs text-orange-700">
+                {isAdminView 
+                  ? "Teacher and student can no longer send messages in this conversation."
+                  : "You cannot send messages in this conversation. An admin has restricted this chat. Contact an admin if you believe this is an error."}
               </p>
             </div>
           </div>
@@ -617,7 +700,7 @@ export default function ChatInterface({
           })()
         ) : (
           <div className="flex justify-center py-8">
-            <span className="text-gray-600">No messages yet. Say hello!</span>
+            <span className="text-gray-600">No messages yet!</span>
           </div>
         )}
         <div ref={messagesEndRef} />
@@ -670,6 +753,24 @@ export default function ChatInterface({
           </ModalFooter>
         </ModalContent>
       </Modal>
+
+      {/* Restrict confirmation */}
+      {isAdminView && (
+        <Modal isOpen={restrictModalOpen} onOpenChange={setRestrictModalOpen}>
+          <ModalContent>
+            <ModalHeader>{chatRestricted ? "Unrestrict" : "Restrict"} chat?</ModalHeader>
+            <ModalBody>
+              <p>{chatRestricted 
+                ? "Unrestricting will allow the teacher and student to send messages again."
+                : "Restricting will prevent the teacher and student from sending messages in this chat. They will see a notification that the chat has been restricted by an admin."}</p>
+            </ModalBody>
+            <ModalFooter>
+              <Button variant="light" onPress={() => setRestrictModalOpen(false)}>Cancel</Button>
+              <Button isLoading={restricting} color="danger" onPress={handleRestrict}>{chatRestricted ? "Unrestrict" : "Restrict"}</Button>
+            </ModalFooter>
+          </ModalContent>
+        </Modal>
+      )}
 
       {/* Teacher / Student Info (legacy teacher-student view or admin view) */}
       {((isTeacherAndStudent && legacyChat) || isAdminView) ? (
