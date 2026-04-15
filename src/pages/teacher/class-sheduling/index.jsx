@@ -971,7 +971,7 @@ const TeacherClassSheduling = () => {
         <ModalContent>
           <ModalHeader>
             <h2 className="text-lg font-semibold text-[#06574C]">
-              Delete Schdule
+              Cancel Schdule
             </h2>
           </ModalHeader>
           <ModalBody>
@@ -984,9 +984,12 @@ const TeacherClassSheduling = () => {
                   <p className="font-semibold text-sm">
                     {selectedSchedule.title}
                   </p>
+                  <p className="font-bold text-xs ">
+                    {selectedSchedule?.description}
+                  </p>
                   <p className="text-sm text-gray-600">
                     {/* {(parseDateFromDB(selectedSchedule.date) || new Date(selectedSchedule.date)).toLocaleDateString()} at{" "} */}
-                    {formatTime12Hour(selectedSchedule.startTime)}
+                    {formatTime12Hour(selectedSchedule.startTime)} - {formatTime12Hour(selectedSchedule.endTime)}
                   </p>
                 </div>
                 <div className="bg-amber-50 border border-amber-200 rounded-lg p-3 mt-3">
@@ -1014,7 +1017,7 @@ const TeacherClassSheduling = () => {
               onPress={() => handleDelete(selectedSchedule?.id)}
               isLoading={isCancelling}
             >
-              Yes, Delete
+              Yes, Cancel It
             </Button>
           </ModalFooter>
         </ModalContent>
