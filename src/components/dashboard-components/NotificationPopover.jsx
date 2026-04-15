@@ -27,7 +27,7 @@ const NotificationPopover = ({ isHomeMob = false }) => {
         page: 1
     }, {
         skip: !canAccessNotifications,
-        pollingInterval: 60000  // Poll every 30 seconds for new notifications
+        pollingInterval: 30000  // Poll every 30 seconds for new notifications
     });
 
     const [markAsRead] = useMarkAsReadMutation();
@@ -107,7 +107,7 @@ const NotificationPopover = ({ isHomeMob = false }) => {
                             variant="flat"
                             className="bg-[#d0ded7] shrink-0 text-white font-bold"
                         >
-                            {hasNewNotifications || unreadCount || unreadNotifications.length}
+                             {unreadCount || unreadNotifications.length}
                         </Chip>
                     </div>
                 </div>
