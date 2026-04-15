@@ -443,17 +443,16 @@ const Announcements = () => {
                 </TableCell>
                 {announcement.createdBy === "teacher" ?
                   <TableCell>
-                    <div className="flex-col flex">
-                      <p
-                        className={`p-2 w-full text-center rounded-md bg-[#FBF4EC] text-[#D28E3D] capitalize`}
-                      >
+                    <div className="flex-col flex">                     
                         <Switch
+                        isDisabled={announcement.is_admin_approved}
+                          radius="sm"
+                          color="success"
                           isSelected={announcement.is_admin_approved}
                           onValueChange={(value) => handleApproval(announcement.id, value)}
                         >
                           {announcement.is_admin_approved ? "Approved" : "Pending"}
-                        </Switch>
-                      </p>
+                        </Switch> 
                     </div>
                   </TableCell> :
                   <TableCell>
