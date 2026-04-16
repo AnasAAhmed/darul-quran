@@ -27,7 +27,7 @@ const NotificationPopover = ({ isHomeMob = false }) => {
         page: 1
     }, {
         skip: !canAccessNotifications,
-        pollingInterval: 30000  // Poll every 30 seconds for new notifications
+        pollingInterval: 60000  // Poll every 60 seconds for new notifications
     });
 
     const [markAsRead] = useMarkAsReadMutation();
