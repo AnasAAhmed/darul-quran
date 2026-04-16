@@ -430,7 +430,7 @@ const PaymentsInvoices = () => {
           </motion.div>
         </AnimatePresence>
 
-        <div className="md:flex items-center pb-4 gap-2 justify-between overflow-hidden">
+        <div className="flex flex-col md:flex-row md:items-center pb-4 gap-3 justify-between overflow-hidden">
           <div className="flex text-sm items-center gap-1">
             <span>Showing</span>
             <Select
@@ -544,7 +544,7 @@ const PaymentsInvoices = () => {
           </TableBody>
         </Table>
 
-        <div className="md:flex items-center pb-4 gap-2 justify-between overflow-hidden">
+        <div className="flex flex-col md:flex-row md:items-center pb-4 gap-3 justify-between overflow-hidden">
           <div className="flex text-sm items-center gap-1">
             <span>Showing</span>
             <Select
@@ -703,7 +703,7 @@ const PaymentsInvoices = () => {
           </motion.div>
         </AnimatePresence>
 
-        <div className="md:flex items-center pb-4 gap-2 justify-between overflow-hidden">
+        <div className="flex flex-col md:flex-row md:items-center pb-4 gap-3 justify-between overflow-hidden">
           <div className="flex text-sm items-center gap-1">
             <span>Showing</span>
             <Select
