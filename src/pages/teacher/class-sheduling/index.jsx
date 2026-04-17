@@ -1467,6 +1467,7 @@ const TeacherClassSheduling = () => {
                       <TableCell>
                         <div>
                           <p className="font-medium text-sm">{request.studentName}</p>
+                          <p className="text-xs text-gray-400">{request.studentEmail}</p>
                         </div>
                       </TableCell>
                       <TableCell>
