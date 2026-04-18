@@ -1132,7 +1132,7 @@ const CourseBuilder = () => {
                       </h1>
                     </div>
                     <div className="py-4">
-                      <div className="p-3 bg-[#95C4BE33] rounded-lg flex justify-between items-center">
+                      {/* <div className="p-3 bg-[#95C4BE33] rounded-lg flex justify-between items-center">
                         <div>
                           <h1 className="text-[#06574C] font-medium text-lg">
                             Course Type
@@ -1141,7 +1141,7 @@ const CourseBuilder = () => {
                             Choose between paid or free course
                           </h1>
                         </div>
-                      </div>
+                      </div> */}
 
                       <div className="flex gap-3 items-center py-4">
                         {formData.type === "one_time" && (
