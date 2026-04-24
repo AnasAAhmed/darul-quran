@@ -203,8 +203,9 @@ export default function HelpMessages() {
     adminModal.onOpen();
     setLoadingAdmins(true);
     setAdminsList([]);
+    const finalToken = localStorage.getItem("token") || token;
     try {
-      const res = await fetch(`${API}/api/chat/admins`, { credentials: "include" });
+      const res = await fetch(`${API}/api/chat/admins`, { credentials: "include", headers: { "Authorization": `Bearer ${finalToken}`, "Content-Type": "application/json" } });
       const data = await res.json();
       if (res.ok && data.admins) setAdminsList(data.admins);
     } catch (err) {
