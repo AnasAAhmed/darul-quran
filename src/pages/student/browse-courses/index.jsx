@@ -326,7 +326,7 @@ const BrowseCourses = () => {
                         >
                           {item.coursePrice === "0" || item.coursePrice === "00" ? "Free" : "Paid"}
                         </Button>
-                       {item.rating > 0 &&  <div className="flex items-center gap-1">
+                        {item.rating > 0 && <div className="flex items-center gap-1">
                           <IoStarSharp size={18} color="#FDD835" />
                           <p className="text-[#060606] text-xs font-medium">
                             {item.rating?.toFixed(1) || "0.0"}
@@ -431,7 +431,7 @@ const BrowseCourses = () => {
           <span>Limit</span>
           <Select
             radius="sm"
-            className="w-full sm:w-[70px]"
+            className="w-full sm:w-[100px]"
             defaultSelectedKeys={["10"]}
             onSelectionChange={(k) => {
               const keys = [...k];
