@@ -238,7 +238,9 @@ const CreaterOrUpdateSchedule = () => {
                     <p className="text-xs text-gray-500 b-2">Zoom link and password will be auto-generated upon creation.</p>
                 )}
                 <p className="text-xs text-warning mb-2">Note: 29th, 30th and 31st dates wil be block for every month.</p>
-
+                {formData.specificDates.length > 0 && (
+                    <p className="text-sm text-danger mb-2">Note: You can't edit all details schedule after selecting specific dates. You can only update start and end time of spcific dates</p>
+                )}
                 <div className="flex gap-2 mb-4">
                     <Button
                         radius="sm"
@@ -269,6 +271,7 @@ const CreaterOrUpdateSchedule = () => {
                     onChange={(e) =>
                         setFormData({ ...formData, title: e.target.value })
                     }
+                    isDisabled={formData?.specificDates?.length > 0}
                 />
                 <CourseSelect
                     initialValue={formData.courseId}
@@ -349,6 +352,7 @@ const CreaterOrUpdateSchedule = () => {
                         variant="bordered"
                         labelPlacement="outside"
                         isRequired={formData.scheduleType === "daily"}
+                        isDisabled={formData?.specificDates?.length > 0}
                         value={formData.startDate}
                         onChange={(e) =>
                             setFormData({ ...formData, startDate: e.target.value })
@@ -359,6 +363,7 @@ const CreaterOrUpdateSchedule = () => {
                         label="End Date (optional)"
                         variant="bordered"
                         labelPlacement="outside"
+                        isDisabled={formData?.specificDates?.length > 0}
                         value={formData.endDate}
                         onChange={(e) =>
                             setFormData({ ...formData, endDate: e.target.value })
@@ -373,6 +378,7 @@ const CreaterOrUpdateSchedule = () => {
                             min={1}
                             variant="bordered"
                             value={formData.repeatInterval}
+                            isDisabled={formData?.specificDates?.length > 0}
                             onChange={(e) =>
                                 setFormData({
                                     ...formData,
@@ -401,9 +407,10 @@ const CreaterOrUpdateSchedule = () => {
 
                         <CheckboxGroup
                             label="Select Days"
-                            value={formData?.weeklyDays.map(String)}
+                            value={formData?.weeklyDays?.map(String)}
                             orientation="horizontal"
                             color="success"
+                            isDisabled={formData?.specificDates?.length > 0}
                             isRequired={formData.scheduleType === "weekly"}
                             onChange={(val) =>
                                 setFormData({ ...formData, weeklyDays: val })
@@ -458,6 +465,7 @@ const CreaterOrUpdateSchedule = () => {
                     label="Description"
                     variant="bordered"
                     value={formData.description}
+                    isDisabled={formData?.specificDates?.length > 0}
                     onChange={(e) =>
                         setFormData({ ...formData, description: e.target.value })
                     }
