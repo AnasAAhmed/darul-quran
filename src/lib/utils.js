@@ -222,6 +222,7 @@ export const validateSchedule = (formData) => {
     endDate,
     repeatInterval,
     weeklyDays,
+    specificDates,
   } = formData;
 
   if (!title || !title.trim()) {
@@ -379,6 +380,11 @@ export const validateSchedule = (formData) => {
         valid: false,
         message: "Please select at least one day of the week",
       };
+    }
+    
+    // Check specificDates if provided
+    if (specificDates && specificDates.length > 0) {
+        // Validation passed if dates are selected
     }
   }
 

@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { DashHeading } from "../../../components/dashboard-components/DashHeading";
 import {
     Button,
@@ -8,6 +8,8 @@ import {
     CheckboxGroup,
     Checkbox,
     Form,
+    Select,
+    SelectItem,
 } from "@heroui/react";
 import { errorMessage, successMessage } from "../../../lib/toast.config";
 import TeacherSelect from "../../../components/select/TeacherSelect";
@@ -52,6 +54,7 @@ const CreaterOrUpdateSchedule = () => {
         repeatInterval: 1,
         weeklyDays: [],
         specificStudentIds: [],
+        specificDates: [],
         // Zoom settings
         settings: {
             join_before_host: false,
@@ -76,7 +79,8 @@ const CreaterOrUpdateSchedule = () => {
             let response;
             const payload = {
                 ...formData,
-                weeklyDays: formData.weeklyDays.map(String)
+                weeklyDays: formData.weeklyDays?.map(String),
+                specificDates: formData.specificDates?.map(String)
 
             }
 
@@ -121,6 +125,7 @@ const CreaterOrUpdateSchedule = () => {
             repeatInterval: 1,
             weeklyDays: [],
             specificStudentIds: [],
+            specificDates: [],
             settings: {
                 join_before_host: false,
                 auto_recording: false,
@@ -155,6 +160,7 @@ const CreaterOrUpdateSchedule = () => {
             weeklyDays: item.weeklyDays,
             specificStudentIds: item.specificStudents,
             specificStudents: item.specificStudents,
+            specificDates: item.specificDates || [],
             settings: {
                 join_before_host: item.settings?.join_before_host || false,
                 waiting_room: item.settings?.waiting_room || false,
@@ -162,6 +168,52 @@ const CreaterOrUpdateSchedule = () => {
             },
         });
     }, [scheduleFromState])
+    
+    const availableDates = useMemo(() => {
+        if (!formData.startDate) return [];
+
+        const start = new Date(formData.startDate);
+        let end;
+
+        if (formData.endDate) {
+            end = new Date(formData.endDate);
+        } else {
+            // Ongoing: to the 28th of the month of startDate
+            end = new Date(start.getFullYear(), start.getMonth(), 28);
+        }
+
+        const dates = [];
+        const current = new Date(start);
+
+        // Safety limit to avoid infinite loops or excessive dates
+        let count = 0;
+        while (current <= end && count < 31) {
+            if (current.getDate() <= 28) {
+                dates.push({
+                    key: current.toISOString().split('T')[0],
+                    label: current.toLocaleDateString('en-US', {
+                        month: 'short',
+                        day: '2-digit',
+                        year: 'numeric'
+                    })
+                });
+            }
+            current.setDate(current.getDate() + 1);
+            count++;
+        }
+        return dates;
+    }, [formData.startDate, formData.endDate]);
+    
+    // Clear specificDates if they fall outside the new range
+    useEffect(() => {
+        if (formData.specificDates.length > 0) {
+            const validKeys = new Set(availableDates.map(d => d.key));
+            const newSpecificDates = formData.specificDates.filter(date => validKeys.has(date));
+            if (newSpecificDates.length !== formData.specificDates.length) {
+                setFormData(prev => ({ ...prev, specificDates: newSpecificDates }));
+            }
+        }
+    }, [availableDates]);
 
 
     return (
@@ -225,6 +277,28 @@ const CreaterOrUpdateSchedule = () => {
                     type="live"
                     isDisabled={isEdit}
                 />
+                    <div className="w-full ">
+                        <Select
+                            labelPlacement="outside"
+                            label="Select Specific Dates"
+                            placeholder={formData.startDate ? "Pick specific dates from range" : "Please select start date first"}
+                            selectionMode="multiple"
+                            variant="bordered"
+                            size="md"
+                            className=""
+                            isDisabled={!formData.startDate}
+                            selectedKeys={new Set(formData.specificDates)}
+                            onSelectionChange={(keys) => {
+                                setFormData({ ...formData, specificDates: Array.from(keys) });
+                            }}
+                        >
+                            {availableDates.map((dateObj) => (
+                                <SelectItem key={dateObj.key} textValue={dateObj.label}>
+                                    {dateObj.label}
+                                </SelectItem>
+                            ))}
+                        </Select>
+                    </div> 
 
                 <div className="flex gap-2 mb-4">
                     <Button

@@ -356,7 +356,7 @@ const Announcements = () => {
                         <SelectItem key={"In-App"}>In-App</SelectItem>
                       </Select>
                     </div>
-                    <div className="flex items-center gap-2">
+                    {/* <div className="flex items-center gap-2">
                       <Switch
                         size="sm"
                         color="success"
@@ -364,7 +364,7 @@ const Announcements = () => {
                         onValueChange={setIsFeatured}
                       />
                       <span className="text-xs font-semibold text-gray-600">Mark as Featured</span>
-                    </div>
+                    </div> */}
                   </Form>
                   
                   <div className="p-4 flex flex-col gap-3">

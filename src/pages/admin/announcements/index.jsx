@@ -394,7 +394,7 @@ const Announcements = () => {
             <TableColumn width={200} className="bg-[#EBD4C9]/30">Title / Description</TableColumn>
 
             <TableColumn width={120} className="bg-[#EBD4C9]/30">Created By</TableColumn>
-            <TableColumn width={120} className="bg-[#EBD4C9]/30">Approval</TableColumn>
+            <TableColumn width={120} className="bg-[#EBD4C9]/30">Approval To Send</TableColumn>
             <TableColumn width={120} className="bg-[#EBD4C9]/30">Send To</TableColumn>
             <TableColumn width={150} className="bg-[#EBD4C9]/30">Delivery Type</TableColumn>
             <TableColumn width={180} className="bg-[#EBD4C9]/30">Date Sent</TableColumn>
