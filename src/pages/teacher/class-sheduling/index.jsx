@@ -125,7 +125,7 @@ const TeacherClassSheduling = () => {
     limit: "10",
     status: filterStatus === "all" ? undefined : filterStatus,
   });
-
+  console.log("scheduleData", scheduleData);
   const [deleteSchedule, { isLoading: isCancelling }] =
     useDeleteScheduleMutation();
   const [addScheduleNote, { isLoading: isSavingNote }] =
@@ -510,6 +510,13 @@ const TeacherClassSheduling = () => {
               : `${dateFormatter(schedule.scheduleDates[0])} - to - ${schedule?.isDateGenerated ? "On Going" : dateFormatter(schedule.scheduleDates[schedule.scheduleDates.length - 1])}`}
           </p>
         )}
+        {schedule.specificDates && Object.keys(schedule.specificDates).length > 0 && (
+          <p className="text-[#666666] text-sm mb-4 line-clamp-2">
+            Specific Dates: {Object.entries(schedule.specificDates).map(([date, times]) => 
+              `${dateFormatter(date)} (${formatTime12Hour(times.startTime)} - ${formatTime12Hour(times.endTime)})`
+            ).join(", ")}
+          </p>
+        )}
         <div className="flex flex-wrap gap-4 mb-4">
           <div className="flex text-[#666666] text-sm items-center gap-2">
             {type === "normal" ? (
@@ -884,13 +891,34 @@ const TeacherClassSheduling = () => {
                     <div className="flex flex-col gap-2 mb-4">
                       <div className="flex items-center gap-2 text-gray-600 text-sm">
                         <CiCalendar size={18} />
-                        <span>{dateFormatter(schedule.date)}</span>
+                        {(() => {
+                          const dateKey = selectedDate instanceof Date 
+                            ? `${selectedDate.getFullYear()}-${String(selectedDate.getMonth() + 1).padStart(2, '0')}-${String(selectedDate.getDate()).padStart(2, '0')}`
+                            : selectedDate;
+                          const hasSpecificDate = schedule.specificDates && typeof schedule.specificDates === 'object' && schedule.specificDates[dateKey];
+                          
+                          return hasSpecificDate ? (
+                            <span>{dateFormatter(selectedDate)}</span>
+                          ) : (
+                            <span>{dateFormatter(schedule.date)}</span>
+                          );
+                        })()}
                       </div>
                       <div className="flex items-center gap-2 text-gray-600 text-sm">
                         <Clock size={18} />
                         <span>
-                          {formatTime12Hour(schedule.startTime)} -{" "}
-                          {formatTime12Hour(schedule.endTime)}
+                          {(() => {
+                            const dateKey = selectedDate instanceof Date 
+                              ? `${selectedDate.getFullYear()}-${String(selectedDate.getMonth() + 1).padStart(2, '0')}-${String(selectedDate.getDate()).padStart(2, '0')}`
+                              : selectedDate;
+                            const specificTime = schedule.specificDates?.[dateKey];
+                            
+                            return (specificTime && specificTime.startTime && specificTime.endTime) ? (
+                              `${formatTime12Hour(specificTime.startTime)} - ${formatTime12Hour(specificTime.endTime)}`
+                            ) : (
+                              `${formatTime12Hour(schedule.startTime)} - ${formatTime12Hour(schedule.endTime)}`
+                            );
+                          })()}
                         </span>
                       </div>
                       {schedule.notes && schedule?.notes?.["2026-04-07"] &&
