@@ -160,7 +160,9 @@ const CreaterOrUpdateSchedule = () => {
             weeklyDays: item.weeklyDays,
             specificStudentIds: item.specificStudents,
             specificStudents: item.specificStudents,
-            specificDates: item.specificDates || [],
+            specificDates: (item.specificDates && typeof item.specificDates === 'object' && !Array.isArray(item.specificDates)) 
+                ? Object.keys(item.specificDates) 
+                : (item.specificDates || []),
             settings: {
                 join_before_host: item.settings?.join_before_host || false,
                 waiting_room: item.settings?.waiting_room || false,
@@ -290,7 +292,7 @@ const CreaterOrUpdateSchedule = () => {
                             size="md"
                             className=""
                             isDisabled={!formData.startDate}
-                            selectedKeys={new Set(formData.specificDates)}
+                            selectedKeys={new Set(Array.isArray(formData?.specificDates) ? formData.specificDates : [])}
                             onSelectionChange={(keys) => {
                                 setFormData({ ...formData, specificDates: Array.from(keys) });
                             }}
