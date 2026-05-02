@@ -40,7 +40,11 @@ import QueryError from "../../../components/QueryError";
 import { groupAndSortSchedulesByDate } from "../../../utils/scheduleHelpers";
 import SchedulesByDateList from "../../../components/schedule/SchedulesByDateList";
 
+import { useLocation, useNavigate } from "react-router-dom";
+
 const StudentClassSheduling = () => {
+    const navigate = useNavigate();
+    const location = useLocation();
     const [filterStatus, setFilterStatus] = useState("all");
     const [filterType, setFilterType] = useState("all");
     const [selectedSchedule, setSelectedSchedule] = useState(null);
@@ -68,17 +72,17 @@ const StudentClassSheduling = () => {
     const [respondToSchedule, { isLoading: isResponding }] = useRespondToScheduleMutation();
 
     useEffect(() => {
-        const queryParams = new URLSearchParams(window.location.search);
+        const queryParams = new URLSearchParams(location.search);
         const action = queryParams.get("action");
         const scheduleId = queryParams.get("scheduleId");
 
         if (action === "deny" && scheduleId) {
             setTargetScheduleId(scheduleId);
             setIsDenyModalOpen(true);
-            // Clean up URL to prevent modal from re-opening on refresh
-            window.history.replaceState({}, document.title, window.location.pathname);
+            // Clean up URL parameters after handling
+            navigate(location.pathname, { replace: true });
         }
-    }, []);
+    }, [location.search, navigate]);
 
     const handleSubmitDeny = async () => {
         if (!denyReason.trim()) {
@@ -573,6 +577,20 @@ const StudentClassSheduling = () => {
                                 onPress={() => handleCancelClass(schedule)}
                             >
                                 Cancel
+                            </Button>
+                        )}
+                        {!isExpired && (
+                            <Button
+                                radius="sm"
+                                size="sm"
+                                variant="bordered"
+                                color="danger"
+                                onPress={() => {
+                                    setTargetScheduleId(schedule.id);
+                                    setIsDenyModalOpen(true);
+                                }}
+                            >
+                                Decline
                             </Button>
                         )}
                     </div>
