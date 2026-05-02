@@ -320,7 +320,15 @@ function App() {
     </div>
   );
 
+   useEffect(() => {
+        const queryParams = new URLSearchParams(location.search);
+        const action = queryParams.get("action");
+        const scheduleId = queryParams.get("scheduleId");
 
+        if (action === "deny" && scheduleId) {
+             sessionStorage.setItem("rescheduling_redirecting", window.location.href);
+        }
+    }, [location.search, navigate]);
 
   return (
     <HeroUIProvider>

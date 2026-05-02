@@ -1,4 +1,4 @@
-import { Navigate, Outlet } from "react-router-dom";
+import { Navigate, Outlet, useLocation } from "react-router-dom";
 
 // type UserRole = "admin" | "teacher" | "student";
 
@@ -23,7 +23,8 @@ const ProtectedRoute = ({
     //     if (isAuthenticated) return <Navigate to={redirect} />;
     //     return children ? children : <Outlet />;
     // }
-
+    // const location = useLocation()
+    alert(window.location.href)
     if (!isAuthenticated) return <Navigate to={redirect} />;
 
     if (allowedRoles && !allowedRoles.includes(role)) {

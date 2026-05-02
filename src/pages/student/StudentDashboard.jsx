@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import { Button, Pagination, Progress, Skeleton } from "@heroui/react";
 import { Clock, Video, VideoIcon, Check, Lock } from "lucide-react";
 import { AiOutlineEye } from "react-icons/ai";
@@ -25,15 +25,24 @@ import QueryError from "../../components/QueryError";
 import { formatTime12Hour, isClassExpired, isClassLive, getHoursUntilClass, getStatusText } from "../../utils/scheduleHelpers";
 import { useGetStudentDashboardQuery } from "../../redux/api/dashboard";
 
+
 const StudentDashboard = () => {
   const { user } = useSelector((state) => state.user);
+  const location = useLocation();
   const navigate = useNavigate();
   const [page, setPage] = useState(1);
   const [isMarking, setIsMarking] = useState(false);
   const { data, error, isLoading, isFetching, refetch } = useGetEnrolledCoursesQuery({
     page,
   });
-
+  useEffect(() => {
+    const reschedulingRedirect = sessionStorage.getItem("rescheduling_redirecting");
+    if (reschedulingRedirect) {
+      sessionStorage.removeItem("rescheduling_redirecting");
+      navigate(reschedulingRedirect);
+    }
+  }, [location.search, navigate]);
+  
   const {
     data: dashboardData,
     error: dashboardError,
