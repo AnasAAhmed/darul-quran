@@ -80,7 +80,7 @@ const StudentClassSheduling = () => {
             setTargetScheduleId(scheduleId);
             setIsDenyModalOpen(true);
             // Clean up URL parameters after handling
-            navigate(location.pathname, { replace: true });
+            // navigate(location.pathname, { replace: true });
         }
     }, [location.search, navigate]);
 
@@ -96,7 +96,7 @@ const StudentClassSheduling = () => {
                 status: "denied",
                 reason: denyReason
             }).unwrap();
-            
+            navigate(location.pathname, { replace: true });
             successMessage("Response submitted successfully");
             setIsDenyModalOpen(false);
             setDenyReason("");

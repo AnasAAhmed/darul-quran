@@ -941,55 +941,6 @@ const TeacherClassSheduling = () => {
                     </div>
 
                     <Divider className="my-3" />
-
-                    {/* <div className="flex flex-wrap gap-2">
-                                            {schedule.meetingLink && isClassLive({ ...schedule, scheduleDates: [schedule.date] }) ? (
-                                                <Button
-                                                    size="sm"
-                                                    className="bg-[#1570E8] text-white"
-                                                    startContent={<LuSquareArrowOutUpRight size={16} />}
-                                                    onPress={() => handleJoinClass(schedule)}
-                                                    isLoading={isMarking === schedule.id}
-                                                >
-                                                    Join Class
-                                                </Button>
-                                            ) : (
-                                                <Button
-                                                    size="sm"
-                                                    className="bg-[#9A9A9A] text-white"
-                                                    startContent={<Lock size={16} />}
-                                                    isDisabled
-                                                >
-                                                    Join Locked
-                                                </Button>
-                                            )}
-                                            {canReschedule(schedule) && (
-                                                <Button
-                                                    size="sm"
-                                                    variant="bordered"
-                                                    color="success"
-                                                    onPress={() => {
-                                                        closeDateModal();
-                                                        navigate('/teacher/class-scheduling/manage', { state: schedule });
-                                                    }}
-                                                >
-                                                    Reschedule
-                                                </Button>
-                                            )}
-                                            {canCancel(schedule) && (
-                                                <Button
-                                                    size="sm"
-                                                    variant="bordered"
-                                                    color="danger"
-                                                    onPress={() => {
-                                                        closeDateModal();
-                                                        handleCancelClass(schedule);
-                                                    }}
-                                                >
-                                                    Cancel
-                                                </Button>
-                                            )}
-                                        </div> */}
                   </div>
                 ))}
               </div>
