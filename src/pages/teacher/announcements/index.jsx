@@ -373,7 +373,7 @@ const Announcements = () => {
                         {files.map((file, index) => (
                           <div
                             key={index}
-                            className="relative w-16 h-16 rounded-lg border border-gray-200 shadow-sm flex items-center justify-center shrink-0 bg-gray-50 bg-white"
+                            className="relative w-16 h-16 rounded-lg border border-gray-200 shadow-sm flex items-center justify-center shrink-0 bg-white"
                           >
                             {file.type.startsWith("image/") ? (
                               <img

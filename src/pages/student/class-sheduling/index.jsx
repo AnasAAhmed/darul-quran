@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { DashHeading } from "../../../components/dashboard-components/DashHeading";
 import {
     Button,
@@ -16,6 +16,7 @@ import {
     Tabs,
     Tab,
     Tooltip,
+    Textarea,
 } from "@heroui/react";
 import { CiCalendar } from "react-icons/ci";
 import { Clock, Lock, Video, Calendar as CalendarIcon, User, MapPin } from "lucide-react";
@@ -24,6 +25,7 @@ import { LuSquareArrowOutUpRight } from "react-icons/lu";
 import { Calendar } from "@heroui/react";
 import {
     useGetScheduleQuery,
+    useRespondToScheduleMutation,
 } from "../../../redux/api/schedules";
 import { useCreateRescheduleRequestMutation } from "../../../redux/api/reschedule";
 import { useCreateCancellationRequestMutation } from "../../../redux/api/cancellation";
@@ -59,6 +61,46 @@ const StudentClassSheduling = () => {
 
     const { user: currentUser } = useSelector((state) => state.user);
     const { isOpen: isDateModalOpen, onOpen: openDateModal, onOpenChange: closeDateModal } = useDisclosure();
+
+    const [isDenyModalOpen, setIsDenyModalOpen] = useState(false);
+    const [denyReason, setDenyReason] = useState("");
+    const [targetScheduleId, setTargetScheduleId] = useState(null);
+    const [respondToSchedule, { isLoading: isResponding }] = useRespondToScheduleMutation();
+
+    useEffect(() => {
+        const queryParams = new URLSearchParams(window.location.search);
+        const action = queryParams.get("action");
+        const scheduleId = queryParams.get("scheduleId");
+
+        if (action === "deny" && scheduleId) {
+            setTargetScheduleId(scheduleId);
+            setIsDenyModalOpen(true);
+            // Clean up URL to prevent modal from re-opening on refresh
+            window.history.replaceState({}, document.title, window.location.pathname);
+        }
+    }, []);
+
+    const handleSubmitDeny = async () => {
+        if (!denyReason.trim()) {
+            errorMessage("Please provide a reason for declining");
+            return;
+        }
+
+        try {
+            await respondToSchedule({
+                id: targetScheduleId,
+                status: "denied",
+                reason: denyReason
+            }).unwrap();
+            
+            successMessage("Response submitted successfully");
+            setIsDenyModalOpen(false);
+            setDenyReason("");
+            setTargetScheduleId(null);
+        } catch (error) {
+            errorMessage(error?.data?.message || "Failed to submit response");
+        }
+    };
 
     const schedulesDates = useMemo(() => {
         if (!scheduleData?.schedules) return [];
@@ -913,6 +955,44 @@ const StudentClassSheduling = () => {
                 onSubmit={handleSubmitCancellationRequest}
                 isSubmitting={isCancelling}
             />
+
+            <Modal isOpen={isDenyModalOpen} onOpenChange={setIsDenyModalOpen}>
+                <ModalContent>
+                    <ModalHeader className="flex flex-col gap-1">
+                        <h2 className="text-xl font-bold text-danger">Decline Schedule</h2>
+                        <p className="text-sm text-gray-500 font-normal">
+                            Please let us know why you are declining this schedule.
+                        </p>
+                    </ModalHeader>
+                    <ModalBody>
+                        <Textarea
+                            label="Reason for Declining"
+                            placeholder="Enter your reason here..."
+                            variant="bordered"
+                            value={denyReason}
+                            onChange={(e) => setDenyReason(e.target.value)}
+                            minRows={4}
+                            isRequired
+                        />
+                    </ModalBody>
+                    <ModalFooter>
+                        <Button 
+                            variant="flat" 
+                            onPress={() => setIsDenyModalOpen(false)}
+                            isDisabled={isResponding}
+                        >
+                            Cancel
+                        </Button>
+                        <Button 
+                            color="danger" 
+                            onPress={handleSubmitDeny}
+                            isLoading={isResponding}
+                        >
+                            Submit Response
+                        </Button>
+                    </ModalFooter>
+                </ModalContent>
+            </Modal>
         </div>
     );
 };
