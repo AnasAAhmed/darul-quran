@@ -309,6 +309,20 @@ function App() {
       socket.disconnect();
     };
   }, [user?.id, dispatch]);
+
+
+  useEffect(() => {
+        const queryParams = new URLSearchParams(location.search);
+        const action = queryParams.get("action");
+        const scheduleId = queryParams.get("scheduleId");
+
+        if (action === "deny" && scheduleId) {
+             sessionStorage.setItem("rescheduling_redirecting", window?.location?.href);
+        }
+    }, [location.search]);
+
+
+
   if (loading) return (
     <div className="h-screen flex flex-col items-center justify-center">
       <img
@@ -320,16 +334,7 @@ function App() {
     </div>
   );
 
-   useEffect(() => {
-        const queryParams = new URLSearchParams(location.search);
-        const action = queryParams.get("action");
-        const scheduleId = queryParams.get("scheduleId");
-
-        if (action === "deny" && scheduleId) {
-             sessionStorage.setItem("rescheduling_redirecting", window.location.href);
-        }
-    }, [location.search, navigate]);
-
+   
   return (
     <HeroUIProvider>
       <ErrorBoundary>
