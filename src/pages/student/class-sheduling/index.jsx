@@ -96,6 +96,9 @@ const StudentClassSheduling = () => {
                 status: "denied",
                 reason: denyReason
             }).unwrap();
+
+            // Remove the stored redirect URL
+            sessionStorage.removeItem("rescheduling_redirecting");
             navigate(location.pathname, { replace: true });
             successMessage("Response submitted successfully");
             setIsDenyModalOpen(false);
