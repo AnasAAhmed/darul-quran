@@ -24,7 +24,6 @@ const ProtectedRoute = ({
     //     return children ? children : <Outlet />;
     // }
     // const location = useLocation()
-    // alert(window.location.href)
     if (!isAuthenticated) return <Navigate to={redirect} />;
 
     if (allowedRoles && !allowedRoles.includes(role)) {
