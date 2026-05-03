@@ -184,16 +184,12 @@ function App() {
   
   useEffect(() => {
     if (isSupportedPush && isAuthenticated) {
-      if (permission === "default") {
+      if (permission !== "granted") {
         requestPermission();
-        console.log("Permission", permission);
-        if (permission === "granted") {
-          subscribeToPush();
-          console.log("Subscribed");
-        }
+        console.log("requestPermission", permission);
       } else if (permission === "granted" && !isSubscribed) {
         subscribeToPush();
-        console.log("Subscribed");
+        console.log("subscribeToPush", permission);
       }
     }
   }, [isSupportedPush, isAuthenticated, permission, isSubscribed, requestPermission, subscribeToPush]);
