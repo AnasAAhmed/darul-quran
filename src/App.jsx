@@ -146,6 +146,7 @@ import { BiChat, BiPaperclip } from "react-icons/bi";
 import NotFoundPage from "./components/NotFound";
 import Enrollments from "./pages/student/enrollnments";
 import MultiApiDevTools from "./components/CachedManager";
+import { useNotifications } from "./hooks/useNotifications";
 
 const socket = io(import.meta.env.VITE_PUBLIC_SERVER_URL);
 
@@ -179,7 +180,23 @@ function App() {
     (state) => state?.user
   );
   const { incomingMessage, activeChatId } = useSelector((state) => state?.chat ?? {});
-
+  const { permission, isSubscribed, isSupported: isSupportedPush, requestPermission, subscribeToPush } = useNotifications();
+  
+  useEffect(() => {
+    if (isSupportedPush && isAuthenticated) {
+      if (permission === "default") {
+        requestPermission();
+        console.log("Permission", permission);
+        if (permission === "granted") {
+          subscribeToPush();
+          console.log("Subscribed");
+        }
+      } else if (permission === "granted" && !isSubscribed) {
+        subscribeToPush();
+        console.log("Subscribed");
+      }
+    }
+  }, [isSupportedPush, isAuthenticated, permission, isSubscribed, requestPermission, subscribeToPush]);
   // Toast when new message arrives and user is not viewing that chat (clickable → open chat)
   useEffect(() => {
     if (!incomingMessage?.message || !user?.id) return;
