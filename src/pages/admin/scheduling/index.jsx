@@ -802,7 +802,7 @@ const Scheduling = () => {
                     setFormData({ ...formData, courseId: course?.id });
                     setdefultTeacher(course?.teacherId)
                   }}
-                  status="published"
+                  status="all"
                   type="live"
                   isDisabled={isEdit}
                 />
