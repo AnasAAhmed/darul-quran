@@ -207,8 +207,8 @@ export const canReschedule = (schedule) => {
 };
 
 const isBlockedDay = (date) => {
-  const d = new Date(date);
-  return d.getDate() > 28; 
+  const day = new Date(date).getDate();
+  return day === 29 || day === 30 || day === 31;
 };
 
 export const validateSchedule = (formData) => {
@@ -240,6 +240,9 @@ export const validateSchedule = (formData) => {
     return { valid: false, message: "End time must be after start time" };
   }
 
+  // =========================
+  // ONE TIME SESSION
+  // =========================
   if (scheduleType === "once") {
     if (!date) {
       return { valid: false, message: "Please select a date for one-time session" };
@@ -262,6 +265,9 @@ export const validateSchedule = (formData) => {
     }
   }
 
+  // =========================
+  // RECURRING SESSIONS
+  // =========================
   if (scheduleType === "daily" || scheduleType === "weekly") {
     if (!startDate) {
       return { valid: false, message: "Start date is required" };
@@ -285,6 +291,10 @@ export const validateSchedule = (formData) => {
     }
 
     if (end) {
+      if (end < start) {
+        return { valid: false, message: "End date must be after start date" };
+      }
+
       if (isBlockedDay(end)) {
         return {
           valid: false,
@@ -292,10 +302,7 @@ export const validateSchedule = (formData) => {
         };
       }
 
-      if (end < start) {
-        return { valid: false, message: "End date must be after start date" };
-      }
-
+      // ensure at least one valid day exists
       let hasValidDay = false;
       const temp = new Date(start);
 
@@ -315,31 +322,25 @@ export const validateSchedule = (formData) => {
         };
       }
 
-      const dateRangeDays =
-        Math.ceil((end - start) / (1000 * 60 * 60 * 24)) + 1;
-
-      if (dateRangeDays > 28) {
-        return {
-          valid: false,
-          message:
-            "Schedule cannot exceed 28 days. Please select a shorter date range.",
-        };
-      }
-
+      // DAILY RULES
       if (scheduleType === "daily") {
         const interval =
           repeatInterval && repeatInterval > 0 ? repeatInterval : 1;
 
-        const maxSessions = Math.ceil(dateRangeDays / interval);
+        const diffDays =
+          Math.ceil((end - start) / (1000 * 60 * 60 * 24)) + 1;
+
+        const maxSessions = Math.ceil(diffDays / interval);
 
         if (maxSessions > 365) {
           return {
             valid: false,
-            message: `This schedule would create ${maxSessions} sessions. Please reduce the date range or increase the repeat interval.`,
+            message: `This schedule would create ${maxSessions} sessions. Please reduce range or increase interval.`,
           };
         }
       }
 
+      // WEEKLY RULES
       if (scheduleType === "weekly") {
         if (!weeklyDays || weeklyDays.length === 0) {
           return {
@@ -361,30 +362,30 @@ export const validateSchedule = (formData) => {
         if (estimatedSessions > 200) {
           return {
             valid: false,
-            message: `This schedule would create approximately ${estimatedSessions} sessions. Please reduce the range or days.`,
+            message: `This schedule would create approximately ${estimatedSessions} sessions. Please reduce range or days.`,
           };
         }
 
         if (estimatedSessions === 0) {
           return {
             valid: false,
-            message:
-              "No valid session dates will be generated. Please adjust your settings.",
+            message: "No valid session dates will be generated.",
           };
         }
       }
     }
 
+    // weekly must have days
     if (scheduleType === "weekly" && (!weeklyDays || weeklyDays.length === 0)) {
       return {
         valid: false,
         message: "Please select at least one day of the week",
       };
     }
-    
-    // Check specificDates if provided
+
+    // optional specific dates (no strict validation needed here)
     if (specificDates && specificDates.length > 0) {
-        // Validation passed if dates are selected
+      // OK
     }
   }
 
