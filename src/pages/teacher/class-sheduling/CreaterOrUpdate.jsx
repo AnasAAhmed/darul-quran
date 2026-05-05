@@ -240,7 +240,7 @@ const CreaterOrUpdateSchedule = () => {
                     <p className="text-xs text-gray-500 b-2">Zoom link and password will be auto-generated upon creation.</p>
                 )}
                 <p className="text-xs text-warning mb-2">Note: 29th, 30th and 31st dates wil be block for every month.</p>
-                {formData.specificDates.length > 0 && (
+                {isEdit && formData.specificDates.length > 0 && (
                     <p className="text-sm text-danger mb-2">Note: You can't edit all details schedule after selecting specific dates. You can only update start and end time of spcific dates</p>
                 )}
                 <div className="flex gap-2 mb-4">
@@ -282,7 +282,7 @@ const CreaterOrUpdateSchedule = () => {
                     type="live"
                     isDisabled={isEdit}
                 />
-                    <div className="w-full ">
+                   {isEdit && <div className="w-full ">
                         <Select
                             labelPlacement="outside"
                             label="Select Specific Dates"
@@ -303,7 +303,7 @@ const CreaterOrUpdateSchedule = () => {
                                 </SelectItem>
                             ))}
                         </Select>
-                    </div> 
+                    </div> }
 
                 <div className="flex gap-2 mb-4">
                     <Button
@@ -361,6 +361,7 @@ const CreaterOrUpdateSchedule = () => {
                         }
                     />
                     <Input
+                    className="hidden"
                         type="date"
                         label="End Date (optional)"
                         variant="bordered"
