@@ -71,6 +71,11 @@ const StudentClassSheduling = () => {
     const [targetScheduleId, setTargetScheduleId] = useState(null);
     const [respondToSchedule, { isLoading: isResponding }] = useRespondToScheduleMutation();
 
+    const targetSchedule = useMemo(() => {
+        if (!targetScheduleId || !scheduleData?.schedules) return null;
+        return scheduleData.schedules.find(s => s.id === Number(targetScheduleId));
+    }, [targetScheduleId, scheduleData]);
+
     useEffect(() => {
         const queryParams = new URLSearchParams(location.search);
         const action = queryParams.get("action");
@@ -466,6 +471,22 @@ const StudentClassSheduling = () => {
                             : `${dateFormatter(schedule.scheduleDates[0])} - to - ${schedule?.isDateGenerated ? 'On Going' : dateFormatter(schedule.scheduleDates[schedule.scheduleDates.length - 1])}`}
                     </p>
                 )}
+
+                {schedule?.specificDates && Object.keys(schedule.specificDates).length > 0 && (
+                    <div className="mb-4">
+                        <p className="text-xs font-semibold text-[#06574C] mb-2 uppercase tracking-wider">Specific Dates:</p>
+                        <div className="flex flex-wrap gap-2">
+                            {Object.entries(schedule.specificDates).map(([date, times], index) => (
+                                <p 
+                                    key={index}   
+                                    className="text-[#666666] text-md line-clamp-2"
+                                >
+                                    {dateFormatter(date)} ({formatTime12Hour(times.startTime)} - {formatTime12Hour(times.endTime)})
+                                </p>
+                            ))}
+                        </div>
+                    </div>
+                )}
                 <div className="flex flex-wrap gap-4 mb-4">
                     <div className="flex text-[#666666] text-sm items-center gap-2">
                         {type === 'normal' ? "CreatedAt: " : <CiCalendar color="#666666" size={20} />}
@@ -473,6 +494,7 @@ const StudentClassSheduling = () => {
                             {dateFormatter(schedule.date)}
                         </p>
                     </div>
+
                     <div className="flex items-center gap-2">
                         <Clock color="#666666" size={18} />
                         <p className="text-[#666666] text-sm">
@@ -582,7 +604,7 @@ const StudentClassSheduling = () => {
                                 Cancel
                             </Button>
                         )}
-                        {!isExpired && (
+                        {!isExpired && schedule?.specificDates && Object.keys(schedule.specificDates).length > 0 && !schedule?.studentsResponse?.[currentUser?.id] && (
                             <Button
                                 radius="sm"
                                 size="sm"
@@ -982,8 +1004,26 @@ const StudentClassSheduling = () => {
                     <ModalHeader className="flex flex-col gap-1">
                         <h2 className="text-xl font-bold text-danger">Decline Schedule</h2>
                         <p className="text-sm text-gray-500 font-normal">
-                            Please let us know why you are declining this schedule.
+                            Please let us know why you are declining specific dates of this schedule.
                         </p>
+
+                        {targetSchedule?.specificDates && Object.keys(targetSchedule.specificDates).length > 0 && (
+                            <div className="mt-2 p-3 bg-gray-50 rounded-lg border border-gray-100">
+                                <p className="text-sm font-semibold text-gray-700 mb-2">Requested Dates & Times:</p>
+                                <div className="flex flex-wrap gap-2">
+                                    {Object.entries(targetSchedule.specificDates).map(([date, times], index) => (
+                                        <div key={index} className="text-xs flex justify-between bg-white p-2 rounded border border-gray-100 shadow-sm">
+                                            <p 
+                                    key={index}   
+                                    className="text-[#666666] text-sm line-clamp-2"
+                                >
+                                    {dateFormatter(date)} ({formatTime12Hour(times.startTime)} - {formatTime12Hour(times.endTime)})
+                                </p>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
                     </ModalHeader>
                     <ModalBody>
                         <Textarea
