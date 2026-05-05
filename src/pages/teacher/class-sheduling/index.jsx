@@ -620,83 +620,81 @@ const TeacherClassSheduling = () => {
                 {isExpired ? "Ended" : "Locked"}
               </Button>
             )}
-            {type === "normal" && (
-              <>
-                <Tooltip
-                  isDisabled={canReschedule(schedule)}
+            <>
+              <Tooltip
+                isDisabled={canReschedule(schedule)}
+                color="success"
+                content="Schedule can only be rescheduled before 4 hours of the start time."
+              >
+                <Button
+                  radius="sm"
+                  size="sm"
+                  variant="bordered"
                   color="success"
-                  content="Schedule can only be rescheduled before 4 hours of the start time."
-                >
-                  <Button
-                    radius="sm"
-                    size="sm"
-                    variant="bordered"
-                    color="success"
-                    isDisabled={!canReschedule(schedule)}
-                    onPress={() =>
-                      navigate("/teacher/class-scheduling/manage", {
-                        state: schedule,
-                      })
-                    }
-                  >
-                    Reschedule
-                  </Button>
-                </Tooltip>
-                <Button
-                  radius="sm"
-                  size="sm"
-                  variant="bordered"
-                  color="warning"
-                  onPress={() => handleViewRescheduleRequests(schedule)}
-                  startContent={
-                    <div className="relative">
-                      <Bell size={16} />
-                      {schedule.pendingRescheduleCount > 0 && (
-                        <span className="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] rounded-full w-4 h-4 flex items-center justify-center">
-                          {schedule.pendingRescheduleCount}
-                        </span>
-                      )}
-                    </div>
+                  isDisabled={!canReschedule(schedule)}
+                  onPress={() =>
+                    navigate("/teacher/class-scheduling/manage", {
+                      state: schedule,
+                    })
                   }
                 >
-                  View Requests
-                  {schedule.pendingRescheduleCount > 0 && (
-                    <span className="ml-1">({schedule.pendingRescheduleCount})</span>
-                  )}
+                  Reschedule
                 </Button>
-                <Button
-                  radius="sm"
-                  size="sm"
-                  variant="bordered"
-                  color="danger"
-                  onPress={() => handleViewCancellationRequests(schedule)}
-                  startContent={
-                    <div className="relative">
-                      <Bell size={16} />
-                      {schedule.pendingCancellationCount > 0 && (
-                        <span className="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] rounded-full w-4 h-4 flex items-center justify-center">
-                          {schedule.pendingCancellationCount}
-                        </span>
-                      )}
-                    </div>
-                  }
-                >
-                  View Cancellations
-                  {schedule.pendingCancellationCount > 0 && (
-                    <span className="ml-1">({schedule.pendingCancellationCount})</span>
-                  )}
-                </Button>
-                <Button
-                  radius="sm"
-                  size="sm"
-                  variant="bordered"
-                  color="danger"
-                  onPress={() => handleCancelClass(schedule)}
-                >
-                  Cancel
-                </Button>
-              </>
-            )}
+              </Tooltip>
+              <Button
+                radius="sm"
+                size="sm"
+                variant="bordered"
+                color="warning"
+                onPress={() => handleViewRescheduleRequests(schedule)}
+                startContent={
+                  <div className="relative">
+                    <Bell size={16} />
+                    {schedule.pendingRescheduleCount > 0 && (
+                      <span className="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] rounded-full w-4 h-4 flex items-center justify-center">
+                        {schedule.pendingRescheduleCount}
+                      </span>
+                    )}
+                  </div>
+                }
+              >
+                View Requests
+                {schedule.pendingRescheduleCount > 0 && (
+                  <span className="ml-1">({schedule.pendingRescheduleCount})</span>
+                )}
+              </Button>
+              <Button
+                radius="sm"
+                size="sm"
+                variant="bordered"
+                color="danger"
+                onPress={() => handleViewCancellationRequests(schedule)}
+                startContent={
+                  <div className="relative">
+                    <Bell size={16} />
+                    {schedule.pendingCancellationCount > 0 && (
+                      <span className="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] rounded-full w-4 h-4 flex items-center justify-center">
+                        {schedule.pendingCancellationCount}
+                      </span>
+                    )}
+                  </div>
+                }
+              >
+                View Cancellations
+                {schedule.pendingCancellationCount > 0 && (
+                  <span className="ml-1">({schedule.pendingCancellationCount})</span>
+                )}
+              </Button>
+              <Button
+                radius="sm"
+                size="sm"
+                variant="bordered"
+                color="danger"
+                onPress={() => handleCancelClass(schedule)}
+              >
+                Cancel
+              </Button>
+            </>
           </div>
         </div>
       </div>

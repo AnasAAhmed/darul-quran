@@ -24,6 +24,7 @@ import {
   Form,
   Spinner,
   Skeleton,
+  Image,
 } from "@heroui/react";
 import { useSelector } from "react-redux";
 import {
@@ -396,14 +397,16 @@ const Announcements = () => {
           Create Announcement
         </Button>
       </div>
-      <div className="">
+      <div className="overflow-x-auto no-scrollbar bg-white rounded-lg">
         <Table
+          aria-label="Pending approvals table"
           removeWrapper
+          align="center"
           classNames={{
-            base: "w-full bg-white rounded-lg overflow-y-scroll overflow-x-scroll w-full no-scrollbar min-h-[calc(100vh-350px)] items-center",
-            th: "font-bold p-4 text-md  text-[#333333] capitalize tracking-widest  bg-[#EBD4C936]",
-            td: "py-3 items-center",
-            tr: "border-b border-default-200 ",
+            base: "table-fixed w-full bg-white rounded-lg min-h-[500px] overflow-y-auto",
+            th: "font-bold p-4 text-sm text-[#333333] capitalize tracking-widest bg-[#EBD4C936] cursor-default",
+            td: "py-3 align-center",
+            tr: "border-b border-default-200 last:border-b-0 hover:bg-[#EBD4C936]",
           }}
         >
           <TableHeader>
@@ -423,19 +426,13 @@ const Announcements = () => {
               <TableRow key={announcement.id}>
                 <TableCell>
                   <div className="flex items-center gap-3 max-w-[400px]">
-                    {announcement.announcementFile ? (
-                      <div className="w-12 h-12 rounded-lg overflow-hidden shrink-0 border border-gray-100 shadow-sm">
-                        <img
-                          src={announcement.announcementFile}
-                          alt="Banner"
-                          className="w-full h-full object-cover"
-                        />
-                      </div>
-                    ) : (
-                      <Skeleton
-                        className="w-12 h-12 rounded-lg overflow-hidden shrink-0 border border-gray-100 shadow-sm"
+                    <div className="w-12 h-12 rounded-lg overflow-hidden shrink-0 border border-gray-100 shadow-sm">
+                      <img
+                        src={announcement.announcementFile || '/images/fallback.png'}
+                        alt="Banner"
+                        className="w-full h-full object-cover"
                       />
-                    )}
+                    </div>
                     <div className="flex-1 min-w-0">
                       <p className="font-semibold text-gray-900 line-clamp-1">
                         {announcement.title}
@@ -460,31 +457,31 @@ const Announcements = () => {
                 </TableCell>
                 {announcement.createdBy === "teacher" ?
                   <TableCell>
-                    <div className="flex-col flex">                     
-                        <Switch
+                    <div className="flex-col flex">
+                      <Switch
                         isDisabled={announcement.is_admin_approved}
-                          radius="sm"
-                          color="success"
-                          isSelected={announcement.is_admin_approved}
-                          onValueChange={(value) => handleApproval(announcement.id, value)}
-                        >
-                          {announcement.is_admin_approved ? "Approved" : "Pending"}
-                        </Switch> 
+                        radius="sm"
+                        color="success"
+                        isSelected={announcement.is_admin_approved}
+                        onValueChange={(value) => handleApproval(announcement.id, value)}
+                      >
+                        {announcement.is_admin_approved ? "Approved" : "Pending"}
+                      </Switch>
                     </div>
                   </TableCell> :
                   <TableCell>
                     Already Approved
                   </TableCell>}
-                  <TableCell>
-                    <Switch
-                      radius="sm"
-                      color="success"
-                      isSelected={announcement.isFeatured}
-                      onValueChange={(value) => handleFeatured(announcement.id, value)}
-                    >
-                      {announcement.isFeatured ? "Featured" : "Not Featured"}
-                    </Switch>
-                  </TableCell>
+                <TableCell>
+                  <Switch
+                    radius="sm"
+                    color="success"
+                    isSelected={announcement.isFeatured}
+                    onValueChange={(value) => handleFeatured(announcement.id, value)}
+                  >
+                    {announcement.isFeatured ? "Featured" : "Not Featured"}
+                  </Switch>
+                </TableCell>
                 <TableCell>
                   <div className="flex-col flex">
                     <p

@@ -79,7 +79,7 @@ export default function HelpMessages() {
     const existing = chats.find((c) => Number(c.otherUserId) === Number(receiverId));
     if (existing) {
       setSelectedChat(existing);
-      navigate(`${base}/${existing.id}`, { replace: true });
+      navigate(`${base}/${existing.id ? existing.id : ""}`, { replace: true });
     } else {
       setSelectedChat({
         id: null,
