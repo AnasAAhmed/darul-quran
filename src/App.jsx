@@ -60,9 +60,9 @@ const SupportTicketsTeacher = lazy(() =>
 const StudentDashboard = lazy(() =>
   import("./pages/student/StudentDashboard")
 );
-const MyLearning = lazy(() =>
-  import("./pages/student/my-learning-joureny")
-);
+// const MyLearning = lazy(() =>
+//   import("./pages/student/my-learning-joureny")
+// );
 const StudentClassSheduling = lazy(() =>
   import("./pages/student/class-sheduling")
 );
@@ -709,14 +709,14 @@ function App() {
                 </ProtectedRoute>
               }
             />
-            <Route
+            {/* <Route
               path="/student/my-learning"
               element={
                 <ProtectedRoute isAuthenticated={isAuthenticated} redirect="/">
                   <MyLearning />
                 </ProtectedRoute>
               }
-            />
+            /> */}
             <Route
               path="/student/enrollments"
               element={

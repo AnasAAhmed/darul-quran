@@ -664,7 +664,8 @@ const CourseBuilder = () => {
                           isRequired
                           isDisabled={formData.is_free}
                           startContent={"£"}
-                          errorMessage="BaseCourse Price is required"
+                          min={1}
+                          errorMessage="Base Course Price must be at least 1 £"
                           className="w-full"
                           value={formData.base_price}
                           onChange={(e) =>
@@ -1186,8 +1187,9 @@ const CourseBuilder = () => {
                         placeholder="0"
                         className="w-full"
                         type="number"
+                        min={1}
                         isRequired={true}
-                        errorMessage="Please enter enrollment limit"
+                        errorMessage="Enrollment limit must be at least 1"
                         value={formData.enroll_number}
                         onChange={(e) =>
                           handleChange("enroll_number", e.target.value)
