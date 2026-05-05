@@ -590,23 +590,30 @@ export default function ChatInterface({
                 <ul className="py-1">
                   <li><button type="button" onClick={() => setContactModalOpen(true)} className="flex items-center gap-3 w-full text-left px-3 py-2 text-[15px] hover:bg-gray-100 rounded-lg"><FiPhone className="text-lg" /> Contact Info</button></li>
                   {legacyChat.otherUserRole !== "admin" &&
-                    <>
+                    <div >
                       <li><button type="button" onClick={toggleMute} className="flex items-center gap-3 w-full text-left px-3 py-2 text-[15px] hover:bg-gray-100 rounded-lg"><FiBellOff className="text-lg" /> {isMuted ? "Unmute" : "Mute"}</button></li>
                       <li>
                         <button
                           type="button"
                           onClick={() => setBlockModalOpen(true)}
                           disabled={(legacyChat?.isBlocked && legacyChat?.blockedBy != currentUserId)}
-                          className="flex items-center gap-3 w-full text-left px-3 py-2 text-[15px] text-red-500 hover:bg-gray-100 rounded-lg"><FiUserX className="text-lg" />
+                          className={`flex items-center gap-3 w-full text-left px-3 py-2 text-[15px] text-red-500 hover:bg-gray-100 rounded-lg ${currentUser.role === "student" ? "hidden" :""}`}>
+                            <FiUserX className="text-lg" />
                           {(legacyChat?.isBlocked && legacyChat?.blockedBy == currentUserId) ?
                             "Unblock" :
                             legacyChat?.isBlocked ? "Blocked" : "Block"}
                         </button>
                       </li>
-                      {currentUser?.role !== "admin" && <li><button type="button" onClick={() => setReportModalOpen(true)} className="flex items-center gap-3 w-full text-left px-3 py-2 text-[15px] text-red-500 hover:bg-gray-100 rounded-lg"><FiFlag className="text-lg" /> Report</button></li>}
-                    </>
+                      {currentUser?.role !== "admin" && 
+                      <li className={` ${currentUser.role === "student" ? "hidden" :""}`}>
+                        <button type="button" onClick={() => setReportModalOpen(true)} className="flex items-center gap-3 w-full text-left px-3 py-2 text-[15px] text-red-500 hover:bg-gray-100 rounded-lg">
+                          <FiFlag className="text-lg" /> Report</button>
+                          </li>}
+                    </div>
                   }
-                  <li><button type="button" className="flex items-center gap-3 w-full text-left px-3 py-2 text-[15px] hover:bg-gray-100 rounded-lg" onClick={handleBack}><FiXCircle className="text-lg" /> Close Chat</button></li>
+                  <li>
+                    <button type="button" className="flex items-center gap-3 w-full text-left px-3 py-2 text-[15px] hover:bg-gray-100 rounded-lg" onClick={handleBack}>
+                      <FiXCircle className="text-lg" /> Close Chat</button></li>
                 </ul>
               ) : (
                 <ul className="py-1">
