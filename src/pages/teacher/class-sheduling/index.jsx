@@ -670,7 +670,7 @@ const TeacherClassSheduling = () => {
                   color="danger"
                   onPress={() => handleCancelClass(schedule)}
                 >
-                  Delete
+                  Cancel
                 </Button>
               </>
             )}
