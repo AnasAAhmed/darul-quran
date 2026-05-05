@@ -41,8 +41,8 @@ const Announcements = () => {
     limit: 10,
   });
 
-  const [createAnnouncement] = useCreateAnnouncementMutation();
-  const [updateAnnouncement] = useUpdateAnnouncementMutation();
+  const [createAnnouncement, { isLoading: isCreating }] = useCreateAnnouncementMutation();
+  const [updateAnnouncement, { isLoading: isUpdating }] = useUpdateAnnouncementMutation();
 
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [selectedAnnouncement, setSelectedAnnouncement] = useState(null); 
@@ -108,8 +108,7 @@ const Announcements = () => {
     payload.append("title", announcementType);
     payload.append("description", description);
     payload.append("type", announcementType);
-    payload.append("delivery", delivery);
-    payload.append("isFeatured", isFeatured);
+    payload.append("delivery", delivery); 
     payload.append("sendTo", "students");
     payload.append("courseId", course);
     payload.append("senderName", user?.firstName + " " + user?.lastName);
@@ -401,12 +400,14 @@ const Announcements = () => {
                           onClick={handleAttachmentClick}
                         />
                       </div>
-                      <div 
-                        onClick={() => handleSubmit()} 
-                        className="absolute bottom-2.5 right-2 p-2 bg-[#06574C] text-white rounded-lg cursor-pointer hover:bg-[#05463d] transition-colors shadow-md flex items-center justify-center"
+                      <Button 
+                        isIconOnly
+                        isLoading={isCreating || isUpdating}
+                        onPress={() => handleSubmit()} 
+                        className="absolute bottom-2.5 right-2 min-w-0 h-9 w-9 bg-[#06574C] text-white rounded-lg cursor-pointer hover:bg-[#05463d] transition-colors shadow-md flex items-center justify-center"
                       >
                         <GrSend size={16} />
-                      </div>
+                      </Button>
                     </div>
                     
                     <input
