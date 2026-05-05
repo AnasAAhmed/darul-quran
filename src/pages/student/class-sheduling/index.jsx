@@ -70,7 +70,8 @@ const StudentClassSheduling = () => {
     const [denyReason, setDenyReason] = useState("");
     const [targetScheduleId, setTargetScheduleId] = useState(null);
     const [respondToSchedule, { isLoading: isResponding }] = useRespondToScheduleMutation();
-
+    const [isApproving, setIsApproving] = useState(false);
+    const [isDenying, setIsDenying] = useState(false);
     const targetSchedule = useMemo(() => {
         if (!targetScheduleId || !scheduleData?.schedules) return null;
         return scheduleData.schedules.find(s => s.id === Number(targetScheduleId));
@@ -96,6 +97,7 @@ const StudentClassSheduling = () => {
         }
 
         try {
+               setIsDenying(true);
             await respondToSchedule({
                 id: targetScheduleId,
                 status: "denied",
@@ -112,8 +114,32 @@ const StudentClassSheduling = () => {
         } catch (error) {
             errorMessage(error?.data?.message || "Failed to submit response");
         }
+        finally {
+            setIsDenying(false);
+        }
     };
-
+    const handleApproved = async (status) => {
+        try {
+             setIsApproving(true)
+            await respondToSchedule({
+                id: targetScheduleId,
+                status: status,
+                reason: ""
+            }).unwrap();
+ 
+            sessionStorage.removeItem("rescheduling_redirecting");
+            navigate(location.pathname, { replace: true });
+            successMessage("Response submitted successfully");
+            setIsDenyModalOpen(false);
+            setDenyReason("");
+            setTargetScheduleId(null);
+        } catch (error) {
+            errorMessage(error?.data?.message || "Failed to submit response");
+        }
+        finally {
+            setIsApproving(false)
+        }
+    };
     const schedulesDates = useMemo(() => {
         if (!scheduleData?.schedules) return [];
         const grouped = scheduleData?.schedules.flatMap(schedule => {
@@ -609,13 +635,13 @@ const StudentClassSheduling = () => {
                                 radius="sm"
                                 size="sm"
                                 variant="bordered"
-                                color="danger"
+                                color="success"
                                 onPress={() => {
                                     setTargetScheduleId(schedule.id);
                                     setIsDenyModalOpen(true);
                                 }}
                             >
-                                Decline
+                               Approve OR Decline
                             </Button>
                         )}
                     </div>
@@ -1002,9 +1028,9 @@ const StudentClassSheduling = () => {
             <Modal isOpen={isDenyModalOpen} onOpenChange={setIsDenyModalOpen}>
                 <ModalContent>
                     <ModalHeader className="flex flex-col gap-1">
-                        <h2 className="text-xl font-bold text-danger">Decline Schedule</h2>
-                        <p className="text-sm text-gray-500 font-normal">
-                            Please let us know why you are declining specific dates of this schedule.
+                        <h2 className="text-xl font-bold text-success">Approve OR Decline Schedule</h2>
+                        <p className="text-lg text-warning font-normal">
+                            Please let us know , Are you Agree Or want to Decline.
                         </p>
 
                         {targetSchedule?.specificDates && Object.keys(targetSchedule.specificDates).length > 0 && (
@@ -1038,18 +1064,23 @@ const StudentClassSheduling = () => {
                     </ModalBody>
                     <ModalFooter>
                         <Button 
-                            variant="flat" 
-                            onPress={() => setIsDenyModalOpen(false)}
-                            isDisabled={isResponding}
+                            variant="bordered" 
+                            color="success" 
+                            onPress={() => {
+                                handleApproved("approved")
+                            }}
+                            isLoading={isApproving}
+                            isDisabled={isDenying}
                         >
-                            Cancel
+                            Approve
                         </Button>
                         <Button 
                             color="danger" 
                             onPress={handleSubmitDeny}
-                            isLoading={isResponding}
+                            isLoading={isDenying}
+                            isDisabled={isApproving}
                         >
-                            Submit Response
+                            Decline
                         </Button>
                     </ModalFooter>
                 </ModalContent>
