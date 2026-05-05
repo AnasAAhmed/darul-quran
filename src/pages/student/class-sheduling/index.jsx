@@ -97,7 +97,7 @@ const StudentClassSheduling = () => {
         }
 
         try {
-               setIsDenying(true);
+            setIsDenying(true);
             await respondToSchedule({
                 id: targetScheduleId,
                 status: "denied",
@@ -120,13 +120,13 @@ const StudentClassSheduling = () => {
     };
     const handleApproved = async (status) => {
         try {
-             setIsApproving(true)
+            setIsApproving(true)
             await respondToSchedule({
                 id: targetScheduleId,
                 status: status,
                 reason: ""
             }).unwrap();
- 
+
             sessionStorage.removeItem("rescheduling_redirecting");
             navigate(location.pathname, { replace: true });
             successMessage("Response submitted successfully");
@@ -300,7 +300,11 @@ const StudentClassSheduling = () => {
 
         // Check if ALL upcoming sessions are more than 4 hours away
         return upcomingDates.every(dateStr => {
-            const hoursUntil = getHoursUntilClass(dateStr, schedule.startTime);
+            let currentStartTime = schedule.startTime;
+            if (schedule.specificDates && schedule.specificDates[dateStr]) {
+                currentStartTime = schedule.specificDates[dateStr].startTime || currentStartTime;
+            }
+            const hoursUntil = getHoursUntilClass(dateStr, currentStartTime);
             return hoursUntil === null || hoursUntil > 4;
         });
     };
@@ -332,7 +336,11 @@ const StudentClassSheduling = () => {
 
         // Can cancel if any upcoming session is more than 0 hours away (before it starts)
         return upcomingDates.some(dateStr => {
-            const hoursUntil = getHoursUntilClass(dateStr, schedule.startTime);
+            let currentStartTime = schedule.startTime;
+            if (schedule.specificDates && schedule.specificDates[dateStr]) {
+                currentStartTime = schedule.specificDates[dateStr].startTime || currentStartTime;
+            }
+            const hoursUntil = getHoursUntilClass(dateStr, currentStartTime);
             return hoursUntil === null || hoursUntil > 0;
         });
     };
@@ -357,10 +365,18 @@ const StudentClassSheduling = () => {
 
             if (upcomingDates.length > 0) {
                 const nextDate = upcomingDates.sort()[0];
-                hoursUntil = getHoursUntilClass(nextDate, schedule.startTime);
+                let currentStartTime = schedule.startTime;
+                if (schedule.specificDates && schedule.specificDates[nextDate]) {
+                    currentStartTime = schedule.specificDates[nextDate].startTime || currentStartTime;
+                }
+                hoursUntil = getHoursUntilClass(nextDate, currentStartTime);
             } else if (scheduleDates.length > 0) {
                 const lastDate = scheduleDates[scheduleDates.length - 1];
-                hoursUntil = getHoursUntilClass(lastDate, schedule.startTime);
+                let currentStartTime = schedule.startTime;
+                if (schedule.specificDates && schedule.specificDates[lastDate]) {
+                    currentStartTime = schedule.specificDates[lastDate].startTime || currentStartTime;
+                }
+                hoursUntil = getHoursUntilClass(lastDate, currentStartTime);
             }
             isExpired = isClassExpired(schedule);
         }
@@ -401,10 +417,18 @@ const StudentClassSheduling = () => {
 
             if (upcomingDates.length > 0) {
                 const nextDate = upcomingDates.sort()[0];
-                hoursUntil = getHoursUntilClass(nextDate, schedule.startTime);
+                let currentStartTime = schedule.startTime;
+                if (schedule.specificDates && schedule.specificDates[nextDate]) {
+                    currentStartTime = schedule.specificDates[nextDate].startTime || currentStartTime;
+                }
+                hoursUntil = getHoursUntilClass(nextDate, currentStartTime);
             } else if (scheduleDates.length > 0) {
                 const lastDate = scheduleDates[scheduleDates.length - 1];
-                hoursUntil = getHoursUntilClass(lastDate, schedule.startTime);
+                let currentStartTime = schedule.startTime;
+                if (schedule.specificDates && schedule.specificDates[lastDate]) {
+                    currentStartTime = schedule.specificDates[lastDate].startTime || currentStartTime;
+                }
+                hoursUntil = getHoursUntilClass(lastDate, currentStartTime);
             }
             isExpired = isClassExpired(schedule);
         }
@@ -482,7 +506,6 @@ const StudentClassSheduling = () => {
                         </Button>
                     )}
                 </div>
-
                 <h2 className="text-xl font-bold text-gray-800 mb-2">{schedule.title}</h2>
                 {schedule.description && (
                     <p className="text-[#666666] text-sm mb-4 line-clamp-2">
@@ -498,13 +521,13 @@ const StudentClassSheduling = () => {
                     </p>
                 )}
 
-                {schedule?.specificDates && Object.keys(schedule.specificDates).length > 0 && (
+                {type === 'normal' && schedule?.specificDates && Object.keys(schedule.specificDates).length > 0 && (
                     <div className="mb-4">
                         <p className="text-xs font-semibold text-[#06574C] mb-2 uppercase tracking-wider">Specific Dates:</p>
                         <div className="flex flex-wrap gap-2">
                             {Object.entries(schedule.specificDates).map(([date, times], index) => (
-                                <p 
-                                    key={index}   
+                                <p
+                                    key={index}
                                     className="text-[#666666] text-md line-clamp-2"
                                 >
                                     {dateFormatter(date)} ({formatTime12Hour(times.startTime)} - {formatTime12Hour(times.endTime)})
@@ -641,7 +664,7 @@ const StudentClassSheduling = () => {
                                     setIsDenyModalOpen(true);
                                 }}
                             >
-                               Approve OR Decline
+                                Approve OR Decline
                             </Button>
                         )}
                     </div>
@@ -694,11 +717,11 @@ const StudentClassSheduling = () => {
                                 <Spinner size="lg" color="success" />
                             </div>
                         ) : (
-                            <SchedulesByDateList 
-                                groupedSchedules={schedulesByDate} 
+                            <SchedulesByDateList
+                                groupedSchedules={schedulesByDate}
                                 renderCard={(schedule) => (
                                     <ScheduleCard key={`${schedule.id}-${schedule.date}`} schedule={schedule} type="allDates" />
-                                )} 
+                                )}
                             />
                         )}
                     </div>
@@ -1039,12 +1062,12 @@ const StudentClassSheduling = () => {
                                 <div className="flex flex-wrap gap-2">
                                     {Object.entries(targetSchedule.specificDates).map(([date, times], index) => (
                                         <div key={index} className="text-xs flex justify-between bg-white p-2 rounded border border-gray-100 shadow-sm">
-                                            <p 
-                                    key={index}   
-                                    className="text-[#666666] text-sm line-clamp-2"
-                                >
-                                    {dateFormatter(date)} ({formatTime12Hour(times.startTime)} - {formatTime12Hour(times.endTime)})
-                                </p>
+                                            <p
+                                                key={index}
+                                                className="text-[#666666] text-sm line-clamp-2"
+                                            >
+                                                {dateFormatter(date)} ({formatTime12Hour(times.startTime)} - {formatTime12Hour(times.endTime)})
+                                            </p>
                                         </div>
                                     ))}
                                 </div>
@@ -1063,9 +1086,9 @@ const StudentClassSheduling = () => {
                         />
                     </ModalBody>
                     <ModalFooter>
-                        <Button 
-                            variant="bordered" 
-                            color="success" 
+                        <Button
+                            variant="bordered"
+                            color="success"
                             onPress={() => {
                                 handleApproved("approved")
                             }}
@@ -1074,8 +1097,8 @@ const StudentClassSheduling = () => {
                         >
                             Approve
                         </Button>
-                        <Button 
-                            color="danger" 
+                        <Button
+                            color="danger"
                             onPress={handleSubmitDeny}
                             isLoading={isDenying}
                             isDisabled={isApproving}

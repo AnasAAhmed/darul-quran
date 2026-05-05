@@ -203,7 +203,15 @@ export const isEditable = (dateStr, startTime, endTime) => {
 };
 
 export const canReschedule = (schedule) => {
-  return schedule.scheduleDates.every(dateStr => isEditable(dateStr, schedule.startTime, schedule.endTime));
+  return schedule.scheduleDates.every(dateStr => {
+    let currentStartTime = schedule.startTime;
+    let currentEndTime = schedule.endTime;
+    if (schedule.specificDates && schedule.specificDates[dateStr]) {
+       currentStartTime = schedule.specificDates[dateStr].startTime || currentStartTime;
+       currentEndTime = schedule.specificDates[dateStr].endTime || currentEndTime;
+    }
+    return isEditable(dateStr, currentStartTime, currentEndTime);
+  });
 };
 
 const isBlockedDay = (date) => {

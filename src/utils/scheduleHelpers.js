@@ -108,12 +108,17 @@ export const isClassLive = (schedule, type = 'multiple') => {
 
         if (!isTodayInSchedule(scheduleDates)) return false;
 
-        const startTimeStr = schedule.startTime || schedule.start_time;
-        const endTimeStr = schedule.endTime || schedule.end_time;
-
-        if (!startTimeStr || !endTimeStr) return false;
+        let startTimeStr = schedule.startTime || schedule.start_time;
+        let endTimeStr = schedule.endTime || schedule.end_time;
 
         const today = getTodayStr();
+
+        if (schedule.specificDates && schedule.specificDates[today]) {
+            startTimeStr = schedule.specificDates[today].startTime || startTimeStr;
+            endTimeStr = schedule.specificDates[today].endTime || endTimeStr;
+        }
+
+        if (!startTimeStr || !endTimeStr) return false;
 
         const [startHour, startMin] = startTimeStr.split(":");
         const [endHour, endMin] = endTimeStr.split(":");
@@ -205,7 +210,12 @@ export const isClassExpired = (schedule) => {
 
     // Only today or past dates remain - check if today's class has ended
     if (scheduleDates.includes(todayStr)) {
-        const endTimeStr = schedule.endTime || schedule.end_time;
+        let endTimeStr = schedule.endTime || schedule.end_time;
+
+        if (schedule.specificDates && schedule.specificDates[todayStr]) {
+            endTimeStr = schedule.specificDates[todayStr].endTime || endTimeStr;
+        }
+
         if (!endTimeStr) return true;
 
         const [endHour, endMin] = endTimeStr.split(":");
@@ -246,6 +256,17 @@ export const getStatusText = (schedule) => {
 
     // Check if today is in the schedule
     if (scheduleDates.includes(todayStr)) {
+        let currentStartTime = schedule.startTime;
+        let currentEndTime = schedule.endTime;
+
+        if (schedule.specificDates && schedule.specificDates[todayStr]) {
+            currentStartTime = schedule.specificDates[todayStr].startTime || currentStartTime;
+            currentEndTime = schedule.specificDates[todayStr].endTime || currentEndTime;
+        }
+
+        const [startHour, startMin] = (currentStartTime || "").split(":").map(Number);
+        const [endHour, endMin] = (currentEndTime || "").split(":").map(Number);
+
         const [year, month, day] = todayStr.split("-").map(Number);
         const startTime = new Date(year, month - 1, day, startHour, startMin);
         const endTime = new Date(year, month - 1, day, endHour, endMin);
@@ -415,11 +436,19 @@ export const groupAndSortSchedulesByDate = (schedules, filterType = "all") => {
                 grouped[dateKey] = [];
             }
 
+            let finalStartTime = typeof scheduleDate === 'object' ? (scheduleDate.startTime || schedule.startTime) : schedule.startTime;
+            let finalEndTime = typeof scheduleDate === 'object' ? (scheduleDate.endTime || schedule.endTime) : schedule.endTime;
+
+            if (schedule.specificDates && schedule.specificDates[dateKey]) {
+                finalStartTime = schedule.specificDates[dateKey].startTime || finalStartTime;
+                finalEndTime = schedule.specificDates[dateKey].endTime || finalEndTime;
+            }
+
             grouped[dateKey].push({
                 ...schedule,
                 date: dateStr,
-                startTime: typeof scheduleDate === 'object' ? (scheduleDate.startTime || schedule.startTime) : schedule.startTime,
-                endTime: typeof scheduleDate === 'object' ? (scheduleDate.endTime || schedule.endTime) : schedule.endTime,
+                startTime: finalStartTime,
+                endTime: finalEndTime,
             });
         });
     });
