@@ -45,8 +45,7 @@ const Announcements = () => {
   const [updateAnnouncement] = useUpdateAnnouncementMutation();
 
   const { isOpen, onOpen, onClose } = useDisclosure();
-  const [selectedAnnouncement, setSelectedAnnouncement] = useState(null);
-  const [isFeatured, setIsFeatured] = useState(false);
+  const [selectedAnnouncement, setSelectedAnnouncement] = useState(null); 
   const [course, setCourse] = useState("");
   const [announcementType, setAnnouncementType] = useState("");
   const [delivery, setDelivery] = useState("");
@@ -70,15 +69,13 @@ const Announcements = () => {
 
   const handleOpen = (announcement = null) => {
     if (announcement) {
-      setSelectedAnnouncement(announcement);
-      setIsFeatured(announcement.isFeatured || false);
+      setSelectedAnnouncement(announcement); 
       setCourse(announcement.courseId || "");
       setAnnouncementType(announcement.title || "");
       setDelivery(announcement.delivery || "");
       setDescription(announcement.description || "");
     } else {
-      setSelectedAnnouncement(null);
-      setIsFeatured(false);
+      setSelectedAnnouncement(null); 
       setCourse("");
       setAnnouncementType("");
       setDelivery("");
@@ -89,8 +86,7 @@ const Announcements = () => {
   };
 
   const handleClose = () => {
-    setSelectedAnnouncement(null);
-    setIsFeatured(false);
+    setSelectedAnnouncement(null); 
     setCourse("");
     setAnnouncementType("");
     setDelivery("");
@@ -356,15 +352,6 @@ const Announcements = () => {
                         <SelectItem key={"In-App"}>In-App</SelectItem>
                       </Select>
                     </div>
-                    {/* <div className="flex items-center gap-2">
-                      <Switch
-                        size="sm"
-                        color="success"
-                        isSelected={isFeatured}
-                        onValueChange={setIsFeatured}
-                      />
-                      <span className="text-xs font-semibold text-gray-600">Mark as Featured</span>
-                    </div> */}
                   </Form>
                   
                   <div className="p-4 flex flex-col gap-3">

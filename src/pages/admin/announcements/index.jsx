@@ -320,6 +320,22 @@ const Announcements = () => {
     }
   };
 
+  const handleFeatured = async (id, value) => {
+    try {
+      const res = await updateAnnouncement({
+        id,
+        data: { isFeatured: value },
+      }).unwrap();
+      if (res.success) {
+        successMessage(res.message);
+      } else {
+        errorMessage(res.message);
+      }
+    } catch (error) {
+      errorMessage(error?.data?.message || "Failed to update featured status");
+    }
+  };
+
   return (
     <div className="bg-linear-to-t from-[#F1C2AC]/50 to-[#95C4BE]/50 px-2 sm:px-3">
       <DashHeading
@@ -395,6 +411,7 @@ const Announcements = () => {
 
             <TableColumn width={120} className="bg-[#EBD4C9]/30">Created By</TableColumn>
             <TableColumn width={120} className="bg-[#EBD4C9]/30">Approval To Send</TableColumn>
+            <TableColumn width={120} className="bg-[#EBD4C9]/30">Is Featured</TableColumn>
             <TableColumn width={120} className="bg-[#EBD4C9]/30">Send To</TableColumn>
             <TableColumn width={150} className="bg-[#EBD4C9]/30">Delivery Type</TableColumn>
             <TableColumn width={180} className="bg-[#EBD4C9]/30">Date Sent</TableColumn>
@@ -458,6 +475,16 @@ const Announcements = () => {
                   <TableCell>
                     Already Approved
                   </TableCell>}
+                  <TableCell>
+                    <Switch
+                      radius="sm"
+                      color="success"
+                      isSelected={announcement.isFeatured}
+                      onValueChange={(value) => handleFeatured(announcement.id, value)}
+                    >
+                      {announcement.isFeatured ? "Featured" : "Not Featured"}
+                    </Switch>
+                  </TableCell>
                 <TableCell>
                   <div className="flex-col flex">
                     <p
