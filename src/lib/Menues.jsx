@@ -169,6 +169,7 @@ export const teacherMenu = [
     children: [
       // { name: 'Course Details View', link: '/teacher/courses/course-details' },
       { name: "Upload Materials", link: "/teacher/courses/upload-material" },
+      { name: "Class Scheduling", link: "/teacher/class-scheduling" },
     ],
   },
   {
@@ -192,16 +193,16 @@ export const teacherMenu = [
   //   icon: <CalendarPlus />,
   //   link: "/teacher/reschedule-requests",
   // },
-  {
-    name: "Class Schedule",
-    icon: <MegaphoneIcon />,
-    link: "/teacher/class-scheduling",
-    // children: [
-    //   { name: "Class Schedule", link: "/teacher/class-scheduling" },
-    //   { name: "Reschedule Requests", link: "/teacher/reschedule-requests" },
-    // ],
-  },
-  { name: "Chat Center", icon: <TicketIcon />, link: "/teacher/chat" },
+  // {
+  //   name: "Class Schedule",
+  //   icon: <MegaphoneIcon />,
+  //   link: "/teacher/class-scheduling",
+  //   // children: [
+  //   //   { name: "Class Schedule", link: "/teacher/class-scheduling" },
+  //   //   { name: "Reschedule Requests", link: "/teacher/reschedule-requests" },
+  //   // ],
+  // },
+  // { name: "Chat Center", icon: <TicketIcon />, link: "/teacher/chat" },
   // {
   //   name: "Support Tickets  ",
   //   icon: <TicketsIcon />,
@@ -224,7 +225,7 @@ export const teacherMenu = [
     children: [
       { name: "Support", link: "/teacher/support-tickets" },
       { name: "FAQs", link: "/teacher/faqs" },
-
+       { name: "Chat Center", link: "/teacher/chat" },
     ],
   },
   // { name: 'Announcements', icon: <MegaphoneIcon />, link: '/teacher/announcements' },

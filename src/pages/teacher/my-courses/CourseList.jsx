@@ -106,8 +106,8 @@ const CourseList = () => {
   ];
   const difficultyOptions = [
     { key: "Beginner", label: "Beginner" },
+    { key: "Intermediate", label: "Intermediate" },
     { key: "Advanced", label: "Advanced" },
-    { key: "Expert", label: "Expert" },
   ];
   const limits = [
     { key: "10", label: "10" },

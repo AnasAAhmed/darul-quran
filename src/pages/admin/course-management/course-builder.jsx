@@ -172,7 +172,7 @@ const CourseBuilder = () => {
 
   const Difficulty = [
     { key: "Beginner", label: "Beginner" },
-    { key: "Advanced", label: "Advanced" },
+    { key: "Intermediate", label: "Intermediate" },
     { key: "Expert", label: "Expert" },
   ];
 
