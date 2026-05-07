@@ -70,7 +70,7 @@ const TeacherClassSheduling = () => {
   const [filterType, setFilterType] = useState("all");
   const [selectedSchedule, setSelectedSchedule] = useState(null);
   const [isMarking, setIsMarking] = useState(false);
-  const [viewType, setViewType] = useState("normal");
+  const [viewType, setViewType] = useState("allDates");
   const [selectedDate, setSelectedDate] = useState(null);
   const [selectedNoteDate, setSelectedNoteDate] = useState(null);
   const [schedulesForSelectedDate, setSchedulesForSelectedDate] = useState([]);
@@ -525,9 +525,30 @@ const TeacherClassSheduling = () => {
               : `${dateFormatter(schedule.scheduleDates[0])} - to - ${schedule?.isDateGenerated ? "On Going" : dateFormatter(schedule.scheduleDates[schedule.scheduleDates.length - 1])}`}
           </p>
         )}
+       
+        <div className="flex flex-wrap gap-4 mb-4">
+          <div className="flex text-[#666666] text-sm items-center gap-2">
+            {type === "normal" ? (
+              "Created At: "
+            ) : (
+              <CiCalendar color="#666666" size={20} />
+            )}
+            <p className="text-[#666666] text-sm">
+              {dateFormatter(schedule.createdAt)}
+            </p>
+          </div>
+          <div className="flex items-center gap-2">
+            <Clock color="#666666" size={18} />
+            <p className="text-[#666666] text-md">
+              {formatTime12Hour(schedule.startTime)} -{" "}
+              {formatTime12Hour(schedule.endTime)}  {""}
+              - Scheduled days timings 
+            </p>
+          </div>
+        </div>
         {type === 'normal' && schedule?.specificDates && Object.keys(schedule.specificDates).length > 0 && (
           <div className="mb-4">
-            <p className="text-xs font-semibold text-[#06574C] mb-2 uppercase tracking-wider">Specific Dates:</p>
+            <p className="text-sm font-semibold text-[#06574C] mb-2 uppercase tracking-wider">Only Specific Dates Schedule:</p>
             <div className="flex flex-wrap gap-2">
               {Object.entries(schedule.specificDates).map(([date, times], index) => (
                 <p
@@ -540,25 +561,7 @@ const TeacherClassSheduling = () => {
             </div>
           </div>
         )}
-        <div className="flex flex-wrap gap-4 mb-4">
-          <div className="flex text-[#666666] text-sm items-center gap-2">
-            {type === "normal" ? (
-              "CreatedAt: "
-            ) : (
-              <CiCalendar color="#666666" size={20} />
-            )}
-            <p className="text-[#666666] text-sm">
-              {dateFormatter(schedule.createdAt)}
-            </p>
-          </div>
-          <div className="flex items-center gap-2">
-            <Clock color="#666666" size={18} />
-            <p className="text-[#666666] text-sm">
-              {formatTime12Hour(schedule.startTime)} -{" "}
-              {formatTime12Hour(schedule.endTime)}
-            </p>
-          </div>
-        </div>
+
 
         {schedule.notes && type !== "normal" ? schedule?.notes?.[schedule.date] && (
           <div className="bg-amber-50 border-l-4 border-success p-3 mb-3 rounded-r-md">
@@ -609,6 +612,12 @@ const TeacherClassSheduling = () => {
                 Join Zoom
               </Button>
             ) : (
+              <Tooltip
+              isDisabled={isExpired}
+              color="danger"
+              content={isExpired ? "The schedule has ended" : "Schedule has not started yet."}
+              >
+                <span>
               <Button
                 radius="sm"
                 size="sm"
@@ -619,6 +628,8 @@ const TeacherClassSheduling = () => {
               >
                 {isExpired ? "Ended" : "Locked"}
               </Button>
+              </span>
+              </Tooltip>
             )}
             <>
               <Tooltip

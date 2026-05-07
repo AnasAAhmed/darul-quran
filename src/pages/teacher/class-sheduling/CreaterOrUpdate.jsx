@@ -359,8 +359,8 @@ const CreaterOrUpdateSchedule = () => {
                         <Input
                             type="date" label="Start Date" variant="bordered" labelPlacement="outside"
                             isRequired={formData.scheduleType === "daily"}
-                            isDisabled={hasSpecificDates}
-                            value={formData.startDate}
+                            // isDisabled={hasSpecificDates}
+                            value={formData.startDate }
                             onChange={set("startDate")}
                         />
                         <Input
