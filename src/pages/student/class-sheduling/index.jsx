@@ -281,32 +281,32 @@ const StudentClassSheduling = () => {
         const now = new Date();
         const todayStr = now.toISOString().split('T')[0];
 
-        // Normalize dates to YYYY-MM-DD format for comparison
-        const normalizedDates = scheduleDates.map(d => {
-            try {
-                const dateObj = new Date(d);
-                if (isNaN(dateObj.getTime())) return d; // Return as-is if invalid
-                return dateObj.toISOString().split('T')[0];
-            } catch {
-                return d;
-            }
-        });
+        // If it's a specific date (View by Date), use that date.
+        // Otherwise, if any date in the course is today, apply the restriction.
+        const interactionDate = schedule.date ? (schedule.date.includes('T') ? schedule.date.split('T')[0] : schedule.date) : null;
+        const datesToCheck = interactionDate ? [interactionDate] : scheduleDates.map(d => d.includes('T') ? d.split('T')[0] : d);
+        const todayDate = datesToCheck.find(d => d === todayStr);
 
-        // Get all upcoming dates (today or in the future)
-        const upcomingDates = normalizedDates.filter(d => d >= todayStr);
+        if (!todayDate) return true; // Not today (Past or Future)
 
-        // If NO upcoming dates (all sessions are completed/expired), allow reschedule
-        if (upcomingDates.length === 0) return true;
+        // It's today, check the 4-hour rule or if it's already ended
+        let currentStartTime = schedule.startTime;
+        let currentEndTime = schedule.endTime;
+        if (schedule.specificDates && schedule.specificDates[todayDate]) {
+            currentStartTime = schedule.specificDates[todayDate].startTime || currentStartTime;
+            currentEndTime = schedule.specificDates[todayDate].endTime || currentEndTime;
+        }
 
-        // Check if ALL upcoming sessions are more than 4 hours away
-        return upcomingDates.every(dateStr => {
-            let currentStartTime = schedule.startTime;
-            if (schedule.specificDates && schedule.specificDates[dateStr]) {
-                currentStartTime = schedule.specificDates[dateStr].startTime || currentStartTime;
-            }
-            const hoursUntil = getHoursUntilClass(dateStr, currentStartTime);
-            return hoursUntil === null || hoursUntil > 4;
-        });
+        const hoursUntil = getHoursUntilClass(todayDate, currentStartTime);
+        if (hoursUntil !== null && hoursUntil > 4) return true;
+
+        if (currentEndTime) {
+            const [endHour, endMin] = currentEndTime.split(":").map(Number);
+            const endDateTime = new Date(now.getFullYear(), now.getMonth(), now.getDate(), endHour, endMin);
+            if (now > endDateTime) return true;
+        }
+
+        return false;
     };
 
     const canCancel = (schedule) => {
@@ -319,30 +319,29 @@ const StudentClassSheduling = () => {
         const now = new Date();
         const todayStr = now.toISOString().split('T')[0];
 
-        // Normalize dates to YYYY-MM-DD format for comparison
-        const normalizedDates = scheduleDates.map(d => {
-            try {
-                const dateObj = new Date(d);
-                if (isNaN(dateObj.getTime())) return d;
-                return dateObj.toISOString().split('T')[0];
-            } catch {
-                return d;
-            }
-        });
+        const interactionDate = schedule.date ? (schedule.date.includes('T') ? schedule.date.split('T')[0] : schedule.date) : null;
+        const datesToCheck = interactionDate ? [interactionDate] : scheduleDates.map(d => d.includes('T') ? d.split('T')[0] : d);
+        const todayDate = datesToCheck.find(d => d === todayStr);
 
-        const upcomingDates = normalizedDates.filter(d => d >= todayStr);
+        if (!todayDate) return true; // Not today (Past or Future)
 
-        if (upcomingDates.length === 0) return false;
+        let currentStartTime = schedule.startTime;
+        let currentEndTime = schedule.endTime;
+        if (schedule.specificDates && schedule.specificDates[todayDate]) {
+            currentStartTime = schedule.specificDates[todayDate].startTime || currentStartTime;
+            currentEndTime = schedule.specificDates[todayDate].endTime || currentEndTime;
+        }
 
-        // Can cancel if any upcoming session is more than 0 hours away (before it starts)
-        return upcomingDates.some(dateStr => {
-            let currentStartTime = schedule.startTime;
-            if (schedule.specificDates && schedule.specificDates[dateStr]) {
-                currentStartTime = schedule.specificDates[dateStr].startTime || currentStartTime;
-            }
-            const hoursUntil = getHoursUntilClass(dateStr, currentStartTime);
-            return hoursUntil === null || hoursUntil > 0;
-        });
+        const hoursUntil = getHoursUntilClass(todayDate, currentStartTime);
+        if (hoursUntil !== null && hoursUntil > 4) return true;
+
+        if (currentEndTime) {
+            const [endHour, endMin] = currentEndTime.split(":").map(Number);
+            const endDateTime = new Date(now.getFullYear(), now.getMonth(), now.getDate(), endHour, endMin);
+            if (now > endDateTime) return true;
+        }
+
+        return false;
     };
 
     const getClassStatus = (schedule, type = 'single') => {
