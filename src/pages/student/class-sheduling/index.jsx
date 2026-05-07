@@ -521,21 +521,7 @@ const StudentClassSheduling = () => {
                     </p>
                 )}
 
-                {type === 'normal' && schedule?.specificDates && Object.keys(schedule.specificDates).length > 0 && (
-                    <div className="mb-4">
-                        <p className="text-xs font-semibold text-[#06574C] mb-2 uppercase tracking-wider">Specific Dates:</p>
-                        <div className="flex flex-wrap gap-2">
-                            {Object.entries(schedule.specificDates).map(([date, times], index) => (
-                                <p
-                                    key={index}
-                                    className="text-[#666666] text-md line-clamp-2"
-                                >
-                                    {dateFormatter(date)} ({formatTime12Hour(times.startTime)} - {formatTime12Hour(times.endTime)})
-                                </p>
-                            ))}
-                        </div>
-                    </div>
-                )}
+               
                 <div className="flex flex-wrap gap-4 mb-4">
                     <div className="flex text-[#666666] text-sm items-center gap-2">
                         {type === 'normal' ? "CreatedAt: " : <CiCalendar color="#666666" size={20} />}
@@ -548,7 +534,8 @@ const StudentClassSheduling = () => {
                         <Clock color="#666666" size={18} />
                         <p className="text-[#666666] text-sm">
                             {formatTime12Hour(schedule.startTime)} - {formatTime12Hour(schedule.endTime)}
-                        </p>
+                        </p>{""}
+                        {type !== "normal" && <p className="text-[#666666] text-sm">Scheduled Days Timing</p>}
                     </div>
                 </div>
                 {/* {type === 'normal' &&
@@ -583,6 +570,21 @@ const StudentClassSheduling = () => {
                 </details>
                 }
 
+                 {type === 'normal' && schedule?.specificDates && Object.keys(schedule.specificDates).length > 0 && (
+                    <div className="mb-4">
+                        <p className="text-xs font-semibold text-[#06574C] mb-2 uppercase tracking-wider">Only Specific Date  Shedule:</p>
+                        <div className="flex flex-wrap gap-2">
+                            {Object.entries(schedule.specificDates).map(([date, times], index) => (
+                                <p
+                                    key={index}
+                                    className="text-[#666666] text-md line-clamp-2"
+                                >
+                                    {dateFormatter(date)} ({formatTime12Hour(times.startTime)} - {formatTime12Hour(times.endTime)})
+                                </p>
+                            ))}
+                        </div>
+                    </div>
+                )}
                 <Divider className="my-4" />
 
                 <div className="flex flex-col md:flex-row gap-4 justify-between items-start md:items-center">
