@@ -626,6 +626,7 @@ const TeacherClassSheduling = () => {
                 color="success"
                 content="Schedule can only be rescheduled before 4 hours of the start time."
               >
+                <span>
                 <Button
                   radius="sm"
                   size="sm"
@@ -640,6 +641,7 @@ const TeacherClassSheduling = () => {
                 >
                   Reschedule
                 </Button>
+                </span>
               </Tooltip>
               <Button
                 radius="sm"
