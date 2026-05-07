@@ -632,12 +632,16 @@ const TeacherClassSheduling = () => {
                   size="sm"
                   variant="bordered"
                   color="success"
-                  isDisabled={!canReschedule(schedule)}
-                  onPress={() =>
+                  // isDisabled={!canReschedule(schedule)}
+                  onPress={() => {
+                    if (!canReschedule(schedule)) {
+                     errorMessage("You can only reschedule a class before 4 hours of the start time.")
+                      return
+                    }
                     navigate("/teacher/class-scheduling/manage", {
                       state: schedule,
                     })
-                  }
+                  }}
                 >
                   Reschedule
                 </Button>
